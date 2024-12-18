@@ -1,10 +1,9 @@
 import { IAuthRepository } from "../INTERFACE/Auth/IAuthRepository";
 import menteeSchema, { IMentee } from "../MODEL/MenteeModel";
-import { IOtp } from "../MODEL/otpModel";
 import { BaseRepository } from "./BaseRepo";
 
 
- class AuthRepository extends BaseRepository<IMentee> implements IAuthRepository {
+ class AuthRepository extends BaseRepository<IMentee> implements IAuthRepository { 
    
     constructor(){
         super(menteeSchema);
@@ -13,8 +12,8 @@ import { BaseRepository } from "./BaseRepo";
 
     async findByEmail(email: string):Promise<IMentee|null> {
         try {
-            console.log('this is auth repoo')
-            return await this.findOne({email})//find one in base repo
+          
+            return await this.find_One({email})//find one in base repo
         } catch (error:any) {
            console.log('Error while finding user with email',email,error) ;
            throw new Error('Error while finding user by Email')
@@ -28,6 +27,13 @@ import { BaseRepository } from "./BaseRepo";
             throw new Error("error while mentee Signup");
         }
     }
-  
+    async DBMainLogin(email: string): Promise<IMentee | null> {
+        try {
+            console.log('ths is db sectoin')
+            return await this.find_One({email});
+        } catch (error:unknown) {
+            throw new Error(`error  in DBMainLogin  while Checking User ${error instanceof Error ? error.message:String(error)}`)
+        }
+    }
 }
 export default new AuthRepository()

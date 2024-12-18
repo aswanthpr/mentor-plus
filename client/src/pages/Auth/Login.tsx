@@ -1,11 +1,13 @@
 import React, { useState } from "react";
 import { Github, Linkedin } from "lucide-react";
+import axios from 'axios';
+import Spinner from "../../components/Common/Spinner";
+import { useNavigate } from "react-router-dom";
 import InputField from "../../components/Common/Form/InputField";
 import SocialLogins from "../../components/auth/SocialLogins";
-import {
-  validateEmail,
-  validatePassword,
-} from "../../Validation/Validation";
+import {validateEmail,validatePassword} from "../../Validation/Validation";
+import {toast} from 'react-toastify';
+
 
 type UserType = "mentee" | "mentor";
 
@@ -19,12 +21,14 @@ interface LoginFormError {
 }
 
 const Login: React.FC = () => {
+  const navigate = useNavigate()
   const [userType, setUserType] = useState<UserType>("mentee");
   const [formData, setFormData] = useState<LoginFormData>({
     email: "",
     password: "",
   });
   const [errors, setErrors] = useState<LoginFormError>({});
+  const [loading,setLoading]=useState<boolean>(false)
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { id, value } = e.target;
@@ -45,9 +49,10 @@ const Login: React.FC = () => {
         return undefined;
     }
   };
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
 
+  const handleSubmit = async(e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+try{
     const newErrors: LoginFormError = {};
     (Object.keys(formData) as Array<keyof LoginFormData>).forEach((key) => {
       const error = validateField(key, formData[key]);
@@ -58,9 +63,29 @@ const Login: React.FC = () => {
     setErrors(newErrors);
 
     if(Object.keys(newErrors).length===0){
-        console.log("loggin in as ",userType,formData)
-    }
+      setLoading(true)
+      if(userType=='mentee'){
+        console.log('hiaii',formData)
+        
+        const response = await axios.post('http://localhost:3000/auth/login',{formData})
+        console.log(response,'response from mentee login')
+        if(response.status==200){
+         toast.success(response.data.message);
+          setLoading(false)
 
+          navigate('/mentee/home');
+        }
+      }else{
+        console.log('this is mentor');
+
+      }
+
+    }
+  }catch(error:any){
+    console.log(error,'while login submit');
+  }finally{
+    setLoading(false)
+  }
   };
 
 const handleSocialLogin = (provider:string)=>{
@@ -69,6 +94,7 @@ const handleSocialLogin = (provider:string)=>{
 }
   return (
     <div className="min-h-screen flex flex-col justify-center py-12 sm:px-6 lg:px-8 font-poppins">
+      {loading&&<Spinner/>}
       <div className="sm:mx-auto sm:w-full sm:max-w-md">
         <h2 className="text-center text-4xl font-bold text-black mb-8">
           Login

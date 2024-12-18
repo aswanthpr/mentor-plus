@@ -2,6 +2,8 @@ import axios from "axios";
 import React, { useState } from "react";
 import { Github, Linkedin } from "lucide-react";
 import { toast } from "react-toastify";
+import { useNavigate } from 'react-router-dom';
+import Spinner from "../../components/Common/Spinner"; 
 // import * as EmailValidator from 'email-validator';
 import SocialLogins from "../../components/auth/SocialLogins";
 import InputField from "../../components/Common/Form/InputField";
@@ -26,7 +28,10 @@ interface IFormData {
   confirmPassword: string;
 }
 
-const SignupForm = () => {
+const SignupForm:React.FC = () => {
+
+  const navigate = useNavigate();
+
   const [formData, setFormData] = useState<IFormData>({
     name: "",
     email: "",
@@ -35,6 +40,7 @@ const SignupForm = () => {
   });
   const [errors, setErrors] = useState<IFormErrors>({});
   const [showOtpModal, setShowOtpModal] = useState<boolean>(false);
+  const [loading,setLoading]=useState<boolean>(false);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { id, value } = e.target;
@@ -44,6 +50,8 @@ const SignupForm = () => {
     // Clear error when user starts typing
     setErrors((prev: IFormErrors) => ({ ...prev, [id]: undefined }));
   };
+
+
   const validateField = (field: string, value: string) => {
     switch (field) {
       case "name":
@@ -58,6 +66,8 @@ const SignupForm = () => {
         return undefined;
     }
   };
+
+
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
@@ -73,28 +83,66 @@ const SignupForm = () => {
     setErrors(newErrors);
 
     if (Object.keys(newErrors).length === 0) {
+      setLoading(true)
       try { 
         const response = await axios.post("http://localhost:3000/auth/signup", formData);
         console.log(response, "this is response");
-        setShowOtpModal(true);
         if (response.status == 200) {
-         
+          setLoading(false)
+          setShowOtpModal(true);
+
+          toast.success(response.data.message);
+        
         } else {
           toast.error("Failed to send OTP");
         }
       } catch (error) {
         console.error("Error during signup", error);
+      }finally{
+        setLoading(false)
       }
     }
   };
 
-  const handleVerifyOtp = (otp: string) => {
-    // Add your OTP verification logic here
-    console.log("Verifying OTP:", otp);
-    // On successful verification:
-    // setShowOtpModal(false);
-    // Proceed with signup
+  const handleVerifyOtp = async (otp: string) => {
+    setLoading(true)
+    try{
+    const {email} = formData;
+    
+    console.log("Verifying OTP:", otp,email);;
+    const response = await axios.post('http://localhost:3000/auth/verify-otp',{email,otp});
+
+    console.log(response,'this is the response',response.data)
+    if(response.status==200){
+      setLoading(true)
+      toast.success(response.data.message);
+      setShowOtpModal(false);
+      navigate('/auth/login')
+    }else{
+      toast.error(response.data.message);
+    }
+  }catch(error:any){
+    console.error("OTP verification failed:", error);
+    toast.error("OTP verification failed. Please try again.");
+  }finally{
+    setLoading(true)
+  }
   };
+
+  const handleResendOtp = async()=>{
+    try {
+      const {email} = formData;
+      const response = await axios.post('http://localhost:3000/auth/resend-otp',{email});
+      if(response.status == 200){
+        toast.success(response.data.message||'OTP resend successfull')
+      }else{
+        toast.error("Failed to resend OTP");
+      }
+    } catch (error:any) {
+       console.error('error resending otp ',error)
+       toast.error('Error resending OTP. Please try again.')
+    }
+  }
 
   const handleSocialLogin = (provider: string) => {
     console.log(`Logging in with ${provider}`);
@@ -102,6 +150,7 @@ const SignupForm = () => {
 
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
+      {loading && <Spinner />}
       <div className="sm:mx-auto sm:w-full sm:max-w-md">
         <h2 className="text-center text-3xl font-bold tracking-tight text-gray-900">
           Sign up as mentee
@@ -236,6 +285,7 @@ const SignupForm = () => {
         isOpen={showOtpModal}
         onClose={() => setShowOtpModal(false)}
         onVerify={handleVerifyOtp}
+        onResendOtp={handleResendOtp}
       />
     </div>
   );

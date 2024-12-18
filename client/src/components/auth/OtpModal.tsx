@@ -1,10 +1,12 @@
 import React ,{useState,useEffect} from 'react';
 import InputField from '../Common/Form/InputField';
 
+
 interface IModalProps{
     isOpen:boolean;
     onClose:()=>void;
     onVerify:(otp:string)=>void;
+    onResendOtp:()=>void;
 }
 
 const OtpModal:React.FC<IModalProps> = (props) => {
@@ -12,6 +14,8 @@ const OtpModal:React.FC<IModalProps> = (props) => {
     const [error,setError]=useState<string|undefined>('');
     const [timer,setTimer] = useState<number>(60);
     const [canResend,setCanResend]=useState<boolean>(false);
+
+
     useEffect(()=>{
         let interval:any;
         if(props.isOpen && timer>0){
@@ -46,10 +50,10 @@ const OtpModal:React.FC<IModalProps> = (props) => {
         props.onVerify(otp);
       };
       const handleResendOtp = () => {
+        setOtp('')
         setTimer(60);
         setCanResend(false);
-        // Add your resend OTP logic here
-        console.log('Resending OTP...');
+        props.onResendOtp();
       };
     
       if (!props.isOpen) return null;

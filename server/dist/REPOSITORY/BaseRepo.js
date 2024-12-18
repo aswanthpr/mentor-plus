@@ -15,7 +15,7 @@ class BaseRepository {
         this.model = model;
     }
     // find using email
-    findOne(filter) {
+    find_One(filter) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 return yield this.model.findOne(filter).exec();

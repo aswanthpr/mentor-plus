@@ -12,44 +12,45 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+const otpModel_1 = __importDefault(require("../MODEL/otpModel"));
 const MenteeModel_1 = __importDefault(require("../MODEL/MenteeModel"));
-const BaseRepo_1 = require("./BaseRepo");
-class AuthRepository extends BaseRepo_1.BaseRepository {
-    constructor() {
-        super(MenteeModel_1.default);
-    }
-    findByEmail(email) {
+class OtpRepository {
+    createOtp(email, otp) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                return yield this.find_One({ email }); //find one in base repo
+                const saveOtp = new otpModel_1.default({ email, otp });
+                const data = yield saveOtp.save();
+                console.log(data, 'otp created');
+                return data;
             }
             catch (error) {
-                console.log('Error while finding user with email', email, error);
-                throw new Error('Error while finding user by Email');
+                throw new Error(`${'\x1b[35m%s\x1b[0m'}error while creating otp:${error instanceof Error ? error.message : String(error)}`);
             }
         });
     }
-    create_Mentee(userData) {
+    DBVerifyOtp(email, otp) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                return yield this.createMentee(userData);
+                const data = yield otpModel_1.default.findOne({ email, otp }).exec();
+                console.log('OTP found in database:', data);
+                return data;
             }
             catch (error) {
-                console.log(`error while doing signup ${error}`);
-                throw new Error("error while mentee Signup");
+                throw new Error(`error while find on database in verify otp  ${error instanceof Error ? error.message : String(error)}`);
             }
         });
     }
-    DBMainLogin(email) {
+    DBupdateMentee(email) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                console.log('ths is db sectoin');
-                return yield this.find_One({ email });
+                const data = yield MenteeModel_1.default.updateOne({ email }, { $set: { verified: true } });
+                console.log(data, 'verify data from repo');
+                return data;
             }
             catch (error) {
-                throw new Error(`error  in DBMainLogin  while Checking User ${error instanceof Error ? error.message : String(error)}`);
+                throw new Error(`error while updating mentee`);
             }
         });
     }
 }
-exports.default = new AuthRepository();
+exports.default = new OtpRepository();

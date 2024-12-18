@@ -14,8 +14,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.AuthService = void 0;
 const bcrypt_1 = __importDefault(require("bcrypt"));
-const otpGen_util_1 = __importDefault(require("../UTILS/otpGen.util"));
-const nodemailer_util_1 = require("../UTILS/nodemailer.util");
+const hashPass_util_1 = __importDefault(require("../UTILS/hashPass.util"));
 class AuthService {
     constructor(_AuthRepository) {
         this._AuthRepository = _AuthRepository;
@@ -23,37 +22,56 @@ class AuthService {
     mentee_Signup(userData) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                console.log('this is service');
+                if (!userData.email || !userData.password) {
+                    return { success: false, message: "Email or password is missing" };
+                }
                 const existingUser = yield this._AuthRepository.findByEmail(userData.email);
                 if (existingUser) {
-                    throw new Error('user with this email is already exists');
+                    return {
+                        success: false,
+                        message: "user with this email is already exists",
+                    };
                 }
-                const salt = yield bcrypt_1.default.genSalt(10);
-                console.log(salt, '\x1b[32m%s\x1b[0m ths is salt');
-                const hashPassword = yield bcrypt_1.default.hash(userData.password, salt);
+                // pass hasing 
+                const hashPassword = yield (0, hashPass_util_1.default)(userData.password);
                 userData.password = hashPassword;
                 const newMentee = yield this._AuthRepository.createMentee(userData);
-                console.log(newMentee, 'thsi is from service');
-                const otp = (0, otpGen_util_1.default)();
-                const saveOtp = yield this._AuthRepository;
-                console.log(otp, 'thsi is the new otp');
-                yield (0, nodemailer_util_1.nodeMailer)(userData.email, Number(otp));
-                return newMentee;
+                return { success: true, message: "signup successfull" };
             }
             catch (error) {
                 if (error instanceof Error) {
-                    console.error('\x1b[35m%s\x1b[0m', 'error while create mentee');
+                    console.error("\x1b[35m%s\x1b[0m", "error while create mentee");
                     throw new Error(`Failed to create  Mentee ${error.message}`);
                 }
                 else {
-                    console.log('An unknown error occured', error);
+                    console.log("An unknown error occured", error);
                     throw error;
                 }
             }
         });
     }
-    verifyOtp(otp) {
+    BLMainLogin(userData) {
         return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const { email, password } = userData;
+                console.log(email, password, 'logic');
+                if (!email || !password) {
+                    return { success: false, message: 'login credencial is missing' };
+                }
+                const result = yield this._AuthRepository.DBMainLogin(email);
+                console.log(result, 'this is the result of checkng logining user');
+                if (!result) {
+                    return { success: false, message: 'user not exist.Please signup' };
+                }
+                const checkUser = yield bcrypt_1.default.compare(password, result === null || result === void 0 ? void 0 : result.password);
+                if (!checkUser) {
+                    return { success: false, message: "password not matching" };
+                }
+                return { success: true, message: 'Login Successfull' };
+            }
+            catch (error) {
+                throw new Error(`error in Login service ${error instanceof Error ? error.message : String(error)}`);
+            }
         });
     }
 }

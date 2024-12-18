@@ -36,7 +36,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const mongoose_1 = __importStar(require("mongoose"));
 const otpSchema = new mongoose_1.Schema({
     email: { type: String, required: true },
-    otp: { type: Number, required: true },
+    otp: { type: String, required: true },
 }, { timestamps: true });
-otpSchema.index({ createdAt: 1 }, { expireAfterSeconds: 60 });
+otpSchema.index({ createdAt: 1 }, { expireAfterSeconds: 115 });
 exports.default = mongoose_1.default.model('Otp', otpSchema);

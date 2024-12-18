@@ -5,7 +5,7 @@ export class BaseRepository <T extends Document> implements IBaseRepository<T>{
     constructor(private readonly model:Model<T>){}
 
     // find using email
-    async findOne(filter:FilterQuery<T>):Promise<T |null> {
+    async find_One(filter:FilterQuery<T>):Promise<T |null> {
         try {
                return await this.model.findOne(filter).exec();
 
@@ -24,4 +24,5 @@ export class BaseRepository <T extends Document> implements IBaseRepository<T>{
 
         }
     }
+
 }

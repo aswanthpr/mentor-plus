@@ -1,5 +1,9 @@
+import { ObjectId } from "mongoose";
+import { IOtp } from "../../MODEL/otpModel";
 
 
 export interface IOtpRepository{
-    // checkOtp(data)
+     createOtp(email:string,otp:string):Promise<IOtp|undefined>
+     DBVerifyOtp(email:string,otp:string):Promise<IOtp|null>
+     DBupdateMentee(email:string):Promise<any>
 }
