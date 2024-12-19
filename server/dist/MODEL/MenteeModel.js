@@ -46,6 +46,10 @@ const menteeSchema = new mongoose_1.default.Schema({
         type: Boolean,
         default: false,
     },
+    isAdmin: {
+        type: Boolean,
+        defualt: false
+    },
     verified: {
         type: Boolean,
         default: false

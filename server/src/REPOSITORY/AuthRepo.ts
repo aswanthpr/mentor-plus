@@ -29,10 +29,27 @@ import { BaseRepository } from "./BaseRepo";
     }
     async DBMainLogin(email: string): Promise<IMentee | null> {
         try {
-            console.log('ths is db sectoin')
+           
             return await this.find_One({email});
         } catch (error:unknown) {
             throw new Error(`error  in DBMainLogin  while Checking User ${error instanceof Error ? error.message:String(error)}`)
+        }
+    }
+
+
+   async DBfindBy_id(userId: string): Promise<IMentee | null|undefined> {
+        try {
+            return  await this.DBfindBy_id(userId)
+        } catch (error:unknown) {
+            console.log('error while finding user in DBfindBy_id ',error instanceof Error?error.message:String(error))
+        }
+    }
+
+    async DBforgot_PasswordChange(email: string, password: string): Promise<IMentee | null|undefined> {
+        try {
+            return await this.find_One_And_Update(menteeSchema,{email:email},{$set:{password:password}});
+        } catch (error:unknown) {
+            console.log(`error while find and update on DBforget_passwordChange ${error instanceof Error ? error.message :String(error)}`)
         }
     }
 }

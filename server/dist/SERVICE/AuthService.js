@@ -14,10 +14,13 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.AuthService = void 0;
 const bcrypt_1 = __importDefault(require("bcrypt"));
+const jwt_utils_1 = require("../UTILS/jwt.utils");
 const hashPass_util_1 = __importDefault(require("../UTILS/hashPass.util"));
+const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 class AuthService {
-    constructor(_AuthRepository) {
+    constructor(_AuthRepository, _OtpService) {
         this._AuthRepository = _AuthRepository;
+        this._OtpService = _OtpService;
     }
     mentee_Signup(userData) {
         return __awaiter(this, void 0, void 0, function* () {
@@ -32,7 +35,7 @@ class AuthService {
                         message: "user with this email is already exists",
                     };
                 }
-                // pass hasing 
+                // pass hasing
                 const hashPassword = yield (0, hashPass_util_1.default)(userData.password);
                 userData.password = hashPassword;
                 const newMentee = yield this._AuthRepository.createMentee(userData);
@@ -50,27 +53,116 @@ class AuthService {
             }
         });
     }
-    BLMainLogin(userData) {
+    BLMainLogin(email, password) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const { email, password } = userData;
-                console.log(email, password, 'logic');
+                console.log(email, password);
+                console.log(email, password, "logic");
                 if (!email || !password) {
-                    return { success: false, message: 'login credencial is missing' };
+                    return { success: false, message: "login credencial is missing" };
                 }
                 const result = yield this._AuthRepository.DBMainLogin(email);
-                console.log(result, 'this is the result of checkng logining user');
                 if (!result) {
-                    return { success: false, message: 'user not exist.Please signup' };
+                    return { success: false, message: "user not exist.Please signup" };
+                }
+                if (result === null || result === void 0 ? void 0 : result.isAdmin) {
+                    return { success: false, message: "Admin is not allowed ,sorry.." };
+                }
+                if (result === null || result === void 0 ? void 0 : result.isBlocked) {
+                    return { success: false, message: "user blocked .sorry.." };
                 }
                 const checkUser = yield bcrypt_1.default.compare(password, result === null || result === void 0 ? void 0 : result.password);
                 if (!checkUser) {
                     return { success: false, message: "password not matching" };
                 }
-                return { success: true, message: 'Login Successfull' };
+                const userId = result._id;
+                console.log(userId, "userid");
+                const accessToken = (0, jwt_utils_1.genAccesssToken)(userId);
+                const refreshToken = (0, jwt_utils_1.genRefreshToken)(userId);
+                console.log(accessToken, refreshToken, "access refrsh");
+                return {
+                    success: true,
+                    message: "Login Successfull",
+                    refreshToken,
+                    accessToken,
+                };
             }
             catch (error) {
                 throw new Error(`error in Login service ${error instanceof Error ? error.message : String(error)}`);
+            }
+        });
+    }
+    //forget password mentor and mentee;
+    BLforgotPassword(email, userType) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                if (!email || !userType) {
+                    return { success: false, message: "credential is missing" };
+                }
+                if (userType == 'mentee') {
+                    const result = yield this._AuthRepository.findByEmail(email);
+                    if (!result || (result === null || result === void 0 ? void 0 : result.isBlocked)) {
+                        return { success: false, message: 'cannot find user' };
+                    }
+                    yield this._OtpService.sentOtptoMail(email);
+                    return { success: true, message: 'Otp success fully send to mail' };
+                }
+                // Handle unsupported user types.
+                return { success: false, message: 'Invalid user type. Otp failed to send' };
+            }
+            catch (error) {
+                console.log(`error while forget password in BLforgetPassword`, error instanceof Error ? error.message : String(error));
+            }
+        });
+    }
+    BLforgot_PasswordChange(email, password) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                if (!email || !password) {
+                    return { success: false, message: "credencial is missing" };
+                }
+                const hashedPassword = yield (0, hashPass_util_1.default)(password);
+                console.log(hashedPassword, 'hash');
+                const result = yield this._AuthRepository.DBforgot_PasswordChange(email, hashedPassword);
+                console.log(result, "ths is passchnge reslut");
+                if (!result) {
+                    return { success: false, message: 'User does not exist. Please sign up.' };
+                }
+                return { success: true, message: 'password changed successfully.' };
+            }
+            catch (error) {
+                console.log(`error while forget password in BLforgetPassword`, error instanceof Error ? error.message : String(error));
+                return { success: false, message: 'Internal server error' };
+            }
+        });
+    }
+    BLAccessToken(refreshToken) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                if (!refreshToken) {
+                    return { success: false, message: "RefreshToken missing" };
+                }
+                const decode = jsonwebtoken_1.default.verify(refreshToken, process.env.JWT_REFRESH_SECRET);
+                if (!(decode === null || decode === void 0 ? void 0 : decode.userId)) {
+                    return { success: false, message: "Invalid token payload" };
+                }
+                let { userId } = decode;
+                const userData = yield this._AuthRepository.DBfindBy_id(userId);
+                if (!userData) {
+                    return { success: false, message: "Invalid token payload" };
+                }
+                userId = userData === null || userData === void 0 ? void 0 : userData._id;
+                const accessToken = jsonwebtoken_1.default.sign({ userId: userId }, process.env.JWT_ACCESS_SECRET, { expiresIn: process.env.ACCESS_TOKEN_EXPIRY });
+                return {
+                    success: true,
+                    message: "Token refresh success fully",
+                    accessToken,
+                    refreshToken,
+                };
+            }
+            catch (error) {
+                console.error("Error while generating BLRefreshToken", error);
+                return { success: false, message: "Invalid or expired refresh token" };
             }
         });
     }

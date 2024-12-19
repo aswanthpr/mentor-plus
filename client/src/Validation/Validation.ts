@@ -53,8 +53,15 @@ export const validateConfirmPassword = (
   confirmPassword: string,
   password: string
 ): string | undefined => {
-  if (password !== confirmPassword) {
+  if (password === undefined || confirmPassword === undefined) {
+    console.log('Password or confirmPassword is undefined');
+    return "Passwords are required";
+  }
+
+  if (password!== confirmPassword) {
+    console.log('Passwords do not match:', { password, confirmPassword });
     return "Passwords do not match";
   }
+
   return undefined;
 };

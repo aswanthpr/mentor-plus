@@ -13,7 +13,7 @@ const AuthRoute: React.FC = () => (
     <Route path="/" element={ <Landing/>}/>
     <Route path="auth/login"  element={<Login/>}/>
     <Route path="auth/signup"  element={<SignupForm/>}/>
-    <Route path="auth/forgot_password" element={<ForgotPassword/>}/>
+    <Route path="auth/forgot_password/:user" element={<ForgotPassword/>}/>
     <Route path="auth/apply_as_mentor" element={<MentorApply/>} />
     <Route path="auth/admin/login" element={<AdminLogin />} />
   </Routes>

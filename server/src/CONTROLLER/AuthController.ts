@@ -3,6 +3,8 @@ import { IAuthController } from "../INTERFACE/Auth/IAuthController";
 import IAuthService from "../INTERFACE/Auth/IAuthService";
 import IOtpService from "../INTERFACE/Otp/IOtpService";
 import { IOtp } from "../MODEL/otpModel";
+import { signedCookie, signedCookies } from "cookie-parser";
+import { AuthService } from "../SERVICE/AuthService";
 
 export class AuthController implements IAuthController {
   constructor(
@@ -26,7 +28,9 @@ export class AuthController implements IAuthController {
         });
       }
     } catch (error: unknown) {
-      console.error("error during mentee registration");
+      res
+        .status(500)
+        .json({ success: false, message: "Internal server error" });
       throw new Error(
         `error while mentee Signup ${
           error instanceof Error ? error.message : error
@@ -42,7 +46,7 @@ export class AuthController implements IAuthController {
       if (!email || !otp) {
         res
           .status(400)
-          .json({ success: false, message: "Email or OTP is missing" });
+          .json({ success: false, message: "credential is missing" });
       }
 
       const result = await this._OtpService.BLVerifyOtp(email, otp);
@@ -50,7 +54,7 @@ export class AuthController implements IAuthController {
       if (result && result.success) {
         res.status(200).json({
           success: true,
-          message: "OTP verified successfully. Signup complete!",
+          message: "OTP verified successfully",
         });
       } else {
         res
@@ -91,26 +95,157 @@ export class AuthController implements IAuthController {
     }
   }
 
-  async getMainLogin(req:Request,res:Response):Promise<void>{
+  async getMainLogin(req: Request, res: Response): Promise<void> {
     try {
-      console.log(req.body,'this is from getMain login')
-      const {formData} =req.body;
-      if(!formData){
-        res
-        .status(400)
-        .json({ success: false, message:"Email and  password missing" })
-      }
-      const result = await this._AuthService.BLMainLogin(formData);
+      console.log(req.body, "this is from getMain login");
 
-      if(result.success){
-        res.status(200).json(result)
-      }else{
-        res.status(401).json(result)
+      const { email, password } = req.body;
+
+      if (!email || !password) {
+
+        res
+          .status(400)
+          .json({ success: false, message: "credential is  missing" });
+        return;
+
       }
+
+      const result = await this._AuthService.BLMainLogin(email, password);
+      const refresh_Token = result?.refreshToken as string;
+      const accessToken = result?.accessToken as string;
+
+      if (result.success) {
+        res.cookie("token", refresh_Token, {
+          httpOnly: true,
+          secure: false, //in development fasle process.env.NODE_ENV === 'production'
+          sameSite: "none",
+          maxAge: 15 * 24 * 60 * 60 * 1000,
+        });
+
+        delete result.refreshToken;
+        res.status(200).json(result);
+
+        return;
+      } else {
+        res.status(401).json(result);
+        return;
+      }
+    } catch (error: unknown) {
+      console.error(
+        `Login error: ${error instanceof Error ? error.message : String(error)}`
+      );
+      // res
+      //   .status(500)
+      //   .json({ success: false, message: "Internal server error" });
+      throw new Error(
+        `error while Login in getMainLogin ${
+          error instanceof Error ? error.message : String(error)
+        }`
+      );
+    }
+  }
+  async getForgotPassword(req: Request, res: Response): Promise<void> {
+    try {
+      const { email, user } = req.body;
+      console.log(email, user, "thsi is from forgot password");
+
+      const result = await this._AuthService.BLforgotPassword(email, user);
+
+      if (result?.success == false) {
+        res.status(400).json(result);
+        return;
+      }
+
+      res.status(200).json(result);
+    } catch (error: unknown) {
+      console.error(
+        `Login error: ${error instanceof Error ? error.message : String(error)}`
+      );
+
+      res
+        .status(500)
+        .json({ success: false, message: "Internal server error" });
+
+      throw new Error(
+        `error while forgetpass in getforgetPassword ${
+          error instanceof Error ? error.message : String(error)
+        }`
+      );
+    }
+  }
+  async getForgot_PasswordChange(req:Request,res:Response):Promise<void> {
+    try {
+      const data  = req.body;
+      console.log(data,'this is the datat');
+      const result = await this._AuthService.BLforgot_PasswordChange(data.email,data.password);
+      if(result?.success&&result?.message){
+        res.status(200).json({success:true,message:'password changed successfully'})
+      }
+      if (result?.message === 'credencial is missing') {
+         res.status(400).json({ success: false, message: result.message });
+         return;
+      } else if (result?.message === 'user not exist.Please signup') {
+         res.status(404).json({ success: false, message: result.message });
+        return;
+      }
+      
     } catch (error:unknown) {
-      throw new Error(`error while Login in getMainLogin ${error instanceof Error ? error.message : String(error)}`)
+      console.error(
+        `Login error: ${error instanceof Error ? error.message : String(error)}`
+      );
+
+      res.status(500).json({ success: false, message: 'Internal server error' });
+    
+      throw new Error(
+        `Error while handling forgot password request: ${error instanceof Error ? error.message : String(error)}`
+      );
     }
   }
 
-  
+  //for creating new access token
+  async getAccessToken(req: Request, res: Response): Promise<void> {
+    try {
+      const refreshToken = req.signedCookies.token;
+
+      console.log(
+        refreshToken,
+        "thsi isthe refresh token from cookies",
+        req.cookies,
+        req.signedCookies
+      );
+      if (!refreshToken) {
+        res
+          .status(403)
+          .json({ success: false, message: "No refresh token provided" });
+        return;
+      }
+      const result = await this._AuthService.BLAccessToken(refreshToken);
+      const refresh_Token = result?.refreshToken as string;
+
+      if (result.success) {
+        res.cookie("refreshToken", refresh_Token, {
+          signed: true,
+          httpOnly: true,
+          secure: false, //process.env.NODE_ENV === 'develpment',//in development fasle
+          sameSite: "none",
+          maxAge: 15 * 24 * 60 * 60 * 1000,
+        });
+
+        delete result.refreshToken;
+        res.status(200).json(result);
+      } else {
+        res.status(401).json(result);
+      }
+    } catch (error: unknown) {
+      res
+        .status(500)
+        .json({ success: false, message: "Internal server error" });
+
+      throw new Error(
+        `error while geting refreshToken${
+          error instanceof Error ? error.message : String(error)
+        }`
+      );
+    }
+  }
 }

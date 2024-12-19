@@ -43,11 +43,30 @@ class AuthRepository extends BaseRepo_1.BaseRepository {
     DBMainLogin(email) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                console.log('ths is db sectoin');
                 return yield this.find_One({ email });
             }
             catch (error) {
                 throw new Error(`error  in DBMainLogin  while Checking User ${error instanceof Error ? error.message : String(error)}`);
+            }
+        });
+    }
+    DBfindBy_id(userId) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                return yield this.DBfindBy_id(userId);
+            }
+            catch (error) {
+                console.log('error while finding user in DBfindBy_id ', error instanceof Error ? error.message : String(error));
+            }
+        });
+    }
+    DBforgot_PasswordChange(email, password) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                return yield this.find_One_And_Update(MenteeModel_1.default, { email: email }, { $set: { password: password } });
+            }
+            catch (error) {
+                console.log(`error while find and update on DBforget_passwordChange ${error instanceof Error ? error.message : String(error)}`);
             }
         });
     }

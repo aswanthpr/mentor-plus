@@ -26,25 +26,30 @@ const handlePasswordChange=(e:React.ChangeEvent<HTMLInputElement>)=>{
 }
 
 const handleConfirmPassChange=(e:React.ChangeEvent<HTMLInputElement>)=>{
-    setConfirmPassword(e.target.value);
-    setErrors((pre)=>({...pre,confirmPassword:validateConfirmPassword(password,confirmPassword)}));
-}
-const validateForm=()=>{
-    const passError = validatePassword(password)
-    const confirmPassError = validateConfirmPassword(password,confirmPassword)
-setErrors({
-    password:passError,
-    confirmPassword:confirmPassError
-})
-return !passError && confirmPassError
+  setConfirmPassword(e.target.value);
+    
 }
 
-const handleSubmit=(e:React.FormEvent<HTMLFormElement>)=>{
-    e.preventDefault();
-    if(validateForm()){
-        props.onSubmit(password)
-    }
-}
+const validateForm = () => {
+  const passError = validatePassword(password);
+  const confirmPassError = validateConfirmPassword(password, confirmPassword);
+  
+  setErrors({
+    password: passError,
+    confirmPassword: confirmPassError,
+  });
+
+  return !passError && !confirmPassError; 
+};
+
+
+const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  e.preventDefault();
+  if (validateForm()) {
+    props.onSubmit(password);
+  }
+};
+
   return(
     <div >
 

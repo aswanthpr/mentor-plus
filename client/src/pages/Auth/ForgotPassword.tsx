@@ -1,4 +1,7 @@
-import React,{useState} from 'react';;
+import React,{useState} from 'react';
+import {  useParams } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
+
 import InputField from '../../components/Common/Form/InputField';
 import Button from '../../components/Common/Form/Button';
 import OtpInput from '../../components/auth/OtpInput';
@@ -6,72 +9,177 @@ import { useTimer } from '../../Hooks/useTime';
 import { validateEmail } from '../../Validation/Validation';
 import ChangePassword from '../../components/auth/ChangePassword';
 import Modal from '../../components/Common/Modal';
-ChangePassword
+import Spinner from '../../components/Common/Spinner';
+import { toast } from 'react-toastify';
+import { unProtectedAPI } from '../../Helper/Axios';
+
 
 const ForgetPassword:React.FC = () => {
+    const {user} = useParams();
+    const navigate = useNavigate()
+
     const [email,setEmail] = useState<string>('');
     const [otp,setOtp] = useState<string>('');
     const [isOtpSent,setIsOtpSent] = useState<boolean>(false);
     const [emailError,setEmailError] = useState<string|null>(null)
     const [otpError,setOtpError] = useState<string|null>(null);
     const [isModalOpen,setIsModalOpen] = useState(false);
-
+    const [loading,setLoading] =useState<boolean>(false)
     const {seconds,isActive,restart} = useTimer(60);
- 
+
+    
     const handleEmailInput=(e:React.ChangeEvent<HTMLInputElement>)=>{
+        e.preventDefault()
         const email_Value = e.target.value;
         setEmail(email_Value) 
         
-        const EmailValid =  validateEmail(email_Value)
-        if(EmailValid!==undefined){
-            setEmailError(EmailValid)
-        }else{
-            setEmailError(null)
-        }
+        const emailValid = validateEmail(email_Value);
+    setEmailError(emailValid || null);
     }
 
 
-        const handleSendOTP =()=>{
-            if(validateEmail(email)!=undefined){
-                setEmailError("Please enter a valid email address before sending OTP");
-                return 
-            }
-            setEmailError("")
-            setIsOtpSent(true);
-            restart();
+        const handleSendOTP = async ()=>{
+            try {
+                
+                if(validateEmail(email)!=undefined){
 
-        }
+                    setEmailError("Please enter a valid email address before sending OTP");
+                    return 
+                }
+                setEmailError("")
+                setLoading(true);
 
-        const handleResendOTP=()=>{
-            restart()
-        }
-        const handleVerify =()=>{
-            if(otp.length !==6 ){
-                setOtpError('Please enter a valid 6-digit OTP');
-                return 
+                const userType = user;
+                console.log('userType',userType)
+                
+                const response = await unProtectedAPI.post('/auth/forgot_password',{email,userType,user});
+                
+                if(response.status==200 && response.data.success){
+                   
+                    toast.success(`${response.data.message}`)
+                    setIsOtpSent(true);
+                    restart()
+    
+                }
+                
+            } catch (error:any) {
+                if (error.response && error.response.data) {
+                    const { message } = error.response.data;
+                    toast.error(message || "An error occurred");
+                  } else {
+                    // Handle network or unexpected errors
+                    toast.error("An unexpected error occurred. Please try again.");
+                  }
+            }finally{
+                setLoading(false)
             }
-            setOtpError(null)
          
-            //handle verfication logic here
-            console.log('verify otp',otp)
-            setIsModalOpen(true);
+            
+
         }
-const handlePassChange=(password:string)=>{
-    console.log('password  changed',password)
-    setIsModalOpen(false);
-    //handle hre the logic
+
+        const handleResendOTP= async ()=>{
+
+            try {
+                setLoading(true)
+                const response = await unProtectedAPI.post('/auth/resend-otp',{email})
+
+                if(response.data.success){
+                   
+                    toast.success(response.data.message)
+                    setIsOtpSent(true);
+                    restart();
+                }
+                
+            } catch (error:any) {
+
+                if (error.response && error.response.data) {
+                    const { message } = error.response.data;
+                    toast.error(message || "An error  occurred");
+                  } else {
+                    // Handle network or unexpected errors
+                    toast.error("An unexpected error occurred. Please try again.");
+                  }
+            }finally{
+                setLoading(false)
+            }
+        }
+
+
+        const handleVerify = async()=>{
+            try {
+                if(otp.length !==6 ){
+                    
+                    setOtpError('Please enter a valid 6-digit OTP');
+                    return 
+                }
+                setOtpError(null)
+                setLoading(true)
+
+                const response= await unProtectedAPI.post('/auth/verify-otp',{email,otp})
+
+                   console.log(response.data&&response.status);
+
+                   if(response.data.success){
+                    setLoading(false)
+                    toast.success(response.data.message)
+                    setIsModalOpen(true);
+                    setOtp("")
+                   }
+
+            } catch (error:any) {
+                if (error.response && error.response.data) {
+                    const { message } = error.response.data;
+                    toast.error(message || "An error occurred");
+                  } else {
+                    // Handle network or unexpected errors
+                    toast.error("An unexpected error occurred. Please try again.");
+                  }
+            }finally{
+                setLoading(false)
+            }
+           
+        }
+const handlePassChange = async(password:string)=>{
+    try {
+        setLoading(true)
+        console.log('password  changed',password)
+        setIsModalOpen(false);
+        const response = await unProtectedAPI.put('/auth/change_password',{email,password});
+
+        console.log(response.data.message,response.status)
+        if(response.status==200&&response.data.success){
+            toast.success(response.data.message)
+            navigate('/auth/login')
+        }
+    } catch (error:any) {
+        if (error.response && error.response.data) {
+            const { message } = error.response.data;
+            toast.error(message || "An error occurred");
+          } else {
+            // Handle network or unexpected errors
+            toast.error("An unexpected error occurred. Please try again.");
+          }
+    }finally{
+        setLoading(false)
+        navigate('/auth/login')
+    }
+   
 }
 
   return (
     <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
+        {loading && <Spinner/>}
         <div className='w-full max-w-md bg-white rounded-lg shadow-lg p-8'>
             <h1 className='text-3xl font-bold text-black text-center mb-8'>
                 Forgot Password
             </h1>
             <div className='space-y-6  '>
                 <div className='flex gap-4  items-center'>
+                   
+
                     <InputField
-                    label='Email'
+                   
                     type={'email'}
                     id={'email'}
                     placeholder={'Enter your email'}
@@ -82,13 +190,15 @@ const handlePassChange=(password:string)=>{
                     error = {emailError ||undefined}
                     
                     />
+                    
                     <Button
                     variant='dark'
                     onClick={handleSendOTP}
                     disabled={!email||isOtpSent}
-                   children={'Verify'}
-                   className='mt-7'
+                    children={loading ? <Spinner /> : "Verify"}
+                    className='flex-shrink-0'
                     />
+                  
                 </div>
                 {
                     isOtpSent && (
@@ -121,8 +231,16 @@ const handlePassChange=(password:string)=>{
                         </>
                     )
                 }
-               
+              <div className="text-left"> {/* Center alignment */}
+        <button
+           onClick={()=>navigate(-1)}
+            className="text-[000000] hover:text-[#ff9900] font-semibold"
+        >
+            back
+        </button>
+    </div>
             </div>
+           
         </div>
                 <Modal
                 isOpen={isModalOpen} 
@@ -132,6 +250,7 @@ const handlePassChange=(password:string)=>{
                     onSubmit={handlePassChange}/>
                 }
                 />
+                
     </div>
   )
 }

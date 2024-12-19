@@ -10,6 +10,7 @@ export interface IMentee extends Document {
     skills?:string[];
     profileUrl?:string;
     verified?:boolean;
+    isAdmin?:boolean;
 }
 
 const menteeSchema:Schema<IMentee> = new mongoose.Schema({
@@ -53,6 +54,10 @@ const menteeSchema:Schema<IMentee> = new mongoose.Schema({
     isBlocked:{
         type:Boolean,
         default:false,
+    },
+    isAdmin:{
+        type:Boolean,
+        defualt:false
     },
     verified:{
         type:Boolean,

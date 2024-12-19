@@ -14,15 +14,15 @@ import {connectDb} from "./CONFIG/DataBase"
 import { corsOptions } from "./MIDDLEWARE/index_middleware";
 
 
-connectDb()
+connectDb() 
 //using middlewares
 app.use(cors(corsOptions));
 app.use(morgan('dev'))
 app.use(express.json());
 app.use(express.urlencoded({extended:true}));
-app.use(cookieParser())
+app.use(cookieParser());
 
-
+ 
 // Routes
 app.use('/auth',auth_Router);
 app.use('/admin',admin_Router)

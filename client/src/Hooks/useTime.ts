@@ -1,33 +1,35 @@
-import {useState,useEffect} from 'react';
 
-export const useTimer = (initialSeconds:number)=>{
-    const [seconds,setSeconds] = useState<number>(initialSeconds);
-    const [isActive,setIsActive] = useState<boolean>(true)
-    useEffect(()=>{
-        let interval:number |undefined;
-       
-       
-        if(isActive && seconds>0){
-            interval =window.setInterval(()=>{
-                setSeconds((prev)=>{
-                    if(prev<=1){
-                        setIsActive(false);
+import { useState, useRef } from "react";
 
-                        return 0
+export const useTimer = (initialSeconds: number) => {
+    const [seconds, setSeconds] = useState<number>(initialSeconds);
+    const [isActive, setIsActive] = useState<boolean>(false);
+    const intervalRef = useRef<number | undefined>(undefined);
 
-                    }
-                    return prev - 1
-                })
-
-            },1000)
-        }
-        return ()=>{
-            if(interval) clearInterval(interval)
-        }
-    },[seconds,isActive])
-    const restart=()=>{
+    // Start or restart the timer
+    const restart = () => {
         setSeconds(initialSeconds);
-        setIsActive(true);
-    }
-    return {seconds,isActive,restart}
-}
+        setIsActive(true); 
+
+        // Clear the previous interval if it exists
+        if (intervalRef.current) {
+            clearInterval(intervalRef.current);
+        }
+
+        // Start a new interval
+        intervalRef.current = window.setInterval(() => {
+            setSeconds((prev) => {
+                if (prev <= 1) {
+                    setIsActive(false);
+
+                    // Stop the timer when it reaches 0
+                    clearInterval(intervalRef.current);
+                    return 0;
+                }
+                return prev - 1;
+            });
+        }, 1000);
+    };
+
+    return { seconds, isActive, restart };
+};

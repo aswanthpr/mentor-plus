@@ -1,13 +1,18 @@
 import React, { useState } from "react";
 import { Github, Linkedin } from "lucide-react";
 import axios from 'axios';
-import Spinner from "../../components/Common/Spinner";
 import { useNavigate } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
+import {toast} from 'react-toastify';
+import { Link } from "react-router-dom";
+
+import Spinner from "../../components/Common/Spinner";
 import InputField from "../../components/Common/Form/InputField";
 import SocialLogins from "../../components/auth/SocialLogins";
 import {validateEmail,validatePassword} from "../../Validation/Validation";
-import {toast} from 'react-toastify';
-
+import { AppDispatch } from "../../Services/store";
+import { setAccessToken } from "../../Services/accessReducer";
+import { RootState } from "../../Services/store";
 
 type UserType = "mentee" | "mentor";
 
@@ -21,6 +26,9 @@ interface LoginFormError {
 }
 
 const Login: React.FC = () => {
+
+  const dispatch:AppDispatch =useDispatch();
+  const access_Token = useSelector((state:RootState)=>state.accessToken.accessToken)
   const navigate = useNavigate()
   const [userType, setUserType] = useState<UserType>("mentee");
   const [formData, setFormData] = useState<LoginFormData>({
@@ -51,8 +59,8 @@ const Login: React.FC = () => {
   };
 
   const handleSubmit = async(e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-try{
+    try{
+  e.preventDefault()
     const newErrors: LoginFormError = {};
     (Object.keys(formData) as Array<keyof LoginFormData>).forEach((key) => {
       const error = validateField(key, formData[key]);
@@ -67,9 +75,13 @@ try{
       if(userType=='mentee'){
         console.log('hiaii',formData)
         
-        const response = await axios.post('http://localhost:3000/auth/login',{formData})
-        console.log(response,'response from mentee login')
+        const response = await axios.post('http://localhost:3000/auth/login',formData)
+        console.log(response.data,'response from mentee login')
         if(response.status==200){
+          const {accessToken} = response.data;
+          dispatch(setAccessToken(accessToken))
+
+          console.log(access_Token,'thsi is from redux')
          toast.success(response.data.message);
           setLoading(false)
 
@@ -169,6 +181,7 @@ const handleSocialLogin = (provider:string)=>{
               label="Email address"
               type="email"
               id="email"
+              name="email"
               placeholder="you@example.com"
               value={formData.email}
               onChange={handleChange}
@@ -179,6 +192,7 @@ const handleSocialLogin = (provider:string)=>{
               label="Password"
               type="password"
               id="password"
+              name="password"
               placeholder="Password"
               value={formData.password}
               onChange={handleChange}
@@ -211,12 +225,12 @@ const handleSocialLogin = (provider:string)=>{
             </div>
          
 
-<a
-    href="/auth/forgot_password"
+<Link
+    to={`/auth/forgot_password/${userType}`}
     className="text-[#ff8800] hover:text-[#ff9900] text-sm font-medium"
   >
     Forgot password?
-  </a>
+  </Link>
 
             
           </div>

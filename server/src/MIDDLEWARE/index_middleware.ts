@@ -1,16 +1,17 @@
 export  const corsOptions = {
+    origin:'http://localhost:5173',
+    credentials:true,
+    methods:'GET,HEAD,OPTIONS,PUT,PATCH,POST,DELETE',
     allowedHeaders:[
         'Origin',
         'X-Requested-With',
         'Content-Type',
         'Accept',
         'X-Access-Token',
-        'Authorization'
-
+        'Authorization',
+        'Set-Cookie',
+        'Access-Control-Allow-Credentials',
     ],
-    credentials:true,
-    origin:'http://localhost:5173',
-    methods:'GET,HEAD,OPTIONS,PUT,PATCH,POST,DELETE',
     preflightContinue:false,
     optionsSuccessStatus:200,
 }

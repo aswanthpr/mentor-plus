@@ -43,7 +43,7 @@ class OtpService {
                 }
                 const updateResult = yield this._OtpRespository.DBupdateMentee(data.email);
                 if (updateResult.modifiedCount === 1) {
-                    return { success: true, message: 'signup success' };
+                    return { success: true, message: 'user validate successfully' };
                 }
                 else {
                     return { success: false, message: 'User not found or already verified' };

@@ -8,7 +8,7 @@ class OtpRepository implements IOtpRepository{
     async createOtp(email: string, otp: string):Promise<IOtp|undefined> {
         try {
 
-            const saveOtp = new otpModel({ email,otp});
+            const saveOtp = new otpModel({ email,otp}); 
            const data=await saveOtp.save();
            console.log(data,'otp created')
             return data

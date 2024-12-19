@@ -1,56 +1,82 @@
-// import axios, { AxiosResponse } from "axios";
+import axios from "axios";
+import {store} from '../Services/store'
 
-// const protectedAPI = axios.create({
-//     baseURL: "http://localhost:3000/",
-//     headers: {
-//       "Content-type": "application/json",
-//     },
-//     withCredentials: true,
-//   });
+export const protectedAPI = axios.create({
+    baseURL: "http://localhost:3000",
+    headers: {
+      "Content-type": "application/json",
+    },
+    withCredentials: true,
+  });
+
+  export const unProtectedAPI = axios.create({
+    baseURL: "http://localhost:3000",
+    headers: {
+      "Content-type": "application/json",
+    },
+    withCredentials: true,
+  })
 
 
-//   protectedAPI.interceptors.request.use(
-//     async (config):Promise<any> => {
-//       const token = getTokenFromLocalStorage();
-//       if (token) {
-//         config.headers["Authorization"] = ` bearer ${token}`;
-//       }
-//       return config;
-//     },
-//     (error) => {
-//       return Promise.reject(error);
-//     }
-//   );
+  protectedAPI.interceptors.request.use(
+    async (config):Promise<any> => {
 
-//   const refreshToken = async ():Promise<any>=> {
-//     try {
-//       const response = await protectedAPI.get("auth/refresh");
-//       console.log("refresh token", response.data);
-//       return response.data;
-//     } catch (e:any) {
-//       console.log("Error",e);   
-//     }
-//   };
+      const state = store.getState();
 
-// protectedAPI.interceptors.response.use(
-//     (response) => {
-//       return response;
-//     },
-//     async function (error) {
-//       const originalRequest = error.config;
-//       if (error.response.status === 403 && !originalRequest._retry) {
-//         originalRequest._retry = true;
-  
-//         const resp = await refreshToken();
-  
-//         const access_token = resp.response.accessToken;
-  
-//         addTokenToLocalStorage(access_token);
-//         protectedAPI.defaults.headers.common[
-//           "Authorization"
-//         ] = `Bearer ${access_token}`;
-//         return protectedAPI(originalRequest);
-//       }
-//       return Promise.reject(error);
-//     }
-//   );
+      const token = state.accessToken.accessToken;
+      console.log(token,'this is from axios');
+
+      if (token) {
+        config.headers["Authorization"] = ` bearer ${token}`;
+      }
+      return config;
+    },
+    (error) => {
+      return Promise.reject(error);
+    }
+  );
+
+  const refreshToken = async ():Promise<any>=> {
+    try {
+      const response = await protectedAPI.get("/auth/refresh-token");
+      console.log("refresh token", response.data);
+      return response.data;
+    } catch (e:any) {
+      console.log("Error",e);   
+    }
+  };
+
+protectedAPI.interceptors.response.use(
+    (response) => {
+      return response;
+    },
+    async function (error) {
+      const originalRequest = error.config;
+
+      if (error.response.status === 403 && !originalRequest._retry) {
+        originalRequest._retry = true;
+        try {
+          
+          const resp = await refreshToken();
+          console.log(resp.response.data,'thsi is new access token');
+          
+          const access_token = resp.response.token;
+          
+          store.dispatch({
+            type:'access/setAccessToken',
+            payload:access_token
+          })
+
+          protectedAPI.defaults.headers.common[
+            "Authorization"
+          ] = `Bearer ${access_token}`;
+          return protectedAPI(originalRequest);
+        } catch (error:any) {
+          store.dispatch({ type: 'auth/clearAccessToken' });
+          console.log(error.message)
+        }
+
+      }
+      return Promise.reject(error);
+    }
+  );
