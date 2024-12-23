@@ -20,12 +20,10 @@ const menteeSchema = new mongoose_1.default.Schema({
     phone: {
         type: String,
         default: null,
-        unique: true,
         trim: true
     },
     password: {
         type: String,
-        required: [true, 'Password is required'],
         trim: true
     },
     bio: {
@@ -48,11 +46,12 @@ const menteeSchema = new mongoose_1.default.Schema({
     },
     isAdmin: {
         type: Boolean,
-        defualt: false
+        default: false
     },
     verified: {
         type: Boolean,
         default: false
     }
 }, { timestamps: true });
+menteeSchema.index({ phone: 1 }, { unique: true, partialFilterExpression: { phone: { $ne: null } } });
 exports.default = mongoose_1.default.model('Mentee', menteeSchema);

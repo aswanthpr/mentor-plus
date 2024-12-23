@@ -21,7 +21,7 @@ import { BaseRepository } from "./BaseRepo";
     }
     async create_Mentee(userData:IMentee):Promise<IMentee>{
         try {
-            return await this.createMentee(userData);
+            return await this.createDocument(userData);
         } catch (error:any) {
             console.log(`error while doing signup ${error}`);  
             throw new Error("error while mentee Signup");
@@ -52,5 +52,15 @@ import { BaseRepository } from "./BaseRepo";
             console.log(`error while find and update on DBforget_passwordChange ${error instanceof Error ? error.message :String(error)}`)
         }
     }
+
+    //admin data fetch
+    async DBadminLogin(email:string):Promise<IMentee|null> {
+        try {
+            return await this.find_One({email})
+        } catch (error:unknown) {
+            console.log(`error while finding admin ${error instanceof Error ? error.message :String(error)}`)
+            return null;
+        }
+    }
 }
-export default new AuthRepository()
+export default new AuthRepository() 

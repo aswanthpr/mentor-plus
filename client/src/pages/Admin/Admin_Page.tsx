@@ -1,6 +1,6 @@
 import React,{useState} from 'react'
 import Header from '../../components/Common/Ui_Layout/Header'
-import { LayoutDashboard,Compass,HandCoins,HelpCircle,UserRoundPenIcon, Users} from 'lucide-react';
+import {PaperclipIcon, LayoutDashboard,Compass,HandCoins,HelpCircle,UserRoundPenIcon, Users} from 'lucide-react';
 import SidePanel from '../../components/Common/Ui_Layout/SidePanel';
 import { Outlet } from 'react-router-dom';
 
@@ -11,11 +11,11 @@ interface INavItem{
   icon:React.FC<React.SVGProps<SVGSVGElement>>;
 }
 const navItems:INavItem[]= [
-    { name: 'Dashboard', path: '/admin/dashbord', icon: LayoutDashboard },
-    { name: 'Category', path: '/admin/category', icon: Compass },
-    { name: 'Mentor', path: '/admin/menter_management', icon: UserRoundPenIcon },
-    { name: 'Mentee', path: '/admin/mentee_mangement', icon: Users },
-    { name: 'Payment', path: '/admin/payment_approval', icon: HandCoins },
+    { name: 'Dashboard', path: '/admin/dashboard', icon: LayoutDashboard },
+    { name: 'Category', path: '/admin/category_management', icon: PaperclipIcon },
+    { name: 'Mentor', path: '/admin/mentor_management', icon: UserRoundPenIcon },
+    { name: 'Mentee', path: '/admin/mentee_management', icon: Users },
+    { name: 'Payment', path: '/admin/payment_management', icon: HandCoins },
     { name: 'Q&A', path: '/admin/qa_management', icon: HelpCircle },
   ];
  
@@ -43,8 +43,8 @@ const Admin_Page:React.FC = () => {
       <SidePanel
       SideBarItems={navItems}/>
       }
-        <main className={`pt-16 pl-64 ${isSideBarOpen? 'pl-64':'pl-0'}`} >
-        <div className="p-6">
+        <main className={`pt-1 place-self-auto  ${isSideBarOpen? 'pl-64':'pl-0'}`} >
+        <div className="p-0 mx-auto">
           <Outlet />
         </div>
         </main>

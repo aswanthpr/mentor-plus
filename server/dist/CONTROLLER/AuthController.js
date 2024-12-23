@@ -19,18 +19,12 @@ class AuthController {
     menteeSignup(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                console.log(req.body, "signup req body");
                 const result = yield this._AuthService.mentee_Signup(req.body);
-                if (!result.success) {
-                    res.status(409).json({ success: false, message: result.message });
-                }
                 yield this._OtpService.sentOtptoMail(req.body.email);
-                if (result) {
-                    res.status(200).json({
-                        success: true,
-                        message: "OTP successfully sent to mail",
-                    });
-                }
+                res.status(200).json({
+                    success: true,
+                    message: "OTP successfully sent to mail",
+                });
             }
             catch (error) {
                 res
@@ -44,7 +38,6 @@ class AuthController {
     getVerifyOtp(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                console.log(req.body);
                 const { email, otp } = req.body;
                 if (!email || !otp) {
                     res
@@ -97,13 +90,11 @@ class AuthController {
             try {
                 console.log(req.body, "this is from getMain login");
                 const { email, password } = req.body;
-                if (!email || !password) {
-                    res
-                        .status(400)
-                        .json({ success: false, message: "credential is  missing" });
+                const result = yield this._AuthService.BLMainLogin(email, password);
+                if (!result) {
+                    res.status(400).json({ success: false, message: 'user not found. Please Singup' });
                     return;
                 }
-                const result = yield this._AuthService.BLMainLogin(email, password);
                 const refresh_Token = result === null || result === void 0 ? void 0 : result.refreshToken;
                 const accessToken = result === null || result === void 0 ? void 0 : result.accessToken;
                 if (result.success) {
@@ -124,9 +115,9 @@ class AuthController {
             }
             catch (error) {
                 console.error(`Login error: ${error instanceof Error ? error.message : String(error)}`);
-                // res
-                //   .status(500)
-                //   .json({ success: false, message: "Internal server error" });
+                res
+                    .status(500)
+                    .json({ success: false, message: "Internal server error" });
                 throw new Error(`error while Login in getMainLogin ${error instanceof Error ? error.message : String(error)}`);
             }
         });
@@ -211,6 +202,47 @@ class AuthController {
                     .status(500)
                     .json({ success: false, message: "Internal server error" });
                 throw new Error(`error while geting refreshToken${error instanceof Error ? error.message : String(error)}`);
+            }
+        });
+    }
+    //admin Login
+    getAdminLogin(req, res) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const { email, password } = req.body;
+                console.log(email, password, 'thsi is the email and password');
+                const result = yield this._AuthService.BLadminLogin(email, password);
+                if (!result) {
+                    res.status(400).json({ success: false, message: 'user not found. Please Singup' });
+                    return;
+                }
+                const refreshToken = result === null || result === void 0 ? void 0 : result.refreshToken;
+                if (result.success) {
+                    res.cookie("adminToken", refreshToken, {
+                        httpOnly: true,
+                        secure: false, //in development fasle process.env.NODE_ENV === 'production'
+                        sameSite: "none",
+                        maxAge: 15 * 24 * 60 * 60 * 1000,
+                        path: '/',
+                    });
+                    res.status(200).json(result);
+                    return;
+                }
+                else {
+                    res.status(401).json(result);
+                    return;
+                }
+            }
+            catch (error) {
+            }
+        });
+    }
+    //---------------------------------------------------------------------------
+    getMentorApply(req, res) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+            }
+            catch (error) {
             }
         });
     }

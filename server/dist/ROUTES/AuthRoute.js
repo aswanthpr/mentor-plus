@@ -13,6 +13,7 @@ const __otpService = new OtpService_1.default(OtpRepo_1.default);
 const __authService = new AuthService_1.AuthService(AuthRepo_1.default, __otpService);
 const __authController = new AuthController_1.AuthController(__authService, __otpService);
 const auth_Router = express_1.default.Router();
+//mentee auth
 auth_Router.post('/signup', __authController.menteeSignup.bind(__authController));
 auth_Router.post('/verify-otp', __authController.getVerifyOtp.bind(__authController));
 auth_Router.post('/resend-otp', __authController.getResendOtp.bind(__authController));
@@ -20,4 +21,6 @@ auth_Router.post('/login', __authController.getMainLogin.bind(__authController))
 auth_Router.post('/refresh-token', __authController.getAccessToken.bind(__authController));
 auth_Router.post('/forgot_password', __authController.getForgotPassword.bind(__authController));
 auth_Router.put('/change_password', __authController.getForgot_PasswordChange.bind(__authController));
+//admin auth
+auth_Router.post('/admin/login', __authController.getAdminLogin.bind(__authController));
 exports.default = auth_Router;

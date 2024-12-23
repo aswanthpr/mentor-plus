@@ -11,4 +11,5 @@ export default interface IAuthService {
 
   BLAccessToken(refreshToken:string):Promise<{success:boolean,message:string,accessToken?:string,refreshToken?:string}>
   
+  BLadminLogin(email:string,password:string):Promise<{success:boolean,message:string,accessToken?:string,refreshToken?:string}|undefined>
 }

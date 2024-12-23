@@ -38,7 +38,7 @@ class AuthService {
                 // pass hasing
                 const hashPassword = yield (0, hashPass_util_1.default)(userData.password);
                 userData.password = hashPassword;
-                const newMentee = yield this._AuthRepository.createMentee(userData);
+                const newMentee = yield this._AuthRepository.create_Mentee(userData);
                 return { success: true, message: "signup successfull" };
             }
             catch (error) {
@@ -163,6 +163,45 @@ class AuthService {
             catch (error) {
                 console.error("Error while generating BLRefreshToken", error);
                 return { success: false, message: "Invalid or expired refresh token" };
+            }
+        });
+    }
+    //amdin login Logic
+    BLadminLogin(email, password) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                if (!email || !password) {
+                    return { success: false, message: "admin credencial is missing" };
+                }
+                const result = yield this._AuthRepository.DBadminLogin(email);
+                if (!result) {
+                    return { success: false, message: "Admin not exist" };
+                }
+                if (!(result === null || result === void 0 ? void 0 : result.isAdmin)) {
+                    return { success: false, message: "user is not allowed ,sorry.." };
+                }
+                if (result === null || result === void 0 ? void 0 : result.isBlocked) {
+                    return { success: false, message: "Admin blocked .sorry.." };
+                }
+                const checkUser = yield bcrypt_1.default.compare(password, result === null || result === void 0 ? void 0 : result.password);
+                if (!checkUser) {
+                    return { success: false, message: "password not matching" };
+                }
+                const userId = result._id;
+                console.log(userId, "userid");
+                const accessToken = (0, jwt_utils_1.genAccesssToken)(userId);
+                const refreshToken = (0, jwt_utils_1.genRefreshToken)(userId);
+                console.log(accessToken, refreshToken, "access refrsh");
+                return {
+                    success: true,
+                    message: "Login Successfull",
+                    refreshToken,
+                    accessToken,
+                };
+            }
+            catch (error) {
+                console.error("Error while loging admin", error);
+                return { success: false, message: "Admin does't exist" };
             }
         });
     }

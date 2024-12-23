@@ -4,13 +4,13 @@ export interface IMentee extends Document {
     name:string;
     email:string;
     phone?:string;
-    password:string;
+    password?:string;
     bio?:string|null;
-    isBlocked?:boolean;
+    isBlocked:boolean;
     skills?:string[];
     profileUrl?:string;
     verified?:boolean;
-    isAdmin?:boolean;
+    isAdmin:boolean;
 }
 
 const menteeSchema:Schema<IMentee> = new mongoose.Schema({
@@ -29,12 +29,10 @@ const menteeSchema:Schema<IMentee> = new mongoose.Schema({
     phone:{
         type:String,
         default:null,
-        unique:true,
         trim:true
     },
     password:{
         type:String,
-        required:[true,'Password is required'],
         trim:true
     },
     bio:{
@@ -57,7 +55,7 @@ const menteeSchema:Schema<IMentee> = new mongoose.Schema({
     },
     isAdmin:{
         type:Boolean,
-        defualt:false
+        default:false
     },
     verified:{
         type:Boolean,
@@ -66,5 +64,6 @@ const menteeSchema:Schema<IMentee> = new mongoose.Schema({
 
 },{timestamps:true});
 
+menteeSchema.index({phone:1},{unique:true,partialFilterExpression:{phone:{$ne:null}}});
 
-export default mongoose.model<IMentee>('Mentee',menteeSchema)
+export default mongoose.model<IMentee>('Mentee',menteeSchema) 

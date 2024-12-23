@@ -32,7 +32,7 @@ class AuthRepository extends BaseRepo_1.BaseRepository {
     create_Mentee(userData) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                return yield this.createMentee(userData);
+                return yield this.createDocument(userData);
             }
             catch (error) {
                 console.log(`error while doing signup ${error}`);
@@ -67,6 +67,18 @@ class AuthRepository extends BaseRepo_1.BaseRepository {
             }
             catch (error) {
                 console.log(`error while find and update on DBforget_passwordChange ${error instanceof Error ? error.message : String(error)}`);
+            }
+        });
+    }
+    //admin data fetch
+    DBadminLogin(email) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                return yield this.find_One({ email });
+            }
+            catch (error) {
+                console.log(`error while finding admin ${error instanceof Error ? error.message : String(error)}`);
+                return null;
             }
         });
     }

@@ -1,5 +1,4 @@
 import { Request,Response } from "express";
-import { IOtp } from "../../MODEL/otpModel";
 
 export interface IAuthController {
     menteeSignup(req:Request,res:Response):Promise<void>
@@ -11,4 +10,11 @@ export interface IAuthController {
 
 
     getAccessToken(req:Request,res:Response):Promise<void>
+
+    getAdminLogin(req:Request,res:Response):Promise<void>
+
+
+    getMentorApply(req:Request,res:Response):Promise<void>;
 } 
+
+

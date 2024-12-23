@@ -153,7 +153,7 @@ const SignupForm:React.FC = () => {
       {loading && <Spinner />}
       <div className="sm:mx-auto sm:w-full sm:max-w-md">
         <h2 className="text-center text-3xl font-bold tracking-tight text-gray-900">
-          Sign up as mentee
+          Sign up as mentee 
         </h2>
       </div>
 

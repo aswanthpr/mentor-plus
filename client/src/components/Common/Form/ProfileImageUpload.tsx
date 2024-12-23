@@ -37,7 +37,7 @@ export const ProfileImageUpload:React.FC<IProfileImageUpload> = ({onImageChange,
     <div className='flex justify-center mb-5 '>
         <div className='relative'>
     <div 
-    className='w-32 h-32 rounded-full border-4 border-orange-500 overflow-hidden bg-gray-100 flex items-center justify-center cursor-pointer'
+    className='w-28 h-28 rounded-full border-4 border-orange-500 overflow-hidden bg-gray-100 flex items-center justify-center cursor-pointer'
     onClick={()=>fileInputRef.current?.click()}>
       {previewUrl?(
         <img src={previewUrl}

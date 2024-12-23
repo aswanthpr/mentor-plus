@@ -1,7 +1,7 @@
 
 
 import React, { useState } from 'react';
-import logo from '/mentor+logo.png'
+import logo from '/mentorPlus.png'
 import { AlignJustify, Bell, LogOut, Search, User } from 'lucide-react';
 import InputField from '../Form/InputField';
 import NotificationPanel from './NotificationPanel';
@@ -61,7 +61,7 @@ const unreadCount = notifications.filter((n) =>!n.read!).length;
             >
             <AlignJustify className='mr-1 '/>
             </div>
-
+           
             <img src={logo} alt=""  className='w-auto h-24'/>
             </div>
             <div className='flex-1 max-w-xl mx-4'>

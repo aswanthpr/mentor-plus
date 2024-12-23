@@ -1,8 +1,9 @@
 import * as EmailValidator from "email-validator";
 
+
 //name validation
 export const validateName = (name: string): string | undefined => {
-  if (name.length < 4 && name.length <= 25) {
+  if (name.length < 4 || name.length > 25) {
     return "Name must be at least 3-25 characters long";
   }
   if (!/^[a-zA-Z\s]*$/.test(name)) {
@@ -65,3 +66,27 @@ export const validateConfirmPassword = (
 
   return undefined;
 };
+
+export const categoryValidation = async (category: string): Promise<boolean> => {
+  if (!category) {
+    return false;
+  }
+  const regex = /^[a-zA-Z\s]{3,20}$/;
+  return regex.test(category);
+};
+
+export const validatePhone=(phone:string)=>{
+
+  const phonePattern = /^[0-9]{10,}$/; 
+  if (phone && !phonePattern.test(phone)) {
+   return "Phone number must be at least 10 digits and contain only numbers.";
+  }
+return undefined
+}
+
+export const validateBio=(bio:string)=>{
+  if (bio && (bio.length < 20 || bio.length > 200)) {
+    return "Bio must be between 20 and 200 characters.";
+  }
+return undefined
+}

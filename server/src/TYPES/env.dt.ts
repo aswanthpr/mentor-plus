@@ -10,5 +10,8 @@ declare namespace NodeJS{
            ACCESS_TOKEN_EXPIRY:string
            REFRESH_TOKEN_EXPIRY:string
            COOKIE_SECRET:string
+           CLOUDINARY_CLOUD_NAME:string
+           CLOUDINARY_API_KEY:string
+           CLOUDINARY_API_SECRET :string
     }
 }

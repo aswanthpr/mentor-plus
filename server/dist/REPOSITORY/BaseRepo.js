@@ -21,19 +21,19 @@ class BaseRepository {
                 return yield this.model.findOne(filter).exec();
             }
             catch (error) {
-                throw new Error(`error while finding ${error instanceof Error ? error.message : String(error)} `);
+                throw new Error(`Error while finding entity: ${error instanceof Error ? error.message : String(error)}`);
             }
         });
     }
     // new mentee create
-    createMentee(userData) {
+    createDocument(docData) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const entity = new this.model(userData);
+                const entity = new this.model(docData);
                 return yield entity.save();
             }
             catch (error) {
-                throw new Error(`${'\x1b[35m%s\x1b[0m'}error while creating entity:${error instanceof Error ? error.message : String(error)}`);
+                throw new Error(`Error while creating document: ${error instanceof Error ? error.message : String(error)}`);
             }
         });
     }
@@ -43,7 +43,8 @@ class BaseRepository {
                 return yield this.model.findById(Id).exec();
             }
             catch (error) {
-                console.log('error while find_By_Id ', error instanceof Error ? error.message : String(error));
+                console.log(`Error while finding by ID: ${error instanceof Error ? error.message : String(error)}`);
+                return null; // Return null if there's an error
             }
         });
     }
@@ -53,7 +54,27 @@ class BaseRepository {
                 return yield model.findOneAndUpdate(filter, update, options);
             }
             catch (error) {
-                throw new Error(`${'\x1b[35m%s\x1b[0m'}error while creating entity:${error instanceof Error ? error.message : String(error)}`);
+                throw new Error(`${'\x1b[35m%s\x1b[0m'} Error while updating entity: ${error instanceof Error ? error.message : String(error)}`);
+            }
+        });
+    }
+    find(model_1, filter_1) {
+        return __awaiter(this, arguments, void 0, function* (model, filter, options = {}) {
+            try {
+                return yield model.find(filter, null, options);
+            }
+            catch (error) {
+                throw new Error(`Error while finding entities: ${error instanceof Error ? error.message : String(error)}`);
+            }
+        });
+    }
+    find_By_Id_And_Update(model_1, id_1, updateData_1) {
+        return __awaiter(this, arguments, void 0, function* (model, id, updateData, options = {}) {
+            try {
+                return yield model.findByIdAndUpdate(id, updateData, Object.assign({ new: true }, options));
+            }
+            catch (error) {
+                throw new Error(`Error while finding entities: ${error instanceof Error ? error.message : String(error)}`);
             }
         });
     }
