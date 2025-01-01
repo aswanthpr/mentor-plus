@@ -4,31 +4,25 @@ import { BanIcon, CircleCheckBigIcon, PencilLineIcon } from "lucide-react";
 import { Table } from "../../components/Admin/Table";
 import { Pagination } from "../../components/Common/Pagination";
 import { StatusBadge } from "../../components/Common/StatusBadge";
-import { unProtectedAPI } from "../../Helper/Axios";
+import { unProtectedAPI } from "../../Config/Axios";
 import profile from "/rb_2877.png";
 import ConfirmToast from "../../components/Common/ConfirmToast";
 import Modal from "../../components/Common/Modal";
 import InputField from "../../components/Common/Form/InputField";
-import {
-  validateBio,
-  validateEmail,
-  validateName,
-  validatePhone,
-} from "../../Validation/Validation";
 import Spinner from "../../components/Common/Spinner";
 
 // import { ConfirmationModal }
 
-const MENTEES_PER_PAGE = 5;
+const MENTEES_PER_PAGE = 8;
 
 interface IMentee {
-  _id: string;
+  _id?: string;
   name?: string;
   email?: string;
   phone?: string;
   bio?: string;
-  isBlocked: boolean;
-  verified: boolean;
+  isBlocked?: boolean;
+  verified?: boolean;
   profileUrl?: string;
 }
 interface IFormErrors {
@@ -137,6 +131,23 @@ export const Mentee_mgt: React.FC = () => {
     }
   };
 
+  // const validateField = (
+  //   field: keyof IMentee,
+  //   value: string
+  // ): string | undefined => {
+  //   switch (field) {
+  //     case "name":
+  //       return validateName(value);
+  //     case "email":
+  //       return validateEmail(value);
+  //     case "phone":
+  //       return validatePhone(value);
+  //     case "bio":
+  //       return validateBio(value);
+  //     default:
+  //       return undefined; 
+  //   }
+  // };
   // const validateForm = () => {
   //   const formErrors: IFormErrors = {};
   //   const { name, email, phone, bio } = formData;
@@ -274,17 +285,17 @@ export const Mentee_mgt: React.FC = () => {
             <td className="px-6  py-4 text-center">
               <StatusBadge status={mentee?.isBlocked ? "blocked" : "active"} />
             </td>
-            <td className="px-32  py-4 flex justify-center">
+            <td className="px-24  py-4 flex justify-center">
               <button
                 className="text-blue-600 hover:text-blue-800 font-bold"
-                onClick={() => handleEditMentee(mentee._id)}
+                onClick={() => handleEditMentee(mentee?._id as string)}
               >
                 <PencilLineIcon />
               </button>
             </td>
-            <td className="px-32  py-4">
+            <td className="px-24  py-4 items-center text-center">
               <button
-                onClick={() => handleMenteeBlock(mentee?._id)}
+                onClick={() => handleMenteeBlock(mentee?._id as string)}
                 className={`${
                   mentee?.isBlocked
                     ? "text-green-800 hover:text-green-400"
@@ -299,7 +310,7 @@ export const Mentee_mgt: React.FC = () => {
               </button>
             </td>
           </tr>
-        ))}
+        ))} 
       </Table>
       <Pagination
         currentPage={currentPage}

@@ -3,7 +3,7 @@ import {Camera} from 'lucide-react';
 import ImageCropper from './ImageCropper';
 
 interface IProfileImageUpload{
-    onImageChange:(image:Blob)=>void;
+    onImageChange:(image:Blob|null)=>void;
 
 
 }
@@ -44,12 +44,13 @@ export const ProfileImageUpload:React.FC<IProfileImageUpload> = ({onImageChange,
          alt="profile"
          className='w-full h-full object-cover' />
       ):(
-        <Camera className='w-8 h-8 tex-grey-400'/>
+        <Camera className='w-8 h-8 text-grey-50'/>
       )
     } 
     </div>
     <input
      type="file"
+     name='profileImage'
      ref={fileInputRef}
      className='hidden'
      accept='image/*'

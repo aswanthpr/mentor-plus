@@ -17,10 +17,12 @@ const bcrypt_1 = __importDefault(require("bcrypt"));
 const jwt_utils_1 = require("../UTILS/jwt.utils");
 const hashPass_util_1 = __importDefault(require("../UTILS/hashPass.util"));
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
+// import { IMentorApplyData } from "../TYPES/types";
 class AuthService {
-    constructor(_AuthRepository, _OtpService) {
+    constructor(_AuthRepository, _OtpService, _categoryRepository) {
         this._AuthRepository = _AuthRepository;
         this._OtpService = _OtpService;
+        this._categoryRepository = _categoryRepository;
     }
     mentee_Signup(userData) {
         return __awaiter(this, void 0, void 0, function* () {
@@ -62,7 +64,8 @@ class AuthService {
                     return { success: false, message: "login credencial is missing" };
                 }
                 const result = yield this._AuthRepository.DBMainLogin(email);
-                if (!result) {
+                console.log(result, "1111111111111");
+                if (!result || (result === null || result === void 0 ? void 0 : result.email) != email) {
                     return { success: false, message: "user not exist.Please signup" };
                 }
                 if (result === null || result === void 0 ? void 0 : result.isAdmin) {
@@ -71,6 +74,7 @@ class AuthService {
                 if (result === null || result === void 0 ? void 0 : result.isBlocked) {
                     return { success: false, message: "user blocked .sorry.." };
                 }
+                console.log(password, result.password);
                 const checkUser = yield bcrypt_1.default.compare(password, result === null || result === void 0 ? void 0 : result.password);
                 if (!checkUser) {
                     return { success: false, message: "password not matching" };
@@ -99,16 +103,19 @@ class AuthService {
                 if (!email || !userType) {
                     return { success: false, message: "credential is missing" };
                 }
-                if (userType == 'mentee') {
+                if (userType == "mentee") {
                     const result = yield this._AuthRepository.findByEmail(email);
                     if (!result || (result === null || result === void 0 ? void 0 : result.isBlocked)) {
-                        return { success: false, message: 'cannot find user' };
+                        return { success: false, message: "cannot find user" };
                     }
                     yield this._OtpService.sentOtptoMail(email);
-                    return { success: true, message: 'Otp success fully send to mail' };
+                    return { success: true, message: "Otp success fully send to mail" };
                 }
                 // Handle unsupported user types.
-                return { success: false, message: 'Invalid user type. Otp failed to send' };
+                return {
+                    success: false,
+                    message: "Invalid user type. Otp failed to send",
+                };
             }
             catch (error) {
                 console.log(`error while forget password in BLforgetPassword`, error instanceof Error ? error.message : String(error));
@@ -122,17 +129,20 @@ class AuthService {
                     return { success: false, message: "credencial is missing" };
                 }
                 const hashedPassword = yield (0, hashPass_util_1.default)(password);
-                console.log(hashedPassword, 'hash');
+                console.log(hashedPassword, "hash");
                 const result = yield this._AuthRepository.DBforgot_PasswordChange(email, hashedPassword);
                 console.log(result, "ths is passchnge reslut");
                 if (!result) {
-                    return { success: false, message: 'User does not exist. Please sign up.' };
+                    return {
+                        success: false,
+                        message: "User does not exist. Please sign up.",
+                    };
                 }
-                return { success: true, message: 'password changed successfully.' };
+                return { success: true, message: "password changed successfully." };
             }
             catch (error) {
                 console.log(`error while forget password in BLforgetPassword`, error instanceof Error ? error.message : String(error));
-                return { success: false, message: 'Internal server error' };
+                return { success: false, message: "Internal server error" };
             }
         });
     }
@@ -167,6 +177,26 @@ class AuthService {
         });
     }
     //amdin login Logic
+    blMentorFields() {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const result = yield this._categoryRepository.dbcategoryData();
+                if (!result) {
+                    return { success: false, message: "No data found ", status: 204 };
+                }
+                return {
+                    success: true,
+                    message: "data found",
+                    status: 200,
+                    categories: result,
+                };
+            }
+            catch (error) {
+                throw new Error(`error while forget password in BLforgetPassword
+        ${error instanceof Error ? error.message : String(error)}`);
+            }
+        });
+    }
     BLadminLogin(email, password) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
@@ -202,6 +232,29 @@ class AuthService {
             catch (error) {
                 console.error("Error while loging admin", error);
                 return { success: false, message: "Admin does't exist" };
+            }
+        });
+    }
+    blMentorApply(mentorData) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const { name, email, password, phone, jobTitle, category, linkedinUrl, githubUrl, bio, skills, } = mentorData.body;
+                const { profileImage, resume } = mentorData.files;
+                console.log(name, email, password, phone, jobTitle, category, linkedinUrl, githubUrl, bio, skills, profileImage, resume, '1111111111111');
+                // let uploadedFiles: { profileUrl?: string; documentUrl?: string };
+                return {
+                    success: true,
+                    message: "Mentor application submitted!",
+                    status: 200,
+                };
+            }
+            catch (error) {
+                console.error("Error while mentor appling", error);
+                return {
+                    success: false,
+                    message: "unexpected error occured",
+                    status: 500,
+                };
             }
         });
     }

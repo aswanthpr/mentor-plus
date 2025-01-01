@@ -3,6 +3,10 @@ import Header from '../../components/Common/Ui_Layout/Header'
 import { Home,MessageSquare,Calendar,Wallet,HelpCircle, Video} from 'lucide-react';
 import SidePanel from '../../components/Common/Ui_Layout/SidePanel';
 import { Outlet } from 'react-router-dom';
+import { axiosInstance } from '../../Config/mentorAxios';
+import { useDispatch } from 'react-redux';
+import { clearMentorToken } from '../../Redux/mentorSlice';
+import { toast } from 'react-toastify';
 
 
 interface INavItem{
@@ -20,6 +24,7 @@ const navItems:INavItem[]= [
   ];
  
 const Mentor_Page:React.FC = () => {
+  const dispatch = useDispatch()
   const [isSideBarOpen,setIsSideBarOpen] = useState<boolean>(true);
   const [searchValue,setSearchValue] = useState<string>('');
   
@@ -30,6 +35,19 @@ const Mentor_Page:React.FC = () => {
   const handleSearchChange=(e:React.ChangeEvent<HTMLInputElement>)=>{
     setSearchValue(e.target.value);
   }
+  const mentorLogout=async()=>{
+  
+    const response = await axiosInstance.post(`/mentor/logout`);
+    if(response.data.success&&response.status==200){
+    
+      dispatch(clearMentorToken());
+      localStorage.removeItem('mentorToken');
+      localStorage.removeItem('mentor');
+      
+      toast.success(response.data.message);
+    }
+    
+  }
   return (
     <div className='min-h-screen bg-gray-50'>
       <Header
@@ -37,14 +55,17 @@ const Mentor_Page:React.FC = () => {
       value={searchValue}
       ToggleSideBar={ToggleSideBar}
       placeholder='Search...'
+      userType='mentor'
+      logout={mentorLogout}
+      profileLink='/mentor/profile'
       />
       {isSideBarOpen&&
       
       <SidePanel
       SideBarItems={navItems}/>
       }
-        <main className={`pt-16 pl-64 ${isSideBarOpen? 'pl-64':'pl-0'}`} >
-        <div className="p-6">
+        <main className={` pl-64 ${isSideBarOpen? 'pl-60':'pl-0'}`} >
+        <div className="pl-4">
           <Outlet />
         </div>
         </main>

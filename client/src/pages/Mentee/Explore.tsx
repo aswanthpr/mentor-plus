@@ -1,126 +1,135 @@
-// import React, { useState } from 'react';
-// import MentorList from '../../components/explore/MentorList';
-// export interface Mentor {
-//   id: string;
-//   name: string;
-//   avatar: string;
-//   jobTitle: string;
-//   rating: number;
-//   skills: string[];
-//   hourlyRate: number;
-// }
+import React, { useState, useEffect } from 'react';
+import { Filter, X } from 'lucide-react';
+import SearchBar from '../../components/Mentee/SearchBar'; '../../components/dashboard/explore/SearchBar';
+import Filters from '../../components/Mentee/Filters';
+import MentorCard from '../../components/Mentee/MentorCard';
+import { Mentor } from '../../components/Mentee/MentorCard';
+import { MentorFilters } from '../../components/Mentee/Filters';
+import { protectedAPI } from '../../Config/Axios';
+import { toast } from 'react-toastify';
 
-// // Mock data (Replace with API calls as needed)
-// const mockSkills: FilterOption[] = [/*...same as before...*/];
-// const mockJobTitles: FilterOption[] = [/*...same as before...*/];
-// const mockMentors: Mentor[] = [/*...same as before...*/];
+// Mock data - Replace with API calls
+const mockMentors: Mentor[] = [
+    {
+        id: '1',
+        name: 'John Doe',
+        avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80',
+        title: 'Senior Full Stack Developer',
+        expertise: ['React', 'Node.js', 'TypeScript'],
+        rating: 4.8,
+        reviewCount: 124,
+        hourlyRate: 75,
+        availability: 'available',
+        bio: 'Experienced developer specializing in React and Node.js. Passionate about teaching and helping others grow in their career.',
+    },
+    {
+        id: '2',
+        name: 'Jane Smith',
+        avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80',
+        title: 'DevOps Engineer',
+        expertise: ['AWS', 'Docker', 'Kubernetes'],
+        rating: 4.9,
+        reviewCount: 89,
+        hourlyRate: 90,
+        availability: 'busy',
+        bio: 'Cloud infrastructure expert with a focus on AWS and containerization. Love sharing knowledge about modern DevOps practices.',
+    },
+];
 
-// const Explore: React.FC = () => {
-//   const [skills, setSkills] = useState(mockSkills);
-//   const [jobTitles, setJobTitles] = useState(mockJobTitles);
-//   const [sortOption, setSortOption] = useState('');
-//   const [currentPage, setCurrentPage] = useState(1);
+const ExplorePage: React.FC = () => {
+    const [searchQuery, setSearchQuery] = useState('');
+    const [showFilters, setShowFilters] = useState(false);
+    const [filters, setFilters] = useState<MentorFilters>({
+        expertise: [],
+        priceRange: [0, 200],
+        availability: [],
+        rating: 0,
+    });
 
-//   const handleSkillChange = (value: string) => {
-//     setSkills(skills.map(skill => 
-//       skill.value === value ? { ...skill, checked: !skill.checked } : skill
-//     ));
-//   };
+    const handleBook = (mentorId: string) => {
+        console.log('Booking session with mentor:', mentorId);
+        // Implement booking logic
+    };
 
-//   const handleJobTitleChange = (value: string) => {
-//     setJobTitles(jobTitles.map(title => 
-//       title.value === value ? { ...title, checked: !title.checked } : title
-//     ));
-//   };
+    useEffect(() => {
 
-//   const handleSortChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
-//     setSortOption(event.target.value);
-//   };
+        const fetchMentor = async () => {
 
-//   const handleBook = (mentorId: string) => {
-//     console.log('Booking mentor:', mentorId);
-//   };
+            try {
+                const response = await protectedAPI.get(`/mentee/explore`);
+                console.log(response, '444444444444444444444444444444444');
+            } catch (error: any) {
+                if (error.response && error.response.data) {
+                    const { message } = error.response.data;
+                    toast.error(message || "An error  occurred");
+                } else {
+                    // Handle network or unexpected errors
+                    toast.error("An unexpected error occurred. Please try again.");
+                }
+            }
 
-//   return (
-//     <div className="flex min-h-screen bg-gray-50">
-//       {/* Sidebar */}
-//       <div className="w-64 p-6 border-r border-gray-200">
-//         <h2 className="text-xl font-bold text-gray-900 mb-6">Filters</h2>
-//         <div className="mb-6">
-//           <h3 className="text-lg font-semibold text-gray-900 mb-3">Skills</h3>
-//           <div className="space-y-2 max-h-40 overflow-y-auto custom-scrollbar">
-//             {skills.map(option => (
-//               <label key={option.id} className="flex items-center space-x-3">
-//                 <input
-//                   type="checkbox"
-//                   checked={option.checked}
-//                   onChange={() => handleSkillChange(option.value)}
-//                   className="h-4 w-4 text-[#ff8800] rounded border-gray-300 focus:ring-[#ff8800]"
-//                 />
-//                 <span className="text-sm text-gray-700">{option.label}</span>
-//               </label>
-//             ))}
-//           </div>
-//         </div>
+        }
+        fetchMentor()
+    })
+    return (
+        <div className="relative mx-20 ">
+            {/* Mobile Filters Modal */}
+            {showFilters && (
+                <div className=" fixed inset-0 bg-black bg-opacity-50 z-50 lg:hidden">
+                    <div className="absolute right-0 top-0 h-full w-80 bg-white p-6 overflow-y-auto">
+                        <div className="flex justify-between items-center mb-6">
+                            <h2 className="text-lg font-semibold text-gray-900">Filters</h2>
+                            <button
+                                onClick={() => setShowFilters(false)}
+                                className="text-gray-400 hover:text-gray-600 "
+                            >
+                                <X className="h-6 w-6" />
+                            </button>
+                        </div>
+                        <Filters filters={filters} onFilterChange={setFilters} />
+                    </div>
+                </div>
+            )}
 
-//         <div>
-//           <h3 className="text-lg font-semibold text-gray-900 mb-3">Job Titles</h3>
-//           <div className="space-y-2 max-h-40 overflow-y-auto custom-scrollbar">
-//             {jobTitles.map(option => (
-//               <label key={option.id} className="flex items-center space-x-3">
-//                 <input
-//                   type="checkbox"
-//                   checked={option.checked}
-//                   onChange={() => handleJobTitleChange(option.value)}
-//                   className="h-4 w-4 text-[#ff8800] rounded border-gray-300 focus:ring-[#ff8800]"
-//                 />
-//                 <span className="text-sm text-gray-700">{option.label}</span>
-//               </label>
-//             ))}
-//           </div>
-//         </div>
-//       </div>
+            <div className="flex flex-col lg:flex-row gap-8">
+                {/* Filters Sidebar - Desktop */}
+                <div className="hidden lg:block w-64 ml-8 flex-shrink-0">
+                    <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200 sticky top-24">
+                        <h2 className="text-lg font-semibold text-gray-900 mb-6">Filters</h2>
+                        <Filters filters={filters} onFilterChange={setFilters} />
+                    </div>
+                </div>
 
-//       {/* Main Content */}
-//       <div className="flex-1 p-6">
-//         <div className="flex justify-between items-center mb-6">
-//           <h1 className="text-2xl font-bold text-gray-900">Find Your Perfect Mentor</h1>
-//           <select
-//             value={sortOption}
-//             onChange={handleSortChange}
-//             className="p-2 border border-gray-300 rounded-lg focus:ring-[#ff8800]"
-//           >
-//             <option value="">Sort by</option>
-//             <option value="rating">Rating</option>
-//             <option value="priceLowToHigh">Price: Low to High</option>
-//             <option value="priceHighToLow">Price: High to Low</option>
-//           </select>
-//         </div>
-// <div className='space-y-4'>
+                {/* Main Content */}
+                <div className="flex-1 ">
+                    <div className="flex flex-col sm:flex-row gap-4 mb-6 smr-6">
+                        <div className="flex-1">
+                            <SearchBar value={searchQuery} onChange={setSearchQuery} />
+                        </div>
 
+                        <button
+                            onClick={() => setShowFilters(true)}
+                            className="lg:hidden px-4 mt-6 flex items-center justify-center gap-2 mx-8 border border-gray-300 rounded-lg hover:bg-gray-50 py-2 "
+                        >
+                            <Filter className="h-5 w-5 mx-" />
+                            <span>Filters</span>
+                        </button>
 
-// </div>
-//         <MentorList mentors={mockMentors} onBook={handleBook} />
+                    </div>
 
-//         <div className="mt-6 flex justify-center">
-//           {/* Replace with actual pagination */}
-//           <button
-//             onClick={() => setCurrentPage(currentPage - 1)}
-//             disabled={currentPage === 1}
-//             className="px-3 py-2 bg-gray-200 rounded-lg mr-2"
-//           >
-//             Previous
-//           </button>
-//           <button
-//             onClick={() => setCurrentPage(currentPage + 1)}
-//             className="px-3 py-2 bg-gray-200 rounded-lg"
-//           >
-//             Next
-//           </button>
-//         </div>
-//       </div>
-//     </div>
-//   );
-// };
+                    <div className="grid grid-cols-1 gap-6">
+                        {mockMentors.map((mentor) => (
+                            <MentorCard
+                                key={mentor.id}
+                                mentor={mentor}
+                                onBook={handleBook}
+                            />
+                        ))}
+                    </div>
+                </div>
+            </div>
+        </div>
+    );
+};
 
-// export default Explore;
+export default ExplorePage;

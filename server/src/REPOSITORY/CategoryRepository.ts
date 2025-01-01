@@ -25,7 +25,7 @@ import { BaseRepository } from "./BaseRepo";
 
     async dbcategoryData(): Promise<ICategory[]> {
         try {
-            return await this.find(categorySchema,{});
+            return await this.find(categorySchema,{isBlocked:false});
 
         } catch (error:unknown) {
             throw new Error(`error while getting category Data in repository ${error instanceof Error? error.message:String(error)} `)  

@@ -30,7 +30,7 @@ const [fileName,setFileName] = useState<string>("")
                 <>
  <Upload className='w-5 h-5 text-orange-500 mb-2 '/>
  <span className='text-gray-600 ' >Click to upload your resume</span>
- <span className='text-xs text-gray-500 mt-1'> PDF, DOC, DOCX (MAX 5MB)</span>
+ <span className='text-xs text-gray-500 mt-1'> PDF, DOC, DOCX (MAX 3MB)</span>
  </>
             )}
            

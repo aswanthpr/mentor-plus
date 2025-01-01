@@ -1,5 +1,5 @@
 import React,{useState} from 'react';
-import {  useParams } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 import { useNavigate } from 'react-router-dom';
 
 import InputField from '../../components/Common/Form/InputField';
@@ -11,12 +11,13 @@ import ChangePassword from '../../components/auth/ChangePassword';
 import Modal from '../../components/Common/Modal';
 import Spinner from '../../components/Common/Spinner';
 import { toast } from 'react-toastify';
-import { unProtectedAPI } from '../../Helper/Axios';
+import { unProtectedAPI } from '../../Config/Axios';
 
 
 const ForgetPassword:React.FC = () => {
     const {user} = useParams();
-    const navigate = useNavigate()
+    const navigate = useNavigate();
+
 
     const [email,setEmail] = useState<string>('');
     const [otp,setOtp] = useState<string>('');
@@ -48,23 +49,21 @@ const ForgetPassword:React.FC = () => {
                 }
                 setEmailError("")
                 setLoading(true);
-
-                const userType = user;
-                console.log('userType',userType)
+ 
                 
-                const response = await unProtectedAPI.post('/auth/forgot_password',{email,userType,user});
+                const response = await unProtectedAPI.post(`/auth/forgot_password/${user=='mentee'?'mentee':'mentor'}`,{email});
                 
-                if(response.status==200 && response.data.success){
+                if(response?.status==200 && response?.data?.success){
                    
-                    toast.success(`${response.data.message}`)
+                    toast.success(`${response?.data?.message}`)
                     setIsOtpSent(true);
                     restart()
     
                 }
                 
             } catch (error:any) {
-                if (error.response && error.response.data) {
-                    const { message } = error.response.data;
+                if (error?.response && error?.response?.data) {
+                    const { message } = error.response?.data;
                     toast.error(message || "An error occurred");
                   } else {
                     // Handle network or unexpected errors
@@ -84,17 +83,17 @@ const ForgetPassword:React.FC = () => {
                 setLoading(true)
                 const response = await unProtectedAPI.post('/auth/resend-otp',{email})
 
-                if(response.data.success){
+                if(response.data?.success){
                    
-                    toast.success(response.data.message)
+                    toast.success(response.data?.message)
                     setIsOtpSent(true);
                     restart();
                 }
                 
             } catch (error:any) {
 
-                if (error.response && error.response.data) {
-                    const { message } = error.response.data;
+                if (error?.response && error.response?.data) {
+                    const { message } = error?.response?.data;
                     toast.error(message || "An error  occurred");
                   } else {
                     // Handle network or unexpected errors
@@ -114,21 +113,23 @@ const ForgetPassword:React.FC = () => {
                     return 
                 }
                 setOtpError(null)
-                setLoading(true)
+                setLoading(true);
 
-                const response= await unProtectedAPI.post('/auth/verify-otp',{email,otp})
-
-                   console.log(response.data&&response.status);
-
-                   if(response.data.success){
-                    setLoading(false)
-                    toast.success(response.data.message)
-                    setIsModalOpen(true);
-                    setOtp("")
-                   }
+                    console.log(email,otp,'777777777777777777777777777777777')
+                   const response= await unProtectedAPI.post(`/auth/verify-otp`,{email,otp,user});
+               
+                
+                console.log(response?.data&&response?.status);
+               
+                    if(response?.status==200 && response?.data?.success){
+                     setLoading(false)
+                     toast.success(response?.data?.message)
+                     setIsModalOpen(true);
+                     setOtp("")
+                    }
 
             } catch (error:any) {
-                if (error.response && error.response.data) {
+                if (error?.response && error.response?.data) {
                     const { message } = error.response.data;
                     toast.error(message || "An error occurred");
                   } else {
@@ -143,14 +144,16 @@ const ForgetPassword:React.FC = () => {
 const handlePassChange = async(password:string)=>{
     try {
         setLoading(true)
-        console.log('password  changed',password)
+        console.log('password  changed',password);
         setIsModalOpen(false);
-        const response = await unProtectedAPI.put('/auth/change_password',{email,password});
 
-        console.log(response.data.message,response.status)
-        if(response.status==200&&response.data.success){
-            toast.success(response.data.message)
-            navigate('/auth/login')
+            const response = await unProtectedAPI.put(`/auth/change_password/${user=='mentee'?'mentee':'mentor'}`,{email,password});
+
+       
+        console.log(response?.data.message,response?.status);
+        if(response?.status==200&&response.data?.success){
+            toast.success(response.data?.message);
+            
         }
     } catch (error:any) {
         if (error.response && error.response.data) {
@@ -161,8 +164,8 @@ const handlePassChange = async(password:string)=>{
             toast.error("An unexpected error occurred. Please try again.");
           }
     }finally{
-        setLoading(false)
-        navigate('/auth/login')
+        setLoading(false);
+        navigate('/auth/login/mentee');
     }
    
 }
@@ -192,7 +195,7 @@ const handlePassChange = async(password:string)=>{
                     />
                     
                     <Button
-                    variant='dark'
+                    variant='orange'
                     onClick={handleSendOTP}
                     disabled={!email||isOtpSent}
                     children={loading ? <Spinner /> : "Verify"}
@@ -234,9 +237,9 @@ const handlePassChange = async(password:string)=>{
               <div className="text-left"> {/* Center alignment */}
         <button
            onClick={()=>navigate(-1)}
-            className="text-[000000] hover:text-[#ff9900] font-semibold"
+            className=" ml-1 text-sm hover:text-[#000000] text-[#ff9900] font-semibold"
         >
-            back
+            Back
         </button>
     </div>
             </div>

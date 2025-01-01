@@ -1,9 +1,12 @@
 import React,{useState} from 'react'
-import Header from '../../components/Common/Ui_Layout/Header'
-import { Home,Compass,MessageSquare,Calendar,Wallet,HelpCircle,} from 'lucide-react';
-import SidePanel from '../../components/Common/Ui_Layout/SidePanel';
 import { Outlet } from 'react-router-dom';
-
+import { useDispatch,  } from 'react-redux';
+import { Home,Compass,MessageSquare,Calendar,Wallet,HelpCircle,} from 'lucide-react';
+import Header from '../../components/Common/Ui_Layout/Header'
+import SidePanel from '../../components/Common/Ui_Layout/SidePanel';
+import { clearAccessToken } from '../../Redux/menteeSlice';
+import { protectedAPI } from '../../Config/Axios';
+import { toast } from 'react-toastify';
 
 interface INavItem{
   name:string;
@@ -20,6 +23,8 @@ const navItems:INavItem[]= [
   ];
  
 const Mentee_Page:React.FC = () => {
+  const dispatch = useDispatch();
+
   const [isSideBarOpen,setIsSideBarOpen] = useState<boolean>(true);
   const [searchValue,setSearchValue] = useState<string>('');
   
@@ -30,6 +35,16 @@ const Mentee_Page:React.FC = () => {
   const handleSearchChange=(e:React.ChangeEvent<HTMLInputElement>)=>{
     setSearchValue(e.target.value);
   }
+  const logoutMentee= async()=>{
+const response = await protectedAPI.post(`/mentee/logout`);
+if(response.data.success&&response.status==200){
+
+  dispatch(clearAccessToken());
+  localStorage.removeItem('menteeToken');
+  toast.success(response.data.message);
+}
+}
+
   return (
     <div className='min-h-screen bg-gray-50'>
       <Header
@@ -37,6 +52,9 @@ const Mentee_Page:React.FC = () => {
       value={searchValue}
       ToggleSideBar={ToggleSideBar}
       placeholder='Search...'
+      profileLink='/mentee/profile'
+      userType='mentee'
+      logout={logoutMentee}
       />
       {isSideBarOpen&&
       

@@ -30,7 +30,7 @@ class AdminService {
                 if ((response === null || response === void 0 ? void 0 : response.category) != category) {
                     return { success: false, message: "unexpected error happend", status: 409 };
                 }
-                return { success: true, message: "category created successfully", status: 201 };
+                return { success: true, message: "category created successfully", result: response, status: 201 };
             }
             catch (error) {
                 throw new Error(`error while create category in service ${error instanceof Error ? error.message : String(error)}`);

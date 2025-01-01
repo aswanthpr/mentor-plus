@@ -160,7 +160,7 @@ const SignupForm:React.FC = () => {
       <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
         <div className="bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10">
           <div className="space-y-4">
-            <SocialLogins
+            {/* <SocialLogins
               icon={Github}
               provider=" GitHub"
               onClick={() => handleSocialLogin("GitHub")}
@@ -169,7 +169,7 @@ const SignupForm:React.FC = () => {
               icon={Linkedin}
               provider=" LinkedIn"
               onClick={() => handleSocialLogin("LinkedIn")}
-            />
+            /> */}
             <button
               onClick={() => handleSocialLogin("Google")}
               className="w-full flex items-center justify-center gap-2 px-4 py-2 border-2 border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"

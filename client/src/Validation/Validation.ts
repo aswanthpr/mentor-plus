@@ -84,9 +84,129 @@ export const validatePhone=(phone:string)=>{
 return undefined
 }
 
-export const validateBio=(bio:string)=>{
-  if (bio && (bio.length < 20 || bio.length > 200)) {
-    return "Bio must be between 20 and 200 characters.";
+// export const validateBio=(bio:string)=>{
+//   if (bio && (bio.length < 20 || bio.length > 200)) {
+//     return "Bio must be between 20 and 200 characters.";
+//   }
+// return undefined
+// }
+
+
+
+
+// Email validation (only 1 '@' allowed)
+export const validateEmails = (email: string) => {
+  const emailPattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+  if (!email) {
+    return "Email is required.";
   }
-return undefined
-}
+  if (!emailPattern.test(email)) {
+    return "Invalid email format.";
+  }
+  const atCount = (email.match(/@/g) || []).length;
+  if (atCount > 1) {
+    return "Email cannot contain multiple '@' symbols.";
+  }
+  return "";
+};
+
+// Phone validation (only digits, 10 characters)
+export const validatePhones = (phone: string) => {
+  const phonePattern = /^[0-9]{10}$/;
+  if (!phone) {
+    return "Phone number is required.";
+  }
+  if (!phonePattern.test(phone)) {
+    return "Phone number must be 10 digits.";
+  }
+  return "";
+};
+
+// Name validation (only first letter capitalized, no numbers/symbols)
+export const validateNames = (name: string) => {
+  const namePattern = /^[A-Z][a-z]+$/;
+  if (!name) {
+    return "Name is required.";
+  }
+  if (!namePattern.test(name)) {
+    return "Name must start with a capital letter and only contain letters.";
+  }
+  return "";
+};
+
+// Education validation (only characters, commas, and periods)
+export const validateEducation = (education: string) => {
+  const educationPattern = /^[a-zA-Z,.\s]+$/;
+  if (!education) {
+    return "Education is required.";
+  }
+  if (!educationPattern.test(education)) {
+    return "Education must only contain letters, commas, and periods.";
+  }
+  return "";
+};
+
+// Current Position validation (only characters)
+export const validateCurrentPosition = (currentPosition: string) => {
+  const positionPattern = /^[a-zA-Z\s]+$/;
+  if (!currentPosition) {
+    return "Current Position is required.";
+  }
+  if (!positionPattern.test(currentPosition)) {
+    return "Current position must only contain letters.";
+  }
+  return "";
+};
+
+// LinkedIn URL validation (optional, must start with https://www.linkedin.com/in/)
+export const validateLinkedinUrl = (linkedinUrl: string) => {
+  if (linkedinUrl && !/^https:\/\/www\.linkedin\.com\/in\//.test(linkedinUrl)) {
+    return "LinkedIn URL must start with https://www.linkedin.com/in/";
+  }
+  return "";
+};
+
+// GitHub URL validation (optional, must start with https://github.com/)
+export const validateGithubUrl = (githubUrl: string) => {
+  if (githubUrl && !/^https:\/\/github\.com\//.test(githubUrl)) {
+    return "GitHub URL must start with https://github.com/";
+  }
+  return "";
+};
+
+// Bio validation (20-100 words)
+export const validateBio = (bio: string) => {
+  const wordCount = bio.split(/\s+/).length;
+  if (!bio) {
+    return "Bio is required.";
+  }
+  if (wordCount < 20) {
+    return "Bio must be at least 20 words.";
+  }
+  if (wordCount > 100) {
+    return "Bio cannot exceed 100 words.";
+  }
+  return "";
+};
+
+
+export const validateImageFile = (file: File): string | undefined => {
+  // const validImageTypes = ['image/png', 'image/jpeg', 'image/jpg']; // List of valid image MIME types
+  const maxFileSize = 5 * 1024 * 1024; // Example: maximum file size of 5MB
+
+  if (!file) {
+    return "No file selected.";
+  }
+
+  // // Check if the file is an image
+  // if (!validImageTypes.includes(file.type)) {
+  //   return "Only PNG, JPG, and JPEG images are allowed.";
+  // }
+
+  // Check if the file exceeds the maximum size (optional)
+  if (file.size > maxFileSize) {
+    return "File size must be less than 5MB.";
+  }
+
+  return undefined; // Return undefined if all validations pass
+};

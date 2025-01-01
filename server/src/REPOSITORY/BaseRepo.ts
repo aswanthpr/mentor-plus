@@ -26,9 +26,9 @@ export class BaseRepository <T extends Document> implements IBaseRepository<T>{
       }
       
 
-      async find_By_Id(Id: string): Promise<T | null> {
+      async find_By_Id(Id: string, filter?: object,): Promise<T | null> {
         try {
-          return await this.model.findById(Id).exec();
+          return await this.model.findById(Id,filter).exec();
         } catch (error: unknown) {
           console.log(`Error while finding by ID: ${error instanceof Error ? error.message : String(error)}`);
           return null; // Return null if there's an error
@@ -63,7 +63,7 @@ export class BaseRepository <T extends Document> implements IBaseRepository<T>{
     async find_By_Id_And_Update<T extends Document>(
       
         model: Model<T>,          
-        id: string,               
+        id: string|mongoose.Types.ObjectId,               
         updateData: UpdateQuery<T>, 
         options: mongoose.QueryOptions = {}
     ):Promise<T|null>{

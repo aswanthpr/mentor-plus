@@ -1,49 +1,26 @@
 "use strict";
-// import multer from 'multer';
-// import { Request } from 'express';
-// import { v2 as cloudinary } from 'cloudinary';
-// import { UploadApiResponse } from 'cloudinary';
-// // Memory Storage for Multer
-// const storage = multer.memoryStorage();
-// // Multer Instance
-// const upload = multer({
-//   storage: storage,
-//   fileFilter: (req, file, cb) => {
-//     const allowedImageMimeTypes = ['image/jpeg', 'image/jpg', 'image/png'];
-//     const allowedDocumentMimeTypes = [
-//       'application/pdf',
-//       'application/msword',
-//       'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-//     ];
-//     if (
-//       (file.fieldname === 'profileImage' && allowedImageMimeTypes.includes(file.mimetype)) ||
-//       (file.fieldname === 'cv' && allowedDocumentMimeTypes.includes(file.mimetype))
-//     ) {
-//       cb(null, true);
-//     } else {
-//       cb(new Error('Invalid file type for this field.'));
-//     }
-//   },
-//   limits: { fileSize: 5 * 1024 * 1024 }, // 5 MB size limit
-// });
-// // Cloudinary Upload Function
-// const uploadToCloudinary = async (
-//   buffer: Buffer,
-//   folder: string,
-//   publicIdPrefix: string
-// ): Promise<UploadApiResponse> => {
-//   return await cloudinary.uploader.upload_stream(
-//     {
-//       folder: folder,
-//       public_id: `${publicIdPrefix}-${Date.now()}`,
-//       resource_type: 'auto',
-//     },
-//     (error, result) => {
-//       if (error) {
-//         throw new Error(error.message);
-//       }
-//       return result;
-//     }
-//   ).end(buffer);
-// };
-// export { upload, uploadToCloudinary };
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+const multer_1 = __importDefault(require("multer"));
+const storage = multer_1.default.memoryStorage();
+const fileFilter = (req, file, cb) => {
+    console.log('File MIME type:', file.mimetype);
+    const allowedMimes = ['application/pdf', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', 'image/jpeg', 'image/jpg', 'image/png'];
+    if (allowedMimes.includes(file.mimetype)) {
+        // File is PDF or DOCX
+        return cb(null, true);
+    }
+    else {
+        // Reject file if it is not a PDF or DOCX
+        let errors = new Error("only PDF and DOCX fiels are allowed ");
+        cb(null, false);
+    }
+};
+const upload = (0, multer_1.default)({
+    storage,
+    fileFilter,
+    limits: { fileSize: 2 * 1024 * 1024 }
+});
+exports.default = upload;

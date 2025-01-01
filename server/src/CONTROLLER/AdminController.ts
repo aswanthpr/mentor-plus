@@ -5,6 +5,43 @@ import { IAdminService } from "../INTERFACE/Admin/IAdminService";
 export class AdminController implements IAdminController {
   constructor(private _AdminService: IAdminService) {}
 
+
+
+
+
+  async getAdminRefreshToken(req: Request, res: Response): Promise<void> {
+    try {
+  
+      console.log("Received refresh token from cookies:", req.cookies.refreshToken)
+   
+      const result = await this._AdminService.BLAdminRefreshToken(req.cookies?.refreshToken);
+      
+  
+      if (result?.success) {
+        res.cookie("adminToken", result?.refreshToken as string, {
+          signed: true,
+          httpOnly: true,
+          secure:  process.env.NODE_ENV === 'production',
+          sameSite: "strict",
+          maxAge: 14 * 24 * 60 * 60 * 1000,
+        });
+  
+        
+      } 
+      res.status(result.status).json({success:result?.success,message:result?.message,accessToken:result?.accessToken});
+  
+    } catch (error: unknown) {
+      res
+        .status(500)
+        .json({ success: false, message: "Internal server error" });
+  
+      throw new Error(
+        `error while geting refreshToken${error instanceof Error ? error.message : String(error)
+        }`
+      );
+    }
+  }
+
   async getCreateCategory(req: Request, res: Response): Promise<void> {
     try {
       const response = await this._AdminService.blCreateCategory(req.body!);
@@ -157,4 +194,58 @@ export class AdminController implements IAdminController {
         );
       }
     }
+
+    //-----------------------------------------------------------
+    async getMentorData(req: Request, res: Response): Promise<void> {
+      try {
+        const result = await this._AdminService.blMentorData();
+        res.status(result.status).json({success:result.success,message:result.message,mentorData:result.mentorData})
+      } catch (error:unknown) {
+        throw new Error(
+          `error while get mentor Data  in controller ${
+            error instanceof Error ? error.message : String(error)
+          }`
+        );
+      }
+    }
+    async getMentorVerify(req: Request, res: Response):Promise<void>{
+      try {
+        console.log(req.body,'lkasndflnf')
+        const result = await this._AdminService.blMentorVerify(req.body as string);
+
+        res.status(result.status).json({success:result.success,message:result.message,metnorData:result.result})
+      } catch (error:unknown) {
+        throw new Error(
+          `error while mentor verify  in controller ${
+            error instanceof Error ? error.message : String(error)
+          }`
+        );
+      }
+    }
+    //mentor status change
+    async getChangeMentorStatus(req: Request, res: Response): Promise<void> {
+      try {
+        const result =  await this._AdminService.blMentorStatusChange(req.body.id as string);
+        res.status(result.status).json({success:result.success,message:result.message})
+      } catch (error:unknown) {
+        throw new Error( 
+          `error while mentor stutus  in controller ${
+            error instanceof Error ? error.message : String(error)
+          }`
+        );
+      }
+    }
+    async getAdminLogout(req: Request, res: Response): Promise<void> {
+      try { 
+        res.clearCookie('refreshToken')
+        res.status(200).json({ success: true, message: "Logout successfully" });
+       
+      } catch (error:unknown) {
+        res.status(500).json({ success: false, message: "Internal server error" });
+        throw new Error(
+          `Error while mentee  logout ${error instanceof Error ? error.message : String(error)
+          }`
+        );
+      }
+    } 
 }

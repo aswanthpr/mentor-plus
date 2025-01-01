@@ -14,7 +14,7 @@ export const Table = ({ headers, children }: TableProps) => {
             {headers.map((header) => (
               <th
                 key={header}
-                className="text-center py-3  text-xs font-medium text-gray-500 uppercase tracking-wider w-1/4" // Adjust w-1/4 or use another fraction like w-1/6, w-1/3, etc.
+                className="   text-center py-3  text-xs font-medium text-gray-500 uppercase tracking-wider w-1" // Adjust w-1/4 or use another fraction like w-1/6, w-1/3, etc.
               >
                 {header}
               </th>

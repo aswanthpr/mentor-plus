@@ -2,10 +2,12 @@ import React, { useState } from "react";
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
 
-import { unProtectedAPI } from "../../Helper/Axios";
+import { API } from "../../Config/adminAxios";
 import Button from "../../components/Common/Form/Button";
 import { validatePassword, validateEmail } from "../../Validation/Validation";
 import Spinner from "../../components/Common/Spinner";
+import { useDispatch } from "react-redux";
+import { setToken } from "../../Redux/adminSlice";
 
 
 interface IError {
@@ -14,6 +16,7 @@ interface IError {
 }
 const AdminLogin: React.FC = () => {
   const navigate = useNavigate();
+  const dispatch = useDispatch();
   const [email, setEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(false);
@@ -45,15 +48,18 @@ const AdminLogin: React.FC = () => {
 
       setLoading(true);
 
-      const response = await unProtectedAPI.post(`/auth/admin/login`, {
+      const response = await API.post(`/auth/login/admin`, {
         email,
         password,
       });
 
       if (response.data.success && response.status === 200) {
+
+        dispatch(setToken({adminToken:response.data.accessToken,adminRole:'admin'}));
         setLoading(false);
         toast.success(response.data.message);
         navigate("/admin/dashboard");
+
       } else {
         setLoading(false);
         toast.error("Login failed. Please check your credentials.");

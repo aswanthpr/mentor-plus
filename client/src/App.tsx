@@ -1,13 +1,4 @@
-import React from 'react'
-import Landing from './pages/Landing/Landing';
-import SignupForm from './pages/Auth/SignupForm'
-import Login from './pages/Auth/Login'
-import ForgotPassword from './pages/Auth/ForgotPassword'
-import AdminLogin from './pages/Auth/AdminLogin'
-import MentorApply from './pages/Auth/MentorApply'
-import Mentee_Page from './pages/Mentee/Mentee_Page';
-import Home from './pages/Mentee/Home';
-import MenteeProfile from './pages/Mentee/MenteeProfile';
+import React, { useEffect } from 'react'
 import { Route, Routes } from 'react-router-dom';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
@@ -45,22 +36,7 @@ const App:React.FC=()=> {
     <Route path='*' element={<NotFound/>} />
  </Routes>
    </> 
-//  <>
-//       {/* <Landing/> */}
-//       {/* <SignupForm/> */}
-//       {/* <Login/> */}
-//       {/* <ForgotPassword/> */}
-//       {/* <AdminLogin/> */}
-//       {/* <MentorApply/> */}
-//       {/* <Mentee_Page/> */}
-//       {/* <InternalServer/> */}
-//       {/* <NotFound/> */}
-//       {/* <Home/> */}
-//       {/* <MenteeProfile/> */}
-//       {/* <Explore/> */}
-//       {/* <Mentee_mgt/> */}
 
-//     </>
   )
 }
 

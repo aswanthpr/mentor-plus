@@ -1,18 +1,20 @@
 import React, { useState } from "react";
 import { Github, Linkedin } from "lucide-react";
-import axios from 'axios';
-import { useNavigate } from "react-router-dom";
-import { useDispatch, useSelector } from "react-redux";
-import {toast} from 'react-toastify';
+import axios from "axios";
+import { useLocation, useNavigate } from "react-router-dom";
+import { useDispatch } from "react-redux";
+import { toast } from "react-toastify";
 import { Link } from "react-router-dom";
+// import {useGoogleLogin} from '@react-oauth/google'
 
 import Spinner from "../../components/Common/Spinner";
 import InputField from "../../components/Common/Form/InputField";
 import SocialLogins from "../../components/auth/SocialLogins";
-import {validateEmail,validatePassword} from "../../Validation/Validation";
-import { AppDispatch } from "../../Services/store";
-import { setAccessToken } from "../../Services/accessReducer";
-import { RootState } from "../../Services/store";
+import { validateEmail, validatePassword } from "../../Validation/Validation";
+import { AppDispatch } from "../../Redux/store";
+import { setAccessToken } from "../../Redux/menteeSlice";
+import { unProtectedAPI } from "../../Config/Axios";
+import { setMentorToken } from "../../Redux/mentorSlice";
 
 type UserType = "mentee" | "mentor";
 
@@ -26,17 +28,28 @@ interface LoginFormError {
 }
 
 const Login: React.FC = () => {
+  const dispatch: AppDispatch = useDispatch();
 
-  const dispatch:AppDispatch =useDispatch();
-  const access_Token = useSelector((state:RootState)=>state.accessToken.accessToken)
-  const navigate = useNavigate()
-  const [userType, setUserType] = useState<UserType>("mentee");
+
+  const navigate = useNavigate();
+  const location = useLocation()
   const [formData, setFormData] = useState<LoginFormData>({
     email: "",
     password: "",
   });
   const [errors, setErrors] = useState<LoginFormError>({});
-  const [loading,setLoading]=useState<boolean>(false)
+  const [loading, setLoading] = useState<boolean>(false);
+
+
+  const getActivePath = (path: string) => {
+    if (path.includes("mentor")) {
+      return "mentor"
+    }
+    return "mentee"
+
+  }
+  const [userType, setUserType] = useState<UserType>(getActivePath(location.pathname));
+
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { id, value } = e.target;
@@ -58,55 +71,82 @@ const Login: React.FC = () => {
     }
   };
 
-  const handleSubmit = async(e: React.FormEvent<HTMLFormElement>) => {
-    try{
-  e.preventDefault()
-    const newErrors: LoginFormError = {};
-    (Object.keys(formData) as Array<keyof LoginFormData>).forEach((key) => {
-      const error = validateField(key, formData[key]);
-      if (error) {
-        newErrors[key] = error;
-      }
-    });
-    setErrors(newErrors);
-
-    if(Object.keys(newErrors).length===0){
-      setLoading(true)
-      if(userType=='mentee'){
-        console.log('hiaii',formData)
-        
-        const response = await axios.post('http://localhost:3000/auth/login',formData)
-        console.log(response.data,'response from mentee login')
-        if(response.status==200){
-          const {accessToken} = response.data;
-          dispatch(setAccessToken(accessToken))
-
-          console.log(access_Token,'thsi is from redux')
-         toast.success(response.data.message);
-          setLoading(false)
-
-          navigate('/mentee/home');
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    try {
+      e.preventDefault();
+      const newErrors: LoginFormError = {};
+      (Object.keys(formData) as Array<keyof LoginFormData>).forEach((key) => {
+        const error = validateField(key, formData[key]);
+        if (error) {
+          newErrors[key] = error;
         }
-      }else{
-        console.log('this is mentor');
+      });
+      setErrors(newErrors);
+
+      if (Object.keys(newErrors).length === 0) {
+
+        if (userType == "mentee") {
+          console.log("hiaii", formData);
+          const response = await unProtectedAPI.post(
+            "http://localhost:3000/auth/login/mentee",
+            formData
+          );
+          console.log(response.data, "response from mentee login");
+          if (response.status == 200) {
+
+            dispatch(setAccessToken({accessToken:response.data?.accessToken,role:"mentee"}));
+
+            toast.success(response.data.message);
+            setLoading(false);
+
+            navigate("/mentee/home");
+          }
+        }
+        if (userType == 'mentor') {
+          setLoading(true)
+          const response = await unProtectedAPI.post(
+            "http://localhost:3000/auth/login/mentor",
+            formData
+          );
+          
+          if (response.status == 200 && response.data.success) {
+
+            dispatch(setMentorToken({mentorToken:response.data?.accessToken,mentorRole:'mentor'}))
+            console.log(response.data?.accessToken, "thsi is from redux",response.data);
+            toast.success(response.data.message);
+
+
+            navigate("/mentor/home");
+          }
+        }
 
       }
-
+    } catch (error: any) {
+      if (error.response && error.response.data) {
+        const { message } = error.response.data;
+        toast.error(message || "An error  occurred");
+      } else {
+        // Handle network or unexpected errors
+        toast.error("An unexpected error occurred. Please try again.");
+      }
+    } finally {
+      setTimeout(() => {
+        setLoading(false)
+      }, 500)
     }
-  }catch(error:any){
-    console.log(error,'while login submit');
-  }finally{
-    setLoading(false)
-  }
   };
 
-const handleSocialLogin = (provider:string)=>{
-
-    console.log("loging in as ",provider)
-}
+  const handleSocialLogin = async (provider: string) => {
+    // console.log('soddfoafio')
+    // if(provider=="google"){
+    //   window.open(`${'http://localhost:3000/auth/google/callback'}`,'_self');
+    //   // const resp = await unProtectedAPI.get('http://localhost:3000/auth/google/callback');
+    //   // console.log(resp,'olas;dgolgoihdo')
+    // }
+  };
   return (
     <div className="min-h-screen flex flex-col justify-center py-12 sm:px-6 lg:px-8 font-poppins">
-      {loading&&<Spinner/>}
+      {loading && <Spinner />}
       <div className="sm:mx-auto sm:w-full sm:max-w-md">
         <h2 className="text-center text-4xl font-bold text-black mb-8">
           Login
@@ -114,21 +154,19 @@ const handleSocialLogin = (provider:string)=>{
         <div className="flex justify-center space-x-4 mb-8">
           <button
             onClick={() => setUserType("mentee")}
-            className={`px-6 py-2 rounded-lg font-medium transition-colors ${
-              userType === "mentee"
-                ? "bg-[#ff8800] text-white"
-                : "bg-white text-gray-600 hover:bg-gray-50"
-            }`}
+            className={`px-6 py-2 rounded-full font-medium transition-colors ${userType === "mentee"
+              ? "bg-[#ff8800] text-white"
+              : "bg-white text-gray-600 hover:bg-gray-50"
+              }`}
           >
             I'm a Mentee
           </button>
           <button
             onClick={() => setUserType("mentor")}
-            className={`px-6 py-2 rounded-lg font-medium transition-colors ${
-              userType === "mentor"
-                ? "bg-[#ff8800] text-white"
-                : "bg-white text-gray-600 hover:bg-gray-50"
-            }`}
+            className={`px-6 py-2 rounded-full font-medium transition-colors ${userType === "mentor"
+              ? "bg-[#ff8800] text-white"
+              : "bg-white text-gray-600 hover:bg-gray-50"
+              }`}
           >
             I'm a Mentor
           </button>
@@ -139,7 +177,7 @@ const handleSocialLogin = (provider:string)=>{
         <div className="bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10">
           {userType === "mentee" && (
             <div className="space-y-4 mb-8">
-              <SocialLogins
+              {/* <SocialLogins
                 icon={Github}
                 provider="GitHub"
                 onClick={() => handleSocialLogin("GitHub")}
@@ -148,9 +186,9 @@ const handleSocialLogin = (provider:string)=>{
                 icon={Linkedin}
                 provider="LinkedIn"
                 onClick={() => handleSocialLogin("LinkedIn")}
-              />
+              /> */}
               <button
-                onClick={() => handleSocialLogin("Google")}
+                onClick={() => handleSocialLogin}
                 className="w-full flex items-center justify-center gap-2 px-4 py-2 border-2 border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
               >
                 <img
@@ -223,18 +261,14 @@ const handleSocialLogin = (provider:string)=>{
                 apply to be a mentor
               </a>
             </div>
-         
 
-<Link
-    to={`/auth/forgot_password/${userType}`}
-    className="text-[#ff8800] hover:text-[#ff9900] text-sm font-medium"
-  >
-    Forgot password?
-  </Link>
-
-            
+            <Link
+              to={`/auth/forgot_password/${userType}`}
+              className="text-[#ff8800] hover:text-[#ff9900] text-sm font-medium"
+            >
+              Forgot password?
+            </Link>
           </div>
-         
         </div>
       </div>
     </div>

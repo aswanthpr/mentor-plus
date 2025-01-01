@@ -1,15 +1,25 @@
 import bcrypt from "bcrypt";
-import { IAuthRepository } from "../INTERFACE/Auth/IAuthRepository";
-import IAuthService from "../INTERFACE/Auth/IAuthService";
-import { IMentee } from "../MODEL/MenteeModel";
-import { genAccesssToken, genRefreshToken } from "../UTILS/jwt.utils";
+import jwt, { JwtPayload } from "jsonwebtoken";
 import hash_pass from "../UTILS/hashPass.util";
-import jwt from "jsonwebtoken";
-import { nodeMailer } from "../UTILS/nodemailer.util";
+import { IMentee } from "../MODEL/MenteeModel";
+import { IMentorApplyData } from "../TYPES/index";
+import { ICategory } from "../MODEL/categorySchema";
 import IOtpService from "../INTERFACE/Otp/IOtpService";
+import IAuthService from "../INTERFACE/Auth/IAuthService";
+import { IAuthRepository } from "../INTERFACE/Auth/IAuthRepository";
+import { genAccesssToken, genRefreshToken } from "../UTILS/jwt.utils";
+import { IMentorRepository } from "../INTERFACE/Mentor/IMentorRepository";
+import { uploadFile, uploadImage } from "../CONFIG/cloudinary.util";
+import { ICategoryRepository } from "../INTERFACE/Category/ICategoryRepository";
+import passport from "passport";
 
 export class AuthService implements IAuthService {
-  constructor(private _AuthRepository: IAuthRepository, private _OtpService:IOtpService) {}
+  constructor(
+    private _AuthRepository: IAuthRepository,
+    private _OtpService: IOtpService,
+    private _categoryRepository: ICategoryRepository,
+    private _MentorRepository: IMentorRepository
+  ) { }
 
   async mentee_Signup(
     userData: IMentee
@@ -44,7 +54,11 @@ export class AuthService implements IAuthService {
       }
     }
   }
-  async BLMainLogin(email:string,password:string
+  async BLMainLogin(
+    email: string,
+    password: string,
+
+
   ): Promise<{
     success: boolean;
     message: string;
@@ -52,17 +66,17 @@ export class AuthService implements IAuthService {
     accessToken?: string;
   }> {
     try {
-      console.log(email,password);
-      
+      console.log(email, password);
 
       console.log(email, password, "logic");
       if (!email || !password) {
         return { success: false, message: "login credencial is missing" };
       }
-      const result = await this._AuthRepository.DBMainLogin(email);
-
-      
-      if (!result) {
+      const result: IMentee | null = await this._AuthRepository.DBMainLogin(
+        email
+      );
+      console.log(result, "1111111111111");
+      if (!result || result?.email != email) {
         return { success: false, message: "user not exist.Please signup" };
       }
       if (result?.isAdmin) {
@@ -71,10 +85,8 @@ export class AuthService implements IAuthService {
       if (result?.isBlocked) {
         return { success: false, message: "user blocked .sorry.." };
       }
-      const checkUser = await bcrypt.compare(
-        password,
-        result?.password as string
-      );
+      console.log(password, result.password);
+      const checkUser = await bcrypt.compare(password, result?.password!);
 
       if (!checkUser) {
         return { success: false, message: "password not matching" };
@@ -93,34 +105,26 @@ export class AuthService implements IAuthService {
       };
     } catch (error: unknown) {
       throw new Error(
-        `error in Login service ${
-          error instanceof Error ? error.message : String(error)
+        `error in Login service ${error instanceof Error ? error.message : String(error)
         }`
       );
     }
   }
+
   //forget password mentor and mentee;
   async BLforgotPassword(
     email: string,
-    userType: string
-  ): Promise<{ success: boolean; message:string }|
-  undefined> {
+  ): Promise<{ success: boolean; message: string } | undefined> {
     try {
-      if (!email || !userType) {
+      if (!email) {
         return { success: false, message: "credential is missing" };
-       }
-
-       if(userType=='mentee'){
+      }
         const result = await this._AuthRepository.findByEmail(email);
-        if(!result||result?.isBlocked){
-          return {success:false,message:'cannot find user'}
+        if (!result || result?.isBlocked) {
+          return { success: false, message: "Invalid user type. Otp failed to send" };
         }
-         await this._OtpService.sentOtptoMail(email);
-         return {success:true,message:'Otp success fully send to mail'}
-       }
-
-       // Handle unsupported user types.
-    return { success: false, message: 'Invalid user type. Otp failed to send' };
+        await this._OtpService.sentOtptoMail(email);
+        return { success: true, message: "Otp success fully send to mail" };
 
     } catch (error: unknown) {
       console.log(
@@ -129,87 +133,81 @@ export class AuthService implements IAuthService {
       );
     }
   }
-  async BLforgot_PasswordChange(email:string,password:string):Promise<{success:boolean,message:string}|undefined>{
+  async BLforgot_PasswordChange(
+    email: string,
+    password: string
+  ): Promise<{ success: boolean; message: string } | undefined> {
     try {
-
       if (!email || !password) {
         return { success: false, message: "credencial is missing" };
       }
-        const hashedPassword:string = await  hash_pass(password) ;
-      console.log(hashedPassword,'hash')
-      const result = await this._AuthRepository.DBforgot_PasswordChange(email,hashedPassword);
+      const hashedPassword: string = await hash_pass(password);
+      console.log(hashedPassword, "hash");
+      const result = await this._AuthRepository.DBforgot_PasswordChange(
+        email,
+        hashedPassword
+      );
 
-      console.log(result,"ths is passchnge reslut");
+      console.log(result, "ths is passchange reslut");
       if (!result) {
-        return { success: false, message: 'User does not exist. Please sign up.' };
+        return {
+          success: false,
+          message: "User does not exist. Please sign up.",
+        };
       }
-      
-      return { success: true, message: 'password changed successfully.' };
-    } catch (error:unknown) {
+
+      return { success: true, message: "password changed successfully." };
+    } catch (error: unknown) {
       console.log(
         `error while forget password in BLforgetPassword`,
         error instanceof Error ? error.message : String(error)
       );
-      return { success: false, message: 'Internal server error' };
+      return { success: false, message: "Internal server error" };
     }
   }
-  async BLAccessToken(
-    refreshToken: string
-  ): Promise<{
-    success: boolean;
-    message: string;
-    accessToken?: string;
-    refreshToken?: string;
-  }> {
-    try {
-      if (!refreshToken) {
-        return { success: false, message: "RefreshToken missing" };
-      }
-
-      const decode = jwt.verify(
-        refreshToken,
-        process.env.JWT_REFRESH_SECRET as string
-      ) as { userId: string };
-
-      if (!decode?.userId) {
-        return { success: false, message: "Invalid token payload" };
-      }
-      let { userId } = decode;
-
-      const userData = await this._AuthRepository.DBfindBy_id(userId);
-      if (!userData) {
-        return { success: false, message: "Invalid token payload" };
-      }
-      userId = userData?._id as string;
-
-      const accessToken: string = jwt.sign(
-        { userId: userId },
-        process.env.JWT_ACCESS_SECRET as string,
-        { expiresIn: process.env.ACCESS_TOKEN_EXPIRY }
-      );
-
-      return {
-        success: true,
-        message: "Token refresh success fully",
-        accessToken,
-        refreshToken,
-      };
-    } catch (error: unknown) {
-      console.error("Error while generating BLRefreshToken", error);
-      return { success: false, message: "Invalid or expired refresh token" };
-    }
-  }
-
+  
   //amdin login Logic
 
-  async BLadminLogin(email: string, password: string):Promise<{success:boolean,message:string,accessToken?:string,refreshToken?:string}|undefined>{
+  async blMentorFields(): Promise<{
+    success: boolean;
+    message: string;
+    status: number;
+    categories?: ICategory[];
+  }> {
+    try {
+      const result = await this._categoryRepository.dbcategoryData();
+      if (!result) {
+        return { success: false, message: "No data found ", status: 204 };
+      }
+      return {
+        success: true,
+        message: "data found",
+        status: 200,
+        categories: result,
+      };
+    } catch (error: unknown) {
+      throw new Error(`error while forget password in BLforgetPassword
+        ${error instanceof Error ? error.message : String(error)}`);
+    }
+  }
+  async BLadminLogin(
+    email: string,
+    password: string,
+  ): Promise<
+    | {
+      success: boolean;
+      message: string;
+      accessToken?: string;
+      refreshToken?: string;
+    }
+    | undefined
+  > {
     try {
       if (!email || !password) {
-        return { success:false, message: "admin credencial is missing" };
+        return { success: false, message: "admin credencial is missing" };
       }
       const result = await this._AuthRepository.DBadminLogin(email);
 
-      
       if (!result) {
         return { success: false, message: "Admin not exist" };
       }
@@ -219,16 +217,16 @@ export class AuthService implements IAuthService {
       if (result?.isBlocked) {
         return { success: false, message: "Admin blocked .sorry.." };
       }
-      const checkUser = await bcrypt.compare( 
+      const checkUser = await bcrypt.compare(
         password,
         result?.password as string
-      );
+      ); 
 
       if (!checkUser) {
-        return { success:false, message: "password not matching" };
+        return { success: false, message: "password not matching" };
       }
       const userId: string = result._id as string;
-      console.log(userId, "userid");
+      console.log(userId, "userid",);
 
       const accessToken = genAccesssToken(userId as string);
       const refreshToken = genRefreshToken(userId as string);
@@ -240,11 +238,156 @@ export class AuthService implements IAuthService {
         refreshToken,
         accessToken,
       };
-      
-    } catch (error:unknown) {
+    } catch (error: unknown) {
       console.error("Error while loging admin", error);
-      return { success:false, message:"Admin does't exist" };
+      return { success: false, message: "Admin does't exist" };
     }
   }
+
+  async blMentorApply(mentorData: IMentorApplyData): Promise<{ success: boolean, message: string, status: number}> {
+    try {
+      const { name, email, password, phone, jobTitle, category, linkedinUrl, githubUrl, bio, skills } = mentorData.body;
+      const { profileImage, resume } = mentorData.files;
+
+      if (!mentorData.body || !mentorData.files) {
+        return { success: false, message: 'credential is missing', status: 400 }
+      }
+      const response = await this._MentorRepository.dbFindMentor(email, phone);
+
+      if (response?.email) {
+        return { success: false, message: "Email already exist ", status: 409 }
+      }
+      if (response?.phone) {
+        return { success: false, message: "phone already exist ", status: 409 }
+      }
+
+      const hashPass = await hash_pass(mentorData.body.password);
+
+      if(!hashPass){
+        throw new Error('error while hashing password in mentor apply')
+      }
+
+      mentorData.body = { ...mentorData.body, password: hashPass }
+
+      const imageUrl = await uploadImage(profileImage?.buffer);
+      const fileUrl = await uploadFile(resume?.buffer, resume?.originalname)
+      console.log(imageUrl, fileUrl)
+
+      if (!imageUrl || !fileUrl) {
+        throw new Error("error while image url generating")
+      }
+      const result = await this._MentorRepository.dbCreateMentor(mentorData.body, imageUrl, fileUrl)
+      if(!result){
+        return { success: false, message: "unable to create user ", status: 409 }
+      }
+      return {
+        success: true,
+        message: "Mentor application submitted!",
+        status: 200,
+      };
+
+    } catch (error: unknown) {
+      console.error("Error while mentor appling", error);
+      return {
+        success: false,
+        message: "unexpected error occured",
+        status: 500,
+      };
+    }
+  }
+  //mentor login
+  async blMentorLogin(email: string, password: string): Promise<{ success: boolean; message: string; status: number;refreshToken?:string,accessToken?:string}> {
+    try {
+
+      if(!email||!password){
+        return {success:false,message:`${!email?"email is required":"password is required"}`,status:400,}
+      }
+ 
+      const result = await this._MentorRepository.dbFindMentor(email);
+
+      console.log(result,'111111111111');
+      if(!result){
+        return {success:false,message:'user with the provided email not found',status:404}
+      }
+      if(!result?.verified){
+        return {success:false,message:`You're on our waitlist!
+Thanks for signing up for MentorPlus. We're focused on creating the best experience possible for everyone on the site.`,status:401}
+      }
+      if(result?.isBlocked){
+        return {success:false,message:'User is  Blocked!',status:401}
+      }
+
+      const checkPass = await bcrypt.compare(password,result?.password);
+      if(!checkPass){
+        return {success:false,message:'Incorrect password',status:400}
+      }
+      const mentorId: string = result._id as string;
+      console.log(mentorId, "userid");
+      const accessToken = genAccesssToken(mentorId as string);
+      const refreshToken = genRefreshToken(mentorId as string);
+
+      console.log(accessToken, refreshToken, "access refrsh");
+      return {success:true,message:"login successfull!",status:200,accessToken,refreshToken}
+
+    } catch (error:unknown) {
+      throw new Error(`error while forget password in BLforgetPassword
+      ${error instanceof Error ? error.message : String(error)}`);
+    
+    }
+  }
+  async blMentorForgotPassword(
+    email: string,
+  ): Promise<{ success: boolean; message: string } | undefined> {
+    try {
+      if (!email) {
+        return { success: false, message: "credential is missing" };
+      }
+        const result = await this._MentorRepository.dbFindMentor(email);
+        if (!result || result?.isBlocked) {
+          return { success: false, message: "Invalid user type. Otp failed to send" };
+        }
+        await this._OtpService.sentOtptoMail(email);
+        return { success: true, message: "Otp success fully send to mail" };
+    } catch (error: unknown) {
+      console.log(
+        `error while forget password in BLMentorforgetPassword`,
+        error instanceof Error ? error.message : String(error)
+      );
+    }
+  }
+  async blMentorForgot_PasswordChange(email: string,password: string):Promise<{ success: boolean; message: string }|undefined> {
+    try {
+      if (!email || !password) {
+        return { success: false, message: "credencial is missing" };
+      }
+      const hashedPassword: string = await hash_pass(password);
+      console.log(hashedPassword, "hash");
+      const result = await this._MentorRepository.dbFindMentorAndUpdate(email,hashedPassword);
+      console.log(result, "ths is passchange reslut");
+      if (!result) {
+        return {
+          success: false,
+          message: "User does not exist. Please sign up.",
+        };
+      }
+
+      return { success: true, message: "password changed successfully." };
+    } catch (error: unknown) {
+      console.log(
+        `error while forget password in BLforgetPassword`,
+        error instanceof Error ? error.message : String(error)
+      );
+      return { success: false, message: "Internal server error" };
+    }
+  }
+async blGoogleAuth(): Promise<any> {
+  try {
+    return passport.authenticate('google',{successRedirect:"/mentee/home",failureRedirect:'/login/failed'});
+    
+  } catch (error:unknown) {
+    throw new Error(`error while forget password in BLforgetPassword
+      ${error instanceof Error ? error.message : String(error)}`);
   
+  }
+}
 }

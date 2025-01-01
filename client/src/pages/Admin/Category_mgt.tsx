@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { StatusBadge } from "../../components/Common/StatusBadge";
 import { Pagination } from "../../components/Common/Pagination";
 import { Table } from "../../components/Admin/Table";
-import { unProtectedAPI } from "../../Helper/Axios";
+import { unProtectedAPI } from "../../Config/Axios";
 import { ToastContainer, toast } from "react-toastify";
 import Spinner from "../../components/Common/Spinner";
 import { categoryValidation } from "../../Validation/Validation";
@@ -54,9 +54,17 @@ const Category_mgt: React.FC = () => {
     e.preventDefault();
     setCategory(e.target.value);
   };
-
-  // Handle save
-  const handleSave = async (): Promise<void> => {
+  
+  // Pagination logic
+  const indexOfLastCategory = currentPage * CATEGORIES_PER_PAGE;
+  const indexOfFirstCategory = indexOfLastCategory - CATEGORIES_PER_PAGE;
+  const currentCategories = categories.slice(
+    indexOfFirstCategory,
+    indexOfLastCategory
+  );
+  
+  // Handle add category 
+  const handleAddCategory = async (): Promise<void> => {
     const categoryValue = category.trim().toLowerCase();
     const isValid = await categoryValidation(categoryValue);
     if (!isValid) {
@@ -74,6 +82,8 @@ const Category_mgt: React.FC = () => {
       });
 
       if (response.data.success && response.status === 201) {
+        setCategories((prev) => [...prev, response.data.result])
+
         handleCloseModal();
         toast.success(response.data.message);
       }
@@ -89,15 +99,9 @@ const Category_mgt: React.FC = () => {
     }
   };
 
-  // Pagination logic
-  const indexOfLastCategory = currentPage * CATEGORIES_PER_PAGE;
-  const indexOfFirstCategory = indexOfLastCategory - CATEGORIES_PER_PAGE;
-  const currentCategories = categories.slice(
-    indexOfFirstCategory,
-    indexOfLastCategory
-  );
   //fetch category data
   useEffect(() => {
+    
     const fetchCategories = async () => {
       setLoading(true);
       try {
@@ -229,7 +233,7 @@ const Category_mgt: React.FC = () => {
         {loading && <Spinner />}
 
         <div className="flex items-center justify-between mb-4">
-          <h1 className="text-3xl font-bold text-gray-900 ml-8 mt-5">
+          <h1 className="text-2xl font-bold ml-5">
             Category Management
           </h1>
           <button
@@ -249,7 +253,7 @@ const Category_mgt: React.FC = () => {
           heading={"Add new Category"}
           handleCategoryChange={handleCategoryChange}
           handleCloseModal={handleCloseModal}
-          handleSave={handleSave}
+          handleSave={handleAddCategory}
           category={category}
           error={error}
         />

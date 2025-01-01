@@ -9,4 +9,8 @@ export interface IMenteeRepository{
     dbAddMentee(
     formData:Partial<IMentee>
     ):Promise<IMentee|null>;
+    dbFindById(id:string):Promise<IMentee|null>
+    dbGoogleAddMentee(formData:Partial<IMentee>):Promise<IMentee|null>
+    dbChangePassword(id:string,password:string):Promise<IMentee|null>
+    dbProfileChange(image:string,id:string):Promise<IMentee|null>
 }

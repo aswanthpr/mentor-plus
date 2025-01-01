@@ -7,10 +7,14 @@ export interface IMentee extends Document {
     password?:string;
     bio?:string|null;
     isBlocked:boolean;
-    skills?:string[];
     profileUrl?:string;
+    linkedinUrl:string;
+    githubUrl:string;
+    education:string;
+    currentPosition:string;
     verified?:boolean;
     isAdmin:boolean;
+
 }
 
 const menteeSchema:Schema<IMentee> = new mongoose.Schema({
@@ -33,16 +37,13 @@ const menteeSchema:Schema<IMentee> = new mongoose.Schema({
     },
     password:{
         type:String,
-        trim:true
+        trim:true, 
+        default: null
     },
     bio:{
         type:String,
         default:null,
         trim:true,
-    },
-    skills:{
-        type:[String],
-        default:[]
     },
     profileUrl:{
         type:String,
@@ -52,6 +53,22 @@ const menteeSchema:Schema<IMentee> = new mongoose.Schema({
     isBlocked:{
         type:Boolean,
         default:false,
+    },
+    linkedinUrl:{
+        type:String,
+        default:null
+    },
+    githubUrl:{
+        type:String,
+        default:null
+    },
+    education:{
+        type:String,
+        default:""
+    },
+    currentPosition:{
+        type:String,
+        default:""
     },
     isAdmin:{
         type:Boolean,

@@ -234,15 +234,51 @@ class AuthController {
                 }
             }
             catch (error) {
+                res
+                    .status(500)
+                    .json({ success: false, message: "Internal server error" });
+                throw new Error(`error while admin Login${error instanceof Error ? error.message : String(error)}`);
             }
         });
     }
     //---------------------------------------------------------------------------
+    getMentorFields(req, res) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const result = yield this._AuthService.blMentorFields();
+                res.status(result.status).json({ success: result.success, message: result.message, categories: result.categories });
+            }
+            catch (error) {
+                res
+                    .status(500)
+                    .json({ success: false, message: "Internal server error" });
+                throw new Error(`error while getting mentorRoles${error instanceof Error ? error.message : String(error)}`);
+            }
+        });
+    }
     getMentorApply(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
+                const { name, email, password, phone, jobTitle, category, linkedinUrl, githubUrl, bio, skills } = req.body;
+                const profileImage = req.files && req.files.profileImage
+                    ? req.files.profileImage[0]
+                    : null;
+                const resume = req.files && req.files.resume
+                    ? req.files.resume[0]
+                    : null;
+                console.log("Profile Image:", profileImage);
+                console.log("Resume:", resume);
+                const mentorData = {
+                    body: { name, email, phone, password, jobTitle, category, linkedinUrl, githubUrl, bio, skills },
+                    files: { profileImage, resume }
+                };
+                // res.status(200).json({success:true,message:'application submited!.'})
             }
             catch (error) {
+                res
+                    .status(500)
+                    .json({ success: false, message: "Internal server error" });
+                throw new Error(`error while mentor application ${error instanceof Error ? error.message : String(error)}`);
             }
         });
     }
