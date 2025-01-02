@@ -8,7 +8,6 @@ import {
   LucideMail,
   LucidePhone,
   LucideSchool,
-
   LucideBook,
 } from "lucide-react";
 import { protectedAPI } from "../../Config/Axios";
@@ -16,6 +15,7 @@ import profile from "/images.png";
 import Modal from "../../components/Common/Modal";
 import { toast } from "react-toastify";
 import InputField from "../../components/Common/Form/InputField";
+import { errorHandler } from "../../Utils/Reusable/Reusable";
 import {
   validateBio,
   validateConfirmPassword,
@@ -33,54 +33,28 @@ import { Link } from "react-router-dom";
 import ImageCropper from "../../components/Common/Form/ImageCropper";
 import Spinner from "../../components/Common/Spinner";
 
-interface IMentee {
-  _id: string;
-  name: string;
-  email: string;
-  phone: string;
-  bio: string;
-  profileUrl: string;
-  isBlocked: boolean;
-  verified?: boolean;
-  linkedinUrl: string;
-  githubUrl: string;
-  currentPosition: string;
-  education: string;
-}
 
-interface IFormErrors {
-  name?: string;
-  email?: string;
-  phone?: string;
-  bio?: string;
-  githubUrl?: string;
-  linkedinUrl?: string;
-  currentPosition?: string;
-  education?: string;
-}
-interface IPass {
 
-  currentPassword?: string;
-  newPassword?: string;
-  confirmPassword?: string;
-}
-const MenteeProfile = () => {
+const MenteeProfile: React.FC = () => {
   const [profileImage, setProfileImage] = useState<File | null>(null);
-  const [showCropper, setShowcropper] = useState<boolean>(false)
+  const [showCropper, setShowcropper] = useState<boolean>(false);
   const [editModalOpen, setEditModalOpen] = useState(false);
   const [showEditPassword, setShowEditPassword] = useState(false);
   const [mentee, setMentee] = useState<IMentee | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
-  const [formData, setFormData] = useState<Partial<IMentee>>({
+  const [formData, setFormData] = useState<IMentee>({
     _id: "",
     name: "",
     email: "",
     phone: "",
     bio: "",
+    profileUrl: "",
     linkedinUrl: "",
     githubUrl: "",
     education: "",
     currentPosition: "",
+    isBlocked: false,
+    verified:true
   });
   const [errors, setErrors] = useState<IFormErrors>({
     name: "",
@@ -93,7 +67,6 @@ const MenteeProfile = () => {
     currentPosition: "",
   });
   const [editPassword, setEditPassword] = useState<IPass>({
-
     currentPassword: "",
     newPassword: "",
     confirmPassword: "",
@@ -102,21 +75,21 @@ const MenteeProfile = () => {
     currentPassword: "",
     newPassword: "",
     confirmPassword: "",
-  })
+  });
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (file) {
-      const error = validateImageFile (file);
 
-      if (error) {
-        toast.error('invalid file type'); // Display error message (You can handle it as per your needs)
-        console.log(error)
-        return 
-      }
-      setProfileImage(file);
-      setShowcropper(true)
+    if (!file) return;
+    const error = validateImageFile(file);
+
+    if (error) {
+      toast.error("invalid file type");
+      console.log(error);
+      return;
     }
-  }
+    setProfileImage(file);
+    setShowcropper(true);
+  };
 
   useEffect(() => {
     const menteeData = async () => {
@@ -128,12 +101,7 @@ const MenteeProfile = () => {
           setFormData(response.data.result);
         }
       } catch (error: any) {
-        if (error.response && error.response.data) {
-          const { message } = error.response.data;
-          console.error(message || "An error occurred");
-        } else {
-          console.error("An unexpected error occurred. Please try again.");
-        }
+        errorHandler(error);
       } finally {
         setLoading(false);
       }
@@ -163,16 +131,16 @@ const MenteeProfile = () => {
   };
   const handlePasswordValidation = () => {
     const passErrors: IPass = {};
-    passErrors.currentPassword = validatePassword(`${editPassword.currentPassword}`);
-    passErrors.newPassword = validatePassword(`${editPassword.newPassword}`);
-    passErrors.confirmPassword = validateConfirmPassword(` ${editPassword?.confirmPassword}`,
-      ` ${editPassword?.newPassword}`);
+    passErrors.currentPassword = validatePassword(`${editPassword?.currentPassword}`);
+    passErrors.newPassword = validatePassword(`${editPassword?.newPassword}`);
+    passErrors.confirmPassword = validateConfirmPassword(`${editPassword?.confirmPassword}`,`${ editPassword.newPassword}`);
+    
 
     setPassError(passErrors);
 
     // Return true if there are no errors
     return Object.values(passErrors).every((error) => error === undefined);
-  }
+  };
 
   const handleSaveChanges = async () => {
     // Validate the form before sending data
@@ -201,17 +169,12 @@ const MenteeProfile = () => {
 
       if (response?.status === 200 && response?.data?.success) {
         setFormData(response.data?.result);
-        setMentee(response.data?.result)
+        setMentee(response.data?.result);
         toast.success(response.data?.message);
         modalClose();
       }
     } catch (error: any) {
-      if (error.response && error.response.data) {
-        const { message } = error.response.data;
-        console.error(message || "An error occurred");
-      } else {
-        console.error("An unexpected error occurred. Please try again.");
-      }
+      errorHandler(error);
     } finally {
       setLoading(false);
     }
@@ -230,17 +193,18 @@ const MenteeProfile = () => {
       confirmPassword: "",
     });
   };
+
+
   const handleChangePassword = async () => {
     try {
       if (!handlePasswordValidation()) {
         return; // Stop if validation fails
       }
       const passFormData = {
-        'currentPassword': `${editPassword.currentPassword}`,
-        'newPassword': `${editPassword.newPassword}`,
-        '_id': `${formData._id}`
-      }
-
+        currentPassword: `${editPassword.currentPassword}`,
+        newPassword: `${editPassword.newPassword}`,
+        _id: `${formData._id}`,
+      };
 
       const response = await protectedAPI.patch(
         "/mentee/profile/change_password",
@@ -248,76 +212,58 @@ const MenteeProfile = () => {
       );
 
       if (response?.status === 200 && response?.data?.success) {
-
         toast.success(response.data?.message);
         passModalClose();
-
       }
     } catch (error: any) {
-      if (error.response && error.response.data) {
-        const { message } = error.response.data;
-        toast.error(message)
-        console.error(message || "An error occurred");
-      } else {
-        console.error("An unexpected error occurred. Please try again.");
-      }
+      errorHandler(error);
     } finally {
       setLoading(false);
     }
-  }
+  };
 
   const handleCropComplete = async (profileImage: Blob) => {
     try {
-      console.log(profileImage)
-      // const Data = new FormData();
-      // Data.append('profileImage', image);
-      // Data.append('id',`${formData?._id}`)
-    const Data = {
-      profileImage,
-      _id:formData._id
-    }
-    setLoading(true);
-    console.log(Data,'this is data')
-    const response = await protectedAPI.patch('/mentee/profile/change_profile', Data, {
-      headers: { 'Content-Type': 'multipart/form-data' }
-    });
-    setShowcropper(false)
-  if (response.data && response.data.status == 200) {
-          console.log(response.data.message);
-          toast.success(response.data.message);
-
-          setMentee((prevMentee) => {
-            if (prevMentee === null) {
-            
-              return null; 
-            }
-            return {
-              ...prevMentee, 
-              profileUrl: response.data.profileUrl,  
-            };
-          });
- 
+      const Data = {
+        profileImage,
+        _id: formData._id,
+      };
+      setLoading(true);
+      console.log(Data, "this is data");
+      const response = await protectedAPI.patch(
+        "/mentee/profile/change_profile",
+        Data,
+        {
+          headers: { "Content-Type": "multipart/form-data" },
         }
-  } catch (error: any) {
-      if (error.response && error.response.data) {
-        const { message } = error.response.data;
-        toast.error(message)
-        console.error(message || "An error occurred");
-      } else {
-        console.error("An unexpected error occurred. Please try again.");
+      );
+      setShowcropper(false);
+      if (response.data && response.data.status == 200) {
+        console.log(response.data.message);
+        toast.success(response.data.message);
+
+        setMentee((prevMentee) => {
+          if (prevMentee === null) {
+            return null;
+          }
+          return {
+            ...prevMentee,
+            profileUrl: response.data.profileUrl,
+          };
+        });
       }
+    } catch (error: any) {
+      errorHandler(error);
     } finally {
       setLoading(false);
     }
-  
-  }
-
+  };
 
   return (
-    <div className="relative">
-      {loading && <Spinner/>}
+    <div className="relative mt-16">
+      {loading && <Spinner />}
       <div className="relative mb-10 ">
-        <div className="h-56 bg-gradient-to-r from-[#ff8800] to-[#ff8800] rounded-b-lg" >
+        <div className="h-56 bg-gradient-to-r from-[#ff8800] to-[#ff8800] rounded-b-lg">
           <div className="ml-5 absolute bottom-0 left-auto transform translate-y-1/2 flex items-end">
             <div className="relative group">
               <img
@@ -329,7 +275,7 @@ const MenteeProfile = () => {
                 <Camera className="w-8 h-8 text-white" />
                 <input
                   type="file"
-                  name='profileImage'
+                  name="profileImage"
                   accept="image/*"
                   className="hidden"
                   onChange={handleFileChange}
@@ -575,7 +521,7 @@ const MenteeProfile = () => {
                 <InputField
                   id={"currentPassword"}
                   name="currentPassword"
-                  value={editPassword.currentPassword || ''}
+                  value={editPassword.currentPassword || ""}
                   placeholder="Enter Current Password"
                   error={passError?.currentPassword || ""}
                   className={""}
@@ -590,7 +536,7 @@ const MenteeProfile = () => {
                 <InputField
                   id={"newPassword"}
                   name="newPassword"
-                  value={editPassword.newPassword || ''}
+                  value={editPassword.newPassword || ""}
                   placeholder="Enter New Password"
                   error={passError?.newPassword || ""}
                   className={""}

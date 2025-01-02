@@ -81,8 +81,8 @@ const Header: React.FC<IHeader> = (props) => {
         setShowProfileMenu(false); // Close menu on profile click
     }
     return (
-        <header className='bg-white border-b border-gray-200 top-0 left-0 right-0 z-40 '>
-            <div className='h-16 px-4 flex items-center justify-between'>
+        <header className='bg-white border-b border-gray-200 top-0 left-0 right-0 z-50 fixed '>
+            <div className='h-16 px-4 flex items-center justify-between '>
 
 
                 <div className='flex items-center gap-1'>
@@ -148,7 +148,7 @@ const Header: React.FC<IHeader> = (props) => {
                                 className='h-full w-full object-cover' />
                         </button>
                         {showProfileMenu && (
-                            <div ref={profileMenuRef} className='absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg py-1 border border-gray-200'>
+                            <div ref={profileMenuRef} className='absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg py-1 border border-gray-200 z-50'>
                                 {userType !== 'admin' && (
 
                                     <Link to={props.profileLink}

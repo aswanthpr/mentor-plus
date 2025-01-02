@@ -4,7 +4,7 @@ import React from 'react'
 const MentorHome:React.FC = () => {
   return (
     <div >
-    <div className='mb-8 '>
+    <div className='mb-8 mt-20'>
     <div className='flex items-center gap-3 mb-4 '>
         <h1 className='text-3xl font-bold text-gray-900 ml-8 mt-0' >
         Welcome</h1>

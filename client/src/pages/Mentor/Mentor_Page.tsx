@@ -65,7 +65,7 @@ const Mentor_Page:React.FC = () => {
       SideBarItems={navItems}/>
       }
         <main className={` pl-64 ${isSideBarOpen? 'pl-60':'pl-0'}`} >
-        <div className="pl-4">
+        <div className="pl-0">
           <Outlet />
         </div>
         </main>

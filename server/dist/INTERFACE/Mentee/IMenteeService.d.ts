@@ -35,8 +35,8 @@ export interface IMenteeService {
         success: boolean;
         message: string;
         status: number;
-        mentor?: IMentor | null;
-        category?: ICategory | null;
+        mentor?: IMentor[] | null;
+        category?: ICategory[] | null;
     }>;
 }
 //# sourceMappingURL=IMenteeService.d.ts.map

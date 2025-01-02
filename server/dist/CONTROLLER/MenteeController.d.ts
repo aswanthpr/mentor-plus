@@ -6,7 +6,7 @@ export declare class MenteeController implements IMenteeController {
     constructor(_menteeService: IMenteeService);
     getRefreshToken(req: Request, res: Response): Promise<void>;
     getMenteeLogout(req: Request, res: Response): Promise<void>;
-    getMeneeProfile(req: Request, res: Response): Promise<void>;
+    getMenteeProfile(req: Request, res: Response): Promise<void>;
     getMenteeProfileEdit(req: Request, res: Response): Promise<void>;
     getPasswordChange(req: Request, res: Response): Promise<void>;
     getProfileChange(req: Request, res: Response): Promise<void>;

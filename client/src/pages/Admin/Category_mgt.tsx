@@ -2,13 +2,13 @@ import React, { useEffect, useState } from "react";
 import { StatusBadge } from "../../components/Common/StatusBadge";
 import { Pagination } from "../../components/Common/Pagination";
 import { Table } from "../../components/Admin/Table";
-import { unProtectedAPI } from "../../Config/Axios";
 import { ToastContainer, toast } from "react-toastify";
 import Spinner from "../../components/Common/Spinner";
 import { categoryValidation } from "../../Validation/Validation";
 import { BanIcon, CircleCheckBigIcon, PencilLineIcon } from "lucide-react";
 import CategoryModal from "../../components/Admin/CategoryModal";
 import ConfirmToast from "../../components/Common/ConfirmToast";
+import { API } from "../../Config/adminAxios";
 
 interface Category {
   _id: string;
@@ -77,7 +77,7 @@ const Category_mgt: React.FC = () => {
     try {
       setLoading(true);
 
-      const response = await unProtectedAPI.post(`/admin/create_category`, {
+      const response = await API.post(`/admin/create_category`, {
         category: categoryValue,
       });
 
@@ -105,7 +105,7 @@ const Category_mgt: React.FC = () => {
     const fetchCategories = async () => {
       setLoading(true);
       try {
-        const response = await unProtectedAPI.get("/admin/category_management");
+        const response = await API.get("/admin/category_management");
         if (response.data.success) {
           setCategories(response.data.categories);
         } else {
@@ -144,7 +144,7 @@ const Category_mgt: React.FC = () => {
     try {
       setLoading(true);
 
-      const response = await unProtectedAPI.patch(`/admin/edit_category`, {
+      const response = await API.patch(`/admin/edit_category`, {
         id: editData._id,
         category: editData.category,
       });
@@ -195,7 +195,8 @@ const Category_mgt: React.FC = () => {
   //HANDLE CATEGORY BLOCK UNBLOCK;
   const handleBlock = async (id: string): Promise<void> => {
     try {
-      const response = await unProtectedAPI.put(
+      const response = await 
+      API.put(
         `/admin/change_category_status`,
         { id }
       );
@@ -229,7 +230,7 @@ const Category_mgt: React.FC = () => {
   return (
     <div>
       {/* Category Management Section */}
-      <div className="mb-6">
+      <div className="mb-6 mt-16">
         {loading && <Spinner />}
 
         <div className="flex items-center justify-between mb-4">

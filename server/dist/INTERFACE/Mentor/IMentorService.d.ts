@@ -1,3 +1,4 @@
+import { ICategory } from "../../MODEL/categorySchema";
 import { IMentor } from "../../MODEL/mentorModel";
 export interface IMentorService {
     blMentorProfile(token: string): Promise<{
@@ -5,13 +6,25 @@ export interface IMentorService {
         message: string;
         result: IMentor | null;
         status: number;
+        categories: ICategory[] | [];
     }>;
-    BLMentorRefreshToken(refresh: string): Promise<{
+    blMentorRefreshToken(refresh: string): Promise<{
         success: boolean;
         message: string;
         status: number;
         accessToken?: string;
         refreshToken?: string;
+    }>;
+    blPasswordChange(currentPassword: string, newPassword: string, id: string): Promise<{
+        success: boolean;
+        message: string;
+        status: number;
+    }>;
+    blMentorProfileImageChange(image: Express.Multer.File | null, id: string): Promise<{
+        success: boolean;
+        message: string;
+        status: number;
+        profileUrl?: string;
     }>;
 }
 //# sourceMappingURL=IMentorService.d.ts.map

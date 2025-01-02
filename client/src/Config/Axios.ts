@@ -1,6 +1,12 @@
 import axios, { InternalAxiosRequestConfig, AxiosError } from 'axios';
 import { store } from '../Redux/store';
-import { setAccessToken } from '../Redux/menteeSlice';
+import { clearAccessToken, setAccessToken } from '../Redux/menteeSlice';
+
+interface ErrorResponseData {
+  user?: boolean;
+  message?: string;
+  success: boolean;
+}
 
 // Initialize Axios instances
 export const protectedAPI = axios.create({
@@ -37,14 +43,21 @@ protectedAPI.interceptors.request.use(
 
 // Response interceptor to handle token refresh
 protectedAPI.interceptors.response.use(
-  (response) => {
+  (response: any) => {
     return response;
   },
-  async (error: AxiosError) => {
+  async (error: AxiosError<ErrorResponseData>) => {
     const originalRequest = error.config as InternalAxiosRequestConfig & { _retry?: boolean };
 
     if (error.response?.status === 403 && !originalRequest._retry) {
       originalRequest._retry = true;
+
+      if (!error?.response?.data.success && error.response.data?.user == false) {
+         await protectedAPI.post(`/mentee/logout`);
+         store.dispatch(clearAccessToken())
+       
+      }
+
       try {
         const { data } = await unProtectedAPI.post(`/mentee/refresh-token`);
         store.dispatch(setAccessToken({ accessToken: data?.accessToken, role: 'mentee' }));

@@ -55,6 +55,7 @@ if(response.data.success&&response.status==200){
       profileLink='/mentee/profile'
       userType='mentee'
       logout={logoutMentee}
+      
       />
       {isSideBarOpen&&
       

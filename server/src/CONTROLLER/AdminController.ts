@@ -14,21 +14,17 @@ export class AdminController implements IAdminController {
   
       console.log("Received refresh token from cookies:", req.cookies.refreshToken)
    
-      const result = await this._AdminService.BLAdminRefreshToken(req.cookies?.refreshToken);
+      const result = await this._AdminService.BLAdminRefreshToken(req.cookies?.adminToken);
       
-  
-      if (result?.success) {
-        res.cookie("adminToken", result?.refreshToken as string, {
-          signed: true,
-          httpOnly: true,
-          secure:  process.env.NODE_ENV === 'production',
-          sameSite: "strict",
-          maxAge: 14 * 24 * 60 * 60 * 1000,
-        });
-  
-        
-      } 
-      res.status(result.status).json({success:result?.success,message:result?.message,accessToken:result?.accessToken});
+ 
+      res.status(result.status)
+      .cookie("adminToken", result?.refreshToken as string, {
+        httpOnly: true,
+        secure:  process.env.NODE_ENV === 'production',
+        sameSite: "lax",
+        maxAge: 14 * 24 * 60 * 60 * 1000,
+      })
+      .json({success:result?.success,message:result?.message,accessToken:result?.accessToken});
   
     } catch (error: unknown) {
       res

@@ -1,20 +1,19 @@
 import React, { useState } from "react";
 import { Github, Linkedin } from "lucide-react";
-import axios from "axios";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { toast } from "react-toastify";
 import { Link } from "react-router-dom";
 // import {useGoogleLogin} from '@react-oauth/google'
-
 import Spinner from "../../components/Common/Spinner";
 import InputField from "../../components/Common/Form/InputField";
 import SocialLogins from "../../components/auth/SocialLogins";
 import { validateEmail, validatePassword } from "../../Validation/Validation";
 import { AppDispatch } from "../../Redux/store";
 import { setAccessToken } from "../../Redux/menteeSlice";
-import { unProtectedAPI } from "../../Config/Axios";
+import { protectedAPI } from "../../Config/Axios";
 import { setMentorToken } from "../../Redux/mentorSlice";
+import { axiosInstance } from "../../Config/mentorAxios";
 
 type UserType = "mentee" | "mentor";
 
@@ -46,11 +45,16 @@ const Login: React.FC = () => {
       return "mentor"
     }
     return "mentee"
-
+    
   }
+  
   const [userType, setUserType] = useState<UserType>(getActivePath(location.pathname));
-
-
+  
+  
+  const handleUserTypeChange = (type: UserType) => {
+    setUserType(type);
+    navigate(`/auth/login/${type}`); // Update the URL based on the selected user type
+  };
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { id, value } = e.target;
     setFormData((prev) => ({ ...prev, [id]: value }));
@@ -87,7 +91,7 @@ const Login: React.FC = () => {
 
         if (userType == "mentee") {
           console.log("hiaii", formData);
-          const response = await unProtectedAPI.post(
+          const response = await protectedAPI.post(
             "http://localhost:3000/auth/login/mentee",
             formData
           );
@@ -104,7 +108,7 @@ const Login: React.FC = () => {
         }
         if (userType == 'mentor') {
           setLoading(true)
-          const response = await unProtectedAPI.post(
+          const response = await axiosInstance.post(
             "http://localhost:3000/auth/login/mentor",
             formData
           );
@@ -137,13 +141,9 @@ const Login: React.FC = () => {
   };
 
   const handleSocialLogin = async (provider: string) => {
-    // console.log('soddfoafio')
-    // if(provider=="google"){
-    //   window.open(`${'http://localhost:3000/auth/google/callback'}`,'_self');
-    //   // const resp = await unProtectedAPI.get('http://localhost:3000/auth/google/callback');
-    //   // console.log(resp,'olas;dgolgoihdo')
-    // }
+    // Handle social login here
   };
+
   return (
     <div className="min-h-screen flex flex-col justify-center py-12 sm:px-6 lg:px-8 font-poppins">
       {loading && <Spinner />}
@@ -153,7 +153,7 @@ const Login: React.FC = () => {
         </h2>
         <div className="flex justify-center space-x-4 mb-8">
           <button
-            onClick={() => setUserType("mentee")}
+            onClick={() => handleUserTypeChange("mentee")}
             className={`px-6 py-2 rounded-full font-medium transition-colors ${userType === "mentee"
               ? "bg-[#ff8800] text-white"
               : "bg-white text-gray-600 hover:bg-gray-50"
@@ -162,7 +162,7 @@ const Login: React.FC = () => {
             I'm a Mentee
           </button>
           <button
-            onClick={() => setUserType("mentor")}
+            onClick={() => handleUserTypeChange("mentor")}
             className={`px-6 py-2 rounded-full font-medium transition-colors ${userType === "mentor"
               ? "bg-[#ff8800] text-white"
               : "bg-white text-gray-600 hover:bg-gray-50"

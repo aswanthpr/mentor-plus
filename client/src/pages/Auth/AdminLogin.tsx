@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
 
-import { API } from "../../Config/adminAxios";
+import { unAPI } from "../../Config/adminAxios";
 import Button from "../../components/Common/Form/Button";
 import { validatePassword, validateEmail } from "../../Validation/Validation";
 import Spinner from "../../components/Common/Spinner";
@@ -48,7 +48,7 @@ const AdminLogin: React.FC = () => {
 
       setLoading(true);
 
-      const response = await API.post(`/auth/login/admin`, {
+      const response = await unAPI.post(`/auth/login/admin`, {
         email,
         password,
       });
@@ -73,7 +73,10 @@ const AdminLogin: React.FC = () => {
         toast.error("An unexpected error occurred. Please try again.");
       }
     }finally{
+      setTimeout(()=>{
         setLoading(false)
+
+      },500)
     }
   };
 

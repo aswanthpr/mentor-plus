@@ -9,6 +9,7 @@ import { genAccesssToken, genRefreshToken, verifyRefreshToken } from "../UTILS/j
 import { IMentor } from "../MODEL/mentorModel";
 import { IMentorRepository } from "../INTERFACE/Mentor/IMentorRepository";
 import { ICategoryRepository } from "../INTERFACE/Category/ICategoryRepository";
+import { ICategory } from "../MODEL/categorySchema";
 
 export class MenteeService implements IMenteeService {
   constructor(
@@ -141,7 +142,7 @@ export class MenteeService implements IMenteeService {
         return { success: false, message: "Your session has expired. Please log in again.", status: 403 };
 
       }
-      console.log(decode, 'thsi is verifyRefreshToken')
+
       let { userId } = decode;
 
 
@@ -162,16 +163,19 @@ export class MenteeService implements IMenteeService {
       return { success: false, message: "Internal server error", status: 500 };
     }
   }
-  async blExploreData(): Promise<{ success: boolean; message: string; status: number; mentor?: IMentor | null; category?: ICategory | null; }> {
+  async blExploreData(): Promise<{ success: boolean; message: string; status: number; mentor?: IMentor[]| null; category?: ICategory[] | null; }> {
     try {
       const mentorData = await this._mentorRespository.dbFindAllMentor();
       if(!mentorData){
         return { success: false, message:"Data not found", status:404 };
       }
+      console.log(mentorData,'sfasfaf')
       const categoryData =await this._categoryRepository.dbcategoryData();
       if(!categoryData){
         return { success: false, message:"Data not found", status:404 };
       }
+
+      return {success:false,message:"Data fetch successfully ",status:200,mentor:mentorData,category:categoryData}
       } catch (error: unknown) {
       console.error("Error while generating access or refresh token:", error);
       return { success: false, message: "Internal server error", status: 500 };

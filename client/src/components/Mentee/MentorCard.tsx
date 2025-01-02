@@ -1,17 +1,23 @@
 import React from 'react';
 import { Star, Clock } from 'lucide-react';
 export interface Mentor {
-    id: string;
+    _id: string;
     name: string;
-    avatar: string;
-    title: string;
-    expertise: string[];
-    rating: number;
-    reviewCount: number;
-    hourlyRate: number;
-    availability: 'available' | 'busy' | 'offline';
+    profileUrl: string;
+    jobTitle: string;
+    category: string;
+    rating?: number;
+    reviewCount?: number;
+    hourlyRate?: number;
+    availability?: 'available' | 'busy' | 'offline';
     bio: string;
+    linkedinUrl: string;
+    skills: string[];
+    githubUrl: string;
+
   }
+
+ 
 
   interface MentorCardProps {
     mentor: Mentor;
@@ -23,13 +29,13 @@ export interface Mentor {
       available: 'bg-green-500',
       busy: 'bg-yellow-500',
       offline: 'bg-gray-400',
-    }[mentor.availability];
+    }[mentor.availability??"available"];
   
     return (
       <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 sm:p-6 hover:shadow-md transition-shadow mx-8">
         <div className="flex flex-col sm:flex-row sm:items-start gap-4">
           <img
-            src={mentor.avatar}
+            src={mentor.profileUrl}
             alt={mentor.name}
             className="w-16 h-16 rounded-full object-cover mx-auto sm:mx-0"
           />
@@ -41,8 +47,8 @@ export interface Mentor {
                 <span className="text-sm text-gray-500 capitalize">{mentor.availability}</span>
               </div>
             </div>
-            <p className="text-sm text-gray-600 mt-1 text-center sm:text-left">{mentor.title}</p>
-            <div className="flex items-center justify-center sm:justify-start gap-2 mt-2">
+            <p className="text-sm text-gray-600 mt-1 text-center sm:text-left">{mentor.jobTitle} |{mentor.category}</p>
+            {/* <div className="flex items-center justify-center sm:justify-start gap-2 mt-2">
               <div className="flex items-center">
                 <Star className="w-4 h-4 text-yellow-400 fill-current" />
                 <span className="ml-1 text-sm font-medium">{mentor.rating}</span>
@@ -53,9 +59,9 @@ export interface Mentor {
                 <Clock className="w-4 h-4 text-gray-400" />
                 <span className="ml-1 text-sm text-gray-600">${mentor.hourlyRate}/hr</span>
               </div>
-            </div>
+            </div> */}
             <div className="mt-3 flex flex-wrap justify-center sm:justify-start gap-2">
-              {mentor.expertise.map((skill) => (
+              {mentor.skills.map((skill) => (
                 <span
                   key={skill}
                   className="px-2 py-1 text-xs font-medium bg-gray-100 text-gray-600 rounded-full"
@@ -68,7 +74,7 @@ export interface Mentor {
         </div>
         <p className="mt-4 text-sm text-gray-600 line-clamp-2 text-center sm:text-left">{mentor.bio}</p>
         <button
-          onClick={() => onBook(mentor.id)}
+          onClick={() => onBook(mentor._id)}
           className="mt-4 w-full px-4 py-2 bg-[#ff8800] text-white rounded-lg hover:bg-[#ff9900] transition-colors"
         >
           Book Session

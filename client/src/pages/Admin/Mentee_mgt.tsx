@@ -4,12 +4,12 @@ import { BanIcon, CircleCheckBigIcon, PencilLineIcon } from "lucide-react";
 import { Table } from "../../components/Admin/Table";
 import { Pagination } from "../../components/Common/Pagination";
 import { StatusBadge } from "../../components/Common/StatusBadge";
-import { unProtectedAPI } from "../../Config/Axios";
 import profile from "/rb_2877.png";
 import ConfirmToast from "../../components/Common/ConfirmToast";
 import Modal from "../../components/Common/Modal";
 import InputField from "../../components/Common/Form/InputField";
 import Spinner from "../../components/Common/Spinner";
+import { API, unAPI } from "../../Config/adminAxios";
 
 // import { ConfirmationModal }
 
@@ -52,7 +52,7 @@ export const Mentee_mgt: React.FC = () => {
       try {
         setLoading(true);
 
-        const response = await unProtectedAPI.get(`/admin/mentee_management`);
+        const response = await API.get(`/admin/mentee_management`);
 
         if (response.status == 200 && response.data.success) {
           setMenteeData(response.data?.Data);
@@ -97,7 +97,7 @@ export const Mentee_mgt: React.FC = () => {
     try {
       if (!id) toast.error("credential not found");
 
-      const response = await unProtectedAPI.patch(
+      const response = await API.patch(
         `/admin/mentee_management/change_mentee_status`,
         { id }
       );
@@ -208,12 +208,12 @@ export const Mentee_mgt: React.FC = () => {
       let response;
 
       if (formData._id) {
-        response = await unProtectedAPI.put(
+        response = await unAPI.put(
           `/admin/mentee_management/edit_mentee`,
           Data
         );
       } else {
-        response = await unProtectedAPI.post(
+        response = await unAPI.post(
           `/admin/mentee_management/add_mentee`,
           Data
         );
@@ -253,7 +253,7 @@ export const Mentee_mgt: React.FC = () => {
     // }
   };
   return (
-    <div className="p-4 pb-4">
+    <div className="p-4 pb-4 mt-16">
       {loading && <Spinner/>}
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-2xl font-bold">Mentee Management</h1>

@@ -3,7 +3,7 @@ import React from 'react'
 const Dashboard:React.FC = () => {
   return (
     <div >
-    <div className='mb-8 '>
+    <div className='mb-8 mt-16'>
     <div className='flex items-center gap-3 mb-4 '>
         <h1 className='text-3xl font-bold text-gray-900 ml-8 mt-5' >
         Welcome, Admin</h1>

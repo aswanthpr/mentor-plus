@@ -1,6 +1,6 @@
 import axios,{InternalAxiosRequestConfig} from "axios";
 import {store} from '../Redux/store'
-import { setMentorToken } from "../Redux/mentorSlice";
+import { clearMentorToken, setMentorToken } from "../Redux/mentorSlice";
 
 // Initialize Axios instances
 export const axiosInstance = axios.create({
@@ -38,6 +38,10 @@ axiosInstance.interceptors.response.use(
     },
     async  (error)=>{
       const originalRequest = error.config;
+
+      if(error.response.status==401&&error.response.data.message=='Invalid or expired refresh token.'){
+        store.dispatch(clearMentorToken());
+      }
 
       if (error.response.status === 403 && !originalRequest._retry) {
         originalRequest._retry = true;

@@ -4,6 +4,7 @@ import { IMenteeRepository } from "../INTERFACE/Mentee/IMenteeRepository";
 import { IMentor } from "../MODEL/mentorModel";
 import { IMentorRepository } from "../INTERFACE/Mentor/IMentorRepository";
 import { ICategoryRepository } from "../INTERFACE/Category/ICategoryRepository";
+import { ICategory } from "../MODEL/categorySchema";
 export declare class MenteeService implements IMenteeService {
     private _menteeRepository;
     private _mentorRespository;
@@ -43,8 +44,8 @@ export declare class MenteeService implements IMenteeService {
         success: boolean;
         message: string;
         status: number;
-        mentor?: IMentor | null;
-        category?: ICategory | null;
+        mentor?: IMentor[] | null;
+        category?: ICategory[] | null;
     }>;
 }
 //# sourceMappingURL=MenteeService.d.ts.map

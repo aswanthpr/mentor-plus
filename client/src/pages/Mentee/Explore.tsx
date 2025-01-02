@@ -7,36 +7,39 @@ import { Mentor } from '../../components/Mentee/MentorCard';
 import { MentorFilters } from '../../components/Mentee/Filters';
 import { protectedAPI } from '../../Config/Axios';
 import { toast } from 'react-toastify';
+import Spinner from '../../components/Common/Spinner';
+import { errorHandler } from '../../Utils/Reusable/Reusable';
 
 // Mock data - Replace with API calls
-const mockMentors: Mentor[] = [
-    {
-        id: '1',
-        name: 'John Doe',
-        avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80',
-        title: 'Senior Full Stack Developer',
-        expertise: ['React', 'Node.js', 'TypeScript'],
-        rating: 4.8,
-        reviewCount: 124,
-        hourlyRate: 75,
-        availability: 'available',
-        bio: 'Experienced developer specializing in React and Node.js. Passionate about teaching and helping others grow in their career.',
-    },
-    {
-        id: '2',
-        name: 'Jane Smith',
-        avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80',
-        title: 'DevOps Engineer',
-        expertise: ['AWS', 'Docker', 'Kubernetes'],
-        rating: 4.9,
-        reviewCount: 89,
-        hourlyRate: 90,
-        availability: 'busy',
-        bio: 'Cloud infrastructure expert with a focus on AWS and containerization. Love sharing knowledge about modern DevOps practices.',
-    },
-];
+// const mockMentors: Mentor[] = [
+//     {
+//         id: '1',
+//         name: 'John Doe',
+//         avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80',
+//         title: 'Senior Full Stack Developer',
+//         expertise: ['React', 'Node.js', 'TypeScript'],
+//         rating: 4.8,
+//         reviewCount: 124,
+//         hourlyRate: 75,
+//         availability: 'available',
+//         bio: 'Experienced developer specializing in React and Node.js. Passionate about teaching and helping others grow in their career.',
+//     },
+//     {
+//         id: '2',
+//         name: 'Jane Smith',
+//         avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80',
+//         title: 'DevOps Engineer',
+//         expertise: ['AWS', 'Docker', 'Kubernetes'],
+//         rating: 4.9,
+//         reviewCount: 89,
+//         hourlyRate: 90,
+//         availability: 'busy',
+//         bio: 'Cloud infrastructure expert with a focus on AWS and containerization. Love sharing knowledge about modern DevOps practices.',
+//     },
+// ];
 
 const ExplorePage: React.FC = () => {
+    const [loading,setLoading] = useState<boolean>(false)
     const [searchQuery, setSearchQuery] = useState('');
     const [showFilters, setShowFilters] = useState(false);
     const [filters, setFilters] = useState<MentorFilters>({
@@ -45,6 +48,24 @@ const ExplorePage: React.FC = () => {
         availability: [],
         rating: 0,
     });
+    const [mentors, setMentors] = useState<IMentor[]>([{
+        _id: '',
+        bio: '',
+        name: '',
+        email: '',
+        phone: '',
+        githubUrl: '',
+        linkedinUrl: '',
+        verified: true,
+        isBlocked:false,
+        profileUrl: '',
+        jobTitle: '',
+        category: '',
+        skills: [],
+        resume: '',
+      }]);
+      
+    const [categories,setCategories]=useState<ICategory[]>([])
 
     const handleBook = (mentorId: string) => {
         console.log('Booking session with mentor:', mentorId);
@@ -56,26 +77,29 @@ const ExplorePage: React.FC = () => {
         const fetchMentor = async () => {
 
             try {
+                setLoading(true)
                 const response = await protectedAPI.get(`/mentee/explore`);
-                console.log(response, '444444444444444444444444444444444');
+                console.log(response.config, '444444444444444444444444444444444');
+                setMentors(response.data.mentor);
+                setCategories(response.data.category)
             } catch (error: any) {
-                if (error.response && error.response.data) {
-                    const { message } = error.response.data;
-                    toast.error(message || "An error  occurred");
-                } else {
-                    // Handle network or unexpected errors
-                    toast.error("An unexpected error occurred. Please try again.");
-                }
+                errorHandler(error)
+            }finally{
+                setTimeout(()=>{
+                    setLoading(false)
+                },500)
             }
 
         }
         fetchMentor()
-    })
+        console.log(categories,mentors)
+    },[])
     return (
-        <div className="relative mx-20 ">
+        <div className="relative mx-20 mt-20 ">
+            {loading && <Spinner/>}
             {/* Mobile Filters Modal */}
             {showFilters && (
-                <div className=" fixed inset-0 bg-black bg-opacity-50 z-50 lg:hidden">
+                <div className=" fixed inset-0 bg-black bg-opacity-50 z-50 lg:hidden ">
                     <div className="absolute right-0 top-0 h-full w-80 bg-white p-6 overflow-y-auto">
                         <div className="flex justify-between items-center mb-6">
                             <h2 className="text-lg font-semibold text-gray-900">Filters</h2>
@@ -103,7 +127,7 @@ const ExplorePage: React.FC = () => {
                 {/* Main Content */}
                 <div className="flex-1 ">
                     <div className="flex flex-col sm:flex-row gap-4 mb-6 smr-6">
-                        <div className="flex-1">
+                        <div className="flex-1 z-0">
                             <SearchBar value={searchQuery} onChange={setSearchQuery} />
                         </div>
 
@@ -118,9 +142,9 @@ const ExplorePage: React.FC = () => {
                     </div>
 
                     <div className="grid grid-cols-1 gap-6">
-                        {mockMentors.map((mentor) => (
+                        {mentors.map((mentor) => (
                             <MentorCard
-                                key={mentor.id}
+                                key={mentor._id}
                                 mentor={mentor}
                                 onBook={handleBook}
                             />

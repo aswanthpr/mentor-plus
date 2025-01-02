@@ -1,16 +1,15 @@
-import React,{useState,useRef, useEffect} from 'react';
-import ReactCrop,{Crop,PixelCrop} from 'react-image-crop';
-import "react-image-crop/dist/ReactCrop.css"
+import React, { useState, useRef, useEffect } from 'react';
+import ReactCrop, { Crop, PixelCrop } from 'react-image-crop';
+import "react-image-crop/dist/ReactCrop.css";
 import Button from './Button';
 
-interface IImageCroper{
-  imageFile:File;
-  onCropComplete:(croppedImage:Blob)=>void;
-  onCancel:()=>void
+interface IImageCroper {
+  imageFile: File;
+  onCropComplete: (croppedImage: Blob) => void;
+  onCancel: () => void;
 }
 
-const ImageCropper:React.FC<IImageCroper> = ({imageFile,onCropComplete,onCancel}) => {
-
+const ImageCropper: React.FC<IImageCroper> = ({ imageFile, onCropComplete, onCancel }) => {
   const [crop, setCrop] = useState<Crop>({
     unit: '%',
     x: 25,
@@ -18,23 +17,22 @@ const ImageCropper:React.FC<IImageCroper> = ({imageFile,onCropComplete,onCancel}
     width: 50,
     height: 50
   });
-  const [imageSrc,setImageSrc] = useState<string>('');
-  const imageRef =useRef<HTMLImageElement>(null);
+  const [imageSrc, setImageSrc] = useState<string>('');
+  const imageRef = useRef<HTMLImageElement>(null);
 
-
-  useEffect(()=>{
+  useEffect(() => {
     const reader = new FileReader();
-    reader.onload =()=>{
-      setImageSrc(reader.result as string)
+    reader.onload = () => {
+      setImageSrc(reader.result as string);
     };
     reader.readAsDataURL(imageFile);
-    return ()=>{
+    return () => {
       reader.onload = null;
-    }
-  },[imageFile])
+    };
+  }, [imageFile]);
 
-  const getCroppedImg = async (image:HTMLImageElement,crop:PixelCrop):Promise<Blob> =>{
-    const canvas = document.createElement('canvas')
+  const getCroppedImg = async (image: HTMLImageElement, crop: PixelCrop): Promise<Blob> => {
+    const canvas = document.createElement('canvas');
     const scaleX = image.naturalWidth / image.width;
     const scaleY = image.naturalHeight / image.height;
     canvas.width = crop.width;
@@ -64,44 +62,36 @@ const ImageCropper:React.FC<IImageCroper> = ({imageFile,onCropComplete,onCancel}
         resolve(blob);
       }, 'image/jpeg');
     });
-  }
+  };
 
-   const handleCropImage= async ()=>{
-    if(imageRef.current && crop){
-      const croppedImage = await getCroppedImg(imageRef.current,crop as PixelCrop);
-      onCropComplete(croppedImage)
+  const handleCropImage = async () => {
+    if (imageRef.current && crop) {
+      const croppedImage = await getCroppedImg(imageRef.current, crop as PixelCrop);
+      onCropComplete(croppedImage);
     }
-   }
+  };
+ 
   return (
-    <div className=' inset-0 bg-black bg-opacity-100 flex items-center justify-center p-4'>
-      <div className='bg-white rounded-lg p-6 max-w-3xl w-full'>
-
-        <h3 className='text-xl font-bold mb-4 '>Crop Profile Image</h3>
-          <div className='mb-4 '>
-            <ReactCrop 
-            crop={crop}
-            onChange={(c)=>setCrop(c)}
-            aspect={1}
-            circularCrop
-            >
-              <img ref={imageRef} src={imageSrc} alt="Crop me" />
-            </ReactCrop>
-          </div>
-          <div className='flex justify-end gap-2 '>
-            <Button 
-            variant='secondary'
-            onClick={onCancel}
-            >Cancel
-            </Button>
-            <Button
-            variant='orange'
-            onClick={handleCropImage}
-            >Save
-            </Button>
-          </div>
+    <div className="fixed inset- top-10 bottom-9 bg-black bg-opacity-0 flex items-center justify-center p-0">
+    <div className="bg-white rounded-lg p-6 max-w-4xl w-full">
+      <h3 className="text-xl font-bold mb-4 text-center">Crop</h3>
+      <div className="mb-4">
+        <ReactCrop
+          crop={crop}
+          onChange={(c) => setCrop(c)}
+          aspect={1}
+          circularCrop
+        >
+          <img ref={imageRef} src={imageSrc} alt="Crop me" />
+        </ReactCrop>
+      </div>
+      <div className="flex justify-end gap-2">
+        <Button variant="secondary" onClick={onCancel}>Cancel</Button>
+        <Button variant="orange" onClick={handleCropImage}>Save</Button>
       </div>
     </div>
-  )
-}
+  </div>
+  );
+};
 
-export default ImageCropper
+export default ImageCropper;

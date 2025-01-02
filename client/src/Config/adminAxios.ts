@@ -1,4 +1,4 @@
-import axios,{InternalAxiosRequestConfig} from "axios";
+import axios,{AxiosError, InternalAxiosRequestConfig} from "axios";
 import {store} from '../Redux/store'
 import { setToken } from "../Redux/adminSlice";
 
@@ -10,7 +10,13 @@ export const API = axios.create({
   },
   withCredentials: true,//this is required to sending cookies
 });
-
+export const unAPI = axios.create({
+  baseURL: "http://localhost:3000",
+  headers: {
+    "Content-type": "application/json",
+  },
+  withCredentials: true
+});
 //request interceptor to add Authorization header if token exist
 API.interceptors.request.use(
   async (config:InternalAxiosRequestConfig): Promise<any> => {
@@ -34,10 +40,10 @@ API.interceptors.response.use(
     (response) => {
       return response;
     },
-    async  (error)=>{
-      const originalRequest = error.config;
+    async  (error:AxiosError)=>{
+      const originalRequest = error.config as InternalAxiosRequestConfig & { _retry?: boolean };
 
-      if (error.response.status === 403 && !originalRequest._retry) {
+      if (error.response?.status === 403 && !originalRequest?._retry) {
         originalRequest._retry = true;
         try {
           

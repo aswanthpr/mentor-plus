@@ -3,12 +3,12 @@ import { Table } from '../../components/Admin/Table';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Pagination } from '../../components/Common/Pagination';
 import { StatusBadge } from '../../components/Common/StatusBadge';
-import { unProtectedAPI } from '../../Config/Axios';
 import { toast, ToastContainer } from 'react-toastify';
 import profile from "/rb_2877.png";
 import { BanIcon, CheckCircle2, CircleCheckBigIcon, Eye, Verified, XCircle } from 'lucide-react';
 import ConfirmToast from '../../components/Common/ConfirmToast';
 import Spinner from '../../components/Common/Spinner';
+import { API } from '../../Config/adminAxios';
 // import { ConfirmationModal } from '../components/common/ConfirmationModal';
 
 
@@ -47,7 +47,7 @@ export const Mentor_mgt: React.FC = () => {
     // Example of API call (replace with your actual API call)
     const fetchMentors = async () => {
       try {
-        const response = await unProtectedAPI.get(`/admin/mentor_management`);
+        const response = await API.get(`/admin/mentor_management`);
         setMentors(response.data.mentorData);
       } catch (error) {
         console.error('Error fetching mentors:', error);
@@ -69,7 +69,7 @@ export const Mentor_mgt: React.FC = () => {
     try {
       toast.dismiss()
       setLoading(true)
-      const response = await unProtectedAPI.patch(`/admin/mentor_management/mentor_verify`, { id: id });
+      const response = await API.patch(`/admin/mentor_management/mentor_verify`, { id: id });
       if (response && response.data) {
         setTimeout(() => {
           toast.success(response.data.message);
@@ -143,7 +143,7 @@ export const Mentor_mgt: React.FC = () => {
       toast.dismiss()
       setLoading(true)
   
-      const response = await unProtectedAPI.patch(`/admin/mentor_management/change_mentor_status`, { id: id });
+      const response = await API.patch(`/admin/mentor_management/change_mentor_status`, { id: id });
       if (response.status==200 && response.data.success) {
         console.log(response.data.success)
         //here change the value opposite dinamically
@@ -179,7 +179,7 @@ export const Mentor_mgt: React.FC = () => {
   }, [mentors, activeTab, navigate])
 
   return (
-    <div className="p-6 pb-24">
+    <div className="p-6 pb-24 mt-16">
       {loading && <Spinner/>}
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-2xl font-bold">Mentor Management</h1>

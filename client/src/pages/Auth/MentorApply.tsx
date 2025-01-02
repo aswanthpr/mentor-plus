@@ -273,7 +273,7 @@ const MentorApply: React.FC = () => {
           <ProfileImageUpload onImageChange={setProfileImage} />
           {errors.image && (
             <p className=" text-center text-red-500 text-sm">{errors.image}</p>
-          )}
+          )} 
           <div className="grid md:grid-cols-2 gap-6 ">
             <div className="space-y-6 ">
               <InputField

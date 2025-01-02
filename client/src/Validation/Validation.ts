@@ -210,3 +210,18 @@ export const validateImageFile = (file: File): string | undefined => {
 
   return undefined; // Return undefined if all validations pass
 };
+
+
+export const validateSkills =(skills:string[])=>{
+  const noNumbersOrSymbols = /^[a-zA-Z\s]+$/;
+  if (
+    skills.length === 0 ||
+    skills.some((skill:string) => skill.length < 3 || !noNumbersOrSymbols.test(skill)
+    )
+  ) {
+
+     return "Skills must be at least 3 characters long and contain no numbers or symbols.";
+
+  }
+  return undefined
+}
