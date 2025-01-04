@@ -32,5 +32,6 @@ export declare class MentorService implements IMentorService {
         status: number;
         profileUrl?: string;
     }>;
+    blMentorEditProfile(mentorData: IMentor): Promise<IMentor | null>;
 }
 //# sourceMappingURL=MetnorService.d.ts.map

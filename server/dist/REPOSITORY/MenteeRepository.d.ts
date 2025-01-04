@@ -12,6 +12,7 @@ export declare class MenteeRepository extends BaseRepository<IMentee> implements
     dbFindById(id: string): Promise<IMentee | null>;
     dbChangePassword(id: string, password: string): Promise<IMentee | null>;
     dbProfileChange(image: string, id: string): Promise<IMentee | null>;
+    DBupdateMentee(email: string): Promise<any>;
 }
 declare const _default: MenteeRepository;
 export default _default;

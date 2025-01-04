@@ -6,17 +6,10 @@ import Login from "../pages/Auth/Login";
 import SignupForm from "../pages/Auth/SignupForm";
 import ForgotPassword from "../pages/Auth/ForgotPassword";
 import Landing from "../pages/Landing/Landing";
-import { GoogleOAuthProvider } from "@react-oauth/google";
 import MenteeLogout from "../Utils/ProtectedRoute/MenteeProtectLogout";
 import AdminProtectLogout from "../Utils/ProtectedRoute/AdminProtectLogout";
 import MentorProtectLogout from "../Utils/ProtectedRoute/MentorProtectLogout";
-const GoogleAuthWrapper=()=>{
-  return(
-    <GoogleOAuthProvider clientId="605574965269-hd4675h5h3c1ucoui1huv9jbp4c3nre5.apps.googleusercontent.com">
-      <Login/>
-    </GoogleOAuthProvider>
-  )
-}
+
 const AuthRoute: React.FC = () => (
   
     <Routes>

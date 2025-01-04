@@ -2,13 +2,14 @@ import React, { useEffect, useState } from "react";
 import { StatusBadge } from "../../components/Common/StatusBadge";
 import { Pagination } from "../../components/Common/Pagination";
 import { Table } from "../../components/Admin/Table";
-import { ToastContainer, toast } from "react-toastify";
+import {toast } from "react-toastify";
 import Spinner from "../../components/Common/Spinner";
 import { categoryValidation } from "../../Validation/Validation";
 import { BanIcon, CircleCheckBigIcon, PencilLineIcon } from "lucide-react";
 import CategoryModal from "../../components/Admin/CategoryModal";
 import ConfirmToast from "../../components/Common/ConfirmToast";
 import { API } from "../../Config/adminAxios";
+import { errorHandler } from "../../Utils/Reusable/Reusable";
 
 interface Category {
   _id: string;
@@ -95,7 +96,10 @@ const Category_mgt: React.FC = () => {
         toast.error("An unexpected error occurred. Please try again.");
       }
     } finally {
-      setLoading(false);
+      setTimeout(() => {
+        setLoading(false)
+        
+      },500);
     }
   };
 
@@ -159,14 +163,12 @@ const Category_mgt: React.FC = () => {
         );
       }
     } catch (error: any) {
-      if (error.response && error.response.data) {
-        const { message } = error.response.data;
-        toast.error(message || "An error occurred");
-      } else {
-        toast.error("An unexpected error occurred. Please try again.");
-      }
+     errorHandler(error)
     } finally {
-      setLoading(false);
+      setTimeout(()=>{
+
+        setLoading(false);
+      },500)
       handleEditCloseModal();
     }
   };
@@ -195,6 +197,7 @@ const Category_mgt: React.FC = () => {
   //HANDLE CATEGORY BLOCK UNBLOCK;
   const handleBlock = async (id: string): Promise<void> => {
     try {
+      setLoading(true)
       const response = await 
       API.put(
         `/admin/change_category_status`,
@@ -212,18 +215,15 @@ const Category_mgt: React.FC = () => {
         );
         setTimeout(() => {
           toast.success(response.data.message);
-        }, 1000);
+        }, 500);
       }
     } catch (error: any) {
-      if (error.response && error.response.data) {
-        toast.dismiss();
-        const { message } = error.response.data;
-        toast.error(message || "An error occurred");
-      } else {
-        setTimeout(() => {
-          toast.error("An unexpected error occurred. Please try again.");
-        }, 1000);
-      }
+     errorHandler(error)
+    }finally{
+      setTimeout(()=>{
+
+        setLoading(false);
+      },500)
     }
   };
 
@@ -319,7 +319,6 @@ const Category_mgt: React.FC = () => {
         />
       )}
 
-      <ToastContainer />
     </div>
   );
 };

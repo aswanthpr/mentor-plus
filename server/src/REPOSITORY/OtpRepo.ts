@@ -8,7 +8,7 @@ class OtpRepository implements IOtpRepository{
     async createOtp(email: string, otp: string):Promise<IOtp|undefined> {
         try {
 
-            const saveOtp = new otpModel({ email,otp}); 
+            const saveOtp = new otpModel({ email,otp});  
            const data=await saveOtp.save();
            console.log(data,'otp created')
             return data
@@ -17,6 +17,7 @@ class OtpRepository implements IOtpRepository{
         }
         
     }
+
     async DBVerifyOtp(email: string, otp: string): Promise<IOtp|null> {
         try {
             const data = await otpModel.findOne({email,otp}).exec();
@@ -28,15 +29,7 @@ class OtpRepository implements IOtpRepository{
         
         }
     }
-    async DBupdateMentee(email: string): Promise<any> {
-        try {
-            const data =  await MenteeModel.updateOne({email},{$set:{verified:true}});
-            console.log(data,'verify data from repo')
-            return data
-        } catch (error:unknown) {
-        throw new Error(`error while updating mentee`)           
-        }
-    }
+
     
 }   
 export default new OtpRepository()

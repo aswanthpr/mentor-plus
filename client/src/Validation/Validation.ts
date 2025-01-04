@@ -1,7 +1,6 @@
 import * as EmailValidator from "email-validator";
 
 
-//name validation
 export const validateName = (name: string): string | undefined => {
   if (name.length < 4 || name.length > 25) {
     return "Name must be at least 3-25 characters long";
@@ -12,9 +11,6 @@ export const validateName = (name: string): string | undefined => {
   return undefined;
 };
 
-
-
-// email validation
 export const validateEmail = (email: string): string | undefined => {
   if (!email) {
     return "Email is required";
@@ -32,7 +28,6 @@ export const validateEmail = (email: string): string | undefined => {
 };
 
 
-//validation password
 export const validatePassword = (password: string): string | undefined => {
   const passwordRegex =
     /^(?=.*[A-Za-z])(?=.*\d)(?=.*[!@#$%^&*])[A-Za-z\d!@#$%^&*]{6,}$/;
@@ -47,27 +42,26 @@ export const validatePassword = (password: string): string | undefined => {
 };
 
 
-
-//confirm password validation
-
 export const validateConfirmPassword = (
   confirmPassword: string,
   password: string
 ): string | undefined => {
   if (password === undefined || confirmPassword === undefined) {
-    console.log('Password or confirmPassword is undefined');
+    console.log("Password or confirmPassword is undefined");
     return "Passwords are required";
   }
 
-  if (password!== confirmPassword) {
-    console.log('Passwords do not match:', { password, confirmPassword });
+  if (password !== confirmPassword) {
+    console.log("Passwords do not match:", { password, confirmPassword });
     return "Passwords do not match";
   }
 
   return undefined;
 };
 
-export const categoryValidation = async (category: string): Promise<boolean> => {
+export const categoryValidation = async (
+  category: string
+): Promise<boolean> => {
   if (!category) {
     return false;
   }
@@ -75,26 +69,15 @@ export const categoryValidation = async (category: string): Promise<boolean> => 
   return regex.test(category);
 };
 
-export const validatePhone=(phone:string)=>{
-
-  const phonePattern = /^[0-9]{10,}$/; 
+export const validatePhone = (phone: string) => {
+  const phonePattern = /^[0-9]{10,}$/;
   if (phone && !phonePattern.test(phone)) {
-   return "Phone number must be at least 10 digits and contain only numbers.";
+    return "Phone number must be at least 10 digits and contain only numbers.";
   }
-return undefined
-}
-
-// export const validateBio=(bio:string)=>{
-//   if (bio && (bio.length < 20 || bio.length > 200)) {
-//     return "Bio must be between 20 and 200 characters.";
-//   }
-// return undefined
-// }
+  return undefined;
+};
 
 
-
-
-// Email validation (only 1 '@' allowed)
 export const validateEmails = (email: string) => {
   const emailPattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
   if (!email) {
@@ -110,7 +93,7 @@ export const validateEmails = (email: string) => {
   return "";
 };
 
-// Phone validation (only digits, 10 characters)
+
 export const validatePhones = (phone: string) => {
   const phonePattern = /^[0-9]{10}$/;
   if (!phone) {
@@ -122,7 +105,6 @@ export const validatePhones = (phone: string) => {
   return "";
 };
 
-// Name validation (only first letter capitalized, no numbers/symbols)
 export const validateNames = (name: string) => {
   const namePattern = /^[A-Z][a-z]+$/;
   if (!name) {
@@ -134,7 +116,7 @@ export const validateNames = (name: string) => {
   return "";
 };
 
-// Education validation (only characters, commas, and periods)
+
 export const validateEducation = (education: string) => {
   const educationPattern = /^[a-zA-Z,.\s]+$/;
   if (!education) {
@@ -146,7 +128,6 @@ export const validateEducation = (education: string) => {
   return "";
 };
 
-// Current Position validation (only characters)
 export const validateCurrentPosition = (currentPosition: string) => {
   const positionPattern = /^[a-zA-Z\s]+$/;
   if (!currentPosition) {
@@ -158,7 +139,7 @@ export const validateCurrentPosition = (currentPosition: string) => {
   return "";
 };
 
-// LinkedIn URL validation (optional, must start with https://www.linkedin.com/in/)
+
 export const validateLinkedinUrl = (linkedinUrl: string) => {
   if (linkedinUrl && !/^https:\/\/www\.linkedin\.com\/in\//.test(linkedinUrl)) {
     return "LinkedIn URL must start with https://www.linkedin.com/in/";
@@ -166,7 +147,7 @@ export const validateLinkedinUrl = (linkedinUrl: string) => {
   return "";
 };
 
-// GitHub URL validation (optional, must start with https://github.com/)
+
 export const validateGithubUrl = (githubUrl: string) => {
   if (githubUrl && !/^https:\/\/github\.com\//.test(githubUrl)) {
     return "GitHub URL must start with https://github.com/";
@@ -174,7 +155,7 @@ export const validateGithubUrl = (githubUrl: string) => {
   return "";
 };
 
-// Bio validation (20-100 words)
+
 export const validateBio = (bio: string) => {
   const wordCount = bio.split(/\s+/).length;
   if (!bio) {
@@ -189,39 +170,39 @@ export const validateBio = (bio: string) => {
   return "";
 };
 
-
-export const validateImageFile = (file: File): string | undefined => {
-  // const validImageTypes = ['image/png', 'image/jpeg', 'image/jpg']; // List of valid image MIME types
-  const maxFileSize = 5 * 1024 * 1024; // Example: maximum file size of 5MB
+export const validateImageFile = (
+  file: File | undefined
+): string | undefined => {
 
   if (!file) {
-    return "No file selected.";
+    return "";
   }
 
-  // // Check if the file is an image
-  // if (!validImageTypes.includes(file.type)) {
-  //   return "Only PNG, JPG, and JPEG images are allowed.";
-  // }
+  const validImageTypes = ["image/png", "image/jpeg", "image/jpg"];
+  const maxFileSize = 5 * 1024 * 1024; 
 
-  // Check if the file exceeds the maximum size (optional)
+
+  if (!validImageTypes.includes(file.type)) {
+    return "Only PNG, JPG, and JPEG images are allowed.";
+  }
+
+
   if (file.size > maxFileSize) {
     return "File size must be less than 5MB.";
   }
 
-  return undefined; // Return undefined if all validations pass
+  return "";
 };
 
-
-export const validateSkills =(skills:string[])=>{
+export const validateSkills = (skills: string[]) => {
   const noNumbersOrSymbols = /^[a-zA-Z\s]+$/;
   if (
     skills.length === 0 ||
-    skills.some((skill:string) => skill.length < 3 || !noNumbersOrSymbols.test(skill)
+    skills.some(
+      (skill: string) => skill.length < 3 || !noNumbersOrSymbols.test(skill)
     )
   ) {
-
-     return "Skills must be at least 3 characters long and contain no numbers or symbols.";
-
+    return "Skills must be at least 3 characters long and contain no numbers or symbols.";
   }
-  return undefined
-}
+  return "";
+};

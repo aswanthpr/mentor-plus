@@ -11,5 +11,7 @@ export interface IMentorRepository {
     dbFindMentorById(mentorId: string): Promise<IMentor | null>;
     dbChangeMentorPassword(mentorId: string, password: string): Promise<IMentor | null>;
     dbChangeMentorProfileImage(profileUrl: string, id: string): Promise<Partial<IMentor> | null>;
+    dbUpdateMentorById(mentorData: Partial<IMentor>): Promise<IMentor | null | undefined>;
+    categoryWithSkills(): Promise<IMentor[] | undefined>;
 }
 //# sourceMappingURL=IMentorRepository.d.ts.map

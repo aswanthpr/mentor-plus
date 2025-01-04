@@ -11,7 +11,7 @@ import {
 import { ICategoryRepository } from "../INTERFACE/Category/ICategoryRepository";
 import { ICategory } from "../MODEL/categorySchema";
 import hash_pass from "../UTILS/hashPass.util";
-import { uploadImage } from "../CONFIG/cloudinary.util";
+import { uploadFile, uploadImage } from "../CONFIG/cloudinary.util";
 
 export class MentorService implements IMentorService {
   constructor(
@@ -203,64 +203,178 @@ export class MentorService implements IMentorService {
 
   //metnor profile image change
 
-  async blMentorProfileImageChange(image: Express.Multer.File | null, id: string): Promise<{ success: boolean; message: string; status: number; profileUrl?: string }> {
-      try {
-        if (!image || !id) {
-          return { success: false,message: "Image or ID is missing, please provide both.", status: 400 };
-        }
-        const profileUrl = await uploadImage(image?.buffer);
-        if (!profileUrl) {
-          return {
-            success: false,
-            message: "Failed to upload the image, please try again later.",
-            status: 500,
-          };
-        }
-        // const currentPublicId = this.extractPublicIdFromCloudinaryUrl(currentProfile.profileUrl);
-
-    // // If there's an existing image, delete it from Cloudinary
-    // if (currentPublicId) {
-    //   const deleteResult = await cloudinary.v2.uploader.destroy(currentPublicId);
-    //   if (deleteResult.result !== 'ok') {
-    //     return {
-    //       success: false,
-    //       message: "Failed to delete the old image from Cloudinary.",
-    //       status: 500,
-    //     };
-    //   }
-    // }
-        console.log(profileUrl)
-        const result = await this._MentorRepository.dbChangeMentorProfileImage(profileUrl, id);
-        console.log(result,'thsi is the result')
-        if (!result) {
-          return {
-            success: false,
-            message: "Mentor not found with the provided ID.",
-            status: 404,
-          };
-        }
+  async blMentorProfileImageChange(
+    image: Express.Multer.File | null,
+    id: string
+  ): Promise<{
+    success: boolean;
+    message: string;
+    status: number;
+    profileUrl?: string;
+  }> {
+    try {
+      if (!image || !id) {
         return {
-          success: true,
-          message: "Profile image updated successfully.",
-          status: 200, 
-          profileUrl: result.profileUrl,
+          success: false,
+          message: "Image or ID is missing, please provide both.",
+          status: 400,
         };
-      } catch (error: unknown) {
-        throw new Error(
-          `Error while bl metnee Profile  change in service: ${error instanceof Error ? error.message : String(error)
-          }`
-        );
       }
-    }
+      const profileUrl = await uploadImage(image?.buffer);
+      if (!profileUrl) {
+        return {
+          success: false,
+          message: "Failed to upload the image, please try again later.",
+          status: 500,
+        };
+      }
+      // const currentPublicId = this.extractPublicIdFromCloudinaryUrl(currentProfile.profileUrl);
 
-  // blMentorEditProfile(mentorData: IMentor):Promise<IMentor | null> {
-  //   try {
-  //     // {name,email,phone,jobTitle,category,linkedinUrl,githubUrl,bio,skills,resume,}=mentorData
-  //   } catch (error:unknown) {
-  //     throw new Error(
-  //       `Error while  mentor Profile  edit details in service: ${error instanceof Error ? error.message : String(error)
-  //       }`
-  //     );
-  //   }
-  // }
+      // // If there's an existing image, delete it from Cloudinary
+      // if (currentPublicId) {
+      //   const deleteResult = await cloudinary.v2.uploader.destroy(currentPublicId);
+      //   if (deleteResult.result !== 'ok') {
+      //     return {
+      //       success: false,
+      //       message: "Failed to delete the old image from Cloudinary.",
+      //       status: 500,
+      //     };
+      //   }
+      // }
+      console.log(profileUrl);
+      const result = await this._MentorRepository.dbChangeMentorProfileImage(
+        profileUrl,
+        id
+      );
+      console.log(result, "thsi is the result");
+      if (!result) {
+        return {
+          success: false,
+          message: "Mentor not found with the provided ID.",
+          status: 404,
+        };
+      }
+      return {
+        success: true,
+        message: "Profile image updated successfully.",
+        status: 200,
+        profileUrl: result.profileUrl,
+      };
+    } catch (error: unknown) {
+      throw new Error(
+        `Error while bl metnee Profile  change in service: ${
+          error instanceof Error ? error.message : String(error)
+        }`
+      );
+    }
+  }
+
+  async blMentorEditProfile(
+    mentorData: IMentor,
+    resume: Express.Multer.File
+  ): Promise<{
+    success: boolean;
+    message: string;
+    status: number;
+    result: IMentor | null;
+  }> {
+    try {
+
+      const {
+        _id,
+        name,
+        email,
+        phone,
+        jobTitle,
+        category,
+        linkedinUrl,
+        githubUrl,
+        bio,
+        skills,
+      } = mentorData;
+      console.log("\x1b[32m%s\x1b[0m", _id, );
+
+      if (
+        !name ||
+        !email ||
+        !jobTitle ||
+        !category ||
+        !linkedinUrl ||
+        !githubUrl ||
+        !bio ||
+        !skills
+      ) {
+        return {
+          success: false,
+          message: "credential is missing",
+          status: 400,
+          result: null,
+        };
+      }
+      const existingMentor = await this._MentorRepository.dbFindMentorById(
+        _id as string
+      );
+      console.log("sdfasifisoifjasojfoisjojd");
+
+      if (!existingMentor) {
+        return {
+          success: false,
+          message: "Mentor not existing",
+          status: 404,
+          result: null,
+        };
+      }
+      const updatedData: Partial<IMentor> = {};
+      if(existingMentor)updatedData.skills=skills;
+      if (existingMentor._id )updatedData._id=existingMentor._id;
+      if (existingMentor.name !== name) updatedData.name = name;
+      if (existingMentor.email !== email) updatedData.email = email;
+      if (existingMentor.phone !== phone) updatedData.phone = phone;
+      if (existingMentor.jobTitle !== jobTitle) updatedData.jobTitle = jobTitle;
+      if (existingMentor.category !== category) updatedData.category = category;
+      if (existingMentor.linkedinUrl !== linkedinUrl)
+        updatedData.linkedinUrl = linkedinUrl;
+      if (existingMentor.githubUrl !== githubUrl)
+        updatedData.githubUrl = githubUrl;
+      if (existingMentor.bio !== bio) updatedData.bio = bio;
+
+    
+      if (resume) {
+       const fileUrl = await uploadFile(resume.buffer, resume.originalname);
+        if (!fileUrl) {
+          throw new Error("Error while uploading resume");
+        }
+        updatedData.resume = fileUrl;
+      } else {
+        updatedData.resume = existingMentor.resume;
+      }
+
+      const result = await this._MentorRepository.dbUpdateMentorById(
+        updatedData,
+      );
+  
+
+      if (!result) {
+        return {
+          success: false,
+          message: "unable to update",
+          status: 404,
+          result: null,
+        };
+      }
+     
+      return {
+        success: true,
+        message: "Details changed Successfully!",
+        status: 200,
+        result: result,
+      };
+    } catch (error: unknown) {
+      throw new Error(
+        `Error while  mentor Profile  edit details in service: ${
+          error instanceof Error ? error.message : String(error)
+        }`
+      );
+    }
+  }
 }

@@ -8,5 +8,5 @@ export interface IMentorService {
     blMentorRefreshToken(refresh:string):Promise<{success:boolean,message:string,status:number,accessToken?:string,refreshToken?:string}>
     blPasswordChange(currentPassword:string,newPassword:string,id:string):Promise<{success:boolean,message:string,status:number}>;
     blMentorProfileImageChange(image: Express.Multer.File | null, id: string): Promise<{ success: boolean; message: string; status: number; profileUrl?: string }>;
-    // blMentorEditProfile(mentorData:IMentor):Promise<IMentor|null>
+    blMentorEditProfile(mentorData:IMentor,resume:Express.Multer.File|null):Promise<{success:boolean,message:string,status:number,result:IMentor|null}>
 }

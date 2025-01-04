@@ -55,7 +55,7 @@ export class MenteeController implements IMenteeController {
       throw new Error(
         `Error while mentee  logout ${
           error instanceof Error ? error.message : String(error)
-        }`
+        }` 
       );
     }
   }
@@ -157,9 +157,9 @@ export class MenteeController implements IMenteeController {
   //get mentor data in explore
   async getExploreData(req: Request, res: Response): Promise<void> {
     try {
-      const {status,message,success,category,mentor} = await this._menteeService.blExploreData();
+      const {status,message,success,category,mentor,skills} = await this._menteeService.blExploreData();
 
-      res.status(status).json({message,success,category,mentor});
+      res.status(status).json({message,success,category,mentor,skills});
     } catch (error: unknown) {
       res
         .status(500)

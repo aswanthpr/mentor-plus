@@ -1,8 +1,8 @@
 import axios from "axios";
 import React, { useState } from "react";
-import { Github, Linkedin } from "lucide-react";
+import { EyeClosedIcon, EyeIcon, Github, Linkedin } from "lucide-react";
 import { toast } from "react-toastify";
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import Spinner from "../../components/Common/Spinner"; 
 // import * as EmailValidator from 'email-validator';
 import SocialLogins from "../../components/auth/SocialLogins";
@@ -31,7 +31,8 @@ interface IFormData {
 const SignupForm:React.FC = () => {
 
   const navigate = useNavigate();
-
+  const [isPasswordVisible, setIsPasswordVisible] = useState<boolean>(false);
+  const [isConfirmPasswordVisible, setIsConfirmPasswordVisible] = useState<boolean>(false);
   const [formData, setFormData] = useState<IFormData>({
     name: "",
     email: "",
@@ -104,20 +105,20 @@ const SignupForm:React.FC = () => {
     }
   };
 
-  const handleVerifyOtp = async (otp: string) => {
+  const handleVerifyOtp = async (otp: string) => { 
     setLoading(true)
     try{
     const {email} = formData;
     
+    setLoading(true)
     console.log("Verifying OTP:", otp,email);;
-    const response = await axios.post('http://localhost:3000/auth/verify-otp',{email,otp});
+    const response = await axios.post('http://localhost:3000/auth/verify-otp',{email,otp,type:'signup'});
 
-    console.log(response,'this is the response',response.data)
-    if(response.status==200){
-      setLoading(true)
+    console.log(response,'this is the response',response.data);
+    if(response.status==200&&response.data.success){
       toast.success(response.data.message);
       setShowOtpModal(false);
-      navigate('/auth/login')
+      navigate('/auth/login/mentee')
     }else{
       toast.error(response.data.message);
     }
@@ -217,9 +218,10 @@ const SignupForm:React.FC = () => {
               onChange={handleChange}
               error={errors.email}
             />
+            <div className="relative">
             <InputField
               label="Password"
-              type="password"
+              type={isPasswordVisible ? "text" : "password"}
               id="password"
               name="password"
               placeholder="Password"
@@ -227,9 +229,21 @@ const SignupForm:React.FC = () => {
               onChange={handleChange}
               error={errors.password}
             />
+             <button
+                type="button"
+                onClick={()=>setIsPasswordVisible((pre)=>!pre)}
+                aria-label={
+                  isPasswordVisible ? "Hide Password" : "Show Password"
+                }
+                className="absolute right-4 top-12 transform -translate-y-1/2 text-gray-400" // Position the icon to the right of the input field
+              >
+                {isPasswordVisible ? <EyeClosedIcon /> : <EyeIcon />}
+              </button>
+              </div>
+              <div className="relative">
             <InputField
               label="Confirm Password"
-              type="password"
+              type={isConfirmPasswordVisible ? "text" : "password"}
               id="confirmPassword"
               name="confirmPassword"
               placeholder="Confirm Password"
@@ -237,6 +251,15 @@ const SignupForm:React.FC = () => {
               onChange={handleChange}
               error={errors.confirmPassword}
             />
+            <button
+            type="button"
+            onClick={()=>setIsConfirmPasswordVisible((pre)=>!pre)}
+            aria-label={isConfirmPasswordVisible ? "Hide Password" : "Show Password"}
+            className="absolute right-4 top-12 transform -translate-y-1/2 text-gray-400" // Position the icon to the right of the input field
+          >
+            {isConfirmPasswordVisible ? <EyeClosedIcon /> : <EyeIcon />}
+          </button>
+            </div>
 
             <div>
               <button
@@ -251,21 +274,21 @@ const SignupForm:React.FC = () => {
           <div className="mt-6 space-y-4">
             <p className="text-sm text-center text-gray-600">
               Already have an account?{" "}
-              <a
-                href="/auth/login"
+              <Link
+                to="/auth/login/mentee"
                 className="font-medium text-[#ff8800] hover:text-[#ff9900]"
               >
                 Sign in
-              </a>
+              </Link>
             </p>
             <p className="text-sm text-center text-gray-600">
               Looking to join us as a mentor?
-              <a
-                href="/auth/apply_as_mentor"
+              <Link
+                to="/auth/apply_as_mentor"
                 className="font-medium text-[#ff8800] hover:text-[#ff9900]"
               >
                 Apply now
-              </a>
+              </Link>
             </p>
           </div>
 

@@ -13,4 +13,5 @@ export interface IMenteeRepository{
     dbGoogleAddMentee(formData:Partial<IMentee>):Promise<IMentee|null>
     dbChangePassword(id:string,password:string):Promise<IMentee|null>
     dbProfileChange(image:string,id:string):Promise<IMentee|null>
+    DBupdateMentee(email:string):Promise<any>
 }

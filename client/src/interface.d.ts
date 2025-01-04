@@ -14,7 +14,7 @@ interface IMentee {
 }
 
 interface IMentor {
-  _id: string;
+  _id?: string;
   name: string;
   email: string;
   phone: string;
@@ -27,7 +27,7 @@ interface IMentor {
   jobTitle: string;
   category: string;
   skills: string[];
-  resume: string;
+  resume?: File|null;
 }
 
 interface IFormErrors {
@@ -39,6 +39,18 @@ interface IFormErrors {
   linkedinUrl?: string;
   currentPosition?: string;
   education?: string;
+}
+interface IMentorErrors {
+  name?: string;
+  email?: string;
+  phone?: string;
+  bio?: string;
+  githubUrl?: string;
+  linkedinUrl?: string;
+  jobTitle: string;
+  category: string;
+  skills: string|undefined;
+  resume: string;
 }
 
 interface IPass {
@@ -52,4 +64,18 @@ interface ICategory {
   isBlocked: boolean;
 }
 
+interface SkillData {
+  category: string;
+  skills: string[];
+}
 
+// interface Category {
+//   _id: string;
+//   category: string;
+//   isBlocked: boolean;
+// }
+//  interface MentorFilters {
+//   categories: Category[];
+//   skills: SkillData[];
+//   rating: number;
+// }

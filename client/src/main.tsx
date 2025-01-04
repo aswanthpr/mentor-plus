@@ -5,15 +5,15 @@ import App from './App.tsx'
 import { BrowserRouter } from 'react-router-dom'
 import { Provider } from 'react-redux';
 import { store } from './Redux/store.ts'
-// import { GoogleOAuthProvider } from "@react-oauth/google";
+import ErrorBoundary from './components/Common/ErrorBoundary.tsx'
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
-    {/* <GoogleOAuthProvider clientId={`605574965269-hd4675h5h3c1ucoui1huv9jbp4c3nre5.apps.googleusercontent.com`}> */}
+   <ErrorBoundary>
     <Provider store={store}>
     <BrowserRouter>
     <App />
     </BrowserRouter>
     </Provider>
-    {/* </GoogleOAuthProvider> */}
+    </ErrorBoundary>
   </StrictMode>,
 )

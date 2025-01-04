@@ -6,8 +6,9 @@ import FileUpload from "../../components/Common/Form/FileUpload";
 import Button from "../../components/Common/Form/Button";
 import { unProtectedAPI } from "../../Config/Axios";
 import { toast } from "react-toastify";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import Spinner from "../../components/Common/Spinner";
+import { EyeClosedIcon, EyeIcon } from "lucide-react";
 
 interface IFormData {
   name: string;
@@ -76,7 +77,7 @@ const MentorApply: React.FC = () => {
     resume: "",
     image: ''
   });
-
+  const[isPasswordVisible,setIsPasswordVisible]=useState<boolean>(false)
   const [skills, setSkills] = useState<string[]>([]);
   const [resume, setResume] = useState<File | null>(null);
   const [profileImage, setProfileImage] = useState<Blob | null>(null);
@@ -300,10 +301,11 @@ const MentorApply: React.FC = () => {
                   handleInputChange("email", e.target.value)
                 }
               />
+               <div className="relative">
               <InputField
                 label="Password"
                 name="password"
-                type={"password"}
+                type={isPasswordVisible ? "text" : "password"}
                 value={formData.password}
                 error={errors.password}
                 placeholder="Enter Password"
@@ -312,6 +314,17 @@ const MentorApply: React.FC = () => {
                   handleInputChange("password", e.target.value)
                 }
               />
+              <button
+                type="button"
+                onClick={()=>setIsPasswordVisible((pre)=>!pre)}
+                aria-label={
+                  isPasswordVisible ? "Hide Password" : "Show Password"
+                }
+                className="absolute right-4 top-12 transform -translate-y-1/2 text-gray-400" // Position the icon to the right of the input field
+              >
+                {isPasswordVisible ? <EyeClosedIcon /> : <EyeIcon />}
+              </button>
+              </div>
               <InputField
                 label="Phone"
                 name="phone"
@@ -439,12 +452,12 @@ const MentorApply: React.FC = () => {
         </form>
         <p className="text-sm text-center text-gray-600 mt-8">
           Already have an account?
-          <a
-            href="/auth/login"
+          <Link
+            to="/auth/login/mentor"
             className=" ml-1 font-medium text-[#ff8800] hover:text-[#ff9900]"
           >
             Sign in
-          </a>
+          </Link>
         </p>
       </div>
     </div>

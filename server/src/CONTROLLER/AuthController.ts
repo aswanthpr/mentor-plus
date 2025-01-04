@@ -35,9 +35,9 @@ export class AuthController implements IAuthController {
   //get signup otp and email
   async getVerifyOtp(req: Request, res: Response): Promise<void> {
     try {
-      const { email, otp, user } = req.body;
+      const { email, otp, type } = req.body;
 
-      const result = await this._OtpService.BLVerifyOtp(email, otp, user);
+      const result = await this._OtpService.BLVerifyOtp(email, otp, type);
       console.log(result, "this is otp result");
       if (result && result.success) {
         res.status(200).json({

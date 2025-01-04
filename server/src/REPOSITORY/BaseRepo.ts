@@ -1,4 +1,4 @@
-import mongoose , { Model,Document, FilterQuery,QueryOptions,UpdateQuery } from "mongoose";
+import mongoose , { Model,Document, FilterQuery,QueryOptions,UpdateQuery, PipelineStage } from "mongoose";
 import { IBaseRepository } from "../INTERFACE/Base/IBaseRepository";
 
 export class BaseRepository <T extends Document> implements IBaseRepository<T>{
@@ -42,7 +42,7 @@ export class BaseRepository <T extends Document> implements IBaseRepository<T>{
         update: object,
         options: mongoose.QueryOptions = { new: true }): Promise<T|null> {
         try {
-            return await model.findOneAndUpdate(filter,update,options)
+            return await model.findOneAndUpdate(filter,update,options).exec()
         } catch (error:unknown) {
             throw new Error(`${'\x1b[35m%s\x1b[0m'} Error while updating entity: ${error instanceof Error ? error.message : String(error)}`)
            
@@ -55,7 +55,7 @@ export class BaseRepository <T extends Document> implements IBaseRepository<T>{
 
     ):Promise<T[]>{
         try {
-            return await model.find(filter,null,options)
+            return await model.find(filter,null,options).exec()
         } catch (error:unknown) {
             throw new Error(`Error while finding entities: ${error instanceof Error ? error.message : String(error)}`);
         }
@@ -65,12 +65,28 @@ export class BaseRepository <T extends Document> implements IBaseRepository<T>{
         model: Model<T>,          
         id: string|mongoose.Types.ObjectId,               
         updateData: UpdateQuery<T>, 
-        options: mongoose.QueryOptions = {}
+        options: mongoose.QueryOptions = {new:true}
     ):Promise<T|null>{
       try {
-        return await model.findByIdAndUpdate(id,updateData,{new:true,...options})
+        return await model.findByIdAndUpdate(id,updateData,{new:true,...options}).exec()
       } catch (error:unknown) {
         throw new Error(`Error while finding entities: ${error instanceof Error ? error.message : String(error)}`);
+      }
+    }
+
+    // aggregation pipine resuable code
+    async  aggregateData<T extends Document>(
+      model: Model<T>, 
+      aggregationPipeline: PipelineStage[]
+    ): Promise<T[]> {
+      try {
+
+        // Execute the aggregation pipeline
+       return   await model.aggregate(aggregationPipeline).exec();
+        
+      } catch (error: unknown) {
+
+        throw new Error(`Error while aggregating entities: ${error instanceof Error ? error.message : String(error)}`);
       }
     }
 }

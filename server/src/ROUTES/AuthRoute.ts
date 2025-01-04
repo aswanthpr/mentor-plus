@@ -8,9 +8,10 @@ import CategoryRepository from '../REPOSITORY/CategoryRepository';
 import upload from '../CONFIG/multer.util';
 import MentorRepository from '../REPOSITORY/MentorRepository';
 import passport from 'passport';
+import MenteeRepository from '../REPOSITORY/MenteeRepository';
 
 
-const __otpService = new OtpService(OtpRepo,MentorRepository)
+const __otpService = new OtpService(OtpRepo,MenteeRepository)
 const __authService = new AuthService(AuthRepository,__otpService,CategoryRepository,MentorRepository)
 const __authController = new AuthController(__authService,__otpService);
 

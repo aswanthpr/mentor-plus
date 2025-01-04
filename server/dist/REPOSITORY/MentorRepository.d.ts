@@ -14,6 +14,8 @@ declare class mentorRepository extends BaseRepository<IMentor> implements IMento
     dbFindMentorById(mentorId: string): Promise<IMentor | null>;
     dbChangeMentorPassword(mentorId: string, password: string): Promise<IMentor | null>;
     dbChangeMentorProfileImage(profileUrl: string, id: string): Promise<Partial<IMentor> | null>;
+    dbUpdateMentorById(mentorData: Partial<IMentor>): Promise<IMentor | undefined | null>;
+    categoryWithSkills(): Promise<IMentor[] | undefined>;
 }
 declare const _default: mentorRepository;
 export default _default;

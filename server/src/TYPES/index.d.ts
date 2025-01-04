@@ -1,3 +1,5 @@
+
+
 export interface IMentorApplication {
   name: string;
   email: string;
@@ -10,7 +12,7 @@ export interface IMentorApplication {
   jobTitle: string;
   category: string;
 }
-export interface IMentorFiles {
+ interface IMentorFiles {
   profileImage: Express.Multer.File | null;
   resume: Express.Multer.File | null;
 }
@@ -18,3 +20,8 @@ export interface IMentorApplyData {
   body: IMentorApplication;
   files: IMentorFiles;
 }
+
+export interface ICategoryWithSkill  implements IMentor{
+  category:string;
+  skills:string[]
+} 

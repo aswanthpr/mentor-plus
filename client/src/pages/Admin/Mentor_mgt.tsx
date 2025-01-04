@@ -3,27 +3,14 @@ import { Table } from '../../components/Admin/Table';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Pagination } from '../../components/Common/Pagination';
 import { StatusBadge } from '../../components/Common/StatusBadge';
-import { toast, ToastContainer } from 'react-toastify';
+import { toast } from 'react-toastify';
 import profile from "/rb_2877.png";
-import { BanIcon, CheckCircle2, CircleCheckBigIcon, Eye, Verified, XCircle } from 'lucide-react';
+import { BanIcon, CheckCircle2, CircleCheckBigIcon, Eye } from 'lucide-react';
 import ConfirmToast from '../../components/Common/ConfirmToast';
 import Spinner from '../../components/Common/Spinner';
 import { API } from '../../Config/adminAxios';
-// import { ConfirmationModal } from '../components/common/ConfirmationModal';
 
 
-interface IMentor {
-  _id: string,
-  name: string,
-  email: string,
-  phone: string,
-  bio: string,
-  jobTitle: string,
-  linkedinUrl: string,
-  githubUrl: string,
-  profileUrl: string,
-  resume: string,
-}
 const MENTORS_PER_PAGE = 8;
 
 export const Mentor_mgt: React.FC = () => {
@@ -145,11 +132,12 @@ export const Mentor_mgt: React.FC = () => {
   
       const response = await API.patch(`/admin/mentor_management/change_mentor_status`, { id: id });
       if (response.status==200 && response.data.success) {
-        console.log(response.data.success)
-        //here change the value opposite dinamically
+    
+
         setTimeout(() => {
           toast.success(response.data?.message);
         }, 1000);
+
         setMentors((prev) => prev.map(mentor => mentor?._id === id ? { ...mentor, isBlocked: !mentor?.isBlocked } : mentor));
       } else {
         console.error('Invalid response format', response);
@@ -168,7 +156,7 @@ export const Mentor_mgt: React.FC = () => {
       setTimeout(() => {
         setLoading(false)
         
-      }, 1000);
+      }, 500);
     }
   }
   // Filter mentors based on the active tab (verified or not-verified)
@@ -279,7 +267,7 @@ export const Mentor_mgt: React.FC = () => {
           </tr>
         ))}
       </Table>
-      <ToastContainer />
+
 
       <Pagination
         currentPage={currentPage}

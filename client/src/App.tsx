@@ -9,24 +9,23 @@ import MenteeRoute from './Routes/MenteeRoute';
 import MentorRoute from './Routes/MentorRoute';
 import AdminRoute from './Routes/AdminRoute';
 
-// import Mentee_mgt from './pages/Admin/Mentee_mgt';
-// import Explore from './pages/Mentee/Explore';
-
 
 const App:React.FC=()=> {
 
   return (
    <>
  <ToastContainer
-        position="top-right"
-        autoClose={3000}
-        hideProgressBar={false}
-        newestOnTop={true}
-        closeOnClick
-        rtl={false}
-        draggable
-        pauseOnHover
-      />
+      position="top-center"
+      autoClose={2000}
+      hideProgressBar={false}
+      newestOnTop={false}
+      closeOnClick={false}
+      rtl={false}
+      pauseOnFocusLoss
+      draggable
+      pauseOnHover
+      theme="colored"
+    />
     <Routes>
     <Route path="/*" element={<AuthRoute/>} />
     <Route path="admin/*" element={<AdminRoute/>} />

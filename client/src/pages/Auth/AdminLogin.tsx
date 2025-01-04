@@ -8,6 +8,7 @@ import { validatePassword, validateEmail } from "../../Validation/Validation";
 import Spinner from "../../components/Common/Spinner";
 import { useDispatch } from "react-redux";
 import { setToken } from "../../Redux/adminSlice";
+import { EyeClosedIcon, EyeIcon } from "lucide-react";
 
 
 interface IError {
@@ -17,6 +18,7 @@ interface IError {
 const AdminLogin: React.FC = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
+  const [isVisible,setIsVisible]=useState<boolean>(false)
   const [email, setEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(false);
@@ -108,7 +110,7 @@ const AdminLogin: React.FC = () => {
               <p className="text-red-500 text-sm mt-2">{errors.email}</p>
             )}
           </div>
-          <div>
+          <div className="relative">
             <label
               htmlFor="password"
               className="block text-sm font-medium text-grey-700"
@@ -116,7 +118,8 @@ const AdminLogin: React.FC = () => {
               Password
             </label>
             <input
-              type="text"
+              type={isVisible?"text":"password"}
+             
               id="password"
               name="password"
               value={password}
@@ -124,6 +127,14 @@ const AdminLogin: React.FC = () => {
               placeholder="Enter your password"
               className="w-full mt-2  p-2 border border-[#ff8800] rounded-md focus:outline-none focus:ring-2  focus:ring-[#ff8800] focus:border-transparent"
             />
+             <button
+            type="button"
+            onClick={()=>setIsVisible((prev)=>!prev)}
+            aria-label={isVisible ? "Hide Password" : "Show Password"}
+            className="absolute right-4 top-12 transform -translate-y-1/2 text-gray-400" 
+          >
+            {isVisible ? <EyeClosedIcon /> : <EyeIcon />}
+          </button>
             {errors.password && (
               <p className="text-red-500 text-sm mt-2">{errors.password}</p>
             )}

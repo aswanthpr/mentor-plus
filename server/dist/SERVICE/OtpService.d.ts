@@ -1,12 +1,12 @@
 import { IOtpRepository } from "../INTERFACE/Otp/IOtpRepository";
 import IOtpService from "../INTERFACE/Otp/IOtpService";
-import { IMentorRepository } from "../INTERFACE/Mentor/IMentorRepository";
+import { IMenteeRepository } from "../INTERFACE/Mentee/IMenteeRepository";
 declare class OtpService implements IOtpService {
     private _OtpRespository;
-    private _MentorRepository;
-    constructor(_OtpRespository: IOtpRepository, _MentorRepository: IMentorRepository);
+    private _menteeRepository;
+    constructor(_OtpRespository: IOtpRepository, _menteeRepository: IMenteeRepository);
     sentOtptoMail(email: string): Promise<void>;
-    BLVerifyOtp(email: string, otp: string, user: string): Promise<{
+    BLVerifyOtp(email: string, otp: string, type?: string): Promise<{
         success: boolean;
         message: string;
     }>;

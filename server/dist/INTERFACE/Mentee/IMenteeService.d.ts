@@ -37,6 +37,7 @@ export interface IMenteeService {
         status: number;
         mentor?: IMentor[] | null;
         category?: ICategory[] | null;
+        skills: IMentor[] | undefined;
     }>;
 }
 //# sourceMappingURL=IMenteeService.d.ts.map

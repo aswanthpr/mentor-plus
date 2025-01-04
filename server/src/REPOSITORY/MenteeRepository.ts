@@ -147,5 +147,16 @@ export class MenteeRepository
       );
     }
   }
+
+  async DBupdateMentee(email: string): Promise<any> {
+    try {
+        const data =  await MenteeModel.updateOne({email},{$set:{verified:true}});
+        console.log(data,'verify data from repo')
+        return data
+    } catch (error:unknown) {
+    throw new Error(`error while updating mentee`)           
+    }
+}
+
 }
 export default new MenteeRepository();

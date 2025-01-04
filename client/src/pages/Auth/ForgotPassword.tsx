@@ -70,7 +70,10 @@ const ForgetPassword:React.FC = () => {
                     toast.error("An unexpected error occurred. Please try again.");
                   }
             }finally{
-                setLoading(false)
+                setTimeout(() => {
+                    setLoading(false)
+                    
+                  }, 500);
             }
          
             
@@ -100,7 +103,10 @@ const ForgetPassword:React.FC = () => {
                     toast.error("An unexpected error occurred. Please try again.");
                   }
             }finally{
-                setLoading(false)
+                setTimeout(() => {
+                    setLoading(false)
+                    
+                  }, 500);
             }
         }
 
@@ -115,8 +121,8 @@ const ForgetPassword:React.FC = () => {
                 setOtpError(null)
                 setLoading(true);
 
-                    console.log(email,otp,'777777777777777777777777777777777')
-                   const response= await unProtectedAPI.post(`/auth/verify-otp`,{email,otp,user});
+            
+                   const response= await unProtectedAPI.post(`/auth/verify-otp`,{email,otp,type:'forgot_Passsword'});
                
                 
                 console.log(response?.data&&response?.status);
@@ -137,7 +143,10 @@ const ForgetPassword:React.FC = () => {
                     toast.error("An unexpected error occurred. Please try again.");
                   }
             }finally{
-                setLoading(false)
+                setTimeout(() => {
+                    setLoading(false)
+                    
+                  }, 500);
             }
            
         }
@@ -153,7 +162,7 @@ const handlePassChange = async(password:string)=>{
         console.log(response?.data.message,response?.status);
         if(response?.status==200&&response.data?.success){
             toast.success(response.data?.message);
-            
+             
         }
     } catch (error:any) {
         if (error.response && error.response.data) {
@@ -164,7 +173,10 @@ const handlePassChange = async(password:string)=>{
             toast.error("An unexpected error occurred. Please try again.");
           }
     }finally{
-        setLoading(false);
+        setTimeout(() => {
+            setLoading(false)
+            
+          }, 500);
         navigate('/auth/login/mentee');
     }
    

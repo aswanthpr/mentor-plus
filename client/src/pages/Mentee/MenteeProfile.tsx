@@ -9,6 +9,8 @@ import {
   LucidePhone,
   LucideSchool,
   LucideBook,
+  EyeClosedIcon,
+  EyeIcon,
 } from "lucide-react";
 import { protectedAPI } from "../../Config/Axios";
 import profile from "/images.png";
@@ -36,6 +38,11 @@ import Spinner from "../../components/Common/Spinner";
 
 
 const MenteeProfile: React.FC = () => {
+  const [isPasswordVisible, setIsPasswordVisible] = useState<boolean>(false);
+  const [isConfirmPasswordVisible, setIsConfirmPasswordVisible] = useState<boolean>(false);
+  const [isCurrentPasswordVisible, setIsCurrentPasswordVisible] = useState<boolean>(false);
+
+
   const [profileImage, setProfileImage] = useState<File | null>(null);
   const [showCropper, setShowcropper] = useState<boolean>(false);
   const [editModalOpen, setEditModalOpen] = useState(false);
@@ -230,7 +237,7 @@ const MenteeProfile: React.FC = () => {
       };
       setLoading(true);
       console.log(Data, "this is data");
-      const response = await protectedAPI.patch(
+      const response = await protectedAPI.patch( 
         "/mentee/profile/change_profile",
         Data,
         {
@@ -518,14 +525,15 @@ const MenteeProfile: React.FC = () => {
                 Change Password
               </h2>
               <div className="space-y-4">
+              <div className="relative">
                 <InputField
                   id={"currentPassword"}
                   name="currentPassword"
                   value={editPassword.currentPassword || ""}
-                  placeholder="Enter Current Password"
+                  placeholder="Enter Current Password" 
                   error={passError?.currentPassword || ""}
                   className={""}
-                  type="text"
+                  type={isCurrentPasswordVisible ? "text" : "password"}
                   onChange={(e) =>
                     setEditPassword({
                       ...editPassword,
@@ -533,6 +541,18 @@ const MenteeProfile: React.FC = () => {
                     })
                   }
                 />
+              
+                 <button
+            type="button"
+            onClick={()=>setIsCurrentPasswordVisible((pre)=>!pre)}
+            aria-label={isCurrentPasswordVisible ? "Hide Password" : "Show Password"}
+            className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400" // Position the icon to the right of the input field
+          >
+            {isCurrentPasswordVisible ? <EyeClosedIcon /> : <EyeIcon />}
+          </button>
+    
+                </div>
+                <div className="relative">
                 <InputField
                   id={"newPassword"}
                   name="newPassword"
@@ -540,7 +560,7 @@ const MenteeProfile: React.FC = () => {
                   placeholder="Enter New Password"
                   error={passError?.newPassword || ""}
                   className={""}
-                  type="text"
+                  type={isPasswordVisible ? "text" : "password"}
                   onChange={(e) =>
                     setEditPassword({
                       ...editPassword,
@@ -548,6 +568,17 @@ const MenteeProfile: React.FC = () => {
                     })
                   }
                 />
+                 <button
+            type="button"
+            onClick={()=>setIsPasswordVisible((pre)=>!pre)}
+            aria-label={isPasswordVisible ? "Hide Password" : "Show Password"}
+            className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400" 
+          >
+            {isPasswordVisible ? <EyeClosedIcon /> : <EyeIcon />}
+          </button>
+    
+                </div>
+                <div className="relative">
                 <InputField
                   id={"confirmPassword"}
                   name="confirmPassword"
@@ -555,7 +586,7 @@ const MenteeProfile: React.FC = () => {
                   placeholder="Enter Confirm Password"
                   error={passError?.confirmPassword || ""}
                   className={""}
-                  type="text"
+                  type={isConfirmPasswordVisible ? "text" : "password"}
                   onChange={(e) =>
                     setEditPassword({
                       ...editPassword,
@@ -563,7 +594,18 @@ const MenteeProfile: React.FC = () => {
                     })
                   }
                 />
-              </div>
+
+               <button
+               type="button"
+               onClick={()=>setIsConfirmPasswordVisible((prev)=>!prev)}
+               aria-label={isConfirmPasswordVisible ? "Hide Password" : "Show Password"}
+               className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400" 
+             >
+               {isConfirmPasswordVisible ? <EyeClosedIcon /> : <EyeIcon />}
+             </button>
+       
+                   </div>
+                   </div>
               <div className="mt-6 flex justify-end">
                 <button
                   onClick={passModalClose}

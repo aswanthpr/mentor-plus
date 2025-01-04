@@ -1,7 +1,7 @@
 import { BaseRepository } from "./BaseRepo";
 import { IMentorRepository } from "../INTERFACE/Mentor/IMentorRepository";
 import mentorModel, { IMentor } from "../MODEL/mentorModel";
-import { IMentorApplication } from "../TYPES";
+import { ICategoryWithSkill, IMentorApplication } from "../TYPES";
 import mongoose from "mongoose";
 
 class mentorRepository
@@ -61,7 +61,7 @@ class mentorRepository
   //finding all mentors
   async dbFindAllMentor(): Promise<IMentor[] | null> {
     try {
-      return await this.find(mentorModel, { isBlocked: false });
+      return await this.find(mentorModel, {});
     } catch (error: unknown) {
       throw new Error(
         `error while finding mentor data from data base${
@@ -149,14 +149,83 @@ class mentorRepository
       );
     }
   }
-  async dbChangeMentorProfileImage(profileUrl: string,id:string): Promise<Partial<IMentor> | null> {
-      try {
-       return  await this.find_By_Id_And_Update(mentorModel,id,{$set:{profileUrl:profileUrl}},{new:true,fields:{profileUrl:1}})??null
-      } catch (error:unknown) {
-       throw new Error( `Error while change mentro password${
-        error instanceof Error ? error.message : String(error)
-      }`) 
-      }
+  async dbChangeMentorProfileImage(
+    profileUrl: string,
+    id: string
+  ): Promise<Partial<IMentor> | null> {
+    try {
+      return (
+        (await this.find_By_Id_And_Update(
+          mentorModel,
+          id,
+          { $set: { profileUrl: profileUrl } },
+          { new: true, fields: { profileUrl: 1 } }
+        )) ?? null
+      );
+    } catch (error: unknown) {
+      throw new Error(
+        `Error while change mentro password${
+          error instanceof Error ? error.message : String(error)
+        }`
+      );
+    }
+  }
+  async dbUpdateMentorById(
+    mentorData: Partial<IMentor>
+  ): Promise<IMentor | undefined | null> {
+    try {
+      const updateFields = {
+        name: mentorData?.name,
+        phone: mentorData?.phone,
+        email: mentorData?.email,
+        category: mentorData?.category,
+        jobTitle: mentorData?.jobTitle,
+        githubUrl: mentorData?.githubUrl,
+        linkedinUrl: mentorData?.linkedinUrl,
+        bio: mentorData?.bio,
+        resume: mentorData?.resume,
+        skills: mentorData.skills,
+      };
+
+      return await this.find_By_Id_And_Update(
+        mentorModel,
+        `${mentorData?._id}`,
+        {
+          $set: updateFields,
+        }
+      );
+    } catch (error: unknown) {
+      throw new Error(
+        `Error while finding mentor by id and updatae${
+          error instanceof Error ? error.message : String(error)
+        }`
+      );
+    }
+  }
+  async categoryWithSkills(): Promise<
+  IMentor[]|undefined> {
+    try {
+     const  aggregationPipeline = [
+        {
+          $unwind: "$skills",
+        },
+        {
+          $group: {
+            _id: "null",
+            skills: {
+              $addToSet: "$skills",
+            },
+          },
+        },
+        {
+          $project:{
+            _id:0,
+            skills:1
+          }
+        }
+      ];
+      return await this.aggregateData(mentorModel,aggregationPipeline)
+    } catch (error: unknown) {}
   }
 }
 

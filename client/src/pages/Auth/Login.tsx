@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Github, Linkedin } from "lucide-react";
+import { EyeClosedIcon, EyeIcon, Github, Linkedin } from "lucide-react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { toast } from "react-toastify";
@@ -29,9 +29,9 @@ interface LoginFormError {
 const Login: React.FC = () => {
   const dispatch: AppDispatch = useDispatch();
 
-
   const navigate = useNavigate();
-  const location = useLocation()
+  const location = useLocation();
+  const [isPasswordVisible, setIsPasswordVisible] = useState<boolean>(false);
   const [formData, setFormData] = useState<LoginFormData>({
     email: "",
     password: "",
@@ -39,18 +39,17 @@ const Login: React.FC = () => {
   const [errors, setErrors] = useState<LoginFormError>({});
   const [loading, setLoading] = useState<boolean>(false);
 
-
   const getActivePath = (path: string) => {
     if (path.includes("mentor")) {
-      return "mentor"
+      return "mentor";
     }
-    return "mentee"
-    
-  }
-  
-  const [userType, setUserType] = useState<UserType>(getActivePath(location.pathname));
-  
-  
+    return "mentee";
+  };
+
+  const [userType, setUserType] = useState<UserType>(
+    getActivePath(location.pathname)
+  );
+
   const handleUserTypeChange = (type: UserType) => {
     setUserType(type);
     navigate(`/auth/login/${type}`); // Update the URL based on the selected user type
@@ -88,7 +87,6 @@ const Login: React.FC = () => {
       setErrors(newErrors);
 
       if (Object.keys(newErrors).length === 0) {
-
         if (userType == "mentee") {
           console.log("hiaii", formData);
           const response = await protectedAPI.post(
@@ -97,8 +95,12 @@ const Login: React.FC = () => {
           );
           console.log(response.data, "response from mentee login");
           if (response.status == 200) {
-
-            dispatch(setAccessToken({accessToken:response.data?.accessToken,role:"mentee"}));
+            dispatch(
+              setAccessToken({
+                accessToken: response.data?.accessToken,
+                role: "mentee",
+              })
+            );
 
             toast.success(response.data.message);
             setLoading(false);
@@ -106,24 +108,30 @@ const Login: React.FC = () => {
             navigate("/mentee/home");
           }
         }
-        if (userType == 'mentor') {
-          setLoading(true)
+        if (userType == "mentor") {
+          setLoading(true);
           const response = await axiosInstance.post(
             "http://localhost:3000/auth/login/mentor",
             formData
           );
-          
+
           if (response.status == 200 && response.data.success) {
-
-            dispatch(setMentorToken({mentorToken:response.data?.accessToken,mentorRole:'mentor'}))
-            console.log(response.data?.accessToken, "thsi is from redux",response.data);
+            dispatch(
+              setMentorToken({
+                mentorToken: response.data?.accessToken,
+                mentorRole: "mentor",
+              })
+            );
+            console.log(
+              response.data?.accessToken,
+              "thsi is from redux",
+              response.data
+            );
             toast.success(response.data.message);
-
 
             navigate("/mentor/home");
           }
         }
-
       }
     } catch (error: any) {
       if (error.response && error.response.data) {
@@ -135,8 +143,8 @@ const Login: React.FC = () => {
       }
     } finally {
       setTimeout(() => {
-        setLoading(false)
-      }, 500)
+        setLoading(false);
+      }, 500);
     }
   };
 
@@ -154,19 +162,21 @@ const Login: React.FC = () => {
         <div className="flex justify-center space-x-4 mb-8">
           <button
             onClick={() => handleUserTypeChange("mentee")}
-            className={`px-6 py-2 rounded-full font-medium transition-colors ${userType === "mentee"
-              ? "bg-[#ff8800] text-white"
-              : "bg-white text-gray-600 hover:bg-gray-50"
-              }`}
+            className={`px-6 py-2 rounded-full font-medium transition-colors ${
+              userType === "mentee"
+                ? "bg-[#ff8800] text-white"
+                : "bg-white text-gray-600 hover:bg-gray-50"
+            }`}
           >
             I'm a Mentee
           </button>
           <button
             onClick={() => handleUserTypeChange("mentor")}
-            className={`px-6 py-2 rounded-full font-medium transition-colors ${userType === "mentor"
-              ? "bg-[#ff8800] text-white"
-              : "bg-white text-gray-600 hover:bg-gray-50"
-              }`}
+            className={`px-6 py-2 rounded-full font-medium transition-colors ${
+              userType === "mentor"
+                ? "bg-[#ff8800] text-white"
+                : "bg-white text-gray-600 hover:bg-gray-50"
+            }`}
           >
             I'm a Mentor
           </button>
@@ -225,18 +235,28 @@ const Login: React.FC = () => {
               onChange={handleChange}
               error={errors.email}
             />
-
-            <InputField
-              label="Password"
-              type="password"
-              id="password"
-              name="password"
-              placeholder="Password"
-              value={formData.password}
-              onChange={handleChange}
-              error={errors.password}
-            />
-
+            <div className="relative">
+              <InputField
+                label="Password"
+                type={isPasswordVisible ? "text" : "password"}
+                id="password"
+                name="password"
+                placeholder="Password"
+                value={formData.password}
+                onChange={handleChange}
+                error={errors.password}
+              />
+              <button
+                type="button"
+                onClick={()=>setIsPasswordVisible((pre)=>!pre)}
+                aria-label={
+                  isPasswordVisible ? "Hide Password" : "Show Password"
+                }
+                className="absolute right-4 top-12 transform -translate-y-1/2 text-gray-400" // Position the icon to the right of the input field
+              >
+                {isPasswordVisible ? <EyeClosedIcon /> : <EyeIcon />}
+              </button>
+            </div>
             <button
               type="submit"
               className="w-full flex justify-center py-2.5 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-[#ff8800] hover:bg-[#ff9900] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#ff8800]"

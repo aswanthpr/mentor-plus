@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import { IMentorController } from "../INTERFACE/Mentor/IMentorController";
 import { IMentorService } from "../INTERFACE/Mentor/IMentorService";
+import { IMentorApplyData } from "../TYPES";
 
 export class MentorController implements IMentorController {
   constructor(private _mentorService: IMentorService) {}
@@ -136,8 +137,23 @@ export class MentorController implements IMentorController {
 
   async getMentorEditProfile(req: Request, res: Response): Promise<void> {
     try {
-        // const response = await this._mentorService.blMentorEditProfile(req.body)
-    } catch (error:unknown) {
+
+      const resume =
+        req.files &&
+        (req.files as { [key: string]: Express.Multer.File[] }).resume
+          ? (req.files as { [key: string]: Express.Multer.File[] }).resume[0]
+          : null;
+console.log(resume,'this is resume',req.files)
+      const mentorData = {
+        ...req.body
+      };
+
+      const {status,success,message,result} = await this._mentorService.blMentorEditProfile(
+        mentorData, resume,
+      );
+ 
+      res.status(status).json({ success, message, result });
+    } catch (error: unknown) {
       throw new Error(
         `error while mentor profile Edit ${
           error instanceof Error ? error.message : String(error)

@@ -7,9 +7,9 @@ import { ICategoryRepository } from "../INTERFACE/Category/ICategoryRepository";
 import { ICategory } from "../MODEL/categorySchema";
 export declare class MenteeService implements IMenteeService {
     private _menteeRepository;
-    private _mentorRespository;
+    private _mentorRepository;
     private _categoryRepository;
-    constructor(_menteeRepository: IMenteeRepository, _mentorRespository: IMentorRepository, _categoryRepository: ICategoryRepository);
+    constructor(_menteeRepository: IMenteeRepository, _mentorRepository: IMentorRepository, _categoryRepository: ICategoryRepository);
     blMenteeProfile(refreshToken: string): Promise<{
         success: boolean;
         message: string;
@@ -46,6 +46,7 @@ export declare class MenteeService implements IMenteeService {
         status: number;
         mentor?: IMentor[] | null;
         category?: ICategory[] | null;
+        skills: IMentor[] | undefined;
     }>;
 }
 //# sourceMappingURL=MenteeService.d.ts.map

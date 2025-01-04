@@ -1,6 +1,12 @@
-import { ICategory } from "../../MODEL/categorySchema";
-import { IMentor } from "../../MODEL/mentorModel";
-export interface IMentorService {
+import { IMentorService } from "../INTERFACE/Mentor/IMentorService";
+import { IMentorRepository } from "../INTERFACE/Mentor/IMentorRepository";
+import { IMentor } from "../MODEL/mentorModel";
+import { ICategoryRepository } from "../INTERFACE/Category/ICategoryRepository";
+import { ICategory } from "../MODEL/categorySchema";
+export declare class MentorService implements IMentorService {
+    private _MentorRepository;
+    private _CategoryRepository;
+    constructor(_MentorRepository: IMentorRepository, _CategoryRepository: ICategoryRepository);
     blMentorProfile(token: string): Promise<{
         success: boolean;
         message: string;
@@ -26,11 +32,11 @@ export interface IMentorService {
         status: number;
         profileUrl?: string;
     }>;
-    blMentorEditProfile(mentorData: IMentor, resume: Express.Multer.File | null): Promise<{
+    blMentorEditProfile(mentorData: IMentor, resume: Express.Multer.File): Promise<{
         success: boolean;
         message: string;
         status: number;
         result: IMentor | null;
     }>;
 }
-//# sourceMappingURL=IMentorService.d.ts.map
+//# sourceMappingURL=MentorService.d.ts.map
