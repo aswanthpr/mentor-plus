@@ -14,6 +14,7 @@ import { setAccessToken } from "../../Redux/menteeSlice";
 import { protectedAPI } from "../../Config/Axios";
 import { setMentorToken } from "../../Redux/mentorSlice";
 import { axiosInstance } from "../../Config/mentorAxios";
+import { errorHandler } from "../../Utils/Reusable/Reusable";
 
 type UserType = "mentee" | "mentor";
 
@@ -103,7 +104,6 @@ const Login: React.FC = () => {
             );
 
             toast.success(response.data.message);
-            setLoading(false);
 
             navigate("/mentee/home");
           }
@@ -134,13 +134,7 @@ const Login: React.FC = () => {
         }
       }
     } catch (error: any) {
-      if (error.response && error.response.data) {
-        const { message } = error.response.data;
-        toast.error(message || "An error  occurred");
-      } else {
-        // Handle network or unexpected errors
-        toast.error("An unexpected error occurred. Please try again.");
-      }
+     errorHandler(error)
     } finally {
       setTimeout(() => {
         setLoading(false);
@@ -149,7 +143,10 @@ const Login: React.FC = () => {
   };
 
   const handleSocialLogin = async (provider: string) => {
-    // Handle social login here
+   if(provider ==='google'){
+
+    window.location.href=`http://localhost:3000/auth/google` ;
+   }
   };
 
   return (
@@ -198,7 +195,7 @@ const Login: React.FC = () => {
                 onClick={() => handleSocialLogin("LinkedIn")}
               /> */}
               <button
-                onClick={() => handleSocialLogin}
+                onClick={() => handleSocialLogin('google')}
                 className="w-full flex items-center justify-center gap-2 px-4 py-2 border-2 border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
               >
                 <img

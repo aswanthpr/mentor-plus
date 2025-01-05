@@ -3,15 +3,15 @@ import { IMentorApplyData } from "../TYPES/index";
 import { ICategory } from "../MODEL/categorySchema";
 import IOtpService from "../INTERFACE/Otp/IOtpService";
 import IAuthService from "../INTERFACE/Auth/IAuthService";
-import { IAuthRepository } from "../INTERFACE/Auth/IAuthRepository";
 import { IMentorRepository } from "../INTERFACE/Mentor/IMentorRepository";
 import { ICategoryRepository } from "../INTERFACE/Category/ICategoryRepository";
+import { IMenteeRepository } from "../INTERFACE/Mentee/IMenteeRepository";
 export declare class AuthService implements IAuthService {
-    private _AuthRepository;
     private _OtpService;
     private _categoryRepository;
     private _MentorRepository;
-    constructor(_AuthRepository: IAuthRepository, _OtpService: IOtpService, _categoryRepository: ICategoryRepository, _MentorRepository: IMentorRepository);
+    private _MenteeRepository;
+    constructor(_OtpService: IOtpService, _categoryRepository: ICategoryRepository, _MentorRepository: IMentorRepository, _MenteeRepository: IMenteeRepository);
     mentee_Signup(userData: IMentee): Promise<{
         success: boolean;
         message: string;
@@ -62,6 +62,12 @@ export declare class AuthService implements IAuthService {
         success: boolean;
         message: string;
     } | undefined>;
-    blGoogleAuth(): Promise<any>;
+    blGoogleAuth(user: any): Promise<{
+        success: boolean;
+        message: string;
+        status: number;
+        accessToken?: string;
+        refreshToken?: string;
+    }>;
 }
 //# sourceMappingURL=AuthService.d.ts.map

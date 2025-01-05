@@ -34,6 +34,7 @@ const Category_mgt: React.FC = () => {
   // Handle modal opening
   const handleAddCategoryClick = async (): Promise<void> => {
     setIsModalOpen(true);
+   
   };
 
   // Handle modal close
@@ -89,12 +90,7 @@ const Category_mgt: React.FC = () => {
         toast.success(response.data.message);
       }
     } catch (error: any) {
-      if (error.response && error.response.data) {
-        const { message } = error.response.data;
-        toast.error(message || "An error occurred");
-      } else {
-        toast.error("An unexpected error occurred. Please try again.");
-      }
+      errorHandler(error)
     } finally {
       setTimeout(() => {
         setLoading(false)
@@ -116,8 +112,7 @@ const Category_mgt: React.FC = () => {
           toast.error("Failed to load categories");
         }
       } catch (error: any) {
-        toast.error("An error occurred while fetching categories");
-        console.error("Error fetching categories:", error);
+        errorHandler(error)
       } finally {
         setLoading(false);
       }

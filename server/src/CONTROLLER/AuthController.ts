@@ -8,7 +8,7 @@ export class AuthController implements IAuthController {
   constructor(
     private _AuthService: IAuthService,
     private _OtpService: IOtpService
-  ) {}
+  ) { }
 
   //mentee sinup controll
   async menteeSignup(req: Request, res: Response): Promise<void> {
@@ -26,8 +26,7 @@ export class AuthController implements IAuthController {
         .status(500)
         .json({ success: false, message: "Internal server error" });
       throw new Error(
-        `error while mentee Signup ${
-          error instanceof Error ? error.message : error
+        `error while mentee Signup ${error instanceof Error ? error.message : error
         }`
       );
     }
@@ -54,8 +53,7 @@ export class AuthController implements IAuthController {
         .status(500)
         .json({ success: false, message: "Internal server error" });
       throw new Error(
-        `Error while receving Otp${
-          error instanceof Error ? error.message : String(error)
+        `Error while receving Otp${error instanceof Error ? error.message : String(error)
         }`
       );
     }
@@ -76,8 +74,7 @@ export class AuthController implements IAuthController {
         .status(500)
         .json({ success: false, message: "Internal server error" });
       throw new Error(
-        `error while resend otp ${
-          error instanceof Error ? error.message : String(error)
+        `error while resend otp ${error instanceof Error ? error.message : String(error)
         }`
       );
     }
@@ -127,8 +124,7 @@ export class AuthController implements IAuthController {
         .status(500)
         .json({ success: false, message: "Internal server error" });
       throw new Error(
-        `error while Login in getMainLogin ${
-          error instanceof Error ? error.message : String(error)
+        `error while Login in getMainLogin ${error instanceof Error ? error.message : String(error)
         }`
       );
     }
@@ -153,8 +149,7 @@ export class AuthController implements IAuthController {
         .json({ success: false, message: "Internal server error" });
 
       throw new Error(
-        `error while forgetpass in getforgetPassword ${
-          error instanceof Error ? error.message : String(error)
+        `error while forgetpass in getforgetPassword ${error instanceof Error ? error.message : String(error)
         }`
       );
     }
@@ -189,8 +184,7 @@ export class AuthController implements IAuthController {
         .json({ success: false, message: "Internal server error" });
 
       throw new Error(
-        `Error while handling forgot password request: ${
-          error instanceof Error ? error.message : String(error)
+        `Error while handling forgot password request: ${error instanceof Error ? error.message : String(error)
         }`
       );
     }
@@ -233,8 +227,7 @@ export class AuthController implements IAuthController {
         .json({ success: false, message: "Internal server error" });
 
       throw new Error(
-        `error while admin Login${
-          error instanceof Error ? error.message : String(error)
+        `error while admin Login${error instanceof Error ? error.message : String(error)
         }`
       );
     }
@@ -255,8 +248,7 @@ export class AuthController implements IAuthController {
         .json({ success: false, message: "Internal server error" });
 
       throw new Error(
-        `error while getting mentorRoles${
-          error instanceof Error ? error.message : String(error)
+        `error while getting mentorRoles${error instanceof Error ? error.message : String(error)
         }`
       );
     }
@@ -279,14 +271,14 @@ export class AuthController implements IAuthController {
 
       const profileImage =
         req.files &&
-        (req.files as { [key: string]: Express.Multer.File[] }).profileImage
+          (req.files as { [key: string]: Express.Multer.File[] }).profileImage
           ? (req.files as { [key: string]: Express.Multer.File[] })
-              .profileImage[0]
+            .profileImage[0]
           : null;
 
       const resume =
         req.files &&
-        (req.files as { [key: string]: Express.Multer.File[] }).resume
+          (req.files as { [key: string]: Express.Multer.File[] }).resume
           ? (req.files as { [key: string]: Express.Multer.File[] }).resume[0]
           : null;
 
@@ -316,8 +308,7 @@ export class AuthController implements IAuthController {
         .json({ success: false, message: "Internal server error" });
 
       throw new Error(
-        `error while mentor application ${
-          error instanceof Error ? error.message : String(error)
+        `error while mentor application ${error instanceof Error ? error.message : String(error)
         }`
       );
     }
@@ -334,7 +325,7 @@ export class AuthController implements IAuthController {
         .status(response.status)
         .cookie("mentorToken", response.refreshToken, {
           httpOnly: true,
-          secure: process.env.NODE_ENV === 'production',
+          secure: process.env.NODE_ENV === "production",
           sameSite: "strict",
           maxAge: 15 * 24 * 60 * 60 * 1000,
           path: "/",
@@ -344,15 +335,13 @@ export class AuthController implements IAuthController {
           message: response.message,
           accessToken: response.accessToken,
         });
-
     } catch (error: unknown) {
       res
         .status(500)
         .json({ success: false, message: "Internal server error" });
 
       throw new Error(
-        `error while mentor signup ${
-          error instanceof Error ? error.message : String(error)
+        `error while mentor signup ${error instanceof Error ? error.message : String(error)
         }`
       );
     }
@@ -382,8 +371,7 @@ export class AuthController implements IAuthController {
         .json({ success: false, message: "Internal server error" });
 
       throw new Error(
-        `error while forgetpass in getforgetPassword ${
-          error instanceof Error ? error.message : String(error)
+        `error while forgetpass in getforgetPassword ${error instanceof Error ? error.message : String(error)
         }`
       );
     }
@@ -421,8 +409,7 @@ export class AuthController implements IAuthController {
         .json({ success: false, message: "Internal server error" });
 
       throw new Error(
-        `Error while handling metnor forgot password request: ${
-          error instanceof Error ? error.message : String(error)
+        `Error while handling metnor forgot password request: ${error instanceof Error ? error.message : String(error)
         }`
       );
     }
@@ -430,13 +417,25 @@ export class AuthController implements IAuthController {
 
   async getGoogleAuth(req: Request, res: Response): Promise<any> {
     try {
-      return await this._AuthService.blGoogleAuth();
+
+      const {status,message,accessToken,refreshToken}  =  await this._AuthService.blGoogleAuth(req.user) ;
+      console.log(refreshToken,'thsi is the result ')
+      res.cookie('refreshToken',refreshToken,{
+        httpOnly:true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite:'lax',
+        maxAge: 7 * 24 * 60 * 60 * 1000,
+      })
+      console.log('7777777777777777777777777777777')
+      res.redirect(`http://localhost:5173/mentee/google/success?token=${accessToken}`);
     } catch (error: unknown) {
-      throw new Error(
-        `Error while google auth  mentee  ${
+      res.status(500).json({
+        status: 'error',
+        message: `Error while Google auth: ${
           error instanceof Error ? error.message : String(error)
-        }`
-      );
+        }`,
+      });
+      
     }
   }
 }

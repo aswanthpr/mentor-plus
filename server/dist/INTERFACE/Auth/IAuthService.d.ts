@@ -53,9 +53,12 @@ export default interface IAuthService {
         success: boolean;
         message: string;
     } | undefined>;
-    blGoogleAuth(): Promise<{
+    blGoogleAuth(user: any | undefined): Promise<{
         success: boolean;
         message: string;
+        status: number;
+        accessToken?: string;
+        refreshToken?: string;
     }>;
 }
 //# sourceMappingURL=IAuthService.d.ts.map

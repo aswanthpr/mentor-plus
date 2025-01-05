@@ -20,7 +20,6 @@ const MentorProtectLogout:React.FC<IMentorLogout> = ({element}) => {
         }
       }, [accessToken, role, navigate]);
     
-    //   if (accessToken && role === 'mentee') return null; // or a loading spinner
     console.log("you are out.........")
     
       return element;

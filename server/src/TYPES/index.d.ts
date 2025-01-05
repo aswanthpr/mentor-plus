@@ -1,5 +1,11 @@
+// import 'express-session';
 
 
+//  declare module 'express-session'{ 
+//   interface Session { 
+//     user?: string; 
+//   }
+// }
 export interface IMentorApplication {
   name: string;
   email: string;

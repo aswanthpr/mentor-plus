@@ -11,5 +11,10 @@ export interface IMenteeRepository {
     dbChangePassword(id: string, password: string): Promise<IMentee | null>;
     dbProfileChange(image: string, id: string): Promise<IMentee | null>;
     DBupdateMentee(email: string): Promise<any>;
+    findByEmail(email: string): Promise<IMentee | null>;
+    create_Mentee(userData: IMentee): Promise<IMentee>;
+    DBMainLogin(email: string): Promise<IMentee | null>;
+    DBforgot_PasswordChange(email: string, password: string): Promise<IMentee | null | undefined>;
+    DBadminLogin(email: string): Promise<IMentee | null>;
 }
 //# sourceMappingURL=IMenteeRepository.d.ts.map

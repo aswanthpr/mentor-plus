@@ -5,8 +5,7 @@ import mentorModel from "../MODEL/mentorModel";
 
 export class MenteeRepository
   extends BaseRepository<IMentee>
-  implements IMenteeRepository
-{
+  implements IMenteeRepository {
   constructor() {
     super(MenteeModel);
   }
@@ -16,8 +15,7 @@ export class MenteeRepository
       return await this.find(MenteeModel, { isAdmin: false });
     } catch (error: unknown) {
       throw new Error(
-        `error while Checking mentee data ${
-          error instanceof Error ? error.message : String(error)
+        `error while Checking mentee data ${error instanceof Error ? error.message : String(error)
         }`
       );
     }
@@ -29,8 +27,7 @@ export class MenteeRepository
       ]);
     } catch (error: unknown) {
       throw new Error(
-        `error while change mentee status in repository ${
-          error instanceof Error ? error.message : String(error)
+        `error while change mentee status in repository ${error instanceof Error ? error.message : String(error)
         } `
       );
     }
@@ -55,8 +52,7 @@ export class MenteeRepository
       );
     } catch (error: unknown) {
       throw new Error(
-        `error while edit mentee data in repository ${
-          error instanceof Error ? error.message : String(error)
+        `error while edit mentee data in repository ${error instanceof Error ? error.message : String(error)
         } `
       );
     }
@@ -66,8 +62,7 @@ export class MenteeRepository
       return await this.find_One({ email });
     } catch (error: unknown) {
       throw new Error(
-        `error find mentee data in repository ${
-          error instanceof Error ? error.message : String(error)
+        `error find mentee data in repository ${error instanceof Error ? error.message : String(error)
         } `
       );
     }
@@ -83,8 +78,7 @@ export class MenteeRepository
       });
     } catch (error: unknown) {
       throw new Error(
-        `error add mentee data in repository ${
-          error instanceof Error ? error.message : String(error)
+        `error add mentee data in repository ${error instanceof Error ? error.message : String(error)
         } `
       );
     }
@@ -99,8 +93,7 @@ export class MenteeRepository
       });
     } catch (error: unknown) {
       throw new Error(
-        `error google add mentee data in repository ${
-          error instanceof Error ? error.message : String(error)
+        `error google add mentee data in repository ${error instanceof Error ? error.message : String(error)
         } `
       );
     }
@@ -111,8 +104,7 @@ export class MenteeRepository
       return await this.find_By_Id(id, { isBlocked: false });
     } catch (error: unknown) {
       throw new Error(
-        `error fetch metnee data by id  in repository ${
-          error instanceof Error ? error.message : String(error)
+        `error fetch metnee data by id  in repository ${error instanceof Error ? error.message : String(error)
         } `
       );
     }
@@ -128,8 +120,7 @@ export class MenteeRepository
       });
     } catch (error: unknown) {
       throw new Error(
-        `error fetch metnee password change by id  in repository ${
-          error instanceof Error ? error.message : String(error)
+        `error fetch metnee password change by id  in repository ${error instanceof Error ? error.message : String(error)
         } `
       );
     }
@@ -141,8 +132,7 @@ export class MenteeRepository
       });
     } catch (error: unknown) {
       throw new Error(
-        `error fetch metnee password change by id  in repository ${
-          error instanceof Error ? error.message : String(error)
+        `error fetch metnee password change by id  in repository ${error instanceof Error ? error.message : String(error)
         } `
       );
     }
@@ -150,13 +140,53 @@ export class MenteeRepository
 
   async DBupdateMentee(email: string): Promise<any> {
     try {
-        const data =  await MenteeModel.updateOne({email},{$set:{verified:true}});
-        console.log(data,'verify data from repo')
-        return data
-    } catch (error:unknown) {
-    throw new Error(`error while updating mentee`)           
+      const data = await MenteeModel.updateOne({ email }, { $set: { verified: true } });
+      console.log(data, 'verify data from repo')
+      return data
+    } catch (error: unknown) {
+      throw new Error(`error while updating mentee`)
     }
-}
+  }
+  async findByEmail(email: string): Promise<IMentee | null> {
+    try {
 
+      return await this.find_One({ email })//find one in base repo
+    } catch (error: any) {
+      console.log('Error while finding user with email', email, error);
+      throw new Error('Error while finding user by Email')
+    }
+  }
+  async create_Mentee(userData: IMentee): Promise<IMentee> {
+    try {
+      return await this.createDocument(userData);
+    } catch (error: any) {
+      console.log(`error while doing signup ${error}`);
+      throw new Error("error while mentee Signup");
+    }
+  }
+  async DBMainLogin(email: string): Promise<IMentee | null> {
+    try {
+
+      return await this.find_One({ email });
+    } catch (error: unknown) {
+      throw new Error(`error  in DBMainLogin  while Checking User ${error instanceof Error ? error.message : String(error)}`)
+    }
+  }
+  async DBforgot_PasswordChange(email: string, password: string): Promise<IMentee | null | undefined> {
+    try {
+      return await this.find_One_And_Update(MenteeModel, { email: email }, { $set: { password: password } });
+    } catch (error: unknown) {
+      console.log(`error while find and update on DBforget_passwordChange ${error instanceof Error ? error.message : String(error)}`)
+    }
+  }
+  //admin data fetch
+  async DBadminLogin(email: string): Promise<IMentee | null> {
+    try {
+      return await this.find_One({ email })
+    } catch (error: unknown) {
+      console.log(`error while finding admin ${error instanceof Error ? error.message : String(error)}`)
+      return null;
+    }
+  }
 }
 export default new MenteeRepository();

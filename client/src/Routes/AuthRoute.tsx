@@ -11,9 +11,11 @@ import AdminProtectLogout from "../Utils/ProtectedRoute/AdminProtectLogout";
 import MentorProtectLogout from "../Utils/ProtectedRoute/MentorProtectLogout";
 
 const AuthRoute: React.FC = () => (
-  
+
+
     <Routes>
-    <Route path="/" element={<MenteeLogout element={ <Landing/>}/>}/>
+    {/* <Route path="/" element={<MentorProtectLogout element={ <Landing/>}/>}/> */}
+    <Route path="/" element={<MenteeLogout element={<MentorProtectLogout element={<Landing/>}/>}/>}/>
     <Route path="auth/login/mentee" element={<MenteeLogout element={<Login/>}/>}/>
     <Route path='auth/login/mentor' element={<MentorProtectLogout element={<Login/>}/>}/>
     <Route path="auth/signup" element={<MenteeLogout element={<SignupForm/>}/>}/>
@@ -25,6 +27,8 @@ const AuthRoute: React.FC = () => (
 
     <Route path="auth/login/admin" element={<AdminProtectLogout element={<AdminLogin />}/>} />
   </Routes>
+
+
 );
 
 export default AuthRoute;

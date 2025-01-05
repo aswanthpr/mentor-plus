@@ -13,7 +13,8 @@ import mentee_Router from "./ROUTES/MenteeRoute";
 import mentor_Router from "./ROUTES/MentorRoute";
 import {connectDb} from "./CONFIG/DataBase"
 import { corsOptions } from "./MIDDLEWARE/index_middleware"; 
-import passport from "passport";
+import passport from "./CONFIG/googleAuth";
+
 
 
 connectDb() 

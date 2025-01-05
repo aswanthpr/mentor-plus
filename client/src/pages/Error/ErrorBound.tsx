@@ -17,9 +17,7 @@ const handleRefresh=()=>{
         <h2 className='text-3xl font-bold text-gray-900 text-center'>
             Something Went Wrong
         </h2>
-        <p className="text-gray-600">
-              Our servers are taking a quick break. Don't worry, we're working to get things back to normal.
-            </p>
+
             <div className='flex flex-col sm:flex-row gap-4 justify-center'>
             <button
             onClick={handleRefresh} 

@@ -146,7 +146,9 @@ const SignupForm:React.FC = () => {
   }
 
   const handleSocialLogin = (provider: string) => {
-    console.log(`Logging in with ${provider}`);
+    if(provider == 'google'){
+     
+    }
   };
 
   return (
@@ -172,7 +174,7 @@ const SignupForm:React.FC = () => {
               onClick={() => handleSocialLogin("LinkedIn")}
             /> */}
             <button
-              onClick={() => handleSocialLogin("Google")}
+              onClick={() => (window.location.href = 'http://localhost:3000/auth/google')}
               className="w-full flex items-center justify-center gap-2 px-4 py-2 border-2 border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
             >
               <img

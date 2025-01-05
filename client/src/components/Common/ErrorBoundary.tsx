@@ -1,4 +1,5 @@
 import React, { useState, ReactNode, useEffect } from 'react';
+import ErrorBound from '../../pages/Error/ErrorBound';
 
 interface ErrorBoundaryProps {
   children: ReactNode;
@@ -24,10 +25,10 @@ const ErrorBoundary: React.FC<ErrorBoundaryProps> = ({ children, fallback }) => 
   }, []);
 
   if (hasError) {
-    return <>{fallback || <h1>Something went wrong.</h1>}</>;
+    return <>{fallback ||<ErrorBound/>}</>;
   }
 
-  return <>{children}</>;
+  return <>{children}</>;  
 };
 
 export default ErrorBoundary;
