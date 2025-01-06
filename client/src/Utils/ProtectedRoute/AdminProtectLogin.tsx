@@ -20,7 +20,7 @@ const AdminProtectLogin:React.FC<IAdminLogin> = ({element}) => {
         }
       }, [adminToken, role, navigate]);
     
-    //   if (accessToken && role === 'mentee') return null; // or a loading spinner
+
     console.log("admin out.........")
     
       return element;

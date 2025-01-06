@@ -1,6 +1,5 @@
 import { IOtpRepository } from "../INTERFACE/Otp/IOtpRepository";
 import otpModel, { IOtp } from "../MODEL/otpModel";
-import MenteeModel from "../MODEL/MenteeModel";
 
 class OtpRepository implements IOtpRepository {
 

@@ -1,6 +1,5 @@
 import { ICategory } from "../../MODEL/categorySchema";
 import { IMentee } from "../../MODEL/MenteeModel";
-import { IMentor } from "../../MODEL/mentorModel";
 import { IMentorApplyData } from "../../TYPES/index";
 
 export default interface IAuthService {

@@ -1,13 +1,11 @@
 import React, { useState, useEffect } from "react";
 import { Filter, X } from "lucide-react";
 import SearchBar from "../../components/Mentee/SearchBar";
-("../../components/dashboard/explore/SearchBar");
 import Filters from "../../components/Mentee/Filters";
 import MentorCard from "../../components/Mentee/MentorCard";
-import { Mentor } from "../../components/Mentee/MentorCard";
+
 import { MentorFilters } from "../../components/Mentee/Filters";
 import { protectedAPI } from "../../Config/Axios";
-import { toast } from "react-toastify";
 import Spinner from "../../components/Common/Spinner";
 import { errorHandler } from "../../Utils/Reusable/Reusable";
 
@@ -38,8 +36,6 @@ const ExplorePage: React.FC = () => {
     },
   ]);
 
-  const [categories, setCategories] = useState<ICategory[]>([]);
-
   const handleBook = (mentorId: string) => {
     console.log("Booking session with mentor:", mentorId);
     // Implement booking logic
@@ -52,13 +48,13 @@ const ExplorePage: React.FC = () => {
         const { data } = await protectedAPI.get(`/mentee/explore`);
         console.log(data.skills, "data ");
         setMentors(data?.mentor);
-        setCategories(data?.category);
+
         setFilters((prev) => ({
           ...prev,
           categories: data?.category,
           skills: data?.skills[0].skills,
         }));
-      } catch (error: any) {
+      } catch (error: unknown) {
         errorHandler(error);
       } finally {
         setTimeout(() => {

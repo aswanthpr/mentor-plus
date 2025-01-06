@@ -69,13 +69,41 @@ interface SkillData {
   skills: string[];
 }
 
-// interface Category {
-//   _id: string;
-//   category: string;
-//   isBlocked: boolean;
-// }
-//  interface MentorFilters {
-//   categories: Category[];
-//   skills: SkillData[];
-//   rating: number;
-// }
+
+
+
+//metnor applay
+interface IFormData {
+  name: string;
+  email: string;
+  password: string;
+  phone: string;
+  jobTitle: string;
+  category: string;
+  linkedinUrl: string;
+  githubUrl: string;
+  bio: string;
+  skills?: string[];
+  profileImage: Blob | null;
+  resume: File | null;
+
+}
+interface IErrors {
+  name: string;
+  email: string;
+  password: string;
+  phone: string;
+  jobTitle: string;
+  category: string;
+  linkedinUrl: string;
+  githubUrl: string;
+  bio: string;
+  skills: string;
+  resume: string;
+  profileImage: string
+}
+interface ICategory {
+  id: string;
+  category: string;
+  isBlocked: boolean;
+}

@@ -60,7 +60,7 @@ const Landing: React.FC = () => {
               <Link to='/auth/signup' className='px-4 py-2 border-2 border-black text-black hover:bg-grey-50 rounded-lg transition-colors font-bold hover:bg-slate-200'>
                 Sign Up
               </Link>
-              <Link to='/auth/login' className='px-4 py-2 bg-black text-white rounded-lg hover:bg-gray-700 transition-colors font-bold'>
+              <Link to='/auth/login/mentee' className='px-4 py-2 bg-black text-white rounded-lg hover:bg-gray-700 transition-colors font-bold'>
                 Login
               </Link>
             </div>
@@ -80,7 +80,7 @@ const Landing: React.FC = () => {
               <Link to='/auth/signup' className='w-full px-4 py-2 border-2 border-black text-black hover:bg-grey-50 rounded-lg transition-colors font-medium text-sm'>
                 Sign Up
               </Link>
-              <Link to='/auth/login' className='w-full px-4 py-2 bg-black text-white rounded-lg hover:bg-grey-800 transition-colors font-medium text-sm'>
+              <Link to='/auth/login/mentee' className='w-full px-4 py-2 bg-black text-white rounded-lg hover:bg-grey-800 transition-colors font-medium text-sm'>
                 Login
               </Link>
             </div>

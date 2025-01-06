@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { toast, ToastContainer } from "react-toastify";
+import { toast } from "react-toastify";
 import { BanIcon, CircleCheckBigIcon } from "lucide-react";
 import { Table } from "../../components/Admin/Table";
 import { Pagination } from "../../components/Common/Pagination";
@@ -40,13 +40,8 @@ export const Mentee_mgt: React.FC = () => {
         if (response.status == 200 && response.data.success) {
           setMenteeData(response.data?.Data);
         }
-      } catch (error: any) {
-        if (error.response && error.response.data) {
-          const { message } = error.response.data;
-          console.error(message || "An error occurred");
-        } else {
-          console.error("An unexpected error occurred. Please try again.");
-        }
+      } catch (error: unknown) {
+       errorHandler(error)
       } finally {
         setLoading(false);
       }
@@ -100,7 +95,7 @@ export const Mentee_mgt: React.FC = () => {
           toast.success(response.data?.message);
         }, 500);
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
      errorHandler(error)
     }finally{
       setTimeout(() => {

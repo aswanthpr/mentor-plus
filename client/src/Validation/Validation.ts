@@ -11,13 +11,10 @@ export const validateName = (name: string): string | undefined => {
   return undefined;
 };
 
+
 export const validateEmail = (email: string): string | undefined => {
   if (!email) {
     return "Email is required";
-  }
-  const emailRegex = /^[a-z0-9][\w\.]+\@\w+?(\.\w+){1,}$/;
-  if (!emailRegex.test(email)) {
-    return "Please enter a valid email address";
   }
 
   if (!EmailValidator.validate(email)) {

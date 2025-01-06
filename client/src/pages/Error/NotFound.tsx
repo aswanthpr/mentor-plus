@@ -1,11 +1,11 @@
 import React from 'react';
-import { HomeIcon,ArrowLeft } from 'lucide-react';
+import { ArrowLeft } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import notFound from '/404 error with people holding the numbers-cuate.svg'
 
 
 const NotFound:React.FC = () => {
-    // const navigate = useNavigate()
+    const navigate = useNavigate()
   return (
     <div className='min-h-screen bg-gray-50 flex items-center justify-center px-4 py-12 sm:px-6 lg:px-8'>
 <div className='max-w-md w-full text-center'>
@@ -29,9 +29,9 @@ const NotFound:React.FC = () => {
     Go Back
 </button>
 <button
-// onClick={()=>navigate('/')}
+onClick={()=>navigate(-1)}
 className='inline-flex items-center justify-center px-6 py-3 border border-transparent rounded-lg text-base font-bold text-[#f5f5f5] bg-[#000000] hover:bg-[#ff8800] hover:text-white transition-colors duration-200'>
-Back to Home
+Go Back
 </button>
 </div>
 </div>

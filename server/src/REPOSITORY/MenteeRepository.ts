@@ -1,7 +1,7 @@
 import MenteeModel, { IMentee } from "../MODEL/MenteeModel";
 import { BaseRepository } from "./BaseRepo";
 import { IMenteeRepository } from "../INTERFACE/Mentee/IMenteeRepository";
-import mentorModel from "../MODEL/mentorModel";
+
 
 export class MenteeRepository
   extends BaseRepository<IMentee>

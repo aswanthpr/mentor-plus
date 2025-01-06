@@ -9,6 +9,7 @@ import Spinner from "../../components/Common/Spinner";
 import { useDispatch } from "react-redux";
 import { setToken } from "../../Redux/adminSlice";
 import { EyeClosedIcon, EyeIcon } from "lucide-react";
+import { errorHandler } from "../../Utils/Reusable/Reusable";
 
 
 interface IError {
@@ -66,14 +67,8 @@ const AdminLogin: React.FC = () => {
         setLoading(false);
         toast.error("Login failed. Please check your credentials.");
       }
-    } catch (error: any) {
-      if (error.response && error.response.data) {
-        const { message } = error.response.data;
-        toast.error(message || "Login failed. Please check your credentials.");
-      } else {
-        // Handle network or unexpected errors
-        toast.error("An unexpected error occurred. Please try again.");
-      }
+    } catch (error: unknown) {
+     errorHandler(error)
     }finally{
       setTimeout(()=>{
         setLoading(false)

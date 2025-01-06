@@ -32,5 +32,5 @@ const mentorSlice = createSlice({
   },
 });
 
-export const { setMentorToken, clearMentorToken } = mentorSlice?.actions;
+export const { setMentorToken, clearMentorToken } = mentorSlice.actions;
 export default mentorSlice?.reducer;

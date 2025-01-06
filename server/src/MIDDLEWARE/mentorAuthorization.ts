@@ -1,15 +1,8 @@
 import { Request, Response, NextFunction } from "express";
-import jwt, { JwtPayload } from 'jsonwebtoken';
-import MenteeModel, { IMentee } from "../MODEL/MenteeModel";
 import { verifyAccessToken } from "../UTILS/jwt.utils";
 import mentorModel from "../MODEL/mentorModel";
 
 
-interface IAuthRequest extends Request {
-    user?: {
-        mentor: string | JwtPayload;
-    }
-}
 
 const mentorAuthorize = async (
     req: Request,

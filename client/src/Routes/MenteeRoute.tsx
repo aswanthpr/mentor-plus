@@ -6,8 +6,10 @@ import MenteeProfile from '../pages/Mentee/MenteeProfile';
 import MenteeLogin from '../Utils/ProtectedRoute/MenteeProtectLogin';
 import Explore from '../pages/Mentee/Explore';
 import QnA_page from '../pages/Mentee/QnA_page';
-import Bookings from '../pages/Mentee/Bookings';
+
 import GoogleSuccess from '../components/Mentee/GoogleSuccess';
+import QuestionsPage from '../components/Mentee/QuestionsPage';
+import GoogleFailure from '../components/Mentee/GoogleFailure';
 
 const MenteeRoute:React.FC = () => (
 <Routes>
@@ -17,9 +19,10 @@ const MenteeRoute:React.FC = () => (
     <Route path='/home' element={<MenteeLogin element={<Home/>} />} />
     <Route path='/profile' element={<MenteeLogin element={<MenteeProfile />} />} />
     <Route path='/explore' element={<MenteeLogin element={<Explore/>}/>}/>
-    <Route path='/bookings' element={<MenteeLogin element={<Bookings/>}/>}/>
+    <Route path='/bookings' element={<MenteeLogin element={<QuestionsPage/>}/>}/>
     <Route path='/qa' element={<MenteeLogin element={<QnA_page/>}/>}/>
     <Route path='/google/success' element={<GoogleSuccess/>}/>
+    <Route path='/google/failure' element={<GoogleFailure/>}/>
 
    </Route>
 

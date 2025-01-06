@@ -1,8 +1,6 @@
 import { ICategory } from "../../MODEL/categorySchema";
 import { IMentee } from "../../MODEL/MenteeModel";
 import { IMentor } from "../../MODEL/mentorModel";
-import { ICategoryWithSkill } from "../../TYPES";
-
 
 export interface IMenteeService{
     BLRefreshToken(refresh: string): Promise<{success: boolean;message: string;status: number;accessToken?: string;refreshToken?: string;}>

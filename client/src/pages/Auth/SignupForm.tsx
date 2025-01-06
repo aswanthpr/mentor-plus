@@ -1,11 +1,10 @@
 import axios from "axios";
 import React, { useState } from "react";
-import { EyeClosedIcon, EyeIcon, Github, Linkedin } from "lucide-react";
+import { EyeClosedIcon, EyeIcon  } from "lucide-react";
 import { toast } from "react-toastify";
 import { Link, useNavigate } from 'react-router-dom';
 import Spinner from "../../components/Common/Spinner"; 
-// import * as EmailValidator from 'email-validator';
-import SocialLogins from "../../components/auth/SocialLogins";
+// import SocialLogins from "../../components/auth/SocialLogins";
 import InputField from "../../components/Common/Form/InputField";
 import OtpModal from "../../components/auth/OtpModal";
 import {
@@ -14,6 +13,7 @@ import {
   validatePassword,
   validateConfirmPassword,
 } from "../../Validation/Validation";
+import { errorHandler } from "../../Utils/Reusable/Reusable";
 
 interface IFormErrors {
   name?: string;
@@ -76,7 +76,6 @@ const SignupForm:React.FC = () => {
     const newErrors: IFormErrors = {};
     Object.keys(formData).forEach((key) => {
       const error = validateField(key, formData[key as keyof typeof formData]);
-      true;
       if (error) {
         newErrors[key as keyof IFormErrors] = error;
       }
@@ -122,9 +121,8 @@ const SignupForm:React.FC = () => {
     }else{
       toast.error(response.data.message);
     }
-  }catch(error:any){
-    console.error("OTP verification failed:", error);
-    toast.error("OTP verification failed. Please try again.");
+  }catch(error:unknown){
+    errorHandler(error)
   }finally{
     setLoading(true)
   }
@@ -139,17 +137,11 @@ const SignupForm:React.FC = () => {
       }else{
         toast.error("Failed to resend OTP");
       }
-    } catch (error:any) {
-       console.error('error resending otp ',error)
-       toast.error('Error resending OTP. Please try again.')
+    } catch (error:unknown) {
+     errorHandler(error)
     }
   }
 
-  const handleSocialLogin = (provider: string) => {
-    if(provider == 'google'){
-     
-    }
-  };
 
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">

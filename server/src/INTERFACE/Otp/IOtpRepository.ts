@@ -1,4 +1,4 @@
-import { ObjectId } from "mongoose";
+
 import { IOtp } from "../../MODEL/otpModel";
 
 

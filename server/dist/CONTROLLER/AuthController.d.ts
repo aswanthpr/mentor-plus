@@ -18,6 +18,6 @@ export declare class AuthController implements IAuthController {
     getMentorLogin(req: Request, res: Response): Promise<void>;
     getMentorForgotPassword(req: Request, res: Response): Promise<void>;
     getMentorForgot_PasswordChange(req: Request, res: Response): Promise<void>;
-    getGoogleAuth(req: Request, res: Response): Promise<any>;
+    getGoogleAuth(req: Request, res: Response): Promise<void>;
 }
 //# sourceMappingURL=AuthController.d.ts.map

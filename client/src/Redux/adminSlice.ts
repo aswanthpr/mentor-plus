@@ -15,19 +15,19 @@ const adminSlice = createSlice({
   initialState,
   reducers: {
     setToken: (state, action: PayloadAction<{adminToken:string,adminRole:string}>) => {
-      state.adminToken = action.payload.adminToken;
-      state.adminRole = action.payload.adminRole;
-      localStorage.setItem("adminToken", action.payload.adminToken);
-      localStorage.setItem("adminRole", action.payload.adminRole);
+      state.adminToken = action.payload?.adminToken;
+      state.adminRole = action.payload?.adminRole;
+      localStorage.setItem("adminToken", action.payload?.adminToken);
+      localStorage.setItem("adminRole", action.payload?.adminRole);
     },
     clearToken: (state) => {
       state.adminToken = "";
       state.adminRole = "";
-      localStorage.removeItem("adminToken");
-      localStorage.removeItem("adminRole");
+      localStorage?.removeItem("adminToken");
+      localStorage?.removeItem("adminRole");
     },
   },
 });
 
-export const { setToken, clearToken } = adminSlice?.actions;
+export const { setToken, clearToken } = adminSlice.actions;
 export default adminSlice?.reducer;

@@ -6,12 +6,7 @@ import {
 } from "passport-google-oauth20";
 import MenteeRepository from "../REPOSITORY/MenteeRepository";
 import "express-session";
-
-interface IGoogleProfile {
-  emails?: { value: string }[];
-  photos?: { value: string }[];
-  name?: { givenName: string };
-}
+import { IMentee } from "src/MODEL/MenteeModel";
 
 passport.use(
   new GoogleStrategy(
@@ -29,31 +24,40 @@ passport.use(
       done: VerifyCallback
     ) => {
       try {
-        console.log(profile, "thsi si the profile");
         const email: string | undefined = profile.emails?.[0]?.value;
         const profileUrl: string | undefined = profile.photos?.[0]?.value;
         if (!email) {
+          
           return done(
             new Error("Email is required but not provided in Google profile"),
             undefined
           );
+          
         }
         const existingUser = await MenteeRepository.dbFindMentee(email);
+
+
+        if (existingUser && existingUser.provider === "email") { 
+        
+          return done( null, false, { message: "This email is already registered with a different provider" } ); 
+        
+      }
 
         let user;
         if (existingUser) {
           user = existingUser;
         } else {
-          user = await MenteeRepository.createDocument({
+          user = (await MenteeRepository.createDocument({
             name: profile.displayName,
             email,
             profileUrl,
             verified: true,
-          });
+            provider:'google'
+          })) as IMentee;
         }
 
         return done(null, user);
-      } catch (error: any) {
+      } catch (error: unknown) {
         return done(error, undefined);
       }
     }
@@ -61,13 +65,13 @@ passport.use(
 );
 
 //google OAuth2 Strategy
-passport.serializeUser((user: any, done: DoneCallback) => {
+passport.serializeUser((user:Express.User, done: DoneCallback) => {
   done(null, user);
 });
 
-passport.deserializeUser(async (user: any, done: DoneCallback) => {
+passport.deserializeUser(async (user:IMentee, done: DoneCallback) => {
   try {
-    const User = await MenteeRepository.dbFindById(user?._id);
+    const User = await MenteeRepository.dbFindById(user?._id as string);
 
     done(null, User);
   } catch (error) {

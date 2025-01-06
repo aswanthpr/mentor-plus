@@ -4,7 +4,7 @@ import {useNavigate} from 'react-router-dom';
 import internal_Server from '/500 Internal Server Error-cuate(1).svg'
 
 const InternalServer:React.FC = () => {
-// const navigate =useNavigate()
+const navigate =useNavigate()
 
 const handleRefresh=()=>{
     window.location.reload();
@@ -43,7 +43,7 @@ const handleRefresh=()=>{
 
             </button>
             <button
-            // onClick={()=>navigate('*')}
+            onClick={()=>navigate('*')}
             className='inline-flex items-center justify-center px-6 py-3 border border-transparent rounded-lg text-base font-bold text-[#f5f5f5] bg-[#000000] hover:bg-[#ff8800] hover:text-white transition-colors duration-200'>
             <HomeIcon className="w-5 h-5 mr-2" />
             Back To Home

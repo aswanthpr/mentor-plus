@@ -1,4 +1,4 @@
-import mongoose , { Model,Document, FilterQuery,QueryOptions,UpdateQuery, PipelineStage } from "mongoose";
+import mongoose , { Model,Document, FilterQuery,UpdateQuery, PipelineStage } from "mongoose";
 import { IBaseRepository } from "../INTERFACE/Base/IBaseRepository";
 
 export class BaseRepository <T extends Document> implements IBaseRepository<T>{

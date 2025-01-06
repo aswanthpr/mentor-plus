@@ -1,8 +1,10 @@
-import React, { useEffect, useLayoutEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { setAccessToken } from '../../Redux/menteeSlice'
 import Spinner from '../Common/Spinner';
+import { toast } from 'react-toastify';
+
 
 const GoogleSuccess:React.FC = () => {
   const [loading, setLoading] = useState(true); 
@@ -20,11 +22,13 @@ const GoogleSuccess:React.FC = () => {
       dispatch(setAccessToken({accessToken:token,role:'mentee'}));
 
         navigate('/mentee/home');
+        toast.success('Login Successfull!')
 
 
     } else {
 
       navigate('/auth/login/mentee');
+    
     }
 
     setLoading(false); 

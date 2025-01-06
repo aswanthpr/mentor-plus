@@ -1,13 +1,12 @@
 import { BaseRepository } from "./BaseRepo";
 import { IMentorRepository } from "../INTERFACE/Mentor/IMentorRepository";
 import mentorModel, { IMentor } from "../MODEL/mentorModel";
-import { ICategoryWithSkill, IMentorApplication } from "../TYPES";
+import { IMentorApplication } from "../TYPES";
 import mongoose from "mongoose";
 
 class mentorRepository
   extends BaseRepository<IMentor>
-  implements IMentorRepository
-{
+  implements IMentorRepository {
   constructor() {
     super(mentorModel);
   }
@@ -24,8 +23,7 @@ class mentorRepository
       return await this.find_One({ $or: query });
     } catch (error: unknown) {
       throw new Error(
-        `error while finding mentor ${
-          error instanceof Error ? error.message : String(error)
+        `error while finding mentor ${error instanceof Error ? error.message : String(error)
         }`
       );
     }
@@ -52,8 +50,7 @@ class mentorRepository
       });
     } catch (error: unknown) {
       throw new Error(
-        `error while creating mentor ${
-          error instanceof Error ? error.message : String(error)
+        `error while creating mentor ${error instanceof Error ? error.message : String(error)
         }`
       );
     }
@@ -64,8 +61,7 @@ class mentorRepository
       return await this.find(mentorModel, {});
     } catch (error: unknown) {
       throw new Error(
-        `error while finding mentor data from data base${
-          error instanceof Error ? error.message : String(error)
+        `error while finding mentor data from data base${error instanceof Error ? error.message : String(error)
         }`
       );
     }
@@ -78,8 +74,7 @@ class mentorRepository
       ]);
     } catch (error: unknown) {
       throw new Error(
-        `error while verify mentor data from data base${
-          error instanceof Error ? error.message : String(error)
+        `error while verify mentor data from data base${error instanceof Error ? error.message : String(error)
         }`
       );
     }
@@ -94,8 +89,7 @@ class mentorRepository
       ]);
     } catch (error: unknown) {
       throw new Error(
-        `error while changing mentor status from data base${
-          error instanceof Error ? error.message : String(error)
+        `error while changing mentor status from data base${error instanceof Error ? error.message : String(error)
         }`
       );
     }
@@ -112,8 +106,7 @@ class mentorRepository
       );
     } catch (error: unknown) {
       throw new Error(
-        `error while changing mentor password from data base${
-          error instanceof Error ? error.message : String(error)
+        `error while changing mentor password from data base${error instanceof Error ? error.message : String(error)
         }`
       );
     }
@@ -125,8 +118,7 @@ class mentorRepository
       return await this.find_By_Id(mentorId, { isBlocked: false });
     } catch (error: unknown) {
       throw new Error(
-        `error while changing mentor password from data base${
-          error instanceof Error ? error.message : String(error)
+        `error while changing mentor password from data base${error instanceof Error ? error.message : String(error)
         }`
       );
     }
@@ -143,8 +135,7 @@ class mentorRepository
       });
     } catch (error: unknown) {
       throw new Error(
-        `Error while change mentro password${
-          error instanceof Error ? error.message : String(error)
+        `Error while change mentro password${error instanceof Error ? error.message : String(error)
         }`
       );
     }
@@ -164,8 +155,7 @@ class mentorRepository
       );
     } catch (error: unknown) {
       throw new Error(
-        `Error while change mentro password${
-          error instanceof Error ? error.message : String(error)
+        `Error while change mentro password${error instanceof Error ? error.message : String(error)
         }`
       );
     }
@@ -196,16 +186,15 @@ class mentorRepository
       );
     } catch (error: unknown) {
       throw new Error(
-        `Error while finding mentor by id and updatae${
-          error instanceof Error ? error.message : String(error)
+        `Error while finding mentor by id and updatae${error instanceof Error ? error.message : String(error)
         }`
       );
     }
   }
   async categoryWithSkills(): Promise<
-  IMentor[]|undefined> {
+    IMentor[] | undefined> {
     try {
-     const  aggregationPipeline = [
+      const aggregationPipeline = [
         {
           $unwind: "$skills",
         },
@@ -218,14 +207,19 @@ class mentorRepository
           },
         },
         {
-          $project:{
-            _id:0,
-            skills:1
+          $project: {
+            _id: 0,
+            skills: 1
           }
         }
       ];
-      return await this.aggregateData(mentorModel,aggregationPipeline)
-    } catch (error: unknown) {}
+      return await this.aggregateData(mentorModel, aggregationPipeline)
+    } catch (error: unknown) { 
+      throw new Error(
+        `Error while finding category with skills ${error instanceof Error ? error.message : String(error)
+        }`
+      );
+    }
   }
 }
 

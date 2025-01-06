@@ -12,9 +12,9 @@ const _adminService = new AdminService(CategoryRepository,MenteeRepository,Mento
 const _adminController  = new AdminController(_adminService);
 //---------------------------------------------------------------------------------------------------------
 admin_Router.post('/logout',_adminController.getAdminLogout.bind(_adminController));
+admin_Router.get('/category_management',authorization,_adminController.getCategoryData.bind(_adminController));
 admin_Router.patch('/edit_category',authorization,_adminController.getEditCategory.bind(_adminController));
 admin_Router.post(`/create_category`,authorization,_adminController.getCreateCategory.bind(_adminController));
-admin_Router.get('/category_management',authorization,_adminController.getCategoryData.bind(_adminController));
 admin_Router.put(`/change_category_status`,authorization,_adminController.getChangeCategoryStatus.bind(_adminController));
 
 admin_Router.get(`/mentee_management`,authorization,_adminController.getMenteeData.bind(_adminController));

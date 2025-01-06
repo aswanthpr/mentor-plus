@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { EyeClosedIcon, EyeIcon, Github, Linkedin } from "lucide-react";
+import { EyeClosedIcon, EyeIcon,  } from "lucide-react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { toast } from "react-toastify";
@@ -7,7 +7,7 @@ import { Link } from "react-router-dom";
 // import {useGoogleLogin} from '@react-oauth/google'
 import Spinner from "../../components/Common/Spinner";
 import InputField from "../../components/Common/Form/InputField";
-import SocialLogins from "../../components/auth/SocialLogins";
+// import SocialLogins from "../../components/auth/SocialLogins";
 import { validateEmail, validatePassword } from "../../Validation/Validation";
 import { AppDispatch } from "../../Redux/store";
 import { setAccessToken } from "../../Redux/menteeSlice";
@@ -133,7 +133,7 @@ const Login: React.FC = () => {
           }
         }
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
      errorHandler(error)
     } finally {
       setTimeout(() => {

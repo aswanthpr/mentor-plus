@@ -9,6 +9,7 @@ import { BanIcon, CheckCircle2, CircleCheckBigIcon, Eye } from 'lucide-react';
 import ConfirmToast from '../../components/Common/ConfirmToast';
 import Spinner from '../../components/Common/Spinner';
 import { API } from '../../Config/adminAxios';
+import { errorHandler } from '../../Utils/Reusable/Reusable';
 
 
 const MENTORS_PER_PAGE = 8;
@@ -23,7 +24,7 @@ export const Mentor_mgt: React.FC = () => {
   }
   
   const [currentPage, setCurrentPage] = useState(1);
-  const [mentors, setMentors] = useState<any[]>([]);
+  const [mentors, setMentors] = useState<IMentor[]|[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
   const [activeTab, setActiveTab] = useState<'verified' | 'not-verified'>(getActiveTabFromPath(location.pathname));
   
@@ -67,16 +68,11 @@ export const Mentor_mgt: React.FC = () => {
       } else {
         console.error('Invalid response format', response);
       }
-    } catch (error: any) {
-      if (error.response && error.response?.data) {
+    } catch (error: unknown) {
+     errorHandler(error)
         toast.dismiss();
-        const { message } = error.response?.data;
-        toast.error(message || "An error occurred");
-      } else {
-        setTimeout(() => {
-          toast.error("An unexpected error occurred. Please try again.");
-        }, 1000);
-      }
+
+
     } finally {
       setTimeout(() => {
         setLoading(false)
@@ -142,16 +138,10 @@ export const Mentor_mgt: React.FC = () => {
       } else {
         console.error('Invalid response format', response);
       }
-    } catch (error: any) {
-      if (error.response && error.response?.data) {
+    } catch (error: unknown) {
+      errorHandler(error)
         toast.dismiss();
-        const { message } = error.response?.data;
-        toast.error(message || "An error occurred");
-      } else {
-        setTimeout(() => {
-          toast.error("An unexpected error occurred. Please try again.");
-        }, 1000);
-      }
+
     } finally {
       setTimeout(() => {
         setLoading(false)
@@ -164,7 +154,7 @@ export const Mentor_mgt: React.FC = () => {
     return mentors.filter(
       (mentor) => mentor?.verified === (activeTab === 'verified')
     );
-  }, [mentors, activeTab, navigate])
+  }, [ activeTab, navigate])
 
   return (
     <div className="p-6 pb-24 mt-16">
@@ -233,7 +223,7 @@ export const Mentor_mgt: React.FC = () => {
                 <>
                   <td className="px-6 py-4 text-center font-bold">
                     <button
-                      onClick={() => handleMentorVerify(mentor?._id)}
+                      onClick={() => handleMentorVerify(mentor?._id as string)}
                       className="px-3 py-1 bg-green-400 text-white rounded-full hover:bg-green-700"
                     >
                       <CheckCircle2 className='h-10 text-black' />
@@ -251,7 +241,7 @@ export const Mentor_mgt: React.FC = () => {
                       : "text-red-800 hover:text-red-400"
                       } `}
 
-                    onClick={() => handleMentorBlock(mentor?._id, activeTab)}
+                    onClick={() => handleMentorBlock(mentor?._id as string, activeTab)}
                   >
                     {mentor?.isBlocked ? (
                       <CircleCheckBigIcon color="green" />

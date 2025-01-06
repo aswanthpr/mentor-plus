@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 import { IMentor } from "../../MODEL/mentorModel";
-import { ICategoryWithSkill, IMentorApplication } from "../../TYPES";
+import { IMentorApplication } from "../../TYPES";
 
 
 export interface IMentorRepository {

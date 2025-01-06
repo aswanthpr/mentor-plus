@@ -1,4 +1,4 @@
-import mongoose, { Document } from 'mongoose';
+import mongoose, { Document } from "mongoose";
 export interface IMentee extends Document {
     name: string;
     email: string;
@@ -13,6 +13,7 @@ export interface IMentee extends Document {
     currentPosition: string;
     verified?: boolean;
     isAdmin: boolean;
+    provider: string;
 }
 declare const _default: mongoose.Model<IMentee, {}, {}, {}, mongoose.Document<unknown, {}, IMentee> & IMentee & Required<{
     _id: unknown;

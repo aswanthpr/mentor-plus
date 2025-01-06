@@ -89,7 +89,7 @@ const Category_mgt: React.FC = () => {
         handleCloseModal();
         toast.success(response.data.message);
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       errorHandler(error)
     } finally {
       setTimeout(() => {
@@ -111,7 +111,7 @@ const Category_mgt: React.FC = () => {
         } else {
           toast.error("Failed to load categories");
         }
-      } catch (error: any) {
+      } catch (error: unknown) {
         errorHandler(error)
       } finally {
         setLoading(false);
@@ -157,7 +157,7 @@ const Category_mgt: React.FC = () => {
           )
         );
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
      errorHandler(error)
     } finally {
       setTimeout(()=>{
@@ -212,7 +212,7 @@ const Category_mgt: React.FC = () => {
           toast.success(response.data.message);
         }, 500);
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
      errorHandler(error)
     }finally{
       setTimeout(()=>{

@@ -9,7 +9,6 @@ import { genAccesssToken, genRefreshToken } from "../UTILS/jwt.utils";
 import { IMentorRepository } from "../INTERFACE/Mentor/IMentorRepository";
 import { uploadFile, uploadImage } from "../CONFIG/cloudinary.util";
 import { ICategoryRepository } from "../INTERFACE/Category/ICategoryRepository";
-import passport from "passport";
 import { IMenteeRepository } from "../INTERFACE/Mentee/IMenteeRepository";
 
 export class AuthService implements IAuthService {
@@ -40,7 +39,7 @@ export class AuthService implements IAuthService {
       const hashPassword = await hash_pass(userData.password);
       userData.password = hashPassword;
 
-      const newMentee = await this._MenteeRepository.create_Mentee(userData);
+     await this._MenteeRepository.create_Mentee(userData);
 
       return { success: true, message: "signup successfull" };
     } catch (error: unknown) {
@@ -83,7 +82,7 @@ export class AuthService implements IAuthService {
         return { success: false, message: "user blocked .sorry.." };
       }
       console.log(password, result.password);
-      const checkUser = await bcrypt.compare(password, result?.password!);
+      const checkUser = await bcrypt.compare(password, result.password!);
 
       if (!checkUser) {
         return { success: false, message: "password not matching" };
@@ -247,18 +246,7 @@ export class AuthService implements IAuthService {
     mentorData: IMentorApplyData
   ): Promise<{ success: boolean; message: string; status: number }> {
     try {
-      const {
-        name,
-        email,
-        password,
-        phone,
-        jobTitle,
-        category,
-        linkedinUrl,
-        githubUrl,
-        bio,
-        skills,
-      } = mentorData.body;
+      const {email,phone,} = mentorData.body;
       const { profileImage, resume } = mentorData.files;
 
       if (!mentorData.body || !mentorData.files) {
@@ -438,10 +426,10 @@ export class AuthService implements IAuthService {
     }
   }
   async blGoogleAuth(
-    user: any
+    user: IMentee
   ): Promise<{
     success: boolean;
-    message: string;
+    message: string; 
     status: number;
     accessToken?: string;
     refreshToken?: string;
@@ -452,9 +440,6 @@ export class AuthService implements IAuthService {
       }
       const accessToken = genAccesssToken(user?._id as string);
       const refreshToken = genRefreshToken(user?._id as string);
-
-      console.log(accessToken, refreshToken, "access refrsh");
-
 
       return {
         success: true,

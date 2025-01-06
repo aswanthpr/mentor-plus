@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from "express";
-import jwt, { JwtPayload } from "jsonwebtoken";
-import MenteeModel, { IMentee } from "../MODEL/MenteeModel";
+import { JwtPayload } from "jsonwebtoken";
+import MenteeModel from "../MODEL/MenteeModel";
 import { verifyAccessToken } from "../UTILS/jwt.utils";
 
 interface IAuthenticatedRequest extends Request {

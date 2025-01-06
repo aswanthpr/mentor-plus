@@ -1,7 +1,6 @@
 import { Request, Response } from "express";
 import { IMentorController } from "../INTERFACE/Mentor/IMentorController";
 import { IMentorService } from "../INTERFACE/Mentor/IMentorService";
-import { IMentorApplyData } from "../TYPES";
 
 export class MentorController implements IMentorController {
   constructor(private _mentorService: IMentorService) {}

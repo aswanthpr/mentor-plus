@@ -13,7 +13,7 @@ export class AuthController implements IAuthController {
   //mentee sinup controll
   async menteeSignup(req: Request, res: Response): Promise<void> {
     try {
-      const result = await this._AuthService.mentee_Signup(req.body);
+       await this._AuthService.mentee_Signup(req.body);
 
       await this._OtpService.sentOtptoMail(req.body.email);
 
@@ -415,18 +415,17 @@ export class AuthController implements IAuthController {
     }
   }
 
-  async getGoogleAuth(req: Request, res: Response): Promise<any> {
+  async getGoogleAuth(req: Request, res: Response): Promise<void> {
     try {
 
-      const {status,message,accessToken,refreshToken}  =  await this._AuthService.blGoogleAuth(req.user) ;
-      console.log(refreshToken,'thsi is the result ')
+      const {accessToken,refreshToken}  =  await this._AuthService.blGoogleAuth(req.user) ;
+ 
       res.cookie('refreshToken',refreshToken,{
         httpOnly:true,
         secure: process.env.NODE_ENV === 'production',
         sameSite:'lax',
         maxAge: 7 * 24 * 60 * 60 * 1000,
       })
-      console.log('7777777777777777777777777777777')
       res.redirect(`http://localhost:5173/mentee/google/success?token=${accessToken}`);
     } catch (error: unknown) {
       res.status(500).json({
@@ -438,4 +437,6 @@ export class AuthController implements IAuthController {
       
     }
   }
+
+ 
 }

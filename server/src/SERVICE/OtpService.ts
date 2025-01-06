@@ -1,11 +1,8 @@
-import { ObjectId } from "mongoose";
 import { IOtpRepository } from "../INTERFACE/Otp/IOtpRepository";
 import IOtpService from "../INTERFACE/Otp/IOtpService";
-import MenteeModel from "../MODEL/MenteeModel";
-import { IOtp } from "../MODEL/otpModel";
 import { nodeMailer } from "../UTILS/nodemailer.util";
 import genOtp from "../UTILS/otpGen.util";
-import { IMenteeRepository } from "../INTERFACE/Mentee/IMenteeRepository";
+import { IMenteeRepository } from "../INTERFACE/Mentee/IMenteeRepository";  
 
 class OtpService implements IOtpService {
   constructor(

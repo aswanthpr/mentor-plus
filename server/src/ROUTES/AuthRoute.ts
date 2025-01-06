@@ -1,4 +1,4 @@
-import express,{Router,Request,Response} from 'express';
+import express,{Router} from 'express';
 import { AuthController } from '../CONTROLLER/AuthController';
 import { AuthService } from '../SERVICE/AuthService';
 import OtpService from '../SERVICE/OtpService';
@@ -47,10 +47,12 @@ auth_Router.get(`/google`,passport.authenticate('google',{scope:['email','profil
 
 auth_Router.get(`/google/callback`,passport.authenticate('google',{
     successRedirect:'/auth/google/success',
-    failureRedirect:'http://localhost:5173/auth/login/mentee',
+    failureRedirect:'http://localhost:5173/mentee/google/failure',
+
 }));
 
 auth_Router.get(`/google/success`,__authController.getGoogleAuth.bind(__authController));
+auth_Router.get(`/google/failure`,__authController.getGoogleAuth.bind(__authController));
 
 export default auth_Router
 

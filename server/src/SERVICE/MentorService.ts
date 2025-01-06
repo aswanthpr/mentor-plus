@@ -109,7 +109,7 @@ export class MentorService implements IMentorService {
         };
       }
       console.log(decode, "thsi is verifyRefreshToken");
-      let { userId } = decode;
+      const { userId } = decode;
 
       const accessToken: string | undefined = genAccesssToken(userId as string);
 

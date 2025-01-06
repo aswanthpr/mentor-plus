@@ -5,7 +5,7 @@ import { IMenteeRepository } from "../INTERFACE/Mentee/IMenteeRepository";
 import { IMentee } from "../MODEL/MenteeModel";
 import { IMentor } from "../MODEL/mentorModel";
 import { IMentorRepository } from "../INTERFACE/Mentor/IMentorRepository";
-import mongoose, { ObjectId } from "mongoose";
+import mongoose from "mongoose";
 import {
   genAccesssToken,
   genRefreshToken,
@@ -41,7 +41,7 @@ export class AdminService implements IAdminService {
         };
       }
       console.log(decode, "thsi is verifyRefreshToken");
-      let { userId } = decode;
+      const { userId } = decode;
 
       const accessToken: string | undefined = genAccesssToken(userId as string);
 

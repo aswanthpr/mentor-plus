@@ -92,7 +92,7 @@ export class MenteeController implements IMenteeController {
       console.log(req.body, "this is req.body of profile edit data");
       const result = await this._menteeService.blEditMenteeProfile(req.body);
 
-      res.status(result?.status!).json(result);
+      res.status(result?.status).json(result);
     } catch (error: unknown) {
       res
         .status(500)

@@ -62,7 +62,7 @@ export declare class AuthService implements IAuthService {
         success: boolean;
         message: string;
     } | undefined>;
-    blGoogleAuth(user: any): Promise<{
+    blGoogleAuth(user: IMentee): Promise<{
         success: boolean;
         message: string;
         status: number;

@@ -13,7 +13,7 @@ const fileFilter = (req:Express.Request,file:Express.Multer.File,cb:multer.FileF
  return cb(null,true)
     }else{
         // Reject file if it is not a PDF or DOCX
-        let  errors:Error= new Error("only PDF and DOCX fiels are allowed ")
+        console.log("only PDF and DOCX fiels are allowed ")
         cb(null, false); 
     }
 }

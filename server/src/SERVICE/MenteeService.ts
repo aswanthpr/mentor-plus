@@ -10,7 +10,7 @@ import { IMentor } from "../MODEL/mentorModel";
 import { IMentorRepository } from "../INTERFACE/Mentor/IMentorRepository";
 import { ICategoryRepository } from "../INTERFACE/Category/ICategoryRepository";
 import { ICategory } from "../MODEL/categorySchema";
-import { ICategoryWithSkill } from "../TYPES";
+// import { ICategoryWithSkill } from "../TYPES";
 
 export class MenteeService implements IMenteeService {
   constructor(

@@ -9,43 +9,23 @@ import { toast } from "react-toastify";
 import { Link, useNavigate } from "react-router-dom";
 import Spinner from "../../components/Common/Spinner";
 import { EyeClosedIcon, EyeIcon } from "lucide-react";
-
-interface IFormData {
-  name: string;
-  email: string;
-  password: string;
-  phone: string;
-  jobTitle: string;
-  category: string;
-  linkedinUrl: string;
-  githubUrl: string;
-  bio: string;
-  skills?: string[];
-  profileImage: Blob | null;
-  resume: File | null;
-
-}
-interface IErrors {
-  name: string;
-  email: string;
-  password: string;
-  phone: string;
-  jobTitle: string;
-  category: string;
-  linkedinUrl: string;
-  githubUrl: string;
-  bio: string;
-  skills: string;
-  resume: string;
-  image: string
-}
-interface ICategory {
-  id: string;
-  category: string;
-  isBlocked: boolean;
-}
+import { errorHandler } from "../../Utils/Reusable/Reusable";
 
 const MentorApply: React.FC = () => {
+  const Data ={
+    name: "",
+    email: "",
+    password: "",
+    phone: "",
+    jobTitle: "",
+    category: "",
+    linkedinUrl: "",
+    githubUrl: "",
+    bio: "",
+    skills: '',
+    resume: "",
+    profileImage: '' 
+  }
   const [formData, setFormData] = useState<IFormData>({
     name: "",
     email: "",
@@ -64,18 +44,7 @@ const MentorApply: React.FC = () => {
   });
 
   const [errors, setErrors] = useState<IErrors>({
-    name: "",
-    email: "",
-    password: "",
-    phone: "",
-    jobTitle: "",
-    category: "",
-    linkedinUrl: "",
-    githubUrl: "",
-    bio: "",
-    skills: '',
-    resume: "",
-    image: ''
+  ...Data
   });
   const[isPasswordVisible,setIsPasswordVisible]=useState<boolean>(false)
   const [skills, setSkills] = useState<string[]>([]);
@@ -103,7 +72,9 @@ const MentorApply: React.FC = () => {
 
   // Validation function
   const validateForm = () => {
-    let formErrors: any = {};
+  const  formErrors: IErrors ={...Data}
+
+
     let isValid = true;
 
     if (!formData.name || formData.name.length < 3) {
@@ -169,7 +140,7 @@ const MentorApply: React.FC = () => {
     }
 
     if (!profileImage) {
-      formErrors.image =
+      formErrors.profileImage =
         "Profile image is required and must be in JPEG, PNG, or JPG format.";
       isValid = false;
     }
@@ -247,14 +218,8 @@ const MentorApply: React.FC = () => {
         });
         navigate('/auth/login')
       }
-    } catch (error: any) {
-      if (error.response && error.response.data) {
-        const { message } = error.response.data;
-        toast.error(message || "An error  occurred");
-      } else {
-        // Handle network or unexpected errors
-        toast.error("An unexpected error occurred. Please try again.");
-      }
+    }catch (error:unknown) {
+          errorHandler(error)
     } finally {
       setLoading(false)
     }
@@ -272,8 +237,8 @@ const MentorApply: React.FC = () => {
         </h1>
         <form onSubmit={handleSubmit} className="space-y-6">
           <ProfileImageUpload onImageChange={setProfileImage} />
-          {errors.image && (
-            <p className=" text-center text-red-500 text-sm">{errors.image}</p>
+          {errors.profileImage && (
+            <p className=" text-center text-red-500 text-sm">{errors.profileImage}</p>
           )} 
           <div className="grid md:grid-cols-2 gap-6 ">
             <div className="space-y-6 ">

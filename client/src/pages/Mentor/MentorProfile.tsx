@@ -42,10 +42,10 @@ import { errorHandler } from "../../Utils/Reusable/Reusable";
 
 
 
-const MentorProfile:React.FC = () => {
-   const [isPasswordVisible, setIsPasswordVisible] = useState<boolean>(false);
-    const [isConfirmPasswordVisible, setIsConfirmPasswordVisible] = useState<boolean>(false);
-    const [isCurrentPasswordVisible, setIsCurrentPasswordVisible] = useState<boolean>(false);
+const MentorProfile: React.FC = () => {
+  const [isPasswordVisible, setIsPasswordVisible] = useState<boolean>(false);
+  const [isConfirmPasswordVisible, setIsConfirmPasswordVisible] = useState<boolean>(false);
+  const [isCurrentPasswordVisible, setIsCurrentPasswordVisible] = useState<boolean>(false);
   const [profileImage, setProfileImage] = useState<File | null>(null);
   const [categories, setCategories] = useState<ICategory[]>([]);
   const [skills, setSkills] = useState<string[]>([]);
@@ -66,7 +66,7 @@ const MentorProfile:React.FC = () => {
     jobTitle: "",
     category: "",
     skills: [],
-    resume:null
+    resume: null
   });
   const [errors, setErrors] = useState<IMentorErrors>({
     name: "",
@@ -77,7 +77,7 @@ const MentorProfile:React.FC = () => {
     bio: "",
     jobTitle: "",
     category: "",
-    skills:"",
+    skills: "",
     resume: "",
   });
   const [editPassword, setEditPassword] = useState<IPass>({
@@ -104,7 +104,7 @@ const MentorProfile:React.FC = () => {
           setCategories(response.data.categories);
           setSkills(response.data.mentor.skills);
         }
-      } catch (error: any) {
+      } catch (error: unknown) {
         errorHandler(error);
       } finally {
         setLoading(false);
@@ -125,20 +125,20 @@ const MentorProfile:React.FC = () => {
       linkedinUrl: "",
       jobTitle: "",
       category: "",
-      skills:"", 
+      skills: "",
       resume: "",
     };
 
     formErrors.bio = validateBio(formData.bio || "");
-  formErrors.name = validateNames(formData.name || "");
-  formErrors.email = validateEmails(formData.email || "");
-  formErrors.phone = validatePhones(formData.phone || "");
-  formErrors.skills = validateSkills(formData.skills || []);
-  formErrors.jobTitle = validateEducation(formData.jobTitle || "");
-  formErrors.githubUrl = validateGithubUrl(formData.githubUrl || "");
-  formErrors.category = validateCurrentPosition(formData.category || "");
-  formErrors.linkedinUrl = validateLinkedinUrl(formData.linkedinUrl || "");
-  console.log(formErrors,'4544545454545454')
+    formErrors.name = validateNames(formData.name || "");
+    formErrors.email = validateEmails(formData.email || "");
+    formErrors.phone = validatePhones(formData.phone || "");
+    formErrors.skills = validateSkills(formData.skills || []);
+    formErrors.jobTitle = validateEducation(formData.jobTitle || "");
+    formErrors.githubUrl = validateGithubUrl(formData.githubUrl || "");
+    formErrors.category = validateCurrentPosition(formData.category || "");
+    formErrors.linkedinUrl = validateLinkedinUrl(formData.linkedinUrl || "");
+
     setErrors(formErrors)
 
     return Object.values(formErrors).every((error) => error === "");
@@ -175,7 +175,7 @@ const MentorProfile:React.FC = () => {
         bio: formData?.bio,
         name: formData?.name,
         email: formData?.email,
-        resume: resume, 
+        resume: resume,
         phone: formData?.phone,
         skills: formData?.skills,
         jobTitle: formData?.jobTitle,
@@ -185,16 +185,16 @@ const MentorProfile:React.FC = () => {
       };
       console.log(Data, "thsi si the data");
 
-      const response = await axiosInstance.put(`/mentor/profile/edit_profile_details`,Data,{headers:{'Content-Type': 'multipart/form-data'}}
+      const response = await axiosInstance.put(`/mentor/profile/edit_profile_details`, Data, { headers: { 'Content-Type': 'multipart/form-data' } }
       );
 
       if (response?.status === 200 && response?.data?.success) {
         setFormData(response.data?.result);
         setMentor(response.data?.result);
         toast.success(response.data?.message);
-        modalClose(); 
+        modalClose();
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       errorHandler(error);
     } finally {
       setLoading(false);
@@ -202,7 +202,7 @@ const MentorProfile:React.FC = () => {
   };
 
   const modalClose = () => {
-    
+
     setErrors({
       name: "",
       email: "",
@@ -248,7 +248,7 @@ const MentorProfile:React.FC = () => {
         toast.success(response.data?.message);
         passModalClose();
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       errorHandler(error);
     } finally {
       setLoading(false);
@@ -304,7 +304,7 @@ const MentorProfile:React.FC = () => {
           };
         });
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       errorHandler(error);
     } finally {
       setLoading(false);
@@ -490,8 +490,8 @@ const MentorProfile:React.FC = () => {
               <h2 className="text-xl text-center font-bold mb-4 ">
                 Change User Data
               </h2>
-              
-        
+
+
               <div className="space-y-1">
                 <InputField
                   id={"name"}
@@ -570,7 +570,7 @@ const MentorProfile:React.FC = () => {
                 />
 
                 <div className="space-y-2">
-                 
+
                   <select
                     name="category"
                     id="categoryId"
@@ -607,7 +607,7 @@ const MentorProfile:React.FC = () => {
                 <p className="text-sm text-red-500">{errors?.bio}</p>
 
                 <div className="space-y-2">
-                 
+
                   <SkillInput
                     skills={[...(skills ?? []), ...(formData.skills ?? [])]} //
                     onSkillsChange={(newSkills) =>
@@ -624,9 +624,9 @@ const MentorProfile:React.FC = () => {
                   <FileUpload onFileSelect={(file) => setResume(file)} />
 
                   {mentor?.resume && typeof mentor?.resume === "string" && (
-                    
-                    resume?"":
-                    <p className="from-neutral-600 text-gray-400">{`${mentor?.resume}`.slice(-10)}</p> // Show file URL or name if it's just a string
+
+                    resume ? "" :
+                      <p className="from-neutral-600 text-gray-400">{`${mentor?.resume}`.slice(-10)}</p> // Show file URL or name if it's just a string
                   )}
 
                   {errors.resume && (
@@ -643,18 +643,18 @@ const MentorProfile:React.FC = () => {
                   Back
                 </button>
                 <button
-                type="submit"
+                  type="submit"
                   onClick={handleSaveChanges}
                   className="px-4 py-2 bg-[#ff8800] text-white rounded-md hover:bg-[#e67a00]"
                 >
                   Save
                 </button>
               </div>
-         
+
             </>
           }
         />
-      )}                      
+      )}
 
       {showEditPassword && (
         <Modal
@@ -666,87 +666,87 @@ const MentorProfile:React.FC = () => {
                 Change Password
               </h2>
               <div className="space-y-4">
-              
-              <div className="relative">
-                <InputField
-                  id={"currentPassword"}
-                  name="currentPassword"
-                  value={editPassword.currentPassword || ""}
-                  placeholder="Enter Current Password" 
-                  error={passError?.currentPassword || ""}
-                  className={""}
-                  type={isCurrentPasswordVisible ? "text" : "password"}
-                  onChange={(e) =>
-                    setEditPassword({
-                      ...editPassword,
-                      currentPassword: e.target.value,
-                    })
-                  }
-                />
-              
-                 <button
-            type="button"
-            onClick={()=>setIsCurrentPasswordVisible((pre)=>!pre)}
-            aria-label={isCurrentPasswordVisible ? "Hide Password" : "Show Password"}
-            className="absolute right-4 top-7 transform -translate-y-1/2 text-gray-400" // Position the icon to the right of the input field
-          >
-            {isCurrentPasswordVisible ? <EyeClosedIcon /> : <EyeIcon />}
-          </button>
-    
-                </div>
-                 <div className="relative">
-                <InputField
-                  id={"newPassword"}
-                  name="newPassword"
-                  value={editPassword.newPassword || ""}
-                  placeholder="Enter New Password"
-                  error={passError?.newPassword || ""}
-                  className={""}
-                  type={isPasswordVisible ? "text" : "password"}
-                  onChange={(e) =>
-                    setEditPassword({
-                      ...editPassword,
-                      newPassword: e.target.value,
-                    })
-                  }
-                />
-                 <button
-            type="button"
-            onClick={()=>setIsPasswordVisible((pre)=>!pre)}
-            aria-label={isPasswordVisible ? "Hide Password" : "Show Password"}
-            className="absolute right-4 top-7 transform -translate-y-1/2 text-gray-400" 
-          >
-            {isPasswordVisible ? <EyeClosedIcon /> : <EyeIcon />}
-          </button>
-    
+
+                <div className="relative">
+                  <InputField
+                    id={"currentPassword"}
+                    name="currentPassword"
+                    value={editPassword.currentPassword || ""}
+                    placeholder="Enter Current Password"
+                    error={passError?.currentPassword || ""}
+                    className={""}
+                    type={isCurrentPasswordVisible ? "text" : "password"}
+                    onChange={(e) =>
+                      setEditPassword({
+                        ...editPassword,
+                        currentPassword: e.target.value,
+                      })
+                    }
+                  />
+
+                  <button
+                    type="button"
+                    onClick={() => setIsCurrentPasswordVisible((pre) => !pre)}
+                    aria-label={isCurrentPasswordVisible ? "Hide Password" : "Show Password"}
+                    className="absolute right-4 top-7 transform -translate-y-1/2 text-gray-400" // Position the icon to the right of the input field
+                  >
+                    {isCurrentPasswordVisible ? <EyeClosedIcon /> : <EyeIcon />}
+                  </button>
+
                 </div>
                 <div className="relative">
-                <InputField
-                  id={"confirmPassword"}
-                  name="confirmPassword"
-                  value={editPassword.confirmPassword || ""}
-                  placeholder="Enter Confirm Password"
-                  error={passError?.confirmPassword || ""}
-                  className={""}
-                  type={isConfirmPasswordVisible ? "text" : "password"}
-                  onChange={(e) =>
-                    setEditPassword({
-                      ...editPassword,
-                      confirmPassword: e.target.value,
-                    })
-                  }
-                />
+                  <InputField
+                    id={"newPassword"}
+                    name="newPassword"
+                    value={editPassword.newPassword || ""}
+                    placeholder="Enter New Password"
+                    error={passError?.newPassword || ""}
+                    className={""}
+                    type={isPasswordVisible ? "text" : "password"}
+                    onChange={(e) =>
+                      setEditPassword({
+                        ...editPassword,
+                        newPassword: e.target.value,
+                      })
+                    }
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setIsPasswordVisible((pre) => !pre)}
+                    aria-label={isPasswordVisible ? "Hide Password" : "Show Password"}
+                    className="absolute right-4 top-7 transform -translate-y-1/2 text-gray-400"
+                  >
+                    {isPasswordVisible ? <EyeClosedIcon /> : <EyeIcon />}
+                  </button>
 
-               <button
-               type="button"
-               onClick={()=>setIsConfirmPasswordVisible((prev)=>!prev)}
-               aria-label={isConfirmPasswordVisible ? "Hide Password" : "Show Password"}
-               className="absolute right-4 top-7 transform -translate-y-1/2 text-gray-400" 
-             >
-               {isConfirmPasswordVisible ? <EyeClosedIcon  /> : <EyeIcon />}
-             </button>
-       
-                   </div>
+                </div>
+                <div className="relative">
+                  <InputField
+                    id={"confirmPassword"}
+                    name="confirmPassword"
+                    value={editPassword.confirmPassword || ""}
+                    placeholder="Enter Confirm Password"
+                    error={passError?.confirmPassword || ""}
+                    className={""}
+                    type={isConfirmPasswordVisible ? "text" : "password"}
+                    onChange={(e) =>
+                      setEditPassword({
+                        ...editPassword,
+                        confirmPassword: e.target.value,
+                      })
+                    }
+                  />
+
+                  <button
+                    type="button"
+                    onClick={() => setIsConfirmPasswordVisible((prev) => !prev)}
+                    aria-label={isConfirmPasswordVisible ? "Hide Password" : "Show Password"}
+                    className="absolute right-4 top-7 transform -translate-y-1/2 text-gray-400"
+                  >
+                    {isConfirmPasswordVisible ? <EyeClosedIcon /> : <EyeIcon />}
+                  </button>
+
+                </div>
               </div>
               <div className="mt-6 flex justify-end">
                 <button

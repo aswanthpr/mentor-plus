@@ -163,9 +163,9 @@ export class AdminController implements IAdminController {
     async getEditMentee(req:Request,res:Response):Promise<void>{
       try {
       console.log(req.body)
-      const result = await this._AdminService.blEditMentee(req.body);
+      const {status,success,message} = await this._AdminService.blEditMentee(req.body);
       
-        res.status(result?.status!).json(result);
+        res.status(status!).json({success,message});
     
       } catch (error:unknown) {
         throw new Error(

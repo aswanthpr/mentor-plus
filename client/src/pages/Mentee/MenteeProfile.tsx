@@ -107,7 +107,7 @@ const MenteeProfile: React.FC = () => {
           setMentee(response.data.result);
           setFormData(response.data.result);
         }
-      } catch (error: any) {
+      } catch (error: unknown) {
         errorHandler(error);
       } finally {
         setLoading(false);
@@ -180,7 +180,7 @@ const MenteeProfile: React.FC = () => {
         toast.success(response.data?.message);
         modalClose();
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       errorHandler(error);
     } finally {
       setLoading(false);
@@ -222,7 +222,7 @@ const MenteeProfile: React.FC = () => {
         toast.success(response.data?.message);
         passModalClose();
       }
-    } catch (error: any) {
+    } catch (error:unknown) {
       errorHandler(error);
     } finally {
       setLoading(false);
@@ -259,7 +259,7 @@ const MenteeProfile: React.FC = () => {
           };
         });
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       errorHandler(error);
     } finally {
       setLoading(false);

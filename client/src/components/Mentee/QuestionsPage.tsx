@@ -69,7 +69,7 @@ const QuestionsPage: React.FC = () => {
   );
 
   return (
-    <div className="questions-page">
+    <div className="questions-page mt-16">
       <div className="header">
         <h1>Write Your Questions</h1>
         <button className="add-button" onClick={() => setModalType('add')}>
