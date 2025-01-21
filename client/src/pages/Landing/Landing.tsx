@@ -1,13 +1,14 @@
 import React, { useState } from 'react';
-import logo from '/mentor+logo.png';
+import {useNavigate,Link} from 'react-router-dom';
 import { ArrowRight } from 'lucide-react';
-import heroImg from '/illustration-1.svg';
-import landimg from '/unsplash.jpg';
 import { Menu, X, Users, Target, Calendar, Video, MessageSquare, Award, Github, Twitter, Linkedin } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import logo from '../../Asset/mentor+logo.png';
+import heroImg from '../../Asset/illustration-1.svg';
+import landimg from '../../Asset/unsplash.jpg';
 
 
 const Landing: React.FC = () => {
+  const navigate = useNavigate()
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   const features = [
@@ -49,7 +50,7 @@ const Landing: React.FC = () => {
         <div className='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8'>
           <div className='flex justify-between items-center h-16'>
             <div className='flex items-center'>
-              <img className='w-100 h-24' src={logo} alt='MentorPlus' />
+              <img className='w-100 h-24 cover' src={logo} alt='MentorPlus' />
             </div>
 
             {/* Desktop Navigation */}
@@ -66,7 +67,7 @@ const Landing: React.FC = () => {
             </div>
 
             {/* Mobile Menu Button */}
-            <button className='md:hidden p-2 rounded-lg hover:bg-grey-100' onClick={() => setIsMenuOpen(!isMenuOpen)}>
+            <button className='md:hidden p-2 rounded-lg hover:bg-gray-100' onClick={() => setIsMenuOpen(!isMenuOpen)}>
               {isMenuOpen ? <X className='h-6 w-6' /> : <Menu className='h-6 w-6' />}
             </button>
           </div>
@@ -74,23 +75,34 @@ const Landing: React.FC = () => {
           {/* Mobile Navigation */}
           {isMenuOpen && (
             <div className='md:hidden py-4 space-y-3'>
-              <Link to='/auth/apply_as_mentor' className='w-full px-4 py-2 bg-[#ff8800] text-white rounded-lg hover:bg-[#ff9900] transition-colors font-medium text-sm'>
+              <button
+
+                onClick={()=>navigate('/auth/apply_as_mentor')}
+                className='w-full px-4 py-2 bg-[#ff8800] text-white rounded-lg hover:bg-[#ff9900] transition-colors font-medium text-sm'
+              >
                 Become a Mentor
-              </Link>
-              <Link to='/auth/signup' className='w-full px-4 py-2 border-2 border-black text-black hover:bg-grey-50 rounded-lg transition-colors font-medium text-sm'>
+              </button>
+              <button
+                onClick={()=>navigate('/auth/signup')}
+                className='w-full px-4 py-2 border-2 border-black text-black hover:bg-gray-200 rounded-lg transition-colors font-medium text-sm'
+              >
                 Sign Up
-              </Link>
-              <Link to='/auth/login/mentee' className='w-full px-4 py-2 bg-black text-white rounded-lg hover:bg-grey-800 transition-colors font-medium text-sm'>
+              </button>
+              <button
+                onClick={()=>navigate('/auth/login/mentee')}
+                className='w-full px-4 py-2 bg-black text-white rounded-lg hover:bg-gray-800 transition-colors font-medium text-sm'
+              >
                 Login
-              </Link>
+              </button>
             </div>
+
           )}
         </div>
       </header>
 
       {/* Hero Section */}
       <section className='relative bg-transparent pt-32'>
-    
+
         <div className='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-18 pb-14 lg:pt-30'>
           <div className='grid grid-cols-1 lg:grid-cols-2 gap-10 items-center'>
             <div className='order-2 lg:order-1'>
@@ -163,7 +175,10 @@ const Landing: React.FC = () => {
           <p className='mt-6 text-xl text-white/90 max-w-2xl mx-auto'>
             Join thousands of professionals who have accelerated their careers through mentorship
           </p>
-          <Link to='/auth/signup' className='mt-8 px-8 bg-black text-white rounded-lg hover:bg-grey-900 transition-colors font-medium text-lg'>
+          <Link
+            to='/auth/signup'
+            className='mt-8 inline-block px-8 py-3 bg-black text-white rounded-lg hover:bg-gray-900 transition-colors font-medium text-lg'
+          >
             Start Your Journey
           </Link>
         </div>
@@ -173,7 +188,8 @@ const Landing: React.FC = () => {
       <footer className='bg-black text-white'>
         <div className='mx-auto max-w-7xl px-4 sm:px-8 lg:px-8 py-8 sm:py-12'>
           <div className='mb-2 sm:mb-12'>
-            <img className='w-100 h-24 bg-white rounded-3xl' src={logo} alt='Mentor Plus' />
+
+            <img className='w-100 h-10 bg-white' src={logo} alt='Mentor Plus' />
           </div>
           <div className='grid grid-cols-2 sm:grid-cols-2 md:grid-cols-4 gap-8'>
             {/* Platform Section */}

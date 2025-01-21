@@ -1,13 +1,13 @@
 import React, { useEffect, useState } from "react";
-import ProfileImageUpload from "../../components/Common/Form/ProfileImageUpload";
-import InputField from "../../components/Common/Form/InputField";
-import SkillInput from "../../components/auth/SkillInput";
-import FileUpload from "../../components/Common/Form/FileUpload";
-import Button from "../../components/Common/Form/Button";
+import ProfileImageUpload from "../../components/Auth/ProfileImageUpload";
+import InputField from "../../components/Auth/InputField";
+import SkillInput from "../../components/Auth/SkillInput";
+import FileUpload from "../../components/Auth/FileUpload";
+import Button from "../../components/Auth/Button";
 import { unProtectedAPI } from "../../Config/Axios";
 import { toast } from "react-toastify";
 import { Link, useNavigate } from "react-router-dom";
-import Spinner from "../../components/Common/Spinner";
+import Spinner from "../../components/Common/common4All/Spinner";
 import { EyeClosedIcon, EyeIcon } from "lucide-react";
 import { errorHandler } from "../../Utils/Reusable/Reusable";
 
@@ -112,7 +112,7 @@ const MentorApply: React.FC = () => {
       formErrors.category = "Please select a valid category.";
       isValid = false;
     }
-    if (formData.bio.length < 20 || formData.bio.length > 200) {
+    if (formData.bio.length < 20 || formData.bio.length < 200) {
       formErrors.bio = "Bio must be between 20 and 200 characters.";
       isValid = false
     }

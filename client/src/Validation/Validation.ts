@@ -161,7 +161,7 @@ export const validateBio = (bio: string) => {
   if (wordCount < 20) {
     return "Bio must be at least 20 words.";
   }
-  if (wordCount > 100) {
+  if (wordCount > 200) {
     return "Bio cannot exceed 100 words.";
   }
   return "";
@@ -199,7 +199,7 @@ export const validateSkills = (skills: string[]) => {
       (skill: string) => skill.length < 3 || !noNumbersOrSymbols.test(skill)
     )
   ) {
-    return "Skills must be at least 3 characters long and contain no numbers or symbols.";
+    return "It must be at least 3 characters long and contain no numbers or symbols.";
   }
   return "";
 };

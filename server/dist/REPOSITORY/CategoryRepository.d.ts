@@ -1,5 +1,5 @@
-import { ICategoryRepository } from "../INTERFACE/Category/ICategoryRepository";
-import { ICategory } from "../MODEL/categorySchema";
+import { ICategoryRepository } from "../Interface/Category/ICategoryRepository";
+import { ICategory } from "../Model/categorySchema";
 import { BaseRepository } from "./BaseRepo";
 declare class CategoryRespository extends BaseRepository<ICategory> implements ICategoryRepository {
     constructor();

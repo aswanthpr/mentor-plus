@@ -7,13 +7,13 @@ import dotenv from 'dotenv';dotenv.config();
 
 const app:Application = express();
 
-import auth_Router from "./ROUTES/AuthRoute";
-import admin_Router from "./ROUTES/AdminRoute";
-import mentee_Router from "./ROUTES/MenteeRoute";
-import mentor_Router from "./ROUTES/MentorRoute";
-import {connectDb} from "./CONFIG/DataBase"
-import { corsOptions } from "./MIDDLEWARE/index_middleware"; 
-import passport from "./CONFIG/googleAuth";
+import auth_Router from "./Routes/authRoute";
+import admin_Router from "./Routes/adminRoute";
+import mentee_Router from "./Routes/menteeRoute";
+import mentor_Router from "./Routes/mentorRoute";
+import {connectDb} from "./Config/dataBase"
+import { corsOptions } from "./Middleware/index_middleware"; 
+import passport from "./Config/googleAuth";
 
 
 
@@ -31,7 +31,6 @@ app.use(session({
 }));
 app.use(passport.initialize());
 app.use(passport.session());
-
  
 // Routes
 app.use('/auth',auth_Router);
@@ -42,6 +41,6 @@ app.use('/mentor',mentor_Router);
 
 app.listen(process.env.PORT
     ,()=>{
-    console.log('\x1b[33m%s\x1b[0m',"server listen on http://localhost:3000")
+    console.log('\x1b[33m%s\x1b[0m',"server listen on http://localhost:3000 🥳")
 })
-export default app   
+export default app

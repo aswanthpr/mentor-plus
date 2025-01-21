@@ -1,9 +1,7 @@
-import React, { useEffect } from 'react'
-import { Route, Routes } from 'react-router-dom';
+import React from 'react'
+import { Route, BrowserRouter, Routes } from 'react-router-dom';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import InternalServer from './pages/Error/InternalServer';
-import NotFound from './pages/Error/NotFound';
 import AuthRoute from './Routes/AuthRoute';
 import MenteeRoute from './Routes/MenteeRoute';
 import MentorRoute from './Routes/MentorRoute';
@@ -14,6 +12,7 @@ const App:React.FC=()=> {
 
   return (
    <>
+   <BrowserRouter>
  <ToastContainer
       position="top-center"
       autoClose={2000}
@@ -31,9 +30,9 @@ const App:React.FC=()=> {
     <Route path="admin/*" element={<AdminRoute/>} />
     <Route path="mentee/*" element={<MenteeRoute/>} />
     <Route path="mentor/*" element={<MentorRoute/>} />
-    <Route path='500' element={<InternalServer/>}/>
-    <Route path='*' element={<NotFound/>} />
+
  </Routes>
+ </BrowserRouter>
    </> 
 
   )

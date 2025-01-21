@@ -1,6 +1,6 @@
-import axios, { InternalAxiosRequestConfig, AxiosError } from 'axios';
+import axios, { InternalAxiosRequestConfig, AxiosError, AxiosResponse } from 'axios';
 import { store } from '../Redux/store';
-import { clearAccessToken, setAccessToken } from '../Redux/menteeSlice';
+import { setAccessToken,clearAccessToken } from '../Redux/menteeSlice';
 
 interface ErrorResponseData {
   user?: boolean;
@@ -43,20 +43,22 @@ protectedAPI.interceptors.request.use(
 
 // Response interceptor to handle token refresh
 protectedAPI.interceptors.response.use(
-  (response: any) => {
+  (response:AxiosResponse) => {
     return response;
   },
   async (error: AxiosError<ErrorResponseData>) => {
     const originalRequest = error.config as InternalAxiosRequestConfig & { _retry?: boolean };
 
+    if (error.response?.status === 401&& error.response.data.user) {
+
+    store.dispatch(clearAccessToken());
+      return Promise.reject(error);
+    }
+
     if (error.response?.status === 403 && !originalRequest._retry) {
       originalRequest._retry = true;
 
-      if (!error?.response?.data.success && error.response.data?.user == false) {
-         await protectedAPI.post(`/mentee/logout`);
-         store.dispatch(clearAccessToken())
-       
-      }
+
 
       try {
         const { data } = await unProtectedAPI.post(`/mentee/refresh-token`);
@@ -66,7 +68,10 @@ protectedAPI.interceptors.response.use(
         originalRequest.headers['Authorization'] = `Bearer ${data?.accessToken}`;
 
         return protectedAPI(originalRequest);
-      } catch (refreshError: any) {
+      } catch (refreshError :unknown) {
+        if (refreshError instanceof AxiosError) {
+          console.error('Error during token refresh:', refreshError.response?.data);
+        }
         return Promise.reject(refreshError);
       }
     }

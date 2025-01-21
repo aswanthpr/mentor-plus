@@ -1,0 +1,34 @@
+import { IOtpRepository } from "../Interface/Otp/IOtpRepository";
+import otpModel, { IOtp } from "../Model/otpModel";
+
+class OtpRepository implements IOtpRepository {
+
+
+    async createOtp(email: string, otp: string): Promise<IOtp | undefined> {
+        try {
+
+            const saveOtp = new otpModel({ email, otp });
+            const data = await saveOtp.save();
+            console.log(data, 'otp created')
+            return data
+        } catch (error: unknown) {
+            throw new Error(`${'\x1b[35m%s\x1b[0m'}error while creating otp:${error instanceof Error ? error.message : String(error)}`);
+        }
+
+    }
+
+    async DBVerifyOtp(email: string, otp: string): Promise<IOtp | null> {
+        try {
+            const data = await otpModel.findOne({ email, otp }).exec();
+            console.log('OTP found in database:', data);
+            return data
+        } catch (error: unknown) {
+
+            throw new Error(`error while find on database in verify otp  ${error instanceof Error ? error.message : String(error)}`)
+
+        }
+    }
+
+
+}
+export default new OtpRepository()

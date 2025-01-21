@@ -1,6 +1,6 @@
-import { IMentee } from "../MODEL/MenteeModel";
+import { IMentee } from "../Model/MenteeModel";
 import { BaseRepository } from "./BaseRepo";
-import { IMenteeRepository } from "../INTERFACE/Mentee/IMenteeRepository";
+import { IMenteeRepository } from "../Interface/Mentee/IMenteeRepository";
 export declare class MenteeRepository extends BaseRepository<IMentee> implements IMenteeRepository {
     constructor();
     dbMenteeData(): Promise<IMentee[] | null>;

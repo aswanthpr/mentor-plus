@@ -1,6 +1,6 @@
 import { BaseRepository } from "./BaseRepo";
-import { IMentorRepository } from "../INTERFACE/Mentor/IMentorRepository";
-import { IMentor } from "../MODEL/mentorModel";
+import { IMentorRepository } from "../Interface/Mentor/IMentorRepository";
+import { IMentor } from "../Model/mentorModel";
 import { IMentorApplication } from "../TYPES";
 import mongoose from "mongoose";
 declare class mentorRepository extends BaseRepository<IMentor> implements IMentorRepository {

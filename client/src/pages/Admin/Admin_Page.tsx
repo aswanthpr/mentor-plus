@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
-import Header from '../../components/Common/Ui_Layout/Header'
+import Header from '../../components/Common/common4All/Header'
 import { PaperclipIcon, LayoutDashboard, HandCoins, HelpCircle, UserRoundPenIcon, Users } from 'lucide-react';
-import SidePanel from '../../components/Common/Ui_Layout/SidePanel';
+import SidePanel from '../../components/Common/common4All/SidePanel';
 import { Outlet } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
 import { API } from '../../Config/adminAxios';
@@ -40,8 +40,8 @@ const response = await API.post(`/admin/logout`);
 if(response.data.success&&response.status==200){
 
   dispatch(clearToken());
-  localStorage.removeItem('adminToken');
-  toast.success(response.data.message);
+
+  toast.success(response.data.message); 
 }
 }
 

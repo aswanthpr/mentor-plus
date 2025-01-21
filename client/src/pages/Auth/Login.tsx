@@ -5,8 +5,8 @@ import { useDispatch } from "react-redux";
 import { toast } from "react-toastify";
 import { Link } from "react-router-dom";
 // import {useGoogleLogin} from '@react-oauth/google'
-import Spinner from "../../components/Common/Spinner";
-import InputField from "../../components/Common/Form/InputField";
+import Spinner from "../../components/Common/common4All/Spinner";
+import InputField from "../../components/Auth/InputField";
 // import SocialLogins from "../../components/auth/SocialLogins";
 import { validateEmail, validatePassword } from "../../Validation/Validation";
 import { AppDispatch } from "../../Redux/store";

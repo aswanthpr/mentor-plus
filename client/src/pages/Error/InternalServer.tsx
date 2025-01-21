@@ -1,7 +1,7 @@
 import React from 'react';
 import { HomeIcon,RotateCcw } from 'lucide-react';
 import {useNavigate} from 'react-router-dom';
-import internal_Server from '/500 Internal Server Error-cuate(1).svg'
+import internal_Server from '../../Asset/500 Internal Server Error-cuate(1).svg'
 
 const InternalServer:React.FC = () => {
 const navigate =useNavigate()

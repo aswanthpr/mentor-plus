@@ -1,6 +1,6 @@
-import { IOtpRepository } from "../INTERFACE/Otp/IOtpRepository";
-import IOtpService from "../INTERFACE/Otp/IOtpService";
-import { IMenteeRepository } from "../INTERFACE/Mentee/IMenteeRepository";
+import { IOtpRepository } from "../Interface/Otp/IOtpRepository";
+import IOtpService from "../Interface/Otp/IOtpService";
+import { IMenteeRepository } from "../Interface/Mentee/IMenteeRepository";
 declare class OtpService implements IOtpService {
     private _OtpRespository;
     private _menteeRepository;

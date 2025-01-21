@@ -2,7 +2,7 @@ import React,{useEffect,useState} from 'react';
 import { useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import { RootState } from '../../Redux/store';
-import Spinner from '../../components/Common/Spinner';
+import Spinner from '../../components/Common/common4All/Spinner';
 
 
 export interface IMenteeLogout {

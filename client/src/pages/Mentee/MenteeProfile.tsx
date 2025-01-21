@@ -13,10 +13,10 @@ import {
   EyeIcon,
 } from "lucide-react";
 import { protectedAPI } from "../../Config/Axios";
-import profile from "/images.png";
-import Modal from "../../components/Common/Modal";
+import profile from '../../Asset/images.png';
+import Modal from "../../components/Common/common4All/Modal";
 import { toast } from "react-toastify";
-import InputField from "../../components/Common/Form/InputField";
+import InputField from "../../components/Auth/InputField";
 import { errorHandler } from "../../Utils/Reusable/Reusable";
 import {
   validateBio,
@@ -32,8 +32,8 @@ import {
   validatePhones,
 } from "../../Validation/Validation";
 import { Link } from "react-router-dom";
-import ImageCropper from "../../components/Common/Form/ImageCropper";
-import Spinner from "../../components/Common/Spinner";
+import ImageCropper from "../../components/Auth/ImageCropper";
+import Spinner from "../../components/Common/common4All/Spinner";
 
 
 
@@ -61,7 +61,8 @@ const MenteeProfile: React.FC = () => {
     education: "",
     currentPosition: "",
     isBlocked: false,
-    verified:true
+    verified:true,
+    provider:"email"
   });
   const [errors, setErrors] = useState<IFormErrors>({
     name: "",
@@ -346,6 +347,8 @@ const MenteeProfile: React.FC = () => {
           </div>
 
           {/* Change Password Button */}
+          {formData?.provider !='google' &&(
+
           <div className="relative group">
             <button
               onClick={() => setShowEditPassword(true)}
@@ -358,7 +361,8 @@ const MenteeProfile: React.FC = () => {
               Change Password
             </span>
           </div>
-        </div>
+          )}
+          </div>
 
         {/* Profile Information Section */}
         <section className="mt-0 grid grid-cols-1 md:grid-cols-2 gap-8 ml-6">
@@ -499,12 +503,6 @@ const MenteeProfile: React.FC = () => {
               </div>
               <div className="mt-6 flex justify-end">
                 <button
-                  onClick={modalClose}
-                  className="px-4 py-2 mr-4 bg-gray-300 rounded-md hover:bg-gray-400"
-                >
-                  Back
-                </button>
-                <button
                   onClick={handleSaveChanges}
                   className="px-4 py-2 bg-[#ff8800] text-white rounded-md hover:bg-[#e67a00]"
                 >
@@ -607,12 +605,7 @@ const MenteeProfile: React.FC = () => {
                    </div>
                    </div>
               <div className="mt-6 flex justify-end">
-                <button
-                  onClick={passModalClose}
-                  className="px-4 py-2 mr-4 bg-gray-300 rounded-md hover:bg-gray-400"
-                >
-                  Back
-                </button>
+
                 <button
                   onClick={handleChangePassword}
                   className="px-4 py-2 bg-[#ff8800] text-white rounded-md hover:bg-[#e67a00]"

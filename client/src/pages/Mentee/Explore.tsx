@@ -6,8 +6,9 @@ import MentorCard from "../../components/Mentee/MentorCard";
 
 import { MentorFilters } from "../../components/Mentee/Filters";
 import { protectedAPI } from "../../Config/Axios";
-import Spinner from "../../components/Common/Spinner";
+import Spinner from "../../components/Common/common4All/Spinner";
 import { errorHandler } from "../../Utils/Reusable/Reusable";
+
 
 const ExplorePage: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(false);
@@ -66,7 +67,7 @@ const ExplorePage: React.FC = () => {
     console.log(filters.categories, "wfassafafasf", filters.skills);
   }, []);
   return (
-    <div className="relative mx-20 mt-20 ">
+    <div className="relative mx-4 mt-20 ">
       {loading && <Spinner />}
       {/* Mobile Filters Modal */}
       {showFilters && (
@@ -89,7 +90,7 @@ const ExplorePage: React.FC = () => {
       <div className="flex flex-col lg:flex-row gap-8">
         {/* Filters Sidebar - Desktop */}
         <div className="hidden lg:block w-64 ml-8 flex-shrink-0">
-          <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200 sticky top-24">
+          <div className="bg-white p-4 rounded-lg shadow-sm border border-gray-200 sticky top-24">
             <h2 className="text-lg font-semibold text-gray-900 mb-6">
               Filters
             </h2>
@@ -99,7 +100,7 @@ const ExplorePage: React.FC = () => {
 
         {/* Main Content */}
         <div className="flex-1 ">
-          <div className="flex flex-col sm:flex-row gap-4 mb-6 smr-6">
+          <div className="flex flex-col sm:flex-row gap-2 mb-6 mr-2">
             <div className="flex-1 z-0">
               <SearchBar value={searchQuery} onChange={setSearchQuery} />
             </div>
@@ -124,6 +125,7 @@ const ExplorePage: React.FC = () => {
           </div>
         </div>
       </div>
+
     </div>
   );
 };

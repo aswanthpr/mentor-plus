@@ -2,14 +2,14 @@ import React, { useState, useEffect } from "react";
 import { toast } from "react-toastify";
 import { Link } from "react-router-dom";
 
-import Modal from "../../components/Common/Modal";
-import Spinner from "../../components/Common/Spinner";
+import Modal from "../../components/Common/common4All/Modal";
+import Spinner from "../../components/Common/common4All/Spinner";
 import { axiosInstance } from "../../Config/mentorAxios";
-import SkillInput from "../../components/auth/SkillInput";
-import FileUpload from "../../components/Common/Form/FileUpload";
-import InputField from "../../components/Common/Form/InputField";
-import ImageCropper from "../../components/Common/Form/ImageCropper";
-import profile from "/images.png";
+import SkillInput from "../../components/Auth/SkillInput";
+import FileUpload from "../../components/Auth/FileUpload";
+import InputField from "../../components/Auth/InputField";
+import ImageCropper from "../../components/Auth/ImageCropper";
+import profile from "../../Asset/images.png";
 import {
   Linkedin,
   Camera,
@@ -40,12 +40,12 @@ import {
 } from "../../Validation/Validation";
 import { errorHandler } from "../../Utils/Reusable/Reusable";
 
-
-
 const MentorProfile: React.FC = () => {
   const [isPasswordVisible, setIsPasswordVisible] = useState<boolean>(false);
-  const [isConfirmPasswordVisible, setIsConfirmPasswordVisible] = useState<boolean>(false);
-  const [isCurrentPasswordVisible, setIsCurrentPasswordVisible] = useState<boolean>(false);
+  const [isConfirmPasswordVisible, setIsConfirmPasswordVisible] =
+    useState<boolean>(false);
+  const [isCurrentPasswordVisible, setIsCurrentPasswordVisible] =
+    useState<boolean>(false);
   const [profileImage, setProfileImage] = useState<File | null>(null);
   const [categories, setCategories] = useState<ICategory[]>([]);
   const [skills, setSkills] = useState<string[]>([]);
@@ -66,7 +66,7 @@ const MentorProfile: React.FC = () => {
     jobTitle: "",
     category: "",
     skills: [],
-    resume: null
+    resume: null,
   });
   const [errors, setErrors] = useState<IMentorErrors>({
     name: "",
@@ -96,13 +96,12 @@ const MentorProfile: React.FC = () => {
       try {
         setLoading(true);
         const response = await axiosInstance.get("/mentor/profile");
-        console.log(response.data.category, "4444444444444444");
 
         if (response.status == 200 && response.data.success) {
           setMentor(response.data.result);
           setFormData(response.data.result);
           setCategories(response.data.categories);
-          setSkills(response.data.mentor.skills);
+          setSkills(response.data.mentor?.skills);
         }
       } catch (error: unknown) {
         errorHandler(error);
@@ -111,7 +110,6 @@ const MentorProfile: React.FC = () => {
       }
     };
 
-    console.log(categories, "weweflaskdnflkn");
     menterData();
   }, []);
 
@@ -129,17 +127,17 @@ const MentorProfile: React.FC = () => {
       resume: "",
     };
 
-    formErrors.bio = validateBio(formData.bio || "");
-    formErrors.name = validateNames(formData.name || "");
-    formErrors.email = validateEmails(formData.email || "");
-    formErrors.phone = validatePhones(formData.phone || "");
-    formErrors.skills = validateSkills(formData.skills || []);
-    formErrors.jobTitle = validateEducation(formData.jobTitle || "");
-    formErrors.githubUrl = validateGithubUrl(formData.githubUrl || "");
-    formErrors.category = validateCurrentPosition(formData.category || "");
-    formErrors.linkedinUrl = validateLinkedinUrl(formData.linkedinUrl || "");
+    formErrors.bio = validateBio(formData?.bio || "");
+    formErrors.name = validateNames(formData?.name || "");
+    formErrors.email = validateEmails(formData?.email || "");
+    formErrors.phone = validatePhones(formData?.phone || "");
+    formErrors.skills = validateSkills(formData?.skills || []);
+    formErrors.jobTitle = validateEducation(formData?.jobTitle || "");
+    formErrors.githubUrl = validateGithubUrl(formData?.githubUrl || "");
+    formErrors.category = validateCurrentPosition(formData?.category || "");
+    formErrors.linkedinUrl = validateLinkedinUrl(formData?.linkedinUrl || "");
 
-    setErrors(formErrors)
+    setErrors(formErrors);
 
     return Object.values(formErrors).every((error) => error === "");
   };
@@ -164,7 +162,6 @@ const MentorProfile: React.FC = () => {
 
   const handleSaveChanges = async () => {
     if (!handleValidation()) {
-
       return;
     }
 
@@ -183,9 +180,11 @@ const MentorProfile: React.FC = () => {
         githubUrl: formData?.githubUrl,
         linkedinUrl: formData?.linkedinUrl,
       };
-      console.log(Data, "thsi si the data");
 
-      const response = await axiosInstance.put(`/mentor/profile/edit_profile_details`, Data, { headers: { 'Content-Type': 'multipart/form-data' } }
+      const response = await axiosInstance.put(
+        `/mentor/profile/edit_profile_details`,
+        Data,
+        { headers: { "Content-Type": "multipart/form-data" } }
       );
 
       if (response?.status === 200 && response?.data?.success) {
@@ -202,7 +201,6 @@ const MentorProfile: React.FC = () => {
   };
 
   const modalClose = () => {
-
     setErrors({
       name: "",
       email: "",
@@ -215,7 +213,7 @@ const MentorProfile: React.FC = () => {
       skills: "",
       resume: "",
     });
-    setResume(null)
+    setResume(null);
     setEditModalOpen(false);
   };
 
@@ -234,11 +232,11 @@ const MentorProfile: React.FC = () => {
         return; // Stop if validation fails
       }
       const passFormData = {
-        currentPassword: `${editPassword.currentPassword}`,
-        newPassword: `${editPassword.newPassword}`,
+        currentPassword: `${editPassword?.currentPassword}`,
+        newPassword: `${editPassword?.newPassword}`,
         _id: `${formData._id}`,
       };
-      console.log(passFormData, "thsi form data");
+
       const response = await axiosInstance.patch(
         "/mentor/profile/change_password",
         passFormData
@@ -275,13 +273,11 @@ const MentorProfile: React.FC = () => {
       setShowcropper(false);
       setLoading(true);
 
-      console.log(profileImage);
       const Data = {
         profileImage,
         _id: formData._id,
       };
 
-      console.log(Data, "this is data");
       const response = await axiosInstance.patch(
         "/mentor/profile/image_change",
         Data,
@@ -291,7 +287,6 @@ const MentorProfile: React.FC = () => {
       );
 
       if (response.data && response.data.status == 200) {
-        console.log(response.data.message);
         toast.success(response.data.message);
 
         setMentor((prevMentee) => {
@@ -310,7 +305,6 @@ const MentorProfile: React.FC = () => {
       setLoading(false);
     }
   };
-
 
   return (
     <div className="relative mt-16">
@@ -491,7 +485,6 @@ const MentorProfile: React.FC = () => {
                 Change User Data
               </h2>
 
-
               <div className="space-y-1">
                 <InputField
                   id={"name"}
@@ -570,7 +563,6 @@ const MentorProfile: React.FC = () => {
                 />
 
                 <div className="space-y-2">
-
                   <select
                     name="category"
                     id="categoryId"
@@ -607,7 +599,6 @@ const MentorProfile: React.FC = () => {
                 <p className="text-sm text-red-500">{errors?.bio}</p>
 
                 <div className="space-y-2">
-
                   <SkillInput
                     skills={[...(skills ?? []), ...(formData.skills ?? [])]} //
                     onSkillsChange={(newSkills) =>
@@ -615,19 +606,23 @@ const MentorProfile: React.FC = () => {
                     }
                     maxSkills={8}
                   />
-                  {errors.skills && (
-                    <p className="text-red-500 text-sm">{errors.skills}</p>
+                  {errors?.skills && (
+                    <p className="text-red-500 text-sm">{errors?.skills}</p>
                   )}
                 </div>
                 <div className="space-y-2">
-
                   <FileUpload onFileSelect={(file) => setResume(file)} />
 
-                  {mentor?.resume && typeof mentor?.resume === "string" && (
-
-                    resume ? "" :
-                      <p className="from-neutral-600 text-gray-400">{`${mentor?.resume}`.slice(-10)}</p> // Show file URL or name if it's just a string
-                  )}
+                  {mentor?.resume &&
+                    typeof mentor?.resume === "string" &&
+                    (resume ? (
+                      ""
+                    ) : (
+                      <p className="from-neutral-600 text-gray-400">
+                        {`${mentor?.resume}`.slice(-10)}
+                      </p>
+                    )) // Show file URL or name if it's just a string
+                  }
 
                   {errors.resume && (
                     <p className="text-red-500 text-sm">{errors.resume}</p>
@@ -636,12 +631,7 @@ const MentorProfile: React.FC = () => {
               </div>
 
               <div className="mt-6 flex justify-end">
-                <button
-                  onClick={modalClose}
-                  className="px-4 py-2 mr-4 bg-gray-300 rounded-md hover:bg-gray-400"
-                >
-                  Back
-                </button>
+             
                 <button
                   type="submit"
                   onClick={handleSaveChanges}
@@ -650,7 +640,6 @@ const MentorProfile: React.FC = () => {
                   Save
                 </button>
               </div>
-
             </>
           }
         />
@@ -666,7 +655,6 @@ const MentorProfile: React.FC = () => {
                 Change Password
               </h2>
               <div className="space-y-4">
-
                 <div className="relative">
                   <InputField
                     id={"currentPassword"}
@@ -687,12 +675,15 @@ const MentorProfile: React.FC = () => {
                   <button
                     type="button"
                     onClick={() => setIsCurrentPasswordVisible((pre) => !pre)}
-                    aria-label={isCurrentPasswordVisible ? "Hide Password" : "Show Password"}
+                    aria-label={
+                      isCurrentPasswordVisible
+                        ? "Hide Password"
+                        : "Show Password"
+                    }
                     className="absolute right-4 top-7 transform -translate-y-1/2 text-gray-400" // Position the icon to the right of the input field
                   >
                     {isCurrentPasswordVisible ? <EyeClosedIcon /> : <EyeIcon />}
                   </button>
-
                 </div>
                 <div className="relative">
                   <InputField
@@ -713,12 +704,13 @@ const MentorProfile: React.FC = () => {
                   <button
                     type="button"
                     onClick={() => setIsPasswordVisible((pre) => !pre)}
-                    aria-label={isPasswordVisible ? "Hide Password" : "Show Password"}
+                    aria-label={
+                      isPasswordVisible ? "Hide Password" : "Show Password"
+                    }
                     className="absolute right-4 top-7 transform -translate-y-1/2 text-gray-400"
                   >
                     {isPasswordVisible ? <EyeClosedIcon /> : <EyeIcon />}
                   </button>
-
                 </div>
                 <div className="relative">
                   <InputField
@@ -740,21 +732,19 @@ const MentorProfile: React.FC = () => {
                   <button
                     type="button"
                     onClick={() => setIsConfirmPasswordVisible((prev) => !prev)}
-                    aria-label={isConfirmPasswordVisible ? "Hide Password" : "Show Password"}
+                    aria-label={
+                      isConfirmPasswordVisible
+                        ? "Hide Password"
+                        : "Show Password"
+                    }
                     className="absolute right-4 top-7 transform -translate-y-1/2 text-gray-400"
                   >
                     {isConfirmPasswordVisible ? <EyeClosedIcon /> : <EyeIcon />}
                   </button>
-
                 </div>
               </div>
-              <div className="mt-6 flex justify-end">
-                <button
-                  onClick={passModalClose}
-                  className="px-4 py-2 mr-4 bg-gray-300 rounded-md hover:bg-gray-400"
-                >
-                  Back
-                </button>
+              <div className="mt-6 flex justify-end ">
+
                 <button
                   onClick={handleChangePassword}
                   className="px-4 py-2 bg-[#ff8800] text-white rounded-md hover:bg-[#e67a00]"

@@ -3,10 +3,10 @@ import React, { useState } from "react";
 import { EyeClosedIcon, EyeIcon  } from "lucide-react";
 import { toast } from "react-toastify";
 import { Link, useNavigate } from 'react-router-dom';
-import Spinner from "../../components/Common/Spinner"; 
+import Spinner from "../../components/Common/common4All/Spinner"; 
 // import SocialLogins from "../../components/auth/SocialLogins";
-import InputField from "../../components/Common/Form/InputField";
-import OtpModal from "../../components/auth/OtpModal";
+import InputField from "../../components/Auth/InputField";
+import OtpModal from "../../components/Auth/OtpModal";
 import {
   validateName,
   validateEmail,

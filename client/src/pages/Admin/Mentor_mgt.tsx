@@ -1,13 +1,13 @@
 import { useState, useEffect, useMemo } from 'react';
 import { Table } from '../../components/Admin/Table';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { Pagination } from '../../components/Common/Pagination';
-import { StatusBadge } from '../../components/Common/StatusBadge';
+import { Pagination } from '../../components/Common/common4All/Pagination';
+import { StatusBadge } from '../../components/Admin/StatusBadge';
 import { toast } from 'react-toastify';
-import profile from "/rb_2877.png";
+import profile from "../../Asset/rb_2877.png";
 import { BanIcon, CheckCircle2, CircleCheckBigIcon, Eye } from 'lucide-react';
-import ConfirmToast from '../../components/Common/ConfirmToast';
-import Spinner from '../../components/Common/Spinner';
+import ConfirmToast from '../../components/Common/common4All/ConfirmToast';
+import Spinner from '../../components/Common/common4All/Spinner';
 import { API } from '../../Config/adminAxios';
 import { errorHandler } from '../../Utils/Reusable/Reusable';
 
@@ -36,14 +36,17 @@ export const Mentor_mgt: React.FC = () => {
     const fetchMentors = async () => {
       try {
         const response = await API.get(`/admin/mentor_management`);
-        setMentors(response.data.mentorData);
+        if(response?.status &&response.data.success){
+          setMentors(response.data?.mentorData);
+
+        }
       } catch (error) {
         console.error('Error fetching mentors:', error);
       }
     };
 
     fetchMentors();
-  }, []);
+  }, [activeTab]);
 
   useEffect(() => {
     if (activeTab == 'verified') {
@@ -105,6 +108,7 @@ export const Mentor_mgt: React.FC = () => {
     );
 
   }
+
   const confirmModal = (id: string) => {
     toast(
       <ConfirmToast
@@ -154,7 +158,7 @@ export const Mentor_mgt: React.FC = () => {
     return mentors.filter(
       (mentor) => mentor?.verified === (activeTab === 'verified')
     );
-  }, [ activeTab, navigate])
+  }, [ activeTab, mentors]);
 
   return (
     <div className="p-6 pb-24 mt-16">
@@ -168,9 +172,9 @@ export const Mentor_mgt: React.FC = () => {
         <button
           onClick={() => setActiveTab('verified')}
           aria-label="Show Verified Mentors"
-          className={`px-4 py-2 rounded-md ${activeTab === 'verified'
-            ? 'bg-[#ff8800] text-white'
-            : 'bg-gray-100 text-gray-600'
+          className={`px-4 py-2  ${activeTab === 'verified'
+            ? 'text-[#ff8800] border-b-2 border-[#ff8800] font-semibold'
+            : 'bg-gray-100 text-gray-400'
             }`}
         >
           Verified
@@ -178,9 +182,9 @@ export const Mentor_mgt: React.FC = () => {
         <button
           onClick={() => setActiveTab('not-verified')}
           aria-label="Show Not Verified Mentors"
-          className={`px-4 py-2 rounded-md ${activeTab === 'not-verified'
-            ? 'bg-[#ff8800] text-white'
-            : 'bg-gray-100 text-gray-600'
+          className={`px-4 py-2  ${activeTab === 'not-verified'
+            ? 'text-[#ff8800] border-b-2 border-[#ff8800] font-semibold'
+            : 'bg-gray-100 text-gray-400'
             }`}
         >
           Not Verified

@@ -1,10 +1,10 @@
-import { IMenteeService } from "../INTERFACE/Mentee/IMenteeService";
-import { IMentee } from "../MODEL/MenteeModel";
-import { IMenteeRepository } from "../INTERFACE/Mentee/IMenteeRepository";
-import { IMentor } from "../MODEL/mentorModel";
-import { IMentorRepository } from "../INTERFACE/Mentor/IMentorRepository";
-import { ICategoryRepository } from "../INTERFACE/Category/ICategoryRepository";
-import { ICategory } from "../MODEL/categorySchema";
+import { IMenteeService } from "../Interface/Mentee/IMenteeService";
+import { IMentee } from "../Model/MenteeModel";
+import { IMenteeRepository } from "../Interface/Mentee/IMenteeRepository";
+import { IMentor } from "../Model/mentorModel";
+import { IMentorRepository } from "../Interface/Mentor/IMentorRepository";
+import { ICategoryRepository } from "../Interface/Category/ICategoryRepository";
+import { ICategory } from "../Model/categorySchema";
 export declare class MenteeService implements IMenteeService {
     private _menteeRepository;
     private _mentorRepository;

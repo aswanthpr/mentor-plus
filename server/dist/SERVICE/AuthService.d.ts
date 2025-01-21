@@ -1,11 +1,11 @@
-import { IMentee } from "../MODEL/MenteeModel";
+import { IMentee } from "../Model/MenteeModel";
 import { IMentorApplyData } from "../TYPES/index";
-import { ICategory } from "../MODEL/categorySchema";
-import IOtpService from "../INTERFACE/Otp/IOtpService";
-import IAuthService from "../INTERFACE/Auth/IAuthService";
-import { IMentorRepository } from "../INTERFACE/Mentor/IMentorRepository";
-import { ICategoryRepository } from "../INTERFACE/Category/ICategoryRepository";
-import { IMenteeRepository } from "../INTERFACE/Mentee/IMenteeRepository";
+import { ICategory } from "../Model/categorySchema";
+import IOtpService from "../Interface/Otp/IOtpService";
+import IAuthService from "../Interface/Auth/IAuthService";
+import { IMentorRepository } from "../Interface/Mentor/IMentorRepository";
+import { ICategoryRepository } from "../Interface/Category/ICategoryRepository";
+import { IMenteeRepository } from "../Interface/Mentee/IMenteeRepository";
 export declare class AuthService implements IAuthService {
     private _OtpService;
     private _categoryRepository;

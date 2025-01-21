@@ -1,0 +1,1 @@
+{"version":3,"file":"adminAuthorization.d.ts","sourceRoot":"","sources":["../../src/Middleware/adminAuthorization.ts"],"names":[],"mappings":"AAAA,OAAO,EAAE,OAAO,EAAE,QAAQ,EAAE,YAAY,EAAE,MAAM,SAAS,CAAC;AAM1D,QAAA,MAAM,aAAa,QACV,OAAO,OACP,QAAQ,QACP,YAAY,KACnB,OAAO,CAAE,IAAI,CAyCf,CAAA;AAED,eAAe,aAAa,CAAC"}

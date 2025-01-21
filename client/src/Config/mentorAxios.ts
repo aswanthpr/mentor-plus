@@ -1,4 +1,4 @@
-import axios,{InternalAxiosRequestConfig} from "axios";
+import axios,{ AxiosError, InternalAxiosRequestConfig} from "axios";
 import {store} from '../Redux/store'
 import { clearMentorToken, setMentorToken } from "../Redux/mentorSlice";
 
@@ -15,7 +15,7 @@ export const axiosInstance = axios.create({
 
 //request interceptor to add Authorization header if token exist
 axiosInstance.interceptors.request.use(
-  async (config:InternalAxiosRequestConfig): Promise<any> => {
+  async (config:InternalAxiosRequestConfig) => {
     const state = store.getState();
     const accessToken = state.menter?.mentorToken
     console.log(accessToken, "this is from axios,in redux accesstoken");
@@ -39,8 +39,9 @@ axiosInstance.interceptors.response.use(
     async  (error)=>{
       const originalRequest = error.config;
 
-      if(error.response.status==401&&error.response.data.message=='Invalid or expired refresh token.'){
+      if(error.response.status==401&&!error.response?.data?.success){
         store.dispatch(clearMentorToken());
+        return Promise.reject(error);
       }
 
       if (error.response.status === 403 && !originalRequest._retry) {
@@ -48,14 +49,14 @@ axiosInstance.interceptors.response.use(
         try {
           
           const {data} = await axiosInstance.post(`/mentor/refresh-token`);
-          console.log(data,'thsi is new access token');
+          
 
           store.dispatch(setMentorToken({mentorToken:data?.accessToken,mentorRole:'mentor'}));
           axios.defaults.headers.common['Authorization']=`Bearer ${data?.accessToken}`
 
           return axiosInstance(originalRequest);
-        } catch (error:any) {
-
+        } catch (error:unknown) {
+          console.log(`${error instanceof AxiosError ?error.message:String(error)}`)
           return Promise.reject(error);
         }
 

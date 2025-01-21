@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
-import { IMenteeService } from "../INTERFACE/Mentee/IMenteeService";
-import { IMenteeController } from "../INTERFACE/Mentee/IMenteeController";
+import { IMenteeService } from "../Interface/Mentee/IMenteeService";
+import { IMenteeController } from "../Interface/Mentee/IMenteeController";
 export declare class MenteeController implements IMenteeController {
     private _menteeService;
     constructor(_menteeService: IMenteeService);

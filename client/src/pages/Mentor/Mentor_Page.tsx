@@ -1,11 +1,11 @@
 import React,{useState} from 'react'
-import Header from '../../components/Common/Ui_Layout/Header'
+import Header from '../../components/Common/common4All/Header'
 import { Home,MessageSquare,Calendar,Wallet,HelpCircle, Video} from 'lucide-react';
-import SidePanel from '../../components/Common/Ui_Layout/SidePanel';
+import SidePanel from '../../components/Common/common4All/SidePanel';
 import { Outlet } from 'react-router-dom';
 import { axiosInstance } from '../../Config/mentorAxios';
 import { useDispatch } from 'react-redux';
-import { clearMentorToken } from '../../Redux/mentorSlice';
+import { clearMentorToken } from '../../Redux/mentorSlice'; 
 import { toast } from 'react-toastify';
 
 
@@ -25,7 +25,7 @@ const navItems:INavItem[]= [
  
 const Mentor_Page:React.FC = () => {
   const dispatch = useDispatch()
-  const [isSideBarOpen,setIsSideBarOpen] = useState<boolean>(true);
+  const [isSideBarOpen,setIsSideBarOpen] = useState<boolean>(false);
   const [searchValue,setSearchValue] = useState<string>('');
   
   const ToggleSideBar =()=>{
@@ -53,24 +53,35 @@ const Mentor_Page:React.FC = () => {
       <Header
       onChange={handleSearchChange}
       value={searchValue}
-      ToggleSideBar={ToggleSideBar}
+      ToggleSideBar={ToggleSideBar} 
       placeholder='Search...'
       userType='mentor'
       logout={mentorLogout}
       profileLink='/mentor/profile'
       />
-      {isSideBarOpen&&
-      
-      <SidePanel
-      SideBarItems={navItems}/>
-      }
-        <main className={` pl-64 ${isSideBarOpen? 'pl-60':'pl-0'}`} >
-        <div className="pl-0">
+      {/* Overlay for Small Screens */}
+      {isSideBarOpen && (
+        <div
+          className="fixed inset-0 bg-black bg-opacity-50 z-40 lg:hidden"
+          onClick={() => setIsSideBarOpen(false)}
+        />
+      )}
+
+      {/* Sidebar */}
+      <div
+        className={`fixed left-0 top-0 h-full w-64 bg-white border-r border-gray-200 transform transition-transform duration-200 ease-in-out z-40 ${
+          isSideBarOpen ? 'translate-x-0' : '-translate-x-full'
+        } lg:translate-x-0`}
+      >
+        <SidePanel SideBarItems={navItems} />
+      </div>
+        <main className={` lg:pl-64 transition-all duration-200`} >
+        <div className="p-6">
           <Outlet />
         </div>
         </main>
     </div>
   )
 }
-
-export default Mentor_Page;
+ 
+export default Mentor_Page;    

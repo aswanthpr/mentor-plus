@@ -3,9 +3,9 @@ import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
 
 import { unAPI } from "../../Config/adminAxios";
-import Button from "../../components/Common/Form/Button";
+import Button from "../../components/Auth/Button";
 import { validatePassword, validateEmail } from "../../Validation/Validation";
-import Spinner from "../../components/Common/Spinner";
+import Spinner from "../../components/Common/common4All/Spinner";
 import { useDispatch } from "react-redux";
 import { setToken } from "../../Redux/adminSlice";
 import { EyeClosedIcon, EyeIcon } from "lucide-react";

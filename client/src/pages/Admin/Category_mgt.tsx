@@ -1,13 +1,13 @@
 import React, { useEffect, useState } from "react";
-import { StatusBadge } from "../../components/Common/StatusBadge";
-import { Pagination } from "../../components/Common/Pagination";
+import { StatusBadge } from "../../components/Admin/StatusBadge";
+import { Pagination } from "../../components/Common/common4All/Pagination";
 import { Table } from "../../components/Admin/Table";
 import {toast } from "react-toastify";
-import Spinner from "../../components/Common/Spinner";
+import Spinner from "../../components/Common/common4All/Spinner";
 import { categoryValidation } from "../../Validation/Validation";
 import { BanIcon, CircleCheckBigIcon, PencilLineIcon } from "lucide-react";
 import CategoryModal from "../../components/Admin/CategoryModal";
-import ConfirmToast from "../../components/Common/ConfirmToast";
+import ConfirmToast from "../../components/Common/common4All/ConfirmToast";
 import { API } from "../../Config/adminAxios";
 import { errorHandler } from "../../Utils/Reusable/Reusable";
 

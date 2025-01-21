@@ -2,12 +2,12 @@ import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
 import { BanIcon, CircleCheckBigIcon } from "lucide-react";
 import { Table } from "../../components/Admin/Table";
-import { Pagination } from "../../components/Common/Pagination";
-import { StatusBadge } from "../../components/Common/StatusBadge";
-import profile from "/rb_2877.png";
-import ConfirmToast from "../../components/Common/ConfirmToast";
+import { Pagination } from "../../components/Common/common4All/Pagination";
+import { StatusBadge } from "../../components/Admin/StatusBadge";
+import profile from "../../Asset/rb_2877.png";
+import ConfirmToast from "../../components/Common/common4All/ConfirmToast";
 
-import Spinner from "../../components/Common/Spinner";
+import Spinner from "../../components/Common/common4All/Spinner";
 import { API } from "../../Config/adminAxios";
 import { errorHandler } from "../../Utils/Reusable/Reusable";
 

@@ -1,5 +1,5 @@
 import React from 'react';
-import { Star, Clock } from 'lucide-react';
+// import { Star, Clock } from 'lucide-react';
 export interface Mentor extends Partial<IMentor>  {
     _id?: string;
     name: string;
@@ -74,7 +74,7 @@ export interface Mentor extends Partial<IMentor>  {
         </div>
         <p className="mt-4 text-sm text-gray-600 line-clamp-2 text-center sm:text-left">{mentor.bio}</p>
         <button
-          onClick={() => onBook(mentor?._id!)}
+          onClick={() => onBook(mentor?._id as string)}
           className="mt-4 w-full px-4 py-2 bg-[#ff8800] text-white rounded-lg hover:bg-[#ff9900] transition-colors"
         >
           Book Session

@@ -1,10 +1,10 @@
-import { ICategoryRepository } from "../INTERFACE/Category/ICategoryRepository";
-import { IAdminService } from "../INTERFACE/Admin/IAdminService";
-import { ICategory } from "../MODEL/categorySchema";
-import { IMenteeRepository } from "../INTERFACE/Mentee/IMenteeRepository";
-import { IMentee } from "../MODEL/MenteeModel";
-import { IMentor } from "../MODEL/mentorModel";
-import { IMentorRepository } from "../INTERFACE/Mentor/IMentorRepository";
+import { ICategoryRepository } from "../Interface/Category/ICategoryRepository";
+import { IAdminService } from "../Interface/Admin/IAdminService";
+import { ICategory } from "../Model/categorySchema";
+import { IMenteeRepository } from "../Interface/Mentee/IMenteeRepository";
+import { IMentee } from "../Model/MenteeModel";
+import { IMentor } from "../Model/mentorModel";
+import { IMentorRepository } from "../Interface/Mentor/IMentorRepository";
 export declare class AdminService implements IAdminService {
     private _CategoryRepository;
     private _MenteeRepository;
