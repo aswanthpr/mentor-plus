@@ -1,5 +1,5 @@
 import mongoose, { Document } from "mongoose";
-export interface IMentee extends Document {
+export interface Imentee extends Document {
     name: string;
     email: string;
     phone?: string;
@@ -15,7 +15,7 @@ export interface IMentee extends Document {
     isAdmin: boolean;
     provider: string;
 }
-declare const _default: mongoose.Model<IMentee, {}, {}, {}, mongoose.Document<unknown, {}, IMentee> & IMentee & Required<{
+declare const _default: mongoose.Model<Imentee, {}, {}, {}, mongoose.Document<unknown, {}, Imentee> & Imentee & Required<{
     _id: unknown;
 }> & {
     __v: number;

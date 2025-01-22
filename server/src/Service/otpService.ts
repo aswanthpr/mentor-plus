@@ -1,20 +1,20 @@
-import { IOtpRepository } from "../Interface/Otp/IOtpRepository";
-import IOtpService from "../Interface/Otp/IOtpService";
+import { IotpRepository } from "../Interface/Otp/iOtpRepository";
+import IotpService from "../Interface/Otp/iOtpService";
 import { nodeMailer } from "../Utils/nodeMailer.util";
 import genOtp from "../Utils/otpGen.util";
-import { IMenteeRepository } from "../Interface/Mentee/iMenteeRepository";  
+import { ImenteeRepository } from "../Interface/Mentee/iMenteeRepository";  
 
-class OtpService implements IOtpService {
+class otpService implements IotpService {
   constructor(
-    private _OtpRespository: IOtpRepository,
-    private _menteeRepository: IMenteeRepository
+    private _otpRespository: IotpRepository,
+    private _menteeRepository: ImenteeRepository
   ) {}
 
   async sentOtptoMail(email: string): Promise<void> {
     try {
       const otp: string = genOtp();
       console.log(otp);
-      await this._OtpRespository.createOtp(email, otp);
+      await this._otpRespository.createOtp(email, otp);
       await nodeMailer(email, otp);
     } catch (error: unknown) {
       throw new Error(
@@ -25,7 +25,7 @@ class OtpService implements IOtpService {
     }
   }
 
-  async BLVerifyOtp(
+  async verifyOtp(
     email: string,
     otp: string,
     type?: string
@@ -35,14 +35,14 @@ class OtpService implements IOtpService {
       if (!email || !otp || !type) {
         return { success: false, message: "email or otp is missing" };
       }
-      const data = await this._OtpRespository.DBVerifyOtp(email, otp);
+      const data = await this._otpRespository.verifyOtp(email, otp);
 
       if (!data) {
         return { success: false, message: "OTP does not match" };
       }
 
       if (type == "signup") {
-        const updateResult = await this._menteeRepository.DBupdateMentee(
+        const updateResult = await this._menteeRepository.updateMentee(
           data.email
         );
         if (!updateResult) {
@@ -64,4 +64,4 @@ class OtpService implements IOtpService {
     }
   }
 }
-export default OtpService;
+export default otpService;

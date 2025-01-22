@@ -1,6 +1,6 @@
 import mongoose,{ Document, Schema, } from "mongoose";
 
-export interface IMentor extends Document {
+export interface Imentor extends Document {
     name: string;
     email: string;
     phone: string;
@@ -18,7 +18,7 @@ export interface IMentor extends Document {
 
 }
 
-const mentorSchema:Schema<IMentor> = new mongoose.Schema({
+const mentorSchema:Schema<Imentor> = new mongoose.Schema({
     name:{
         type:String,
         required:true,
@@ -91,4 +91,4 @@ const mentorSchema:Schema<IMentor> = new mongoose.Schema({
     {timestamps:true}
 );
 
-export default mongoose.model<IMentor>('mentor',mentorSchema)
+export default mongoose.model<Imentor>('mentor',mentorSchema)

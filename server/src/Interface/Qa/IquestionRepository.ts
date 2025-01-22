@@ -8,7 +8,7 @@ export interface IquestionRepository {
     tags: string[],
     userId: ObjectId
   ): Promise<Iquestion | null>;
-  getQuestionData(menteeId: ObjectId, filter: string): Promise<Iquestion[]>;
+  questionData(menteeId: ObjectId, filter: string): Promise<Iquestion[]>;
   editQuestions(
     questionId: string,
     updatedQuestion: Iquestion

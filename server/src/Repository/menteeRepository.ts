@@ -1,19 +1,19 @@
 import { UpdateWriteOpResult } from "mongoose";
-import MenteeModel, { IMentee } from "../Model/menteeModel";
-import { BaseRepository } from "./baseRepo";
-import { IMenteeRepository } from "../Interface/Mentee/iMenteeRepository";
+import menteeModel, { Imentee } from "../Model/menteeModel";
+import { baseRepository } from "./baseRepo";
+import { ImenteeRepository } from "../Interface/Mentee/iMenteeRepository";
 
 
-export class MenteeRepository
-  extends BaseRepository<IMentee>
-  implements IMenteeRepository {
+export class menteeRepository
+  extends baseRepository<Imentee>
+  implements ImenteeRepository {
   constructor() {
-    super(MenteeModel);
+    super(menteeModel);
   }
 
-  async dbMenteeData(): Promise<IMentee[] | null> {
+  async menteeData(): Promise<Imentee[] | null> {
     try {
-      return await this.find(MenteeModel, { isAdmin: false });
+      return await this.find(menteeModel, { isAdmin: false });
     } catch (error: unknown) {
       throw new Error(
         `error while Checking mentee data ${error instanceof Error ? error.message : String(error)
@@ -21,9 +21,9 @@ export class MenteeRepository
       );
     }
   }
-  async dbChangeMenteeStatus(id: string): Promise<IMentee | null> {
+  async changeMenteeStatus(id: string): Promise<Imentee | null> {
     try {
-      return await this.find_By_Id_And_Update(MenteeModel, id, [
+      return await this.find_By_Id_And_Update(menteeModel, id, [
         { $set: { isBlocked: { $not: "$isBlocked" } } },
       ]);
     } catch (error: unknown) {
@@ -33,10 +33,10 @@ export class MenteeRepository
       );
     }
   }
-  async dbEditMentee(formData: Partial<IMentee>): Promise<IMentee | null> {
+  async editMentee(formData: Partial<Imentee>): Promise<Imentee | null> {
     try {
       return await this.find_By_Id_And_Update(
-        MenteeModel,
+        menteeModel,
         formData?._id as string,
         {
           $set: {
@@ -58,7 +58,7 @@ export class MenteeRepository
       );
     }
   }
-  async dbFindMentee(email: string): Promise<IMentee | null> {
+  async findMentee(email: string): Promise<Imentee | null> {
     try {
       return await this.find_One({ email });
     } catch (error: unknown) {
@@ -69,7 +69,7 @@ export class MenteeRepository
     }
   }
 
-  async dbAddMentee(formData: Partial<IMentee>): Promise<IMentee | null> {
+  async addMentee(formData: Partial<Imentee>): Promise<Imentee | null> {
     try {
       return await this.createDocument({
         name: formData?.name,
@@ -84,7 +84,7 @@ export class MenteeRepository
       );
     }
   }
-  async dbGoogleAddMentee(formData: Partial<IMentee>): Promise<IMentee | null> {
+  async googleAddMentee(formData: Partial<Imentee>): Promise<Imentee | null> {
     try {
       return await this.createDocument({
         name: formData?.name,
@@ -100,7 +100,7 @@ export class MenteeRepository
     }
   }
 
-  async dbFindById(id: string): Promise<IMentee | null> {
+  async findById(id: string): Promise<Imentee | null> {
     try {
       return await this.find_By_Id(id, { isBlocked: false });
     } catch (error: unknown) {
@@ -111,12 +111,12 @@ export class MenteeRepository
     }
   }
 
-  async dbChangePassword(
+  async changePassword(
     id: string,
     password: string
-  ): Promise<IMentee | null> {
+  ): Promise<Imentee | null> {
     try {
-      return await this.find_By_Id_And_Update(MenteeModel, id, {
+      return await this.find_By_Id_And_Update(menteeModel, id, {
         $set: { password: password },
       });
     } catch (error: unknown) {
@@ -126,9 +126,9 @@ export class MenteeRepository
       );
     }
   }
-  async dbProfileChange(image: string, id: string): Promise<IMentee | null> {
+  async profileChange(image: string, id: string): Promise<Imentee | null> {
     try {
-      return await this.find_By_Id_And_Update(MenteeModel, id, {
+      return await this.find_By_Id_And_Update(menteeModel, id, {
         $set: { profileUrl: image },
       });
     } catch (error: unknown) {
@@ -139,16 +139,16 @@ export class MenteeRepository
     }
   }
 
-  async DBupdateMentee(email: string): Promise<UpdateWriteOpResult|null> {
+  async updateMentee(email: string): Promise<UpdateWriteOpResult|null> {
     try {
-      const data = await MenteeModel.updateOne({ email }, { $set: { verified: true } });
+      const data = await menteeModel.updateOne({ email }, { $set: { verified: true } });
       console.log(data, 'verify data from repo')
       return data
     } catch (error: unknown) {
       throw new Error(`error while updating mentee${error instanceof Error ? error.message : String(error)}`)
     }
   }
-  async findByEmail(email: string): Promise<IMentee | null> {
+  async findByEmail(email: string): Promise<Imentee | null> {
     try {
 
       return await this.find_One({ email })//find one in base repo
@@ -157,7 +157,7 @@ export class MenteeRepository
       throw new Error(`Error while finding user by Email${error instanceof Error ? error.message : String(error)}`)
     }
   }
-  async create_Mentee(userData: IMentee): Promise<IMentee> {
+  async create_Mentee(userData: Imentee): Promise<Imentee> {
     try {
       return await this.createDocument(userData);
     } catch (error: unknown) {
@@ -165,7 +165,7 @@ export class MenteeRepository
       throw new Error(`error while mentee Signup${error instanceof Error ? error.message : String(error)}`);
     }
   }
-  async DBMainLogin(email: string): Promise<IMentee | null> {
+  async mainLogin(email: string): Promise<Imentee | null> {
     try {
 
       return await this.find_One({ email });
@@ -173,15 +173,15 @@ export class MenteeRepository
       throw new Error(`error  in DBMainLogin  while Checking User ${error instanceof Error ? error.message : String(error)}`)
     }
   }
-  async DBforgot_PasswordChange(email: string, password: string): Promise<IMentee | null | undefined> {
+  async forgot_PasswordChange(email: string, password: string): Promise<Imentee | null | undefined> {
     try {
-      return await this.find_One_And_Update(MenteeModel, { email: email }, { $set: { password: password } });
+      return await this.find_One_And_Update(menteeModel, { email: email }, { $set: { password: password } });
     } catch (error: unknown) {
       console.log(`error while find and update on DBforget_passwordChange ${error instanceof Error ? error.message : String(error)}`)
     }
   }
   //admin data fetch
-  async DBadminLogin(email: string): Promise<IMentee | null> {
+  async adminLogin(email: string): Promise<Imentee | null> {
     try {
       return await this.find_One({ email })
     } catch (error: unknown) {
@@ -190,4 +190,4 @@ export class MenteeRepository
     }
   }
 }
-export default new MenteeRepository();
+export default new menteeRepository();

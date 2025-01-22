@@ -1,10 +1,10 @@
-import { IOtpRepository } from "../Interface/Otp/IOtpRepository";
-import otpModel, { IOtp } from "../Model/otpModel";
+import { IotpRepository } from "../Interface/Otp/iOtpRepository";
+import otpModel, { Iotp } from "../Model/otpModel";
 
-class OtpRepository implements IOtpRepository {
+class otpRepository implements IotpRepository {
 
 
-    async createOtp(email: string, otp: string): Promise<IOtp | undefined> {
+    async createOtp(email: string, otp: string): Promise<Iotp | undefined> {
         try {
 
             const saveOtp = new otpModel({ email, otp });
@@ -17,7 +17,7 @@ class OtpRepository implements IOtpRepository {
 
     }
 
-    async DBVerifyOtp(email: string, otp: string): Promise<IOtp | null> {
+    async verifyOtp(email: string, otp: string): Promise<Iotp | null> {
         try {
             const data = await otpModel.findOne({ email, otp }).exec();
             console.log('OTP found in database:', data);
@@ -31,4 +31,4 @@ class OtpRepository implements IOtpRepository {
 
 
 }
-export default new OtpRepository()
+export default new otpRepository()

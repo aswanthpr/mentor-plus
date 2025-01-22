@@ -7,7 +7,7 @@ import mongoose, {
   DeleteResult,
 } from "mongoose";
 
-export interface IBaseRepository<T extends Document> {
+export interface IbaseRepository<T extends Document> {
   find_One(filter: FilterQuery<T>): Promise<T | null>;
   createDocument(docData: Partial<T>): Promise<T>;
   find_By_Id(Id: string): Promise<T | null>;

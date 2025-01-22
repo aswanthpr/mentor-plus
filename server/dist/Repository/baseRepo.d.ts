@@ -1,6 +1,6 @@
 import mongoose, { Model, Document, FilterQuery, UpdateQuery, PipelineStage, DeleteResult } from "mongoose";
-import { IBaseRepository } from "../Interface/Base/IBaseRepository";
-export declare class BaseRepository<T extends Document> implements IBaseRepository<T> {
+import { IbaseRepository } from "../Interface/Base/iBaseRepository";
+export declare class baseRepository<T extends Document> implements IbaseRepository<T> {
     private readonly model;
     constructor(model: Model<T>);
     find_One(filter: FilterQuery<T>): Promise<T | null>;

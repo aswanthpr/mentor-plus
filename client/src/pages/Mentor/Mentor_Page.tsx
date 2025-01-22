@@ -1,6 +1,7 @@
 import React,{useState} from 'react'
 import Header from '../../components/Common/common4All/Header'
-import { Home,MessageSquare,Calendar,Wallet,HelpCircle, Video} from 'lucide-react';
+import { Home,MessageSquare,Calendar,Wallet, Video} from 'lucide-react';
+// HelpCircle,
 import SidePanel from '../../components/Common/common4All/SidePanel';
 import { Outlet } from 'react-router-dom';
 import { axiosInstance } from '../../Config/mentorAxios';
@@ -20,7 +21,7 @@ const navItems:INavItem[]= [
     { name: 'Messages', path: '/mentor/messages', icon: MessageSquare },
     { name: 'Schedule', path: '/mentor/Schedule', icon: Calendar },
     { name: 'Wallet', path: '/mentor/wallet', icon: Wallet },
-    { name: 'Q&A', path: '/mentor/qa', icon: HelpCircle },
+    // { name: 'Q&A', path: '/mentor/qa', icon: HelpCircle },
   ];
  
 const Mentor_Page:React.FC = () => {
@@ -76,7 +77,7 @@ const Mentor_Page:React.FC = () => {
         <SidePanel SideBarItems={navItems} />
       </div>
         <main className={` lg:pl-64 transition-all duration-200`} >
-        <div className="p-6">
+        <div className="p-6 ">
           <Outlet />
         </div>
         </main>

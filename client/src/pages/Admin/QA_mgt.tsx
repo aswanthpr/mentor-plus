@@ -42,8 +42,8 @@ const QA_mgt: React.FC = () => {
     const fetchQuestions = async () => {
       setLoading(true);
       try {
-        const response = await API.get(`/qa/${filter}`); 
-        setQuestions(data);
+        // const response = await API.get(`/qa/${filter}`); 
+        // setQuestions(data);
       } catch (error) {
         console.error('Error fetching questions:', error);
       } finally {
@@ -116,7 +116,7 @@ const QA_mgt: React.FC = () => {
             <Filter size={20} className="text-gray-400" />
             <select
               value={statusFilter}
-              onChange={(e) => setStatusFilter(e.target.value as any)}
+              onChange={(e) => setStatusFilter(e.target.value)}
               className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-orange-200 border-orange-500"
             >
               <option value="all">All Status</option>

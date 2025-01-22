@@ -1,8 +1,8 @@
 import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
-import { IMenteeService } from "../Interface/Mentee/iMenteeService";
-import { IMentee } from "../Model/menteeModel";
-import { IMenteeRepository } from "../Interface/Mentee/iMenteeRepository";
+import { ImenteeService } from "../Interface/Mentee/iMenteeService";
+import { Imentee } from "../Model/menteeModel";
+import { ImenteeRepository } from "../Interface/Mentee/iMenteeRepository";
 import hash_pass from "../Utils/hashPass.util";
 import { uploadImage } from "../Config/cloudinary.util";
 import {
@@ -10,27 +10,27 @@ import {
   genRefreshToken,
   verifyRefreshToken,
 } from "../Utils/jwt.utils";
-import { IMentor } from "../Model/mentorModel";
-import { IMentorRepository } from "../Interface/Mentor/IMentorRepository";
-import { ICategoryRepository } from "../Interface/Category/ICategoryRepository";
-import { ICategory } from "../Model/categorySchema";
+import { Imentor } from "../Model/mentorModel";
+import { ImentorRepository } from "../Interface/Mentor/iMentorRepository";
+import { IcategoryRepository } from "../Interface/Category/iCategoryRepository";
+import { Icategory } from "../Model/categorySchema";
 import { Iquestion } from "src/Model/questionModal";
 import { IquestionRepository } from "src/Interface/Qa/IquestionRepository";
 
-export class MenteeService implements IMenteeService {
+export class menteeService implements ImenteeService {
   constructor(
-    private _menteeRepository: IMenteeRepository,
-    private _mentorRepository: IMentorRepository,
-    private _categoryRepository: ICategoryRepository,
+    private _menteeRepository: ImenteeRepository,
+    private _mentorRepository: ImentorRepository,
+    private _categoryRepository: IcategoryRepository,
     private _questionRepository: IquestionRepository
   ) { }
 
-  async blMenteeProfile(
+  async menteeProfile(
     refreshToken: string
   ): Promise<{
     success: boolean;
     message: string;
-    result: IMentee | null;
+    result: Imentee | null;
     status: number;
   }> {
     try {
@@ -49,7 +49,7 @@ export class MenteeService implements IMenteeService {
       }
 
      
-      const result = await this._menteeRepository.dbFindById(decode.userId);
+      const result = await this._menteeRepository.findById(decode.userId);
       if (!result) {
         return {
           success: false,
@@ -67,12 +67,12 @@ export class MenteeService implements IMenteeService {
       );
     }
   }
-  async blEditMenteeProfile(
-    formData: Partial<IMentee>
+  async editMenteeProfile(
+    formData: Partial<Imentee>
   ): Promise<{
     success: boolean;
     message: string;
-    result: IMentee | null;
+    result: Imentee | null;
     status: number;
   }> {
     try {
@@ -86,7 +86,7 @@ export class MenteeService implements IMenteeService {
         };
       }
 
-      const result = await this._menteeRepository.dbEditMentee(formData);
+      const result = await this._menteeRepository.editMentee(formData);
 
       console.log(result, "this is edit mentee result");
       if (!result) {
@@ -112,7 +112,7 @@ export class MenteeService implements IMenteeService {
   }
   //metnee profile pass chagne
 
-  async blPasswordChange(
+  async passwordChange(
     currentPassword: string,
     newPassword: string,
     _id: string
@@ -132,7 +132,7 @@ export class MenteeService implements IMenteeService {
           status: 401,
         };
       }
-      const result = await this._menteeRepository.dbFindById(_id);
+      const result = await this._menteeRepository.findById(_id);
       if (!result) {
         return { success: false, message: "invalid credential ", status: 401 };
       }
@@ -149,7 +149,7 @@ export class MenteeService implements IMenteeService {
         };
       }
       const hashPass = await hash_pass(newPassword);
-      const response = await this._menteeRepository.dbChangePassword(
+      const response = await this._menteeRepository.changePassword(
         _id,
         hashPass
       );
@@ -165,7 +165,7 @@ export class MenteeService implements IMenteeService {
     }
   }
 
-  async blProfileChange(
+  async profileChange(
     image: Express.Multer.File | null,
     id: string
   ): Promise<{
@@ -180,7 +180,7 @@ export class MenteeService implements IMenteeService {
       }
       const profileUrl = await uploadImage(image?.buffer);
 
-      const result = await this._menteeRepository.dbProfileChange(
+      const result = await this._menteeRepository.profileChange(
         profileUrl,
         id
       );
@@ -201,7 +201,7 @@ export class MenteeService implements IMenteeService {
       );
     }
   }
-  async BLRefreshToken(refresh: string): Promise<{
+  async refreshToken(refresh: string): Promise<{
     success: boolean;
     message: string;
     status: number;
@@ -245,16 +245,16 @@ export class MenteeService implements IMenteeService {
   }
 
   //metnor data fetching for explore
-  async blExploreData(): Promise<{
+  async exploreData(): Promise<{
     success: boolean;
     message: string;
     status: number;
-    mentor?: IMentor[] | null;
-    category?: ICategory[] | null;
-    skills: IMentor[] | undefined;
+    mentor?: Imentor[] | null;
+    category?: Icategory[] | null;
+    skills: Imentor[] | undefined;
   }> {
     try {
-      const mentorData = await this._mentorRepository.dbFindAllMentor();
+      const mentorData = await this._mentorRepository.findAllMentor();
       if (!mentorData) {
         return {
           success: false,
@@ -264,7 +264,7 @@ export class MenteeService implements IMenteeService {
         };
       }
       console.log(mentorData, "sfasfaf");
-      const categoryData = await this._categoryRepository.dbcategoryData();
+      const categoryData = await this._categoryRepository.categoryData();
       if (!categoryData) {
         return {
           success: false,
@@ -299,7 +299,7 @@ export class MenteeService implements IMenteeService {
     }
   }
 
-  async getHomeData(filter:string): Promise<{ success: boolean; message: string; status: number; homeData: Iquestion[] | null; }> {
+  async homeData(filter:string): Promise<{ success: boolean; message: string; status: number; homeData: Iquestion[] | null; }> {
     try {
       if(!filter){
         return {

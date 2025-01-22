@@ -1,79 +1,79 @@
-import { ICategoryRepository } from "../Interface/Category/ICategoryRepository";
-import { IadminService } from "../Interface/Admin/IadminService";
-import { ICategory } from "../Model/categorySchema";
-import { IMenteeRepository } from "../Interface/Mentee/iMenteeRepository";
-import { IMentee } from "../Model/menteeModel";
-import { IMentor } from "../Model/mentorModel";
-import { IMentorRepository } from "../Interface/Mentor/IMentorRepository";
+import { Imentor } from "../Model/mentorModel";
+import { Imentee } from "../Model/menteeModel";
+import { Icategory } from "../Model/categorySchema";
+import { IadminService } from "../Interface/Admin/iAdminService";
+import { IcategoryRepository } from "../Interface/Category/iCategoryRepository";
+import { ImenteeRepository } from "../Interface/Mentee/iMenteeRepository";
+import { ImentorRepository } from "../Interface/Mentor/iMentorRepository";
 export declare class adminService implements IadminService {
-    private _CategoryRepository;
-    private _MenteeRepository;
-    private _MentorRepository;
-    constructor(_CategoryRepository: ICategoryRepository, _MenteeRepository: IMenteeRepository, _MentorRepository: IMentorRepository);
-    BLAdminRefreshToken(refresh: string): Promise<{
+    private _categoryRepository;
+    private _menteeRepository;
+    private _mentorRepository;
+    constructor(_categoryRepository: IcategoryRepository, _menteeRepository: ImenteeRepository, _mentorRepository: ImentorRepository);
+    adminRefreshToken(refresh: string): Promise<{
         success: boolean;
         message: string;
         status: number;
         accessToken?: string;
         refreshToken?: string;
     }>;
-    blCreateCategory(Data: {
+    createCategory(Data: {
         category: string;
     }): Promise<{
         success: boolean;
         message: string;
-        result?: ICategory;
+        result?: Icategory;
         status: number;
     }>;
-    blCategoryData(): Promise<{
+    categoryData(): Promise<{
         success: boolean;
         message: string;
-        categories?: ICategory[];
+        categories?: Icategory[];
     }>;
-    blEditCategory(id: string, category: string): Promise<{
+    editCategory(id: string, category: string): Promise<{
         success: boolean;
         message: string;
     }>;
-    blChangeCategoryStatus(id: string): Promise<{
-        success: boolean;
-        message: string;
-        status: number;
-    }>;
-    blMenteeData(): Promise<{
-        success: boolean;
-        message: string;
-        status: number;
-        Data?: IMentee[];
-    }>;
-    blChangeMenteeStatus(id: string): Promise<{
+    changeCategoryStatus(id: string): Promise<{
         success: boolean;
         message: string;
         status: number;
     }>;
-    blEditMentee(formData: Partial<IMentee>): Promise<{
+    menteeData(): Promise<{
+        success: boolean;
+        message: string;
+        status: number;
+        Data?: Imentee[];
+    }>;
+    changeMenteeStatus(id: string): Promise<{
+        success: boolean;
+        message: string;
+        status: number;
+    }>;
+    editMentee(formData: Partial<Imentee>): Promise<{
         success: boolean;
         message: string;
         status?: number;
     }>;
-    blAddMentee(formData: Partial<IMentee>): Promise<{
+    addMentee(formData: Partial<Imentee>): Promise<{
         success: boolean;
         message: string;
         status?: number;
-        mentee?: IMentee | null;
+        mentee?: Imentee | null;
     }>;
-    blMentorData(): Promise<{
+    mentorData(): Promise<{
         success: boolean;
         message: string;
         status: number;
-        mentorData: IMentor[] | [];
+        mentorData: Imentor[] | [];
     }>;
-    blMentorVerify(id: string): Promise<{
+    mentorVerify(id: string): Promise<{
         success: boolean;
         message: string;
         status: number;
-        result: IMentor | null;
+        result: Imentor | null;
     }>;
-    blMentorStatusChange(id: string): Promise<{
+    mentorStatusChange(id: string): Promise<{
         success: boolean;
         message: string;
         status: number;

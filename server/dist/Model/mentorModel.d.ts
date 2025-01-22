@@ -1,5 +1,5 @@
 import mongoose, { Document } from "mongoose";
-export interface IMentor extends Document {
+export interface Imentor extends Document {
     name: string;
     email: string;
     phone: string;
@@ -15,7 +15,7 @@ export interface IMentor extends Document {
     jobTitle: string;
     category: string;
 }
-declare const _default: mongoose.Model<IMentor, {}, {}, {}, mongoose.Document<unknown, {}, IMentor> & IMentor & Required<{
+declare const _default: mongoose.Model<Imentor, {}, {}, {}, mongoose.Document<unknown, {}, Imentor> & Imentor & Required<{
     _id: unknown;
 }> & {
     __v: number;

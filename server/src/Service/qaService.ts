@@ -1,5 +1,5 @@
 import { ObjectId} from "mongoose";
-import { IanswerRepository } from "src/Interface/Qa/IanswerRepository";
+import { IanswerRepository } from "../Interface/Qa/IanswerRepository";
 import { IqaService } from "../Interface/Qa/IqaService";
 import { IquestionRepository } from "src/Interface/Qa/IquestionRepository";
 import { Ianswer } from "../Model/answerModel";
@@ -70,7 +70,7 @@ class qaService implements IqaService {
     }
   }
 
-  async getQuestionData(
+  async questionData(
     userId: ObjectId,
     filter: string
   ): Promise<{
@@ -89,7 +89,7 @@ class qaService implements IqaService {
           question: [],
         };
       }
-      const response = await this.__questionRepository.getQuestionData(
+      const response = await this.__questionRepository.questionData(
         userId,
         filter
       );
@@ -132,7 +132,7 @@ class qaService implements IqaService {
         questionId,
         updatedQuestion
       );
-      console.log(response, "ths is respnse3555555555");
+      
       return {
         success: true,
         message: "Edit Successfully!",

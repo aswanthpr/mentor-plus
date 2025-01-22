@@ -1,14 +1,14 @@
 import { Request, Response } from "express";
-import { IMenteeService } from "../Interface/Mentee/iMenteeService";
-import { IMenteeController } from "../Interface/Mentee/iMenteeController";
+import { ImenteeService } from "../Interface/Mentee/iMenteeService";
+import { ImenteeController } from "../Interface/Mentee/iMenteeController";
 
-export class MenteeController implements IMenteeController {
-  constructor(private _menteeService: IMenteeService) {}
+export class menteeController implements ImenteeController {
+  constructor(private _menteeService: ImenteeService) {}
 
   //for creating new access token
-  async getRefreshToken(req: Request, res: Response): Promise<void> {
+  async refreshToken(req: Request, res: Response): Promise<void> {
     try {
-      const result = await this._menteeService.BLRefreshToken(
+      const result = await this._menteeService.refreshToken(
         req.cookies?.refreshToken
       );
 
@@ -39,7 +39,7 @@ export class MenteeController implements IMenteeController {
     }
   }
 
-  async getMenteeLogout(req: Request, res: Response): Promise<void> {
+  async menteeLogout(req: Request, res: Response): Promise<void> {
     try {
       console.log(req.path.split("/"));
       res.clearCookie("refreshToken");
@@ -58,14 +58,10 @@ export class MenteeController implements IMenteeController {
     }
   }
 
-  async getMenteeProfile(req: Request, res: Response): Promise<void> {
+  async menteeProfile(req: Request, res: Response): Promise<void> {
     try {
       const token = req.headers["authorization"]?.split(" ")[1];
-      console.log(token, "thsi si the token from header");
-
-      console.log(req.cookies.refreshToken, req.cookies, req.signedCookies);
-
-      const result = await this._menteeService.blMenteeProfile(token as string);
+      const result = await this._menteeService.menteeProfile(token as string);
 
       res.status(result?.status).json({
         success: result?.success,
@@ -83,10 +79,10 @@ export class MenteeController implements IMenteeController {
       );
     }
   }
-  async getMenteeProfileEdit(req: Request, res: Response): Promise<void> {
+  async menteeProfileEdit(req: Request, res: Response): Promise<void> {
     try {
       console.log(req.body, "this is req.body of profile edit data");
-      const result = await this._menteeService.blEditMenteeProfile(req.body);
+      const result = await this._menteeService.editMenteeProfile(req.body);
 
       res.status(result?.status).json(result);
     } catch (error: unknown) {
@@ -102,11 +98,11 @@ export class MenteeController implements IMenteeController {
   }
 
   //mentee profile password change
-  async getPasswordChange(req: Request, res: Response): Promise<void> {
+  async passwordChange(req: Request, res: Response): Promise<void> {
     try {
       console.log(req.body, "thsi isthe passwords");
       const { currentPassword, newPassword, _id } = req.body;
-      const result = await this._menteeService.blPasswordChange(
+      const result = await this._menteeService.passwordChange(
         currentPassword,
         newPassword,
         _id
@@ -123,7 +119,7 @@ export class MenteeController implements IMenteeController {
       );
     }
   }
-  async getProfileChange(req: Request, res: Response): Promise<void> {
+  async profileChange(req: Request, res: Response): Promise<void> {
     try {
       const { _id } = req.body;
       const profileImage =
@@ -133,7 +129,7 @@ export class MenteeController implements IMenteeController {
               .profileImage[0]
           : null;
 
-      const result = await this._menteeService.blProfileChange(
+      const result = await this._menteeService.profileChange(
         profileImage,
         _id
       );
@@ -151,10 +147,10 @@ export class MenteeController implements IMenteeController {
     }
   }
   //get mentor data in explore
-  async getExploreData(req: Request, res: Response): Promise<void> {
+  async exploreData(req: Request, res: Response): Promise<void> {
     try {
       const { status, message, success, category, mentor, skills } =
-        await this._menteeService.blExploreData();
+        await this._menteeService.exploreData();
 
       res.status(status).json({ message, success, category, mentor, skills });
     } catch (error: unknown) {
@@ -168,12 +164,12 @@ export class MenteeController implements IMenteeController {
       );
     }
   }
-  async getHomeData(req: Request, res: Response): Promise<void> {
+  async homeData(req: Request, res: Response): Promise<void> {
     try {
       const {filter} = req.params;
 
       const { status, success, message, homeData } =
-        await this._menteeService.getHomeData(filter as string);
+        await this._menteeService.homeData(filter as string);
       const userId = req.user as Express.User;
       res.status(status).json({ success, message, homeData, userId });
     } catch (error: unknown) {

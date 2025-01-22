@@ -18,11 +18,11 @@ class qaController implements IqaController {
       console.log(error instanceof Error ? error.message : String(error));
     }
   }
-  async getQuestionData(req: Request, res: Response): Promise<void> {
+  async questionData(req: Request, res: Response): Promise<void> {
     try {
       const { filter } = req.params;
       const { success, message, question, status, userId } =
-        await this._qaService.getQuestionData(req.user as ObjectId, filter);
+        await this._qaService.questionData(req.user as ObjectId, filter);
 
       res.status(status).json({ message, success, status, question, userId });
     } catch (error: unknown) {

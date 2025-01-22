@@ -1,9 +1,9 @@
 import mongoose, { Document } from "mongoose";
-export interface ICategory extends Document {
+export interface Icategory extends Document {
     category: string;
     isBlocked?: boolean;
 }
-declare const _default: mongoose.Model<ICategory, {}, {}, {}, mongoose.Document<unknown, {}, ICategory> & ICategory & Required<{
+declare const _default: mongoose.Model<Icategory, {}, {}, {}, mongoose.Document<unknown, {}, Icategory> & Icategory & Required<{
     _id: unknown;
 }> & {
     __v: number;

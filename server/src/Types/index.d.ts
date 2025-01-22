@@ -1,26 +1,5 @@
-// import 'express-session';
 
-
-//  declare module 'express-session'{ 
-//   interface Session { 
-//     userId?: string; 
-//   }
-// }
-// interface CustomRequest extends Request {
-
-//   user: {
-
-//       userId: string;
-
-//   };
-
-// }
-declare module "bson" {
-  interface ObjectId {
-    questionId: this;
-  }
-}
-  interface IMentorApplication {
+  interface ImentorApplication {
    name: string;
    email: string;
    phone: string;
@@ -32,13 +11,13 @@ declare module "bson" {
    jobTitle: string;
    category: string;
  }
-  interface IMentorFiles {
+  interface ImentorFiles {
    profileImage: Express.Multer.File | null;
    resume: Express.Multer.File | null;
  }
-  export interface IMentorApplyData {
-   body: IMentorApplication;
-   files: IMentorFiles;
+  export interface ImentorApplyData {
+   body: ImentorApplication;
+   files: ImentorFiles;
  }
  
 

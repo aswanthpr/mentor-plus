@@ -1,9 +1,9 @@
 import mongoose, { Document } from "mongoose";
-export interface IOtp extends Document {
+export interface Iotp extends Document {
     email: string;
     otp: string;
 }
-declare const _default: mongoose.Model<IOtp, {}, {}, {}, mongoose.Document<unknown, {}, IOtp> & IOtp & Required<{
+declare const _default: mongoose.Model<Iotp, {}, {}, {}, mongoose.Document<unknown, {}, Iotp> & Iotp & Required<{
     _id: unknown;
 }> & {
     __v: number;

@@ -1,27 +1,26 @@
 import bcrypt from "bcrypt";
 import hash_pass from "../Utils/hashPass.util";
-import { IMentee } from "../Model/menteeModel";
-// import { IMentorApplyData } from "../Types/index";
-import { ICategory } from "../Model/categorySchema";
-import IOtpService from "../Interface/Otp/IOtpService";
-import IAuthService from "../Interface/Auth/IAuthService";
+import { Imentee } from "../Model/menteeModel";
+import { Icategory } from "../Model/categorySchema";
+import IotpService from "../Interface/Otp/iOtpService";
+import IauthService from "../Interface/Auth/iAuthService";
 import { genAccesssToken, genRefreshToken } from "../Utils/jwt.utils";
-import { IMentorRepository } from "../Interface/Mentor/IMentorRepository";
+import { ImentorRepository } from "../Interface/Mentor/iMentorRepository";
 import { uploadFile, uploadImage } from "../Config/cloudinary.util";
-import { ICategoryRepository } from "../Interface/Category/ICategoryRepository";
-import { IMenteeRepository } from "../Interface/Mentee/iMenteeRepository";
-import { IMentorApplyData } from "src/Types";
+import { IcategoryRepository } from "../Interface/Category/iCategoryRepository";
+import { ImenteeRepository } from "../Interface/Mentee/iMenteeRepository";
+import { ImentorApplyData } from "../Types";
 
-export class AuthService implements IAuthService {
+export class authService implements IauthService {
   constructor(
-    private _OtpService: IOtpService,
-    private _categoryRepository: ICategoryRepository,
-    private _MentorRepository: IMentorRepository,
-    private _MenteeRepository: IMenteeRepository
+    private _OtpService: IotpService,
+    private _categoryRepository: IcategoryRepository,
+    private _MentorRepository: ImentorRepository,
+    private _MenteeRepository: ImenteeRepository
   ) {}
 
   async mentee_Signup(
-    userData: IMentee
+    userData: Imentee
   ): Promise<{ success: boolean; message: string }> {
     try {
       if (!userData.email || !userData.password) {
@@ -53,7 +52,7 @@ export class AuthService implements IAuthService {
       }
     }
   }
-  async BLMainLogin(
+  async mainLogin(
     email: string,
     password: string
   ): Promise<{
@@ -69,10 +68,10 @@ export class AuthService implements IAuthService {
       if (!email || !password) {
         return { success: false, message: "login credencial is missing" };
       }
-      const result: IMentee | null = await this._MenteeRepository.DBMainLogin(
+      const result: Imentee | null = await this._MenteeRepository.mainLogin(
         email
       );
-      console.log(result, "1111111111111");
+      
       if (!result || result?.email != email) {
         return { success: false, message: "user not exist.Please signup" };
       }
@@ -110,7 +109,7 @@ export class AuthService implements IAuthService {
   }
 
   //forget password mentor and mentee;
-  async BLforgotPassword(
+  async forgotPassword(
     email: string
   ): Promise<{ success: boolean; message: string } | undefined> {
     try {
@@ -133,7 +132,7 @@ export class AuthService implements IAuthService {
       );
     }
   }
-  async BLforgot_PasswordChange(
+  async forgot_PasswordChange(
     email: string,
     password: string
   ): Promise<{ success: boolean; message: string } | undefined> {
@@ -143,7 +142,7 @@ export class AuthService implements IAuthService {
       }
       const hashedPassword: string = await hash_pass(password);
       console.log(hashedPassword, "hash");
-      const result = await this._MenteeRepository.DBforgot_PasswordChange(
+      const result = await this._MenteeRepository.forgot_PasswordChange(
         email,
         hashedPassword
       );
@@ -168,14 +167,14 @@ export class AuthService implements IAuthService {
 
   //amdin login Logic
 
-  async blMentorFields(): Promise<{
+  async mentorFields(): Promise<{
     success: boolean;
     message: string;
     status: number;
-    categories?: ICategory[];
+    categories?: Icategory[];
   }> {
     try {
-      const result = await this._categoryRepository.dbcategoryData();
+      const result = await this._categoryRepository.categoryData();
       if (!result) {
         return { success: false, message: "No data found ", status: 204 };
       }
@@ -190,7 +189,7 @@ export class AuthService implements IAuthService {
         ${error instanceof Error ? error.message : String(error)}`);
     }
   }
-  async BLadminLogin(
+  async adminLogin(
     email: string,
     password: string
   ): Promise<
@@ -206,7 +205,7 @@ export class AuthService implements IAuthService {
       if (!email || !password) {
         return { success: false, message: "admin credencial is missing" };
       }
-      const result = await this._MenteeRepository.DBadminLogin(email);
+      const result = await this._MenteeRepository.adminLogin(email);
 
       if (!result) {
         return { success: false, message: "Admin not exist" };
@@ -243,8 +242,8 @@ export class AuthService implements IAuthService {
     }
   }
 
-  async blMentorApply(
-    mentorData: IMentorApplyData
+  async mentorApply(
+    mentorData: ImentorApplyData
   ): Promise<{ success: boolean; message: string; status: number }> {
     try {
       const {email,phone,} = mentorData.body;
@@ -257,7 +256,7 @@ export class AuthService implements IAuthService {
           status: 400,
         };
       }
-      const response = await this._MentorRepository.dbFindMentor(email, phone);
+      const response = await this._MentorRepository.findMentor(email, phone);
 
       if (response?.email) {
         return { success: false, message: "Email already exist ", status: 409 };
@@ -281,7 +280,7 @@ export class AuthService implements IAuthService {
       if (!imageUrl || !fileUrl) {
         throw new Error("error while image url generating");
       }
-      const result = await this._MentorRepository.dbCreateMentor(
+      const result = await this._MentorRepository.createMentor(
         mentorData.body,
         imageUrl,
         fileUrl
@@ -308,7 +307,7 @@ export class AuthService implements IAuthService {
     }
   }
   //mentor login
-  async blMentorLogin(
+  async mentorLogin(
     email: string,
     password: string
   ): Promise<{
@@ -327,7 +326,7 @@ export class AuthService implements IAuthService {
         };
       }
 
-      const result = await this._MentorRepository.dbFindMentor(email);
+      const result = await this._MentorRepository.findMentor(email);
 
       console.log(result, "111111111111");
       if (!result) {
@@ -372,14 +371,14 @@ export class AuthService implements IAuthService {
       ${error instanceof Error ? error.message : String(error)}`);
     }
   }
-  async blMentorForgotPassword(
+  async mentorForgotPassword(
     email: string
   ): Promise<{ success: boolean; message: string } | undefined> {
     try {
       if (!email) {
         return { success: false, message: "credential is missing" };
       }
-      const result = await this._MentorRepository.dbFindMentor(email);
+      const result = await this._MentorRepository.findMentor(email);
       if (!result || result?.isBlocked) {
         return {
           success: false,
@@ -395,7 +394,7 @@ export class AuthService implements IAuthService {
       );
     }
   }
-  async blMentorForgot_PasswordChange(
+  async mentorForgot_PasswordChange(
     email: string,
     password: string
   ): Promise<{ success: boolean; message: string } | undefined> {
@@ -405,7 +404,7 @@ export class AuthService implements IAuthService {
       }
       const hashedPassword: string = await hash_pass(password);
       console.log(hashedPassword, "hash");
-      const result = await this._MentorRepository.dbFindMentorAndUpdate(
+      const result = await this._MentorRepository.findMentorAndUpdate(
         email,
         hashedPassword
       );
@@ -426,8 +425,8 @@ export class AuthService implements IAuthService {
       return { success: false, message: "Internal server error" };
     }
   }
-  async blGoogleAuth(
-    user: IMentee
+  async googleAuth(
+    user: Imentee
   ): Promise<{
     success: boolean;
     message: string; 

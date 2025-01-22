@@ -1,6 +1,6 @@
 import mongoose, { Schema, Document } from "mongoose";
 
-export interface IMentee extends Document {
+export interface Imentee extends Document {
   name: string;
   email: string;
   phone?: string;
@@ -8,7 +8,7 @@ export interface IMentee extends Document {
   bio?: string | null;
   isBlocked: boolean;
   profileUrl?: string;
-  linkedinUrl: string;
+  linkedinUrl: string; 
   githubUrl: string;
   education: string;
   currentPosition: string;
@@ -17,7 +17,7 @@ export interface IMentee extends Document {
   provider: string;
 }
 
-const menteeSchema: Schema<IMentee> = new mongoose.Schema(
+const menteeSchema: Schema<Imentee> = new mongoose.Schema(
   {
     name: {
       type: String,
@@ -94,4 +94,4 @@ menteeSchema.index(
   { unique: true, partialFilterExpression: { phone: { $ne: null } } }
 );
 
-export default mongoose.model<IMentee>("Mentee", menteeSchema);
+export default mongoose.model<Imentee>("mentee", menteeSchema);

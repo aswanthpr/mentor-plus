@@ -1,14 +1,14 @@
-import { ICategoryRepository } from "../Interface/Category/ICategoryRepository";
-import { ICategory } from "../Model/categorySchema";
-import { BaseRepository } from "./baseRepo";
-declare class CategoryRespository extends BaseRepository<ICategory> implements ICategoryRepository {
+import { IcategoryRepository } from "../Interface/Category/iCategoryRepository";
+import { Icategory } from "../Model/categorySchema";
+import { baseRepository } from "./baseRepo";
+declare class categoryRespository extends baseRepository<Icategory> implements IcategoryRepository {
     constructor();
-    dbFindCategory(category: string): Promise<ICategory | null>;
-    dbCreateCategory(category: string): Promise<ICategory | null>;
-    dbcategoryData(): Promise<ICategory[]>;
-    dbEditCategory(id: string, category: string): Promise<ICategory | null>;
-    dbChangeCategoryStatus(id: string): Promise<ICategory | null>;
+    findCategory(category: string): Promise<Icategory | null>;
+    createCategory(category: string): Promise<Icategory | null>;
+    categoryData(): Promise<Icategory[]>;
+    editCategory(id: string, category: string): Promise<Icategory | null>;
+    changeCategoryStatus(id: string): Promise<Icategory | null>;
 }
-declare const _default: CategoryRespository;
+declare const _default: categoryRespository;
 export default _default;
 //# sourceMappingURL=categoryRepository.d.ts.map

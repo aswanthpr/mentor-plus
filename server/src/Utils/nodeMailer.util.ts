@@ -14,7 +14,7 @@ export async function nodeMailer(email:string,otp:string){
         },
   });
  
-  let mailOptions = {
+  const mailOptions = {
     from: process.env.NODE_MAILER_EMAIL, 
     to:email,
     subject: "Your OTP Verification Code-MentorPlus",

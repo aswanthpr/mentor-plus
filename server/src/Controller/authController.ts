@@ -1,15 +1,14 @@
 import { Request, Response } from "express";
-import { IAuthController } from "../Interface/Auth/IAuthController";
-import IAuthService from "../Interface/Auth/IAuthService";
-import IOtpService from "../Interface/Otp/IOtpService";
-import { IMentorApplyData } from "src/Types";
-import { IMentee } from "src/Model/menteeModel";
-// import { IMentorApplyData } from "../Types/index;
+import { IauthController } from "../Interface/Auth/iAuthController";
+import IauthService from "../Interface/Auth/iAuthService";
+import IotpService from "../Interface/Otp/iOtpService";
+import { ImentorApplyData } from "src/Types";
+import { Imentee } from "src/Model/menteeModel";
 
-export class AuthController implements IAuthController {
+export class authController implements IauthController {
   constructor(
-    private _AuthService: IAuthService,
-    private _OtpService: IOtpService
+    private _AuthService: IauthService,
+    private _OtpService: IotpService
   ) { }
 
   //mentee sinup controll
@@ -34,11 +33,11 @@ export class AuthController implements IAuthController {
     }
   }
   //get signup otp and email
-  async getVerifyOtp(req: Request, res: Response): Promise<void> {
+  async verifyOtp(req: Request, res: Response): Promise<void> {
     try {
       const { email, otp, type } = req.body;
 
-      const result = await this._OtpService.BLVerifyOtp(email, otp, type);
+      const result = await this._OtpService.verifyOtp(email, otp, type);
       console.log(result, "this is otp result");
       if (result && result.success) {
         res.status(200).json({
@@ -62,7 +61,7 @@ export class AuthController implements IAuthController {
   }
 
   //for singup otpverify resend otp
-  async getResendOtp(req: Request, res: Response): Promise<void> {
+  async resendOtp(req: Request, res: Response): Promise<void> {
     try {
       const { email } = req.body;
       console.log(email, "this is from resend otp");
@@ -82,13 +81,13 @@ export class AuthController implements IAuthController {
     }
   }
 
-  async getMainLogin(req: Request, res: Response): Promise<void> {
+  async mainLogin(req: Request, res: Response): Promise<void> {
     try {
       console.log(req.body, "this is from getMain login");
 
       const { email, password } = req.body;
 
-      const result = await this._AuthService.BLMainLogin(email, password);
+      const result = await this._AuthService.mainLogin(email, password);
       if (!result) {
         res
           .status(400)
@@ -131,9 +130,9 @@ export class AuthController implements IAuthController {
       );
     }
   }
-  async getForgotPassword(req: Request, res: Response): Promise<void> {
+  async forgotPassword(req: Request, res: Response): Promise<void> {
     try {
-      const result = await this._AuthService.BLforgotPassword(req.body.email);
+      const result = await this._AuthService.forgotPassword(req.body.email);
 
       if (result?.success == false) {
         res.status(400).json(result);
@@ -156,11 +155,11 @@ export class AuthController implements IAuthController {
       );
     }
   }
-  async getForgot_PasswordChange(req: Request, res: Response): Promise<void> {
+  async forgot_PasswordChange(req: Request, res: Response): Promise<void> {
     try {
       const data = req.body;
       console.log(data, "this is the datat");
-      const result = await this._AuthService.BLforgot_PasswordChange(
+      const result = await this._AuthService.forgot_PasswordChange(
         data.email,
         data.password
       );
@@ -193,11 +192,11 @@ export class AuthController implements IAuthController {
   }
 
   //admin Login
-  async getAdminLogin(req: Request, res: Response): Promise<void> {
+  async adminLogin(req: Request, res: Response): Promise<void> {
     try {
       const { email, password } = req.body;
       console.log(email, password, "thsi is the email and password");
-      const result = await this._AuthService.BLadminLogin(email, password);
+      const result = await this._AuthService.adminLogin(email, password);
 
       if (!result) {
         res
@@ -235,9 +234,9 @@ export class AuthController implements IAuthController {
     }
   }
   //---------------------------------------------------------------------------
-  async getMentorFields(req: Request, res: Response): Promise<void> {
+  async mentorFields(req: Request, res: Response): Promise<void> {
     try {
-      const result = await this._AuthService.blMentorFields();
+      const result = await this._AuthService.mentorFields();
 
       res.status(result.status).json({
         success: result.success,
@@ -256,7 +255,7 @@ export class AuthController implements IAuthController {
     }
   }
 
-  async getMentorApply(req: Request, res: Response): Promise<void> {
+  async mentorApply(req: Request, res: Response): Promise<void> {
     try {
       const {
         name,
@@ -284,7 +283,7 @@ export class AuthController implements IAuthController {
           ? (req.files as { [key: string]: Express.Multer.File[] }).resume[0]
           : null;
 
-      const mentorData: IMentorApplyData = {
+      const mentorData: ImentorApplyData = {
         body: {
           name,
           email,
@@ -299,7 +298,7 @@ export class AuthController implements IAuthController {
         },
         files: { profileImage, resume },
       };
-      const result = await this._AuthService.blMentorApply(mentorData);
+      const result = await this._AuthService.mentorApply(mentorData);
 
       res
         .status(result?.status)
@@ -316,9 +315,9 @@ export class AuthController implements IAuthController {
     }
   }
   //metnor login;
-  async getMentorLogin(req: Request, res: Response): Promise<void> {
+  async mentorLogin(req: Request, res: Response): Promise<void> {
     try {
-      const response = await this._AuthService.blMentorLogin(
+      const response = await this._AuthService.mentorLogin(
         req.body?.email,
         req.body?.password
       );
@@ -351,9 +350,9 @@ export class AuthController implements IAuthController {
 
   //forget password for mentor
 
-  async getMentorForgotPassword(req: Request, res: Response): Promise<void> {
+  async mentorForgotPassword(req: Request, res: Response): Promise<void> {
     try {
-      const result = await this._AuthService.blMentorForgotPassword(
+      const result = await this._AuthService.mentorForgotPassword(
         req.body.email
       );
 
@@ -378,14 +377,14 @@ export class AuthController implements IAuthController {
       );
     }
   }
-  async getMentorForgot_PasswordChange(
+  async mentorForgot_PasswordChange(
     req: Request,
     res: Response
   ): Promise<void> {
     try {
       const data = req.body;
       console.log(data, "this is the datat");
-      const result = await this._AuthService.blMentorForgot_PasswordChange(
+      const result = await this._AuthService.mentorForgot_PasswordChange(
         data.email,
         data.password
       );
@@ -417,10 +416,10 @@ export class AuthController implements IAuthController {
     }
   }
 
-  async getGoogleAuth(req: Request, res: Response): Promise<void> {
+  async googleAuth(req: Request, res: Response): Promise<void> {
     try {
 
-      const {accessToken,refreshToken}  =  await this._AuthService.blGoogleAuth(req.user  as IMentee) ;
+      const {accessToken,refreshToken}  =  await this._AuthService.googleAuth(req.user  as Imentee) ;
  
       res.cookie('refreshToken',refreshToken,{
         httpOnly:true,

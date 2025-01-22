@@ -1,47 +1,47 @@
-import { IMentorService } from "../Interface/Mentor/IMentorService";
-import { IMentorRepository } from "../Interface/Mentor/IMentorRepository";
-import { IMentor } from "../Model/mentorModel";
-import { ICategoryRepository } from "../Interface/Category/ICategoryRepository";
-import { ICategory } from "../Model/categorySchema";
+import { ImentorService } from "../Interface/Mentor/iMentorService";
+import { ImentorRepository } from "../Interface/Mentor/iMentorRepository";
+import { Imentor } from "../Model/mentorModel";
+import { IcategoryRepository } from "../Interface/Category/iCategoryRepository";
+import { Icategory } from "../Model/categorySchema";
 import { IquestionRepository } from "src/Interface/Qa/IquestionRepository";
 import { Iquestion } from "src/Model/questionModal";
-export declare class MentorService implements IMentorService {
-    private _MentorRepository;
-    private _CategoryRepository;
+export declare class mentorService implements ImentorService {
+    private _mentorRepository;
+    private _categoryRepository;
     private _questionRepository;
-    constructor(_MentorRepository: IMentorRepository, _CategoryRepository: ICategoryRepository, _questionRepository: IquestionRepository);
-    blMentorProfile(token: string): Promise<{
+    constructor(_mentorRepository: ImentorRepository, _categoryRepository: IcategoryRepository, _questionRepository: IquestionRepository);
+    mentorProfile(token: string): Promise<{
         success: boolean;
         message: string;
-        result: IMentor | null;
+        result: Imentor | null;
         status: number;
-        categories: ICategory[] | [];
+        categories: Icategory[] | [];
     }>;
-    blMentorRefreshToken(refresh: string): Promise<{
+    mentorRefreshToken(refresh: string): Promise<{
         success: boolean;
         message: string;
         status: number;
         accessToken?: string;
         refreshToken?: string;
     }>;
-    blPasswordChange(currentPassword: string, newPassword: string, id: string): Promise<{
+    passwordChange(currentPassword: string, newPassword: string, id: string): Promise<{
         success: boolean;
         message: string;
         status: number;
     }>;
-    blMentorProfileImageChange(image: Express.Multer.File | null, id: string): Promise<{
+    mentorProfileImageChange(image: Express.Multer.File | null, id: string): Promise<{
         success: boolean;
         message: string;
         status: number;
         profileUrl?: string;
     }>;
-    blMentorEditProfile(mentorData: IMentor, resume: Express.Multer.File): Promise<{
+    mentorEditProfile(mentorData: Imentor, resume: Express.Multer.File): Promise<{
         success: boolean;
         message: string;
         status: number;
-        result: IMentor | null;
+        result: Imentor | null;
     }>;
-    getHomeData(filter: string): Promise<{
+    homeData(filter: string): Promise<{
         success: boolean;
         message: string;
         status: number;

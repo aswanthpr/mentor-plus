@@ -1,14 +1,7 @@
 import { Request, Response, NextFunction } from "express";
-// import { JwtPayload } from "jsonwebtoken";
-import MenteeModel from "../Model/menteeModel";
+import menteeModel from "../Model/menteeModel";
 import { verifyAccessToken, verifyRefreshToken } from "../Utils/jwt.utils";
 import mongoose from "mongoose";
-
-// interface IAuthenticatedRequest extends Request {
-//   user?: {
-//     userId: string | JwtPayload;
-//   };
-// }
 
 const authorize = async (
   req: Request,
@@ -34,7 +27,7 @@ const authorize = async (
         .json({ success: false, message: "Invalid token."});
       return;
     }
-    const menteeData = await MenteeModel.findById(decode?.userId);
+    const menteeData = await menteeModel.findById(decode?.userId);
 
     if (!menteeData || menteeData?.isBlocked) {
       res

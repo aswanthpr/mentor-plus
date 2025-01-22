@@ -1,11 +1,11 @@
 import questionSchema, { Iquestion } from "../Model/questionModal";
 import { IquestionRepository } from "../Interface/Qa/IquestionRepository";
-import { BaseRepository } from "./baseRepo";
+import { baseRepository } from "./baseRepo";
 import { DeleteResult, ObjectId } from "mongoose";
 import questionModal from "../Model/questionModal";
 
 
-class questionRepository extends BaseRepository<Iquestion> implements IquestionRepository {
+class questionRepository extends baseRepository<Iquestion> implements IquestionRepository {
     constructor() {
         super(questionSchema,
           
@@ -27,7 +27,7 @@ class questionRepository extends BaseRepository<Iquestion> implements IquestionR
             );
         }
     }
-    async getQuestionData(menteeId: ObjectId,filter:string): Promise<Iquestion[]> {
+    async questionData(menteeId: ObjectId,filter:string): Promise<Iquestion[]> {
         try {
             let matchCondition ={};
             if(filter==='answered'){
@@ -138,27 +138,28 @@ class questionRepository extends BaseRepository<Iquestion> implements IquestionR
                 {
                     $match:matchCondition
                 },
+                
                 {
                     $lookup: {
                         from: "answers",
                         localField: "_id",
                         foreignField: "questionId",
+                        pipeline: [
+                            {
+                                $lookup: {
+                                    from:'answerData.authorType',
+                                    localField: 'answerData.authoId',
+                                    foreignField: '_id',
+                                    as: 'author',
+                                },
+                            },
+                        ],
                         as:"answerData",
                     },
                     
                 },
                 
             ])
-            // pipeline: [
-            //     {
-            //         $lookup: {
-            //             from:'answerData.authorType',
-            //             localField: 'answerData.authoId',
-            //             foreignField: '_id',
-            //             as: 'author',
-            //         },
-            //     },
-            // ],
         } catch (error: unknown) {
             throw new Error(
                 `Error occured while get all data  questions ${error instanceof Error ? error.message : String(error)

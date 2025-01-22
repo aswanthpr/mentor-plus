@@ -14,9 +14,7 @@ import AnswerInputModal from "../../components/Common/Qa/AnswerInputModal";
 
 const Home: React.FC = () => {
   const [filter, setFilter] = useState<"answered" | "unanswered">("answered");
-  const [selectedQuestion, setSelectedQuestion] = useState<IQuestion | null>(
-    null
-  );
+  const [selectedQuestion, setSelectedQuestion] = useState<IQuestion | null>(null);
   const [isAnswerModalOpen, setIsAnswerModalOpen] = useState<boolean>(false);
   const [showAnswerModal, setShowAnswerModal] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
@@ -46,7 +44,7 @@ const Home: React.FC = () => {
     };
     fetchData();
   }, [filter]);
-  console.log(answerQuestionId, "thsi is the qestion id");
+
   const handleShowAnswers = (questionId: string): void => {
     const question = questions.find((q) => q._id === questionId);
     if (question) {
@@ -71,9 +69,10 @@ const Home: React.FC = () => {
 
     // Check if any field has changed
     const isChanged = Object.keys(updatedQuestion).some((key) => {
+      console.log( typeof JSON.stringify(updatedQuestion),'this is the quesion where error occure')
       return (
-        JSON.stringify((updatedQuestion as any)[key]) !==
-        JSON.stringify((originalQuestion as any)[key])
+        JSON.stringify(updatedQuestion[ key as keyof IQuestion])!==
+        JSON.stringify(originalQuestion[key as keyof IQuestion])
       );
     });
 
@@ -242,9 +241,10 @@ const Home: React.FC = () => {
 
       {selectedQuestion && (
         <AnswerModal
+        onSubmit={()=>selectedQuestion.content}
           isOpen={showAnswerModal}
           onClose={() => setShowAnswerModal(false)}
-          answers={selectedQuestion.answerId}
+
         />
       )}
       {isAnswerModalOpen && (

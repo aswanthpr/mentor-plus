@@ -1,23 +1,23 @@
-import { IMentee } from "../../Model/menteeModel";
+import { Imentee } from "../../Model/menteeModel";
 
-export interface IMenteeRepository {
-  dbMenteeData(): Promise<IMentee[] | null>;
-  dbChangeMenteeStatus(id: string): Promise<IMentee | null>;
-  dbEditMentee(formData: Partial<IMentee>): Promise<IMentee | null>;
-  dbAddMentee(formData: Partial<IMentee>): Promise<IMentee | null>;
-  dbFindMentee(email: string): Promise<IMentee | null>;
-  dbAddMentee(formData: Partial<IMentee>): Promise<IMentee | null>;
-  dbFindById(id: string): Promise<IMentee | null>;
-  dbGoogleAddMentee(formData: Partial<IMentee>): Promise<IMentee | null>;
-  dbChangePassword(id: string, password: string): Promise<IMentee | null>;
-  dbProfileChange(image: string, id: string): Promise<IMentee | null>;
-  DBupdateMentee(email: string): Promise<any>;
-  findByEmail(email: string): Promise<IMentee | null>;
-  create_Mentee(userData: IMentee): Promise<IMentee>;
-  DBMainLogin(email: string): Promise<IMentee | null>;
-  DBforgot_PasswordChange(
+export interface ImenteeRepository {
+  menteeData(): Promise<Imentee[] | null>;
+  changeMenteeStatus(id: string): Promise<Imentee | null>;
+  editMentee(formData: Partial<Imentee>): Promise<Imentee | null>;
+  addMentee(formData: Partial<Imentee>): Promise<Imentee | null>;
+  findMentee(email: string): Promise<Imentee | null>;
+  addMentee(formData: Partial<Imentee>): Promise<Imentee | null>;
+  findById(id: string): Promise<Imentee | null>;
+  googleAddMentee(formData: Partial<Imentee>): Promise<Imentee | null>;
+  changePassword(id: string, password: string): Promise<Imentee | null>;
+  profileChange(image: string, id: string): Promise<Imentee | null>;
+  updateMentee(email: string): Promise<any>;
+  findByEmail(email: string): Promise<Imentee | null>;
+  create_Mentee(userData: Imentee): Promise<Imentee>;
+  mainLogin(email: string): Promise<Imentee | null>;
+  forgot_PasswordChange(
     email: string,
     password: string
-  ): Promise<IMentee | null | undefined>;
-  DBadminLogin(email: string): Promise<IMentee | null>;
+  ): Promise<Imentee | null | undefined>;
+  adminLogin(email: string): Promise<Imentee | null>;
 }

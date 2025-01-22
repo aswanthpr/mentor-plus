@@ -1,10 +1,10 @@
 import { IanswerRepository } from "../Interface/Qa/IanswerRepository";
 import answerModel, { Ianswer } from "../Model/answerModel";
-import { BaseRepository } from "./baseRepo";
+import { baseRepository } from "./baseRepo";
 import { ObjectId } from "mongoose";
 
 class answerRespository
-  extends BaseRepository<Ianswer>
+  extends baseRepository<Ianswer>
   implements IanswerRepository
 {
   constructor() {

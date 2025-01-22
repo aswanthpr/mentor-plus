@@ -5,7 +5,7 @@ declare class qaController implements IqaController {
     private _qaService;
     constructor(_qaService: IqaService);
     addQuestion(req: Request, res: Response): Promise<void>;
-    getQuestionData(req: Request, res: Response): Promise<void>;
+    questionData(req: Request, res: Response): Promise<void>;
     editQuestion(req: Request, res: Response): Promise<void>;
     createNewAnswer(req: Request, res: Response): Promise<void>;
 }

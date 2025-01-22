@@ -9,7 +9,7 @@ export interface IqaService {
         status: number;
         question: Iquestion | undefined;
     }>;
-    getQuestionData(userId: ObjectId, filter: string): Promise<{
+    questionData(userId: ObjectId, filter: string): Promise<{
         success: boolean;
         message: string;
         status: number;

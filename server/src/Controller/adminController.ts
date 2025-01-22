@@ -1,20 +1,15 @@
 import { Request, Response } from "express";
-import { IadminController } from "../Interface/Admin/IadminController";
-import { IadminService } from "../Interface/Admin/IadminService";
+import { IadminController } from "../Interface/Admin/iAdminController";
+import { IadminService } from "../Interface/Admin/iAdminService";
 
 export class adminController implements IadminController {
-  constructor(private _AdminService: IadminService) {}
-
-
-
-
-
-  async getAdminRefreshToken(req: Request, res: Response): Promise<void> {
+  constructor(private _adminService: IadminService) {}
+  async adminRefreshToken(req: Request, res: Response): Promise<void> {
     try {
   
       console.log("Received refresh token from cookies:", req.cookies.refreshToken)
    
-      const result = await this._AdminService.BLAdminRefreshToken(req.cookies?.adminToken);
+      const result = await this._adminService.adminRefreshToken(req.cookies?.adminToken);
       
  
       res.status(result.status)
@@ -38,9 +33,9 @@ export class adminController implements IadminController {
     }
   }
 
-  async getCreateCategory(req: Request, res: Response): Promise<void> {
+  async createCategory(req: Request, res: Response): Promise<void> {
     try {
-      const response = await this._AdminService.blCreateCategory(req.body!);
+      const response = await this._adminService.createCategory(req.body!);
 
       
         res.status(response.status).json(response);
@@ -58,9 +53,9 @@ export class adminController implements IadminController {
     }
   }
 
-  async getCategoryData(req: Request, res: Response): Promise<void> {
+  async categoryData(req: Request, res: Response): Promise<void> {
     try {
-      const result = await this._AdminService.blCategoryData();
+      const result = await this._adminService.categoryData();
       if (result.success) {
         res.status(200).json(result);
       } else {
@@ -79,11 +74,11 @@ export class adminController implements IadminController {
     }
   }
 
-  async getEditCategory(req: Request, res: Response): Promise<void> {
+  async editCategory(req: Request, res: Response): Promise<void> {
     try {
       const { id, category } = req.body;
       console.log(req.body, "thsi is the data", id, category);
-      const result = await this._AdminService.blEditCategory(id, category);
+      const result = await this._adminService.editCategory(id, category);
       if (result.success) {
         res.status(200).json(result);
       } else {
@@ -101,9 +96,9 @@ export class adminController implements IadminController {
       );
     }
   }
-  async getChangeCategoryStatus(req: Request, res: Response): Promise<void> {
+  async changeCategoryStatus(req: Request, res: Response): Promise<void> {
     try {
-      const result = await this._AdminService.blChangeCategoryStatus(
+      const result = await this._adminService.changeCategoryStatus(
         req.body.id
       );
       res
@@ -123,9 +118,9 @@ export class adminController implements IadminController {
   }
 
   //-----------------------------------------------------------------------------------------------
-  async getMenteeData(req: Request, res: Response): Promise<void> {
+  async menteeData(req: Request, res: Response): Promise<void> {
     try {
-      const result = await this._AdminService.blMenteeData();
+      const result = await this._adminService.menteeData();
 
       
         res.status(result.status).json(result);
@@ -143,9 +138,9 @@ export class adminController implements IadminController {
     }
   }
 
-  async getChangeMenteeStatus(req:Request,res:Response):Promise<void>{
+  async changeMenteeStatus(req:Request,res:Response):Promise<void>{
     try {
-      const result = await this._AdminService.blChangeMenteeStatus(
+      const result = await this._adminService.changeMenteeStatus(
         req.body.id
       );
       res
@@ -160,10 +155,10 @@ export class adminController implements IadminController {
     }
   }
 
-    async getEditMentee(req:Request,res:Response):Promise<void>{
+    async editMentee(req:Request,res:Response):Promise<void>{
       try {
       console.log(req.body)
-      const {status,success,message} = await this._AdminService.blEditMentee(req.body);
+      const {status,success,message} = await this._adminService.editMentee(req.body);
       
         res.status(status!).json({success,message});
     
@@ -175,9 +170,9 @@ export class adminController implements IadminController {
         );
       }
     }
-    async getAddMentee(req:Request,res:Response):Promise<void>{
+    async addMentee(req:Request,res:Response):Promise<void>{
       try {
-        const response = await this._AdminService.blAddMentee(req.body);
+        const response = await this._adminService.addMentee(req.body);
 
        
           res.status(200).json(response);
@@ -192,9 +187,9 @@ export class adminController implements IadminController {
     }
 
     //-----------------------------------------------------------
-    async getMentorData(req: Request, res: Response): Promise<void> {
+    async mentorData(req: Request, res: Response): Promise<void> {
       try {
-        const result = await this._AdminService.blMentorData();
+        const result = await this._adminService.mentorData();
         res.status(result.status).json({success:result.success,message:result.message,mentorData:result.mentorData})
       } catch (error:unknown) {
         throw new Error(
@@ -204,10 +199,10 @@ export class adminController implements IadminController {
         );
       }
     }
-    async getMentorVerify(req: Request, res: Response):Promise<void>{
+    async mentorVerify(req: Request, res: Response):Promise<void>{
       try {
         console.log(req.body,'lkasndflnf')
-        const result = await this._AdminService.blMentorVerify(req.body as string);
+        const result = await this._adminService.mentorVerify(req.body as string);
 
         res.status(result.status).json({success:result.success,message:result.message,metnorData:result.result})
       } catch (error:unknown) {
@@ -219,9 +214,9 @@ export class adminController implements IadminController {
       }
     }
     //mentor status change
-    async getChangeMentorStatus(req: Request, res: Response): Promise<void> {
+    async changeMentorStatus(req: Request, res: Response): Promise<void> {
       try {
-        const result =  await this._AdminService.blMentorStatusChange(req.body.id as string);
+        const result =  await this._adminService.mentorStatusChange(req.body.id as string);
         res.status(result.status).json({success:result.success,message:result.message})
       } catch (error:unknown) {
         throw new Error( 
@@ -231,7 +226,7 @@ export class adminController implements IadminController {
         );
       }
     }
-    async getAdminLogout(req: Request, res: Response): Promise<void> {
+    async adminLogout(req: Request, res: Response): Promise<void> {
       try { 
         res.clearCookie('adminToken')
         res.status(200).json({ success: true, message: "Logout successfully" });

@@ -1,13 +1,13 @@
-import { ICategoryRepository } from "../Interface/Category/ICategoryRepository";
-import categorySchema, { ICategory } from "../Model/categorySchema";
-import { BaseRepository } from "./baseRepo";
+import { IcategoryRepository } from "../Interface/Category/iCategoryRepository";
+import categorySchema, { Icategory } from "../Model/categorySchema";
+import { baseRepository } from "./baseRepo";
 
- class CategoryRespository extends BaseRepository<ICategory> implements ICategoryRepository{
+ class categoryRespository extends baseRepository<Icategory> implements IcategoryRepository{
     constructor(){
         super(categorySchema)
     }
 
-    async dbFindCategory(category: string): Promise<ICategory | null> {
+    async findCategory(category: string): Promise<Icategory | null> {
         try {
             return await  this.find_One({category});
 
@@ -15,7 +15,7 @@ import { BaseRepository } from "./baseRepo";
             throw new Error (`error while find category in repository ${error instanceof Error?error.message : String(error)}`);
         }
     }
-    async dbCreateCategory(category:string):Promise<ICategory|null>{
+    async createCategory(category:string):Promise<Icategory|null>{
         try {
             return await this.createDocument({category})
         } catch (error:unknown) {
@@ -23,7 +23,7 @@ import { BaseRepository } from "./baseRepo";
         } 
     }
 
-    async dbcategoryData(): Promise<ICategory[]> {
+    async categoryData(): Promise<Icategory[]> {
         try {
             return await this.find(categorySchema,{});
 
@@ -33,7 +33,7 @@ import { BaseRepository } from "./baseRepo";
     }
 
     //editing category;
-    async dbEditCategory(id:string,category: string):Promise<ICategory|null>{
+    async editCategory(id:string,category: string):Promise<Icategory|null>{
         try {
             return await this.find_By_Id_And_Update(categorySchema,id,{$set:{category:category}})
         } catch (error:unknown) {
@@ -41,7 +41,7 @@ import { BaseRepository } from "./baseRepo";
         }
     }
 
-    async dbChangeCategoryStatus(id:string): Promise<ICategory | null> {
+    async changeCategoryStatus(id:string): Promise<Icategory | null> {
         try {
             return await this.find_By_Id_And_Update(categorySchema,id ,[{$set:{"isBlocked":{$not:'$isBlocked'}}}])
         } catch (error:unknown) {
@@ -51,4 +51,4 @@ import { BaseRepository } from "./baseRepo";
 
     
 } 
-export default new CategoryRespository();
+export default new categoryRespository();

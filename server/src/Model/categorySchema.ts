@@ -1,11 +1,11 @@
 import mongoose, { Schema,Document } from "mongoose";
 
-export interface ICategory extends Document{
+export interface Icategory extends Document{
     category:string;
     isBlocked?:boolean
 }
 
-const categorySchema:Schema<ICategory> = new mongoose.Schema({
+const categorySchema:Schema<Icategory> = new mongoose.Schema({
     category:{
         type:String,
         unique:true,
@@ -20,4 +20,4 @@ const categorySchema:Schema<ICategory> = new mongoose.Schema({
     }
 },{timestamps:true})
 
-export default  mongoose.model<ICategory>('categ',categorySchema);
+export default  mongoose.model<Icategory>('category',categorySchema);

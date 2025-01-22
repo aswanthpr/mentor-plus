@@ -1,15 +1,15 @@
-import { IOtpRepository } from "../Interface/Otp/IOtpRepository";
-import IOtpService from "../Interface/Otp/IOtpService";
-import { IMenteeRepository } from "../Interface/Mentee/iMenteeRepository";
-declare class OtpService implements IOtpService {
-    private _OtpRespository;
+import { IotpRepository } from "../Interface/Otp/iOtpRepository";
+import IotpService from "../Interface/Otp/iOtpService";
+import { ImenteeRepository } from "../Interface/Mentee/iMenteeRepository";
+declare class otpService implements IotpService {
+    private _otpRespository;
     private _menteeRepository;
-    constructor(_OtpRespository: IOtpRepository, _menteeRepository: IMenteeRepository);
+    constructor(_otpRespository: IotpRepository, _menteeRepository: ImenteeRepository);
     sentOtptoMail(email: string): Promise<void>;
-    BLVerifyOtp(email: string, otp: string, type?: string): Promise<{
+    verifyOtp(email: string, otp: string, type?: string): Promise<{
         success: boolean;
         message: string;
     }>;
 }
-export default OtpService;
+export default otpService;
 //# sourceMappingURL=otpService.d.ts.map

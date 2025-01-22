@@ -1,17 +1,17 @@
-import { BaseRepository } from "./baseRepo";
-import { IMentorRepository } from "../Interface/Mentor/IMentorRepository";
-import mentorModel, { IMentor } from "../Model/mentorModel";
+import { baseRepository } from "./baseRepo";
+import { ImentorRepository } from "../Interface/Mentor/iMentorRepository";
+import mentorModel, { Imentor } from "../Model/mentorModel";
 
 import mongoose from "mongoose";
-import { IMentorApplication } from "src/Types";
+import { ImentorApplication } from "src/Types";
 
 class mentorRepository
-  extends BaseRepository<IMentor>
-  implements IMentorRepository {
+  extends baseRepository<Imentor>
+  implements ImentorRepository {
   constructor() {
     super(mentorModel);
   }
-  async dbFindMentor(email?: string, phone?: string): Promise<IMentor | null> {
+  async findMentor(email?: string, phone?: string): Promise<Imentor | null> {
     try {
       const query: { [key: string]: string }[] = [];
       if (email) query.push({ email });
@@ -29,11 +29,11 @@ class mentorRepository
       );
     }
   }
-  async dbCreateMentor(
-    mentorData: IMentorApplication,
+  async createMentor(
+    mentorData: ImentorApplication,
     imageUrl: string,
     fileUrl: string
-  ): Promise<IMentor | undefined> {
+  ): Promise<Imentor | undefined> {
     try {
       return await this.createDocument({
         name: mentorData.name,
@@ -57,7 +57,7 @@ class mentorRepository
     }
   }
   //finding all mentors
-  async dbFindAllMentor(): Promise<IMentor[] | null> {
+  async findAllMentor(): Promise<Imentor[] | null> {
     try {
       return await this.find(mentorModel, {});
     } catch (error: unknown) {
@@ -68,7 +68,7 @@ class mentorRepository
     }
   }
   //changing mentor status
-  async dbVerifyMentor(id: mongoose.Types.ObjectId): Promise<IMentor | null> {
+  async verifyMentor(id: mongoose.Types.ObjectId): Promise<Imentor | null> {
     try {
       return await this.find_By_Id_And_Update(mentorModel, id, [
         { $set: { verified: { $not: "$verified" } } },
@@ -81,9 +81,9 @@ class mentorRepository
     }
   }
   //changing mentor status;
-  async dbChangeMentorStatus(
+  async changeMentorStatus(
     id: mongoose.Types.ObjectId
-  ): Promise<IMentor | null> {
+  ): Promise<Imentor | null> {
     try {
       return await this.find_By_Id_And_Update(mentorModel, id, [
         { $set: { isBlocked: { $not: "$isBlocked" } } },
@@ -95,10 +95,10 @@ class mentorRepository
       );
     }
   }
-  async dbFindMentorAndUpdate(
+  async findMentorAndUpdate(
     email: string,
     password: string
-  ): Promise<IMentor | null> {
+  ): Promise<Imentor | null> {
     try {
       return await this.find_One_And_Update(
         mentorModel,
@@ -114,7 +114,7 @@ class mentorRepository
   }
 
   //finding mentor by his id
-  async dbFindMentorById(mentorId: string): Promise<IMentor | null> {
+  async findMentorById(mentorId: string): Promise<Imentor | null> {
     try {
       return await this.find_By_Id(mentorId, { isBlocked: false });
     } catch (error: unknown) {
@@ -126,10 +126,10 @@ class mentorRepository
   }
 
   //change password by id and new password
-  async dbChangeMentorPassword(
+  async changeMentorPassword(
     mentorId: string,
     password: string
-  ): Promise<IMentor | null> {
+  ): Promise<Imentor | null> {
     try {
       return await this.find_By_Id_And_Update(mentorModel, mentorId, {
         $set: { password: password },
@@ -141,10 +141,10 @@ class mentorRepository
       );
     }
   }
-  async dbChangeMentorProfileImage(
+  async changeMentorProfileImage(
     profileUrl: string,
     id: string
-  ): Promise<Partial<IMentor> | null> {
+  ): Promise<Partial<Imentor> | null> {
     try {
       return (
         (await this.find_By_Id_And_Update(
@@ -161,9 +161,9 @@ class mentorRepository
       );
     }
   }
-  async dbUpdateMentorById(
-    mentorData: Partial<IMentor>
-  ): Promise<IMentor | undefined | null> {
+  async updateMentorById(
+    mentorData: Partial<Imentor>
+  ): Promise<Imentor | undefined | null> {
     try {
       const updateFields = {
         name: mentorData?.name,
@@ -193,7 +193,7 @@ class mentorRepository
     }
   }
   async categoryWithSkills(): Promise<
-    IMentor[] | undefined> {
+  Imentor[] | undefined> {
     try {
       const aggregationPipeline = [
         {

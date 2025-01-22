@@ -1,23 +1,23 @@
 import { Request, Response } from "express";
-import { IAuthController } from "../Interface/Auth/IAuthController";
-import IAuthService from "../Interface/Auth/IAuthService";
-import IOtpService from "../Interface/Otp/IOtpService";
-export declare class AuthController implements IAuthController {
+import { IauthController } from "../Interface/Auth/iAuthController";
+import IauthService from "../Interface/Auth/iAuthService";
+import IotpService from "../Interface/Otp/iOtpService";
+export declare class authController implements IauthController {
     private _AuthService;
     private _OtpService;
-    constructor(_AuthService: IAuthService, _OtpService: IOtpService);
+    constructor(_AuthService: IauthService, _OtpService: IotpService);
     menteeSignup(req: Request, res: Response): Promise<void>;
-    getVerifyOtp(req: Request, res: Response): Promise<void>;
-    getResendOtp(req: Request, res: Response): Promise<void>;
-    getMainLogin(req: Request, res: Response): Promise<void>;
-    getForgotPassword(req: Request, res: Response): Promise<void>;
-    getForgot_PasswordChange(req: Request, res: Response): Promise<void>;
-    getAdminLogin(req: Request, res: Response): Promise<void>;
-    getMentorFields(req: Request, res: Response): Promise<void>;
-    getMentorApply(req: Request, res: Response): Promise<void>;
-    getMentorLogin(req: Request, res: Response): Promise<void>;
-    getMentorForgotPassword(req: Request, res: Response): Promise<void>;
-    getMentorForgot_PasswordChange(req: Request, res: Response): Promise<void>;
-    getGoogleAuth(req: Request, res: Response): Promise<void>;
+    verifyOtp(req: Request, res: Response): Promise<void>;
+    resendOtp(req: Request, res: Response): Promise<void>;
+    mainLogin(req: Request, res: Response): Promise<void>;
+    forgotPassword(req: Request, res: Response): Promise<void>;
+    forgot_PasswordChange(req: Request, res: Response): Promise<void>;
+    adminLogin(req: Request, res: Response): Promise<void>;
+    mentorFields(req: Request, res: Response): Promise<void>;
+    mentorApply(req: Request, res: Response): Promise<void>;
+    mentorLogin(req: Request, res: Response): Promise<void>;
+    mentorForgotPassword(req: Request, res: Response): Promise<void>;
+    mentorForgot_PasswordChange(req: Request, res: Response): Promise<void>;
+    googleAuth(req: Request, res: Response): Promise<void>;
 }
 //# sourceMappingURL=authController.d.ts.map

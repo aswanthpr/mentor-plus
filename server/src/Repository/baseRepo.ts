@@ -6,9 +6,9 @@ import mongoose, {
   PipelineStage,
   DeleteResult,
 } from "mongoose";
-import { IBaseRepository } from "../Interface/Base/IBaseRepository";
+import { IbaseRepository } from "../Interface/Base/iBaseRepository";
 
-export class BaseRepository<T extends Document> implements IBaseRepository<T> {
+export class baseRepository<T extends Document> implements IbaseRepository<T> {
   constructor(private readonly model: Model<T>) {}
 
   // find using email

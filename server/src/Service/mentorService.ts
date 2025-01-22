@@ -1,33 +1,33 @@
 import bcrypt from "bcrypt";
-import { IMentorService } from "../Interface/Mentor/IMentorService";
-import { IMentorRepository } from "../Interface/Mentor/IMentorRepository";
-import { IMentor } from "../Model/mentorModel";
+import { ImentorService } from "../Interface/Mentor/iMentorService";
+import { ImentorRepository } from "../Interface/Mentor/iMentorRepository";
+import { Imentor } from "../Model/mentorModel";
 import jwt from "jsonwebtoken";
 import {
   genAccesssToken,
   genRefreshToken,
   verifyRefreshToken,
 } from "../Utils/jwt.utils";
-import { ICategoryRepository } from "../Interface/Category/ICategoryRepository";
-import { ICategory } from "../Model/categorySchema";
+import { IcategoryRepository } from "../Interface/Category/iCategoryRepository";
+import { Icategory } from "../Model/categorySchema";
 import hash_pass from "../Utils/hashPass.util";
 import { uploadFile, uploadImage } from "../Config/cloudinary.util";
 import { IquestionRepository } from "src/Interface/Qa/IquestionRepository";
 import { Iquestion } from "src/Model/questionModal";
 
-export class MentorService implements IMentorService {
+export class mentorService implements ImentorService {
   constructor(
-    private _MentorRepository: IMentorRepository,
-    private _CategoryRepository: ICategoryRepository,
-    private _questionRepository:IquestionRepository,
-  ) {}
+    private _mentorRepository: ImentorRepository,
+    private _categoryRepository: IcategoryRepository,
+    private _questionRepository: IquestionRepository,
+  ) { }
 
-  async blMentorProfile(token: string): Promise<{
+  async mentorProfile(token: string): Promise<{
     success: boolean;
     message: string;
-    result: IMentor | null;
+    result: Imentor | null;
     status: number;
-    categories: ICategory[] | [];
+    categories: Icategory[] | [];
   }> {
     try {
       const decode = jwt.verify(
@@ -45,8 +45,7 @@ export class MentorService implements IMentorService {
         };
       }
 
-      console.log(decode, decode?.userId);
-      const result = await this._MentorRepository.dbFindMentorById(
+      const result = await this._mentorRepository.findMentorById(
         decode?.userId
       );
       if (!result) {
@@ -58,7 +57,7 @@ export class MentorService implements IMentorService {
           categories: [],
         };
       }
-      const categoryData = await this._CategoryRepository.dbcategoryData();
+      const categoryData = await this._categoryRepository.categoryData();
       if (!categoryData) {
         return {
           success: false,
@@ -78,15 +77,14 @@ export class MentorService implements IMentorService {
       };
     } catch (error: unknown) {
       throw new Error(
-        `Error while bl metneeProfile in service: ${
-          error instanceof Error ? error.message : String(error)
+        `Error while bl metneeProfile in service: ${error instanceof Error ? error.message : String(error)
         }`
       );
     }
   }
 
   //mentor refresh token
-  async blMentorRefreshToken(refresh: string): Promise<{
+  async mentorRefreshToken(refresh: string): Promise<{
     success: boolean;
     message: string;
     status: number;
@@ -136,7 +134,7 @@ export class MentorService implements IMentorService {
     }
   }
   //mentor password change logic
-  async blPasswordChange(
+  async passwordChange(
     currentPassword: string,
     newPassword: string,
     id: string
@@ -156,7 +154,7 @@ export class MentorService implements IMentorService {
           status: 400,
         };
       }
-      const result = await this._MentorRepository.dbFindMentorById(id);
+      const result = await this._mentorRepository.findMentorById(id);
       if (!result) {
         return {
           success: false,
@@ -177,7 +175,7 @@ export class MentorService implements IMentorService {
         };
       }
       const hashedPassword = await hash_pass(newPassword);
-      const response = await this._MentorRepository.dbChangeMentorPassword(
+      const response = await this._mentorRepository.changeMentorPassword(
         id,
         hashedPassword
       );
@@ -196,8 +194,7 @@ export class MentorService implements IMentorService {
       };
     } catch (error: unknown) {
       throw new Error(
-        `Error during password change${
-          error instanceof Error ? error.message : String(error)
+        `Error during password change${error instanceof Error ? error.message : String(error)
         }`
       );
     }
@@ -205,7 +202,7 @@ export class MentorService implements IMentorService {
 
   //metnor profile image change
 
-  async blMentorProfileImageChange(
+  async mentorProfileImageChange(
     image: Express.Multer.File | null,
     id: string
   ): Promise<{
@@ -243,12 +240,12 @@ export class MentorService implements IMentorService {
       //     };
       //   }
       // }
-      console.log(profileUrl);
-      const result = await this._MentorRepository.dbChangeMentorProfileImage(
+
+      const result = await this._mentorRepository.changeMentorProfileImage(
         profileUrl,
         id
       );
-      console.log(result, "thsi is the result");
+
       if (!result) {
         return {
           success: false,
@@ -264,21 +261,20 @@ export class MentorService implements IMentorService {
       };
     } catch (error: unknown) {
       throw new Error(
-        `Error while bl metnee Profile  change in service: ${
-          error instanceof Error ? error.message : String(error)
+        `Error while bl metnee Profile  change in service: ${error instanceof Error ? error.message : String(error)
         }`
       );
     }
   }
 
-  async blMentorEditProfile(
-    mentorData: IMentor,
+  async mentorEditProfile(
+    mentorData: Imentor,
     resume: Express.Multer.File
   ): Promise<{
     success: boolean;
     message: string;
     status: number;
-    result: IMentor | null;
+    result: Imentor | null;
   }> {
     try {
 
@@ -294,7 +290,7 @@ export class MentorService implements IMentorService {
         bio,
         skills,
       } = mentorData;
-      console.log("\x1b[32m%s\x1b[0m", _id, );
+      console.log("\x1b[32m%s\x1b[0m", _id,);
 
       if (
         !name ||
@@ -313,7 +309,7 @@ export class MentorService implements IMentorService {
           result: null,
         };
       }
-      const existingMentor = await this._MentorRepository.dbFindMentorById(
+      const existingMentor = await this._mentorRepository.findMentorById(
         _id as string
       );
       console.log("sdfasifisoifjasojfoisjojd");
@@ -326,9 +322,9 @@ export class MentorService implements IMentorService {
           result: null,
         };
       }
-      const updatedData: Partial<IMentor> = {};
-      if(existingMentor)updatedData.skills=skills;
-      if (existingMentor._id )updatedData._id=existingMentor._id;
+      const updatedData: Partial<Imentor> = {};
+      if (existingMentor) updatedData.skills = skills;
+      if (existingMentor._id) updatedData._id = existingMentor._id;
       if (existingMentor.name !== name) updatedData.name = name;
       if (existingMentor.email !== email) updatedData.email = email;
       if (existingMentor.phone !== phone) updatedData.phone = phone;
@@ -340,9 +336,9 @@ export class MentorService implements IMentorService {
         updatedData.githubUrl = githubUrl;
       if (existingMentor.bio !== bio) updatedData.bio = bio;
 
-    
+
       if (resume) {
-       const fileUrl = await uploadFile(resume.buffer, resume.originalname);
+        const fileUrl = await uploadFile(resume.buffer, resume.originalname);
         if (!fileUrl) {
           throw new Error("Error while uploading resume");
         }
@@ -351,10 +347,10 @@ export class MentorService implements IMentorService {
         updatedData.resume = existingMentor.resume;
       }
 
-      const result = await this._MentorRepository.dbUpdateMentorById(
+      const result = await this._mentorRepository.updateMentorById(
         updatedData,
       );
-  
+
 
       if (!result) {
         return {
@@ -364,7 +360,7 @@ export class MentorService implements IMentorService {
           result: null,
         };
       }
-     
+
       return {
         success: true,
         message: "Details changed Successfully!",
@@ -373,24 +369,23 @@ export class MentorService implements IMentorService {
       };
     } catch (error: unknown) {
       throw new Error(
-        `Error while  mentor Profile  edit details in service: ${
-          error instanceof Error ? error.message : String(error)
+        `Error while  mentor Profile  edit details in service: ${error instanceof Error ? error.message : String(error)
         }`
       );
     }
   }
-  async getHomeData(filter: string): Promise<{ success: boolean; message: string; status: number; homeData: Iquestion[] | null; }> {
+  async homeData(filter: string): Promise<{ success: boolean; message: string; status: number; homeData: Iquestion[] | null; }> {
     try {
-      if(!filter){
+      if (!filter) {
         return {
           success: false,
           message: "credentials not found",
           status: 400,
-          homeData:null
+          homeData: null
         };
       }
 
-      const response = await this._questionRepository.allQuestionData(filter );
+      const response = await this._questionRepository.allQuestionData(filter);
       console.log(response)
       return {
         success: true,
@@ -398,10 +393,9 @@ export class MentorService implements IMentorService {
         status: 200,
         homeData: response,
       };
-    } catch (error:unknown) {
+    } catch (error: unknown) {
       throw new Error(
-        `Error while  mentor home data fetching in service: ${
-          error instanceof Error ? error.message : String(error)
+        `Error while  mentor home data fetching in service: ${error instanceof Error ? error.message : String(error)
         }`
       );
     }

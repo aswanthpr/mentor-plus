@@ -37,8 +37,6 @@ const mentorAuthorize = async (
 
         }
 
-
-        console.log(decode, 'this midlle decode');
         req.user = {
             mentorId: decode.userId,
         };

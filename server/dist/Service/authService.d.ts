@@ -1,68 +1,68 @@
-import { IMentee } from "../Model/menteeModel";
-import { ICategory } from "../Model/categorySchema";
-import IOtpService from "../Interface/Otp/IOtpService";
-import IAuthService from "../Interface/Auth/IAuthService";
-import { IMentorRepository } from "../Interface/Mentor/IMentorRepository";
-import { ICategoryRepository } from "../Interface/Category/ICategoryRepository";
-import { IMenteeRepository } from "../Interface/Mentee/iMenteeRepository";
-import { IMentorApplyData } from "src/Types";
-export declare class AuthService implements IAuthService {
+import { Imentee } from "../Model/menteeModel";
+import { Icategory } from "../Model/categorySchema";
+import IotpService from "../Interface/Otp/iOtpService";
+import IauthService from "../Interface/Auth/iAuthService";
+import { ImentorRepository } from "../Interface/Mentor/iMentorRepository";
+import { IcategoryRepository } from "../Interface/Category/iCategoryRepository";
+import { ImenteeRepository } from "../Interface/Mentee/iMenteeRepository";
+import { ImentorApplyData } from "../Types";
+export declare class authService implements IauthService {
     private _OtpService;
     private _categoryRepository;
     private _MentorRepository;
     private _MenteeRepository;
-    constructor(_OtpService: IOtpService, _categoryRepository: ICategoryRepository, _MentorRepository: IMentorRepository, _MenteeRepository: IMenteeRepository);
-    mentee_Signup(userData: IMentee): Promise<{
+    constructor(_OtpService: IotpService, _categoryRepository: IcategoryRepository, _MentorRepository: ImentorRepository, _MenteeRepository: ImenteeRepository);
+    mentee_Signup(userData: Imentee): Promise<{
         success: boolean;
         message: string;
     }>;
-    BLMainLogin(email: string, password: string): Promise<{
+    mainLogin(email: string, password: string): Promise<{
         success: boolean;
         message: string;
         refreshToken?: string;
         accessToken?: string;
     }>;
-    BLforgotPassword(email: string): Promise<{
+    forgotPassword(email: string): Promise<{
         success: boolean;
         message: string;
     } | undefined>;
-    BLforgot_PasswordChange(email: string, password: string): Promise<{
+    forgot_PasswordChange(email: string, password: string): Promise<{
         success: boolean;
         message: string;
     } | undefined>;
-    blMentorFields(): Promise<{
+    mentorFields(): Promise<{
         success: boolean;
         message: string;
         status: number;
-        categories?: ICategory[];
+        categories?: Icategory[];
     }>;
-    BLadminLogin(email: string, password: string): Promise<{
+    adminLogin(email: string, password: string): Promise<{
         success: boolean;
         message: string;
         accessToken?: string;
         refreshToken?: string;
     } | undefined>;
-    blMentorApply(mentorData: IMentorApplyData): Promise<{
+    mentorApply(mentorData: ImentorApplyData): Promise<{
         success: boolean;
         message: string;
         status: number;
     }>;
-    blMentorLogin(email: string, password: string): Promise<{
+    mentorLogin(email: string, password: string): Promise<{
         success: boolean;
         message: string;
         status: number;
         refreshToken?: string;
         accessToken?: string;
     }>;
-    blMentorForgotPassword(email: string): Promise<{
+    mentorForgotPassword(email: string): Promise<{
         success: boolean;
         message: string;
     } | undefined>;
-    blMentorForgot_PasswordChange(email: string, password: string): Promise<{
+    mentorForgot_PasswordChange(email: string, password: string): Promise<{
         success: boolean;
         message: string;
     } | undefined>;
-    blGoogleAuth(user: IMentee): Promise<{
+    googleAuth(user: Imentee): Promise<{
         success: boolean;
         message: string;
         status: number;

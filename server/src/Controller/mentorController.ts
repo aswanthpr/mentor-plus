@@ -1,11 +1,11 @@
 import { Request, Response } from "express";
-import { IMentorController } from "../Interface/Mentor/IMentorController";
-import { IMentorService } from "../Interface/Mentor/IMentorService";
+import { ImentorController } from "../Interface/Mentor/iMentorController";
+import { ImentorService } from "../Interface/Mentor/iMentorService";
 
-export class MentorController implements IMentorController {
-  constructor(private _mentorService: IMentorService) {}
+export class mentorController implements ImentorController {
+  constructor(private _mentorService: ImentorService) {}
 
-  async getMentorLogout(req: Request, res: Response): Promise<void> {
+  async mentorLogout(req: Request, res: Response): Promise<void> {
     try {
 
       res
@@ -24,12 +24,12 @@ export class MentorController implements IMentorController {
     }
   }
 
-  async getMentorProfile(req: Request, res: Response): Promise<void> {
+  async mentorProfile(req: Request, res: Response): Promise<void> {
     try {
       const token = req.headers["authorization"]?.split(" ")[1];
 
       const { result, categories, success, message, status } =
-        await this._mentorService.blMentorProfile(token as string);
+        await this._mentorService.mentorProfile(token as string);
 
       console.log(result, "...........................", req.user);
       res.status(status).json({
@@ -48,9 +48,9 @@ export class MentorController implements IMentorController {
   }
 
   //for creating new access token
-  async getMentorRefreshToken(req: Request, res: Response): Promise<void> {
+  async mentorRefreshToken(req: Request, res: Response): Promise<void> {
     try {
-      const result = await this._mentorService.blMentorRefreshToken(
+      const result = await this._mentorService.mentorRefreshToken(
         req.cookies?.mentorToken
       );
 
@@ -80,11 +80,11 @@ export class MentorController implements IMentorController {
     }
   }
   //mentor password changing
-  async getProfilePasswordChange(req: Request, res: Response): Promise<void> {
+  async profilePasswordChange(req: Request, res: Response): Promise<void> {
     try {
       console.log(req.body, "this is the password");
       const { currentPassword, newPassword, _id } = req.body;
-      const result = await this._mentorService.blPasswordChange(
+      const result = await this._mentorService.passwordChange(
         currentPassword,
         newPassword,
         _id
@@ -104,7 +104,7 @@ export class MentorController implements IMentorController {
   }
 
   //metnor profile image change
-  async getMentorProfileImageChange(
+  async mentorProfileImageChange(
     req: Request,
     res: Response
   ): Promise<void> {
@@ -118,7 +118,7 @@ export class MentorController implements IMentorController {
               .profileImage[0]
           : null;
 
-      const result = await this._mentorService.blMentorProfileImageChange(
+      const result = await this._mentorService.mentorProfileImageChange(
         profileImage,
         _id
       );
@@ -133,7 +133,7 @@ export class MentorController implements IMentorController {
     }
   }
 
-  async getMentorEditProfile(req: Request, res: Response): Promise<void> {
+  async mentorEditProfile(req: Request, res: Response): Promise<void> {
     try {
 
       const resume =
@@ -146,7 +146,7 @@ console.log(resume,'this is resume',req.files)
         ...req.body
       };
 
-      const {status,success,message,result} = await this._mentorService.blMentorEditProfile(
+      const {status,success,message,result} = await this._mentorService.mentorEditProfile(
         mentorData, resume,
       );
  
@@ -161,12 +161,12 @@ console.log(resume,'this is resume',req.files)
   }
   //fetch mentor home data 
   // /mentor/home/:filter
-  async getHomeData(req: Request, res: Response): Promise<void>{
+  async homeData(req: Request, res: Response): Promise<void>{
     try {
       const {filter} = req.params;
 
       const { status, success, message, homeData } =
-        await this._mentorService.getHomeData(filter as string);
+        await this._mentorService.homeData(filter as string);
       const userId = req.user as Express.User;
       res.status(status).json({ success, message, homeData, userId });
     } catch (error:unknown) {

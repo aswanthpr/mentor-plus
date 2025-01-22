@@ -1,11 +1,11 @@
-import { ICategoryRepository } from "../Interface/Category/ICategoryRepository";
-import { IadminService } from "../Interface/Admin/IadminService";
-import { ICategory } from "../Model/categorySchema";
-import { IMenteeRepository } from "../Interface/Mentee/iMenteeRepository";
-import { IMentee } from "../Model/menteeModel";
-import { IMentor } from "../Model/mentorModel";
-import { IMentorRepository } from "../Interface/Mentor/IMentorRepository";
 import mongoose from "mongoose";
+import { Imentor } from "../Model/mentorModel";
+import { Imentee } from "../Model/menteeModel";
+import { Icategory } from "../Model/categorySchema";
+import { IadminService } from "../Interface/Admin/iAdminService";
+import { IcategoryRepository } from "../Interface/Category/iCategoryRepository"; 
+import { ImenteeRepository } from "../Interface/Mentee/iMenteeRepository";
+import { ImentorRepository } from "../Interface/Mentor/iMentorRepository"; 
 import {
   genAccesssToken,
   genRefreshToken,
@@ -14,12 +14,12 @@ import {
 
 export class adminService implements IadminService {
   constructor(
-    private _CategoryRepository: ICategoryRepository,
-    private _MenteeRepository: IMenteeRepository,
-    private _MentorRepository: IMentorRepository
+    private _categoryRepository: IcategoryRepository,
+    private _menteeRepository: ImenteeRepository,
+    private _mentorRepository: ImentorRepository
   ) {}
 
-  async BLAdminRefreshToken(refresh: string): Promise<{
+  async adminRefreshToken(refresh: string): Promise<{
     success: boolean;
     message: string;
     status: number;
@@ -61,12 +61,12 @@ export class adminService implements IadminService {
       return { success: false, message: "Internal server error", status: 500 };
     }
   }
-  async blCreateCategory(Data: {
+  async createCategory(Data: {
     category: string;
   }): Promise<{
     success: boolean;
     message: string;
-    result?: ICategory;
+    result?: Icategory;
     status: number;
   }> {
     try {
@@ -78,12 +78,12 @@ export class adminService implements IadminService {
           status: 400,
         };
       }
-      const result = await this._CategoryRepository.dbFindCategory(category);
+      const result = await this._categoryRepository.findCategory(category);
 
       if (result) {
         return { success: false, message: "category is existing", status: 409 };
       }
-      const response = await this._CategoryRepository.dbCreateCategory(
+      const response = await this._categoryRepository.createCategory(
         category
       );
 
@@ -109,13 +109,13 @@ export class adminService implements IadminService {
     }
   }
   //get category data to admin
-  async blCategoryData(): Promise<{
+  async categoryData(): Promise<{
     success: boolean;
     message: string;
-    categories?: ICategory[];
+    categories?: Icategory[];
   }> {
     try {
-      const result = await this._CategoryRepository.dbcategoryData();
+      const result = await this._categoryRepository.categoryData();
 
       if (!result) {
         return { success: false, message: "No categories found" };
@@ -135,7 +135,7 @@ export class adminService implements IadminService {
     }
   }
   //category edit controll
-  async blEditCategory(
+  async editCategory(
     id: string,
     category: string
   ): Promise<{ success: boolean; message: string }> {
@@ -144,13 +144,13 @@ export class adminService implements IadminService {
         return { success: false, message: "credential is  missing" };
       }
 
-      const resp = await this._CategoryRepository.dbFindCategory(category);
+      const resp = await this._categoryRepository.findCategory(category);
       console.log(resp, "thsi is resp");
       if (resp) {
         return { success: false, message: "category already exitst" };
       }
 
-      const result = await this._CategoryRepository.dbEditCategory(
+      const result = await this._categoryRepository.editCategory(
         id,
         category
       );
@@ -168,7 +168,7 @@ export class adminService implements IadminService {
     }
   }
 
-  async blChangeCategoryStatus(
+  async changeCategoryStatus(
     id: string
   ): Promise<{ success: boolean; message: string; status: number }> {
     try {
@@ -179,7 +179,7 @@ export class adminService implements IadminService {
           status: 400,
         };
       }
-      const result = await this._CategoryRepository.dbChangeCategoryStatus(id);
+      const result = await this._categoryRepository.changeCategoryStatus(id);
       if (!result) {
         return { success: false, message: "category not found", status: 400 };
       }
@@ -197,14 +197,14 @@ export class adminService implements IadminService {
     }
   }
 
-  async blMenteeData(): Promise<{
+  async menteeData(): Promise<{
     success: boolean;
     message: string;
     status: number;
-    Data?: IMentee[];
+    Data?: Imentee[];
   }> {
     try {
-      const result = await this._MenteeRepository.dbMenteeData();
+      const result = await this._menteeRepository.menteeData();
 
       if (!result) {
         return { success: false, message: "Users not  found", status: 400 };
@@ -224,7 +224,7 @@ export class adminService implements IadminService {
       );
     }
   }
-  async blChangeMenteeStatus(
+  async changeMenteeStatus(
     id: string
   ): Promise<{ success: boolean; message: string; status: number }> {
     try {
@@ -235,7 +235,7 @@ export class adminService implements IadminService {
           status: 400,
         };
       }
-      const result = await this._MenteeRepository.dbChangeMenteeStatus(id);
+      const result = await this._menteeRepository.changeMenteeStatus(id);
       if (!result) {
         return { success: false, message: "mentee not found", status: 400 };
       }
@@ -253,8 +253,8 @@ export class adminService implements IadminService {
     }
   }
 
-  async blEditMentee(
-    formData: Partial<IMentee>
+  async editMentee(
+    formData: Partial<Imentee>
   ): Promise<{ success: boolean; message: string; status?: number }> {
     try {
       console.log(formData);
@@ -262,7 +262,7 @@ export class adminService implements IadminService {
         return { success: false, message: "credential is  missing" };
       }
 
-      const result = await this._MenteeRepository.dbEditMentee(formData);
+      const result = await this._menteeRepository.editMentee(formData);
       console.log(result, "this is edit mentee result");
       if (!result) {
         return { success: false, message: "mentee not found" };
@@ -280,25 +280,25 @@ export class adminService implements IadminService {
       );
     }
   }
-  async blAddMentee(
-    formData: Partial<IMentee>
+  async addMentee(
+    formData: Partial<Imentee>
   ): Promise<{
     success: boolean;
     message: string;
     status?: number;
-    mentee?: IMentee | null;
+    mentee?: Imentee | null;
   }> {
     try {
       const { name, email, phone, bio } = formData;
       if (!name || !email || !phone || !bio) {
         return { success: false, message: " credential is missing" };
       }
-      const result = await this._MenteeRepository.dbFindMentee(email);
+      const result = await this._menteeRepository.findMentee(email);
 
       if (result) {
         return { success: false, message: "email is existing" };
       }
-      const response = await this._MenteeRepository.dbAddMentee(formData);
+      const response = await this._menteeRepository.addMentee(formData);
 
       return {
         success: true,
@@ -316,14 +316,14 @@ export class adminService implements IadminService {
   }
 
   //mentormanagement
-  async blMentorData(): Promise<{
+  async mentorData(): Promise<{
     success: boolean;
     message: string;
     status: number;
-    mentorData: IMentor[] | [];
+    mentorData: Imentor[] | [];
   }> {
     try {
-      const result = await this._MentorRepository.dbFindAllMentor();
+      const result = await this._mentorRepository.findAllMentor();
       if (!result) {
         return {
           success: false,
@@ -348,13 +348,13 @@ export class adminService implements IadminService {
   }
 
   //herer  the mentor verification logic
-  async blMentorVerify(
+  async mentorVerify(
     id: string
   ): Promise<{
     success: boolean;
     message: string;
     status: number;
-    result: IMentor | null;
+    result: Imentor | null;
   }> {
     try {
       if (!id || !mongoose.Types.ObjectId.isValid(id)) {
@@ -367,7 +367,7 @@ export class adminService implements IadminService {
       }
 
       const mentorId: mongoose.Types.ObjectId = new mongoose.Types.ObjectId(id);
-      const response = await this._MentorRepository.dbVerifyMentor(mentorId);
+      const response = await this._mentorRepository.verifyMentor(mentorId);
 
       if (!response) {
         return {
@@ -392,7 +392,7 @@ export class adminService implements IadminService {
     }
   }
   //mentor status change logic
-  async blMentorStatusChange(
+  async mentorStatusChange(
     id: string
   ): Promise<{ success: boolean; message: string; status: number }> {
     try {
@@ -400,7 +400,7 @@ export class adminService implements IadminService {
         return { success: false, message: "invalid crdiential", status: 400 };
       }
       const mentorId: mongoose.Types.ObjectId = new mongoose.Types.ObjectId(id);
-      const result = await this._MentorRepository.dbChangeMentorStatus(
+      const result = await this._mentorRepository.changeMentorStatus(
         mentorId
       );
       if (!result) {

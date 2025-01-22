@@ -1,55 +1,55 @@
-import { Iquestion } from "src/Model/questionModal";
-import { ICategory } from "../../Model/categorySchema";
-import { IMentee } from "../../Model/menteeModel";
-import { IMentor } from "../../Model/mentorModel";
-export interface IMenteeService {
-    BLRefreshToken(refresh: string): Promise<{
+import { Iquestion } from "../../Model/questionModal";
+import { Icategory } from "../../Model/categorySchema";
+import { Imentee } from "../../Model/menteeModel";
+import { Imentor } from "../../Model/mentorModel";
+export interface ImenteeService {
+    deleteQuestion(questionId: string): Promise<{
+        success: boolean;
+        message: string;
+        status: number;
+    }>;
+    homeData(filter: string): Promise<{
+        success: boolean;
+        message: string;
+        status: number;
+        homeData: Iquestion[] | null;
+    }>;
+    menteeProfile(refreshToken: string): Promise<{
+        success: boolean;
+        message: string;
+        result: Imentee | null;
+        status: number;
+    }>;
+    profileChange(image: Express.Multer.File | null, id: string): Promise<{
+        success: boolean;
+        message: string;
+        status: number;
+    }>;
+    editMenteeProfile(formData: Partial<Imentee>): Promise<{
+        success: boolean;
+        message: string;
+        result: Imentee | null;
+        status: number;
+    }>;
+    passwordChange(currentPassword: string, newPassword: string, _id: string): Promise<{
+        success: boolean;
+        message: string;
+        status: number;
+    }>;
+    refreshToken(refresh: string): Promise<{
         success: boolean;
         message: string;
         status: number;
         accessToken?: string;
         refreshToken?: string;
     }>;
-    blMenteeProfile(refreshToken: string): Promise<{
-        success: boolean;
-        message: string;
-        result: IMentee | null;
-        status: number;
-    }>;
-    blEditMenteeProfile(formData: Partial<IMentee>): Promise<{
-        success: boolean;
-        message: string;
-        result: IMentee | null;
-        status: number;
-    }>;
-    blPasswordChange(currentPassword: string, newPassword: string, _id: string): Promise<{
+    exploreData(): Promise<{
         success: boolean;
         message: string;
         status: number;
-    }>;
-    blProfileChange(image: Express.Multer.File | null, id: string): Promise<{
-        success: boolean;
-        message: string;
-        status: number;
-    }>;
-    blExploreData(): Promise<{
-        success: boolean;
-        message: string;
-        status: number;
-        mentor?: IMentor[] | null;
-        category?: ICategory[] | null;
-        skills: IMentor[] | undefined;
-    }>;
-    getHomeData(filter: string): Promise<{
-        success: boolean;
-        message: string;
-        status: number;
-        homeData: Iquestion[] | null;
-    }>;
-    deleteQuestion(questionId: string): Promise<{
-        success: boolean;
-        message: string;
-        status: number;
+        mentor?: Imentor[] | null;
+        category?: Icategory[] | null;
+        skills: Imentor[] | undefined;
     }>;
 }
 //# sourceMappingURL=iMenteeService.d.ts.map

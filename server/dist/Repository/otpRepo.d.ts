@@ -1,9 +1,9 @@
-import { IOtpRepository } from "../Interface/Otp/IOtpRepository";
-import { IOtp } from "../Model/otpModel";
-declare class OtpRepository implements IOtpRepository {
-    createOtp(email: string, otp: string): Promise<IOtp | undefined>;
-    DBVerifyOtp(email: string, otp: string): Promise<IOtp | null>;
+import { IotpRepository } from "../Interface/Otp/iOtpRepository";
+import { Iotp } from "../Model/otpModel";
+declare class otpRepository implements IotpRepository {
+    createOtp(email: string, otp: string): Promise<Iotp | undefined>;
+    verifyOtp(email: string, otp: string): Promise<Iotp | null>;
 }
-declare const _default: OtpRepository;
+declare const _default: otpRepository;
 export default _default;
 //# sourceMappingURL=otpRepo.d.ts.map

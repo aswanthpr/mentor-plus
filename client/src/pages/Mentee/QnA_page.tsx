@@ -20,7 +20,7 @@ const QnA_page: React.FC = () => {
   const [questions, setQuestions] = useState<IQuestion[] | []>([]);
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(false);
-  const [error, setError] = useState<string>("");
+  // const [error, setError] = useState<string>("");
   const [userId, setUserId] = useState<string>("");
   const [filter, setFilter] = useState<"answered" | "unanswered">("answered");
   const [answerQuestionId,setAnswerQuestionId] = useState<string>('')
@@ -37,11 +37,11 @@ const QnA_page: React.FC = () => {
         }
       } catch (error: unknown) {
         errorHandler(error);
-        setError("Failed to load questions.");
+
       } finally {
-        setInterval(() => {
+    
           setLoading(false);
-        }, 100);
+      
       }
     };
 
@@ -88,8 +88,8 @@ const QnA_page: React.FC = () => {
     // Check if any field has changed
     const isChanged = Object.keys(updatedQuestion).some((key) => {
       return (
-        JSON.stringify((updatedQuestion as any)[key]) !==
-        JSON.stringify((originalQuestion as any)[key])
+        JSON.stringify(updatedQuestion [ key as keyof IQuestion]) !==
+        JSON.stringify(originalQuestion [ key as keyof IQuestion])
       );
     });
 

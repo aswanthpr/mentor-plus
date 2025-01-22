@@ -4,9 +4,9 @@ import {
   Strategy as GoogleStrategy,
   VerifyCallback,
 } from "passport-google-oauth20";
-import MenteeRepository from "../Repository/menteeRepository";
+import menteeRepository from "../Repository/menteeRepository";
 import "express-session";
-import { IMentee } from "src/Model/menteeModel";
+import { Imentee } from "src/Model/menteeModel";
 
 passport.use(
   new GoogleStrategy(
@@ -34,7 +34,7 @@ passport.use(
           );
 
         }
-        const existingUser = await MenteeRepository.dbFindMentee(email);
+        const existingUser = await menteeRepository.findMentee(email);
 
 
         if (existingUser && existingUser.provider === "email") {
@@ -47,13 +47,13 @@ passport.use(
         if (existingUser) {
           user = existingUser;
         } else {
-          user = (await MenteeRepository.createDocument({
+          user = (await menteeRepository.createDocument({
             name: profile.displayName,
             email,
             profileUrl,
             verified: true,
             provider: 'google'
-          })) as IMentee;
+          })) as Imentee;
         }
 
         return done(null, user);
@@ -69,9 +69,9 @@ passport.serializeUser((user: Express.User, done: DoneCallback) => {
   done(null, user);
 });
 
-passport.deserializeUser(async (user: IMentee, done: DoneCallback) => {
+passport.deserializeUser(async (user: Imentee, done: DoneCallback) => {
   try {
-    const User = await MenteeRepository.dbFindById(user?._id as string);
+    const User = await menteeRepository.findById(user?._id as string);
 
     done(null, User);
   } catch (error) {

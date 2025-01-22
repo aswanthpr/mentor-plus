@@ -8,7 +8,7 @@ import { Ianswer } from "src/Model/answerModel";
 
 export interface IqaService {
     addQuestionService(Data: IcreateQuestion, userId: ObjectId): Promise<{ success: boolean, message: string, status: number, question: Iquestion | undefined }>
-    getQuestionData(userId: ObjectId,filter:string): Promise<{ success: boolean; message: string; status: number; question: Iquestion[], userId?: ObjectId }>
+    questionData(userId: ObjectId,filter:string): Promise<{ success: boolean; message: string; status: number; question: Iquestion[], userId?: ObjectId }>
 
     editQuestion(questionId:string,updatedQuestion:Iquestion):Promise<{success:boolean,message:string,status:number,question:Iquestion|null}>
 
