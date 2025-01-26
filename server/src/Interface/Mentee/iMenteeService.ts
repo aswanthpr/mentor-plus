@@ -4,7 +4,7 @@ import { Imentee } from "../../Model/menteeModel";
 import { Imentor } from "../../Model/mentorModel";
 
 export interface ImenteeService {
-    deleteQuestion(questionId: string): Promise<{ success: boolean; message: string; status: number; }>;
+    
     homeData(filter: string): Promise<{ success: boolean, message: string, status: number, homeData: Iquestion[] | null }>
     menteeProfile(refreshToken: string): Promise<{ success: boolean, message: string, result: Imentee | null, status: number }>;
     profileChange(image: Express.Multer.File | null, id: string): Promise<{ success: boolean, message: string, status: number }>;

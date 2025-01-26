@@ -159,11 +159,12 @@ console.log(resume,'this is resume',req.files)
       );
     }
   }
-  //fetch mentor home data 
+  //fetch mentor home data  
   // /mentor/home/:filter
   async homeData(req: Request, res: Response): Promise<void>{
     try {
       const {filter} = req.params;
+      
 
       const { status, success, message, homeData } =
         await this._mentorService.homeData(filter as string);

@@ -5,6 +5,8 @@ import session from 'express-session';
 import cookieParser from 'cookie-parser';
 import dotenv from 'dotenv';dotenv.config();
 
+import {fileLogger } from "./Config/logger";
+
 const app:Application = express();
 
 import auth_Router from "./Routes/authRoute";
@@ -21,7 +23,6 @@ connectDb()
 //using middlewares
 app.use(cors(corsOptions));
 app.use(cookieParser());
-app.use(morgan('dev'))
 app.use(express.json());
 app.use(express.urlencoded({extended:true}));
 app.use(session({
@@ -31,12 +32,16 @@ app.use(session({
 }));
 app.use(passport.initialize());
 app.use(passport.session());
+app.use(morgan('dev'))
+app.use(fileLogger);// for log to the file 
+
  
 // Routes
 app.use('/auth',auth_Router);
 app.use('/admin',admin_Router)
 app.use('/mentee',mentee_Router);
 app.use('/mentor',mentor_Router);
+// app.use(errorLogger)
 
 
 app.listen(process.env.PORT

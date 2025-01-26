@@ -23,6 +23,7 @@ import {
   FileUser,
   EyeClosedIcon,
   EyeIcon,
+  BadgeCheckIcon,
 } from "lucide-react";
 import {
   validateBio,
@@ -337,9 +338,12 @@ const MentorProfile: React.FC = () => {
               )}
             </div>
             <div className="ml-4 mb-0 ">
-              <h1 className="text-2xl font-bold text-gray-700 pt-">
+              <div className="flex flex-row">
+              <h1 className="flex text-2xl font-bold text-gray-700 pt-2">
                 {mentor?.name}
               </h1>
+              <span className="mt-3"> <BadgeCheckIcon className="ml-1 text-green-600 w-5"/></span>
+              </div>
               <div className="">
                 <div>
                   <h3 className="text-sm font-medium  text-gray-500 ">

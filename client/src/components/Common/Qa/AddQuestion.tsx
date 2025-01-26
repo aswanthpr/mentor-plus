@@ -25,7 +25,7 @@ const AddQuestion: React.FC<AddQuestionModalProps> = ({
   onClose,
   onAdd,
   initialQuestion,
-  isEditing = false
+  isEditing = false 
 }) => {
   const [title, setTitle] = useState(initialQuestion?.title || '');
   const [content, setContent] = useState(initialQuestion?.content || '');
@@ -49,6 +49,14 @@ const AddQuestion: React.FC<AddQuestionModalProps> = ({
     return Object.keys(newErrors).length === 0;
   };
 
+  const handleClose =()=>{
+    setTitle("")
+    setContent("")
+    setTags([])
+    onClose()
+  }
+  
+
   const handleSubmit = (e: React.FormEvent) => {
  
     e.preventDefault();
@@ -62,9 +70,8 @@ const AddQuestion: React.FC<AddQuestionModalProps> = ({
     };
 
     onAdd(question);
-    onClose();
+    handleClose()
   };
-
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
       <div className="bg-white rounded-lg max-w-2xl w-full">
@@ -73,7 +80,7 @@ const AddQuestion: React.FC<AddQuestionModalProps> = ({
             {isEditing ? 'Edit Question' : 'Add Question'}
           </h2>
           <button
-            onClick={onClose}
+            onClick={handleClose}
             className="text-gray-400 hover:text-gray-600 transition-colors"
           >
             <X className="h-5 w-5" />

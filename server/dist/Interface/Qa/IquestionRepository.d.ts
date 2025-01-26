@@ -8,5 +8,11 @@ export interface IquestionRepository {
     deleteQuestion(questionId: string): Promise<DeleteResult | undefined>;
     countAnswer(questionId: string): Promise<Iquestion | null>;
     reduceAnswerCount(questionId: string): Promise<Iquestion | null>;
+    isQuestionExist(field1: string, field2: string): Promise<Iquestion[] | null>;
+    allQaData(skip: number, search: string, status: string, limit: string, sortOrder: string, sortField: string): Promise<{
+        questions: Iquestion[];
+        docCount: number;
+    } | null>;
+    changeQuestionStatus(questionId: string): Promise<Iquestion | null>;
 }
 //# sourceMappingURL=IquestionRepository.d.ts.map

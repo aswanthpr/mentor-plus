@@ -39,7 +39,8 @@ mentee_Router.patch(`/qa/edit-question`, authorize, __qaController.editQuestion.
 
 mentee_Router.get(`/home/:filter`, authorize, __menteeController.homeData.bind(__menteeController))
 
-mentee_Router.delete(`/qa/delete/:questionId`, authorize, __menteeController.deleteQuestion.bind(__menteeController))
+mentee_Router.delete(`/qa/delete/:questionId`, authorize, __qaController.deleteQuestion.bind(__qaController))
 
-mentee_Router.post(`/qa/create-answer`, authorize, __qaController.createNewAnswer.bind(__qaController))
+mentee_Router.post(`/qa/create-answer`, authorize, __qaController.createNewAnswer.bind(__qaController));
+mentee_Router.patch(`/qa/edit-answer`,authorize,__qaController.editAnswer.bind(__qaController))
 export default mentee_Router;

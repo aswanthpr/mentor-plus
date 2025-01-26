@@ -6,20 +6,26 @@ import mentorAuthorize from "../Middleware/mentorAuthorization";
 import categoryRepository from "../Repository/categoryRepository";
 import upload from "../Config/multer.util";
 import questionRepository from "../Repository/questionRepository";
-
+import answerRepository from "../Repository/answerRepository";
+import qaService from "../Service/qaService";
+import qaController from "../Controller/qaController";
 const __mentorService = new mentorService(
   mentorRepository,
   categoryRepository,
-  questionRepository
+  questionRepository,
+
+  
 );
 
 const __mentorController = new mentorController(__mentorService);
+const __qaService = new qaService(questionRepository, answerRepository);
+const __qaController = new qaController(__qaService)
 const mentor_Router: Router = express.Router();
 
 mentor_Router.post(
   `/logout`,
   __mentorController.mentorLogout.bind(__mentorController)
-);
+); 
 //profile
 mentor_Router.get(
   `/profile`,
@@ -51,4 +57,6 @@ mentor_Router.get(
   mentorAuthorize,
   __mentorController.homeData.bind(__mentorController)
 );
+mentor_Router.post(`/qa/create-new-answer`,mentorAuthorize,__qaController.createNewAnswer.bind(__qaController));
+mentor_Router.patch(`/qa/edit-answer`,mentorAuthorize,__qaController.editAnswer.bind(__qaController));
 export default mentor_Router;

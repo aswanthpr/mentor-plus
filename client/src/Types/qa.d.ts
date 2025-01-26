@@ -7,6 +7,7 @@ interface Ianswer {
   author?:IMentee|IMentor;
   createdAt:string;
   updatedAt:string;
+  isBlocked?:boolean;
 }
 
 interface IQuestion {
@@ -14,11 +15,29 @@ interface IQuestion {
   title: string;
   content: string;
   tags: string[];
-  menteeId?: string;
-  createdAt?: Date;
-  updatedAt?: Date;
+  menteeId: string;
+  createdAt: string;
+  updatedAt: string;
   answers?: number;
   user?:IMentee;
   answerData?:Ianswer[];
+  isBlocked:boolean
   
+} 
+interface Answer {
+  id: string;
+  content: string;
+  isBlocked: boolean;
+  createdAt: string;
+  author: string;
+
+}
+
+interface Question {
+  id: string;
+  content: string;
+  answers: Answer[];
+  isBlocked: boolean;
+  createdAt: string;
+  author: string;
 }

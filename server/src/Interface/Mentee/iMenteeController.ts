@@ -9,5 +9,5 @@ export interface ImenteeController{
     profileChange(req:Request,res:Response):Promise<void>;
     exploreData(req:Request,res:Response):Promise<void>;
     homeData(req: Request, res: Response): Promise<void>;
-    deleteQuestion(req: Request, res: Response): Promise<void>;
+   
 }  

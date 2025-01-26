@@ -58,3 +58,4 @@ interface IMentor {
     resume: string;
     profileImage: string
   }
+

@@ -6,6 +6,7 @@ export interface Iquestion extends Document {
   tags: string[];
   menteeId: mongoose.Schema.Types.ObjectId;
   answers:number
+  isBlocked:boolean;
 }
 
 const questionSchema: Schema<Iquestion> = new Schema(
@@ -24,13 +25,17 @@ const questionSchema: Schema<Iquestion> = new Schema(
     },
     menteeId: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "Mentee",
+      ref: "mentee",
       required: true,
     },
     answers: {
       type: Number,
       default: 0,
     },
+    isBlocked:{
+      type:Boolean,
+      default:false
+    }
   },
   { timestamps: true }
 );

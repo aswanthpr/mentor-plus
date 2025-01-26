@@ -3,11 +3,6 @@ import { Icategory } from "../../Model/categorySchema";
 import { Imentee } from "../../Model/menteeModel";
 import { Imentor } from "../../Model/mentorModel";
 export interface ImenteeService {
-    deleteQuestion(questionId: string): Promise<{
-        success: boolean;
-        message: string;
-        status: number;
-    }>;
     homeData(filter: string): Promise<{
         success: boolean;
         message: string;

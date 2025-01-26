@@ -57,10 +57,5 @@ export declare class menteeService implements ImenteeService {
         status: number;
         homeData: Iquestion[] | null;
     }>;
-    deleteQuestion(questionId: string): Promise<{
-        success: boolean;
-        message: string;
-        status: number;
-    }>;
 }
 //# sourceMappingURL=menteeService.d.ts.map

@@ -14,7 +14,9 @@ import AnswerInputModal from "../../components/Common/Qa/AnswerInputModal";
 
 const Home: React.FC = () => {
   const [filter, setFilter] = useState<"answered" | "unanswered">("answered");
-  const [selectedQuestion, setSelectedQuestion] = useState<IQuestion | null>(null);
+  const [selectedQuestion, setSelectedQuestion] = useState<IQuestion | null>(
+    null
+  );
   const [isAnswerModalOpen, setIsAnswerModalOpen] = useState<boolean>(false);
   const [showAnswerModal, setShowAnswerModal] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
@@ -23,7 +25,16 @@ const Home: React.FC = () => {
   const [userId, setUserId] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(false);
   const [answerQuestionId, setAnswerQuestionId] = useState<string>("");
-
+  const [editAnswerModalOpen, setEditAnswerModalOpen] = useState(false);
+  const [editingAnswer, setEditingAnswer] = useState<string | null>(null);
+  const [editingAnswerId, setEditingAnswerId] = useState<string | null>(null);
+  const [editData, setEditData] = useState<{
+    content: string;
+    answerId: string;
+  }>({
+    content: "",
+    answerId: "",
+  });
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -69,9 +80,12 @@ const Home: React.FC = () => {
 
     // Check if any field has changed
     const isChanged = Object.keys(updatedQuestion).some((key) => {
-      console.log( typeof JSON.stringify(updatedQuestion),'this is the quesion where error occure')
+      console.log(
+        typeof JSON.stringify(updatedQuestion),
+        "this is the quesion where error occure"
+      );
       return (
-        JSON.stringify(updatedQuestion[ key as keyof IQuestion])!==
+        JSON.stringify(updatedQuestion[key as keyof IQuestion]) !==
         JSON.stringify(originalQuestion[key as keyof IQuestion])
       );
     });
@@ -116,20 +130,19 @@ const Home: React.FC = () => {
   };
 
   const filterQuestions = questions.filter((question) => {
-    // Safely check if title, content, and tags exist before calling toLowerCase
+    const search = searchQuery.toLowerCase();
     const title = question.title?.toLowerCase() || "";
     const content = question.content?.toLowerCase() || "";
     const tags = question.tags?.map((tag) => tag.toLowerCase()) || [];
 
     return (
-      title.includes(searchQuery.toLowerCase()) ||
-      content.includes(searchQuery.toLowerCase()) ||
-      tags.some((tag) => tag.includes(searchQuery.toLowerCase()))
+      title.includes(search) ||
+      content.includes(search) ||
+      tags.some((tag) => tag.includes(search))
     );
   });
 
   const handleDeleteQuestion = (questionId: string) => {
-    console.log(questionId, "kdflkassdkasjfslf");
     toast(
       <ConfirmToast
         message="Confirm Deletion"
@@ -147,6 +160,7 @@ const Home: React.FC = () => {
     const handleDel = async (questId: string) => {
       toast.dismiss();
       try {
+        setLoading(true);
         const response = await protectedAPI.delete(
           `/mentee/qa/delete/${questId}`
         );
@@ -154,14 +168,13 @@ const Home: React.FC = () => {
           setQuestions((prevQuestions) =>
             prevQuestions.filter((question) => question._id !== questId)
           );
+          setSelectedQuestion(null);
           toast.success("Question deleted successfully");
         }
       } catch (error: unknown) {
         errorHandler(error);
       } finally {
-        setTimeout(() => {
-          setLoading(false);
-        }, 1000);
+        setLoading(false);
       }
     };
   };
@@ -173,13 +186,33 @@ const Home: React.FC = () => {
       const response = await protectedAPI.post(`/mentee/qa/create-answer`, {
         answer: content,
         questionId: answerQuestionId,
-        userType:"mentees",
+        userType: "mentee",
       });
 
-    
       if (response.status === 200 && response.data.success) {
-        toast.success("Answer submited  successfully");
+        toast.success(response.data.message);
         setIsAnswerModalOpen(false);
+        
+          setQuestions((prevQuestions) =>
+            prevQuestions.map((question) =>
+              question._id === answerQuestionId
+                ? {
+                    ...question,
+                    answerData: [
+                      ...(question.answerData || []),
+                      response?.data?.answers,
+                    ],
+                  }
+                : question
+            )
+          );
+          if (filter == "unanswered") {
+            setQuestions((prevQuestions) =>
+              prevQuestions.filter(
+                (question) => question._id !== answerQuestionId
+              )
+            );
+        }
       }
     } catch (error: unknown) {
       errorHandler(error);
@@ -188,9 +221,48 @@ const Home: React.FC = () => {
         setLoading(false);
       });
     }
-   
   };
-  console.log(questions,'thsi sit he dat is swa')
+
+  const handleEditAnswer = (content: string, answerId: string) => {
+    setEditingAnswer(content);
+    setEditingAnswerId(answerId);
+    setEditAnswerModalOpen(true);
+  };
+
+  const handleEditAnswerSubmit = async (content: string, answerId?: string) => {
+    console.log("Answer Edited: ", { content, answerId });
+
+    if (!answerId) return;
+
+    try {
+      setLoading(true);
+      const response = await protectedAPI.patch(`/mentee/qa/edit-answer`, {
+        content,
+        answerId,
+      });
+
+      if (response.status === 200 && response.data.success) {
+        setEditData({ content: response.data?.answer, answerId: answerId });
+        toast.success(response.data.message);
+
+        const updatedAnswer = response.data?.answer;
+        setQuestions((prevQuestions) =>
+          prevQuestions.map((question) => ({
+            ...question,
+            answerData: question.answerData?.map((ans) =>
+              ans._id === answerId ? { ...ans, answer: updatedAnswer } : ans
+            ),
+          }))
+        );
+      }
+    } catch (error) {
+      errorHandler(error);
+    } finally {
+      setLoading(false);
+      setEditAnswerModalOpen(false);
+    }
+  };
+
   return (
     <div>
       <div className="mb-8 mt-16 ">
@@ -203,11 +275,14 @@ const Home: React.FC = () => {
         </div>
         <div className="h-0.5 bg-gray-200 w-full" />
 
-        <section className="flex items-center justify-between mb-6 sm:mb-4 ">
+        <section className="flex items-center justify-between mb-2 sm:mb-2 sm:flex-col lg:flex-row  xss:flex-col">
           <h2 className="text-xl font-bold text-gray-900 ml-8 mt-4 sm:ml-0 ">
             Asked Questions
           </h2>
-          <div className="w-96 mt-4">
+          <div className="flex justify-between items-center  sm:gap-4 mt-3">
+        <QuestionFilter activeFilter={filter} onFilterChange={setFilter} />
+      </div>
+          <div className="w-96 mt-4 xss:w-auto">
             <InputField
               type="search"
               name="search"
@@ -219,18 +294,18 @@ const Home: React.FC = () => {
           </div>
         </section>
       </div>
-      <div className="flex justify-between items-center  sm:gap-4">
-        <QuestionFilter activeFilter={filter} onFilterChange={setFilter} />
-      </div>
+    
 
       <QuestionsList
         onDeleteQestion={handleDeleteQuestion}
         currentUserId={userId}
         questions={filterQuestions}
         onShowAnswers={handleShowAnswers}
-        onEditQuestion={handleEditQuestion}
         setIsAnswerModalOpen={setIsAnswerModalOpen}
         setAnswerQuestionId={setAnswerQuestionId}
+        onEditQuestion={handleEditQuestion}
+        onEditAnswer={handleEditAnswer}
+        EditedData={editData}
       />
 
       <Pagination
@@ -241,10 +316,9 @@ const Home: React.FC = () => {
 
       {selectedQuestion && (
         <AnswerModal
-        onSubmit={()=>selectedQuestion.content}
+          onSubmit={() => selectedQuestion.content}
           isOpen={showAnswerModal}
           onClose={() => setShowAnswerModal(false)}
-
         />
       )}
       {isAnswerModalOpen && (
@@ -252,6 +326,16 @@ const Home: React.FC = () => {
           isOpen={isAnswerModalOpen}
           onClose={() => setIsAnswerModalOpen(false)}
           onSubmit={handleAnswerSubmit}
+        />
+      )}
+
+      {editAnswerModalOpen && (
+        <AnswerInputModal
+          isOpen={editAnswerModalOpen}
+          onClose={() => setEditAnswerModalOpen(false)}
+          onSubmit={handleEditAnswerSubmit}
+          receiveAnswer={editingAnswer || ""}
+          answerId={editingAnswerId || undefined}
         />
       )}
     </div>

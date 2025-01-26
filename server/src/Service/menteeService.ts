@@ -332,49 +332,5 @@ export class menteeService implements ImenteeService {
       };
     }
   }
-  async deleteQuestion(questionId: string): Promise<{ success: boolean; message: string; status: number; }> {
-    try {
-      // Validate input
-      if (!questionId) {
-        return {
-          success: false,
-          message: "Question ID is required",
-          status: 400,
-        };
-      }
-      const response = await this._questionRepository.deleteQuestion(questionId);
-
-      // Check if the deletion was successful
-      if (!response || response.deletedCount !== 1) {
-        return {
-          success: false,
-          message: "Question not found or could not be deleted",
-          status: 404,
-        };
-      }
-      //reducing the count of answers after delete the document
-      await this._questionRepository.reduceAnswerCount(questionId)
-      //returning the success response
-      return {
-        success: true,
-        message: "Data successfully fetched",
-        status: 200,
-
-      };
-    } catch (error: unknown) {
-      //console the error 
-      console.error(
-        //using different color in terminal to show the error
-        "\x1b[34m%s\x1b[0m",
-        "Error while getting home data:",
-        error instanceof Error ? error.message : String(error)
-      );
-      //internal server error response
-      return {
-        success: false,
-        message: "Internal server error",
-        status: 500,
-      };
-    }
-  }
+  
 }

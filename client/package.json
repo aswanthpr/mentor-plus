@@ -34,7 +34,8 @@
     "react-spinners": "^0.15.0",
     "react-toastify": "^10.0.6",
     "styled-components": "^6.1.13",
-    "three": "^0.171.0"
+    "three": "^0.171.0",
+    "yup": "^1.6.1"
   },
   "devDependencies": {
     "@eslint/js": "^9.15.0",

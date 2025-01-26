@@ -11,5 +11,6 @@ export declare class baseRepository<T extends Document> implements IbaseReposito
     find_By_Id_And_Update<T extends Document>(model: Model<T>, id: string | mongoose.Types.ObjectId, updateData: UpdateQuery<T>, options?: mongoose.QueryOptions, populate?: string | mongoose.PopulateOptions | (string | mongoose.PopulateOptions)[]): Promise<T | null>;
     aggregateData<T extends Document>(model: Model<T>, aggregationPipeline: PipelineStage[]): Promise<T[]>;
     deleteDocument(Id: string): Promise<DeleteResult | undefined>;
+    deleteMany(filter: FilterQuery<T>): Promise<DeleteResult | undefined>;
 }
 //# sourceMappingURL=baseRepo.d.ts.map

@@ -1,11 +1,12 @@
 import mongoose, { Schema,Document } from 'mongoose';
 
-
+ 
 export  interface Ianswer extends Document { 
     answer: string;
     authorId: mongoose.Schema.Types.ObjectId;
     authorType: string;
     questionId: mongoose.Schema.Types.ObjectId;
+    isBlocked:boolean;
 }
 
 const answerSchema: Schema<Ianswer> = new Schema( 
@@ -22,13 +23,17 @@ const answerSchema: Schema<Ianswer> = new Schema(
         authorType: {
             type: String,
             required: true,
-            enum: ['mentees', 'mentors']
+            enum: ['mentee','mentor']
         },
         questionId: {
             type: mongoose.Schema.Types.ObjectId,
             ref: 'Question',
             required: true
-        }
+        },
+        isBlocked:{
+            type:Boolean,
+            default:false
+          }
     }, { timestamps: true })
 
 export default mongoose.model('Answer', answerSchema)

@@ -167,7 +167,6 @@ export class menteeController implements ImenteeController {
   async homeData(req: Request, res: Response): Promise<void> {
     try {
       const {filter} = req.params;
-
       const { status, success, message, homeData } =
         await this._menteeService.homeData(filter as string);
       const userId = req.user as Express.User;
@@ -183,25 +182,5 @@ export class menteeController implements ImenteeController {
       );
     }
   }
-  async deleteQuestion(req: Request, res: Response): Promise<void> {
-    try {
-      const {questionId}=req.params;
-
-      const { status, success, message } =
-      await this._menteeService.deleteQuestion(questionId);
   
-    res.status(status).json({ success, message });
-
-
-    }catch (error: unknown) {
-      res
-        .status(500)
-        .json({ success: false, message: "Internal server error" });
-      throw new Error(
-        `Error while delete questions ${
-          error instanceof Error ? error.message : String(error)
-        }`
-      );
-    }
-  }
 }

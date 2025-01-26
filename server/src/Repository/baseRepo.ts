@@ -144,4 +144,16 @@ export class baseRepository<T extends Document> implements IbaseRepository<T> {
       );
     }
   }
+  async deleteMany(filter: FilterQuery<T>): Promise<DeleteResult| undefined> {
+    try {
+      return await this.model.deleteMany(filter).exec();
+  
+    } catch (error: unknown) {
+      console.error(
+        `Error while deleting document: ${
+          error instanceof Error ? error.message : String(error)
+        }`
+      );
+    }
+  }
 }

@@ -1,3 +1,4 @@
+import { BadgeCheckIcon } from 'lucide-react';
 import React from 'react';
 // import { Star, Clock } from 'lucide-react';
 export interface Mentor extends Partial<IMentor>  {
@@ -40,8 +41,13 @@ export interface Mentor extends Partial<IMentor>  {
             className="w-16 h-16 rounded-full object-cover mx-auto sm:mx-0"
           />
           <div className="flex-1">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-              <h3 className="text-lg font-semibold text-gray-900 text-center sm:text-left">{mentor?.name}</h3>
+            <div className="flex flex-col sm:flex-row sm:items-center  gap-2">
+            <div className="flex items-center gap-2">
+  <h3 className="text-lg font-semibold text-gray-900">{mentor?.name}</h3>
+  <span className="mt-1"> 
+    <BadgeCheckIcon className="ml-1 text-green-600 w-5" />
+  </span>
+</div>
               {/* <div className="flex items-center justify-center sm:justify-start gap-1">
                 <div className={`w-2 h-2 rounded-full ${availabilityColor}`} />
                 <span className="text-sm text-gray-500 capitalize">{mentor?.availability}</span>

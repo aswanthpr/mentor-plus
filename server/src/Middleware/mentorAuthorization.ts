@@ -1,6 +1,7 @@
 import { Request, Response, NextFunction } from "express";
 import { verifyAccessToken, verifyRefreshToken } from "../Utils/jwt.utils";
 import mentorModel from "../Model/mentorModel";
+import mongoose from "mongoose";
 
 
 
@@ -37,9 +38,8 @@ const mentorAuthorize = async (
 
         }
 
-        req.user = {
-            mentorId: decode.userId,
-        };
+         req.user  =  new mongoose.Types.ObjectId(decode?.userId as string) 
+
         next()
     } catch (error: unknown) {
         const refreshToken = req.cookies?.mentorToken;

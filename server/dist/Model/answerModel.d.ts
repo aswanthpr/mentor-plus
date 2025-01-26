@@ -4,6 +4,7 @@ export interface Ianswer extends Document {
     authorId: mongoose.Schema.Types.ObjectId;
     authorType: string;
     questionId: mongoose.Schema.Types.ObjectId;
+    isBlocked: boolean;
 }
 declare const _default: mongoose.Model<Ianswer, {}, {}, {}, mongoose.Document<unknown, {}, Ianswer> & Ianswer & Required<{
     _id: unknown;

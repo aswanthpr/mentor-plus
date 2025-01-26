@@ -23,7 +23,15 @@ const QnA_page: React.FC = () => {
   // const [error, setError] = useState<string>("");
   const [userId, setUserId] = useState<string>("");
   const [filter, setFilter] = useState<"answered" | "unanswered">("answered");
-  const [answerQuestionId,setAnswerQuestionId] = useState<string>('')
+  const [answerQuestionId, setAnswerQuestionId] = useState<string>("");
+  const [answer, setEditAnswer] = useState<string>("");
+  const [answerId, setAnswerId] = useState<string>("");
+  const [editAnswerModalOpen, setEditAnswerModalOpen] =
+    useState<boolean>(false);
+    const [editData, setEditData] = useState<{ content: string; answerId: string }>({
+      content: '',
+      answerId:'',
+    });
   useEffect(() => {
     const fetchQuestions = async () => {
       try {
@@ -37,11 +45,8 @@ const QnA_page: React.FC = () => {
         }
       } catch (error: unknown) {
         errorHandler(error);
-
       } finally {
-    
-          setLoading(false);
-      
+        setLoading(false);
       }
     };
 
@@ -51,17 +56,22 @@ const QnA_page: React.FC = () => {
   const handleAddQuestion = async (question: IQuestion) => {
     setShowAddModal(false);
     try {
-      setLoading(true);
       const response = await protectedAPI.post(
         `/mentee/qa/add-question/`,
         question
       );
 
       if (response.status == 200 && response.data.success) {
-        setQuestions((prevQuestions) => [
-          response.data.question,
-          ...prevQuestions,
-        ]);
+        if (filter == "unanswered") {
+          setQuestions((prevQuestions) => [
+            ...prevQuestions,
+            {
+              ...response.data?.question,
+              user: response.data?.question?.menteeId,
+              menteeId: response.data?.question?.user?._id,
+            },
+          ]);
+        }
         toast.success(response.data.message);
       }
     } catch (error: unknown) {
@@ -88,8 +98,8 @@ const QnA_page: React.FC = () => {
     // Check if any field has changed
     const isChanged = Object.keys(updatedQuestion).some((key) => {
       return (
-        JSON.stringify(updatedQuestion [ key as keyof IQuestion]) !==
-        JSON.stringify(originalQuestion [ key as keyof IQuestion])
+        JSON.stringify(updatedQuestion[key as keyof IQuestion]) !==
+        JSON.stringify(originalQuestion[key as keyof IQuestion])
       );
     });
 
@@ -118,7 +128,7 @@ const QnA_page: React.FC = () => {
           updatedAt: question?.updatedAt,
           menteeId: question?.menteeId?._id,
           answerId: question?.answerId,
-          menteeData: question?.menteeId,
+          user: question?.menteeId,
         };
         setQuestions(questions.map((q) => (q._id === questionId ? update : q)));
         toast.success(response.data.message);
@@ -186,23 +196,89 @@ const QnA_page: React.FC = () => {
   };
 
   const handleAnswerSubmit = async (content: string) => {
-    console.log(answerQuestionId,'thsi sit he question id ')
-try {
-  setLoading(true);
-  const response = await protectedAPI.post(`/mentee/qa/create-answer`,{answer:content,questionId:answerQuestionId,userType:'mentees'});
+    console.log(answerQuestionId, "thsi sit he question id ");
+    try {
+      setLoading(true);
+      const response = await protectedAPI.post(`/mentee/qa/create-answer`, {
+        answer: content,
+        questionId: answerQuestionId,
+        userType: "mentee",
+      });
 
-  
-
-  if (response.status === 200 && response.data.success) {
-   
-    toast.success("Answer submited  successfully");
-    setIsAnswerModalOpen(false);
-  }
-} catch (error:unknown) {
-  errorHandler(error)
-}
-    console.log('Answer submitted:', content);
+      if (response.status === 200 && response.data.success) {
+        toast.success("Answer submited  successfully");
+        
+        setQuestions((prevQuestions) =>
+          prevQuestions.map((question) =>
+            question._id === answerQuestionId
+              ? {
+                  ...question,
+                  answerData: [
+                    ...(question.answerData || []),
+                    response?.data?.answers,
+                  ],
+                }
+              : question
+          )
+        );
+        
+        if (filter == "unanswered") {
+          setQuestions((prevQuestions) =>
+            prevQuestions.filter(
+              (question) => question._id !== answerQuestionId
+            )
+          );
+        }
+        setIsAnswerModalOpen(false);
+      }
+    } catch (error: unknown) {
+      errorHandler(error);
+    } finally {
+      setTimeout(() => {
+        setLoading(false);
+      });
+    }
   };
+
+  const handleEditAnswer = (content: string,answerId: string) => {
+    setEditAnswer(content);
+    setAnswerId(answerId);
+    setEditAnswerModalOpen(true);
+  };
+  const handleEditAnswerSubmit = async (content: string, answerId?: string) => {
+    console.log(answerId, "thsi sit he question id ", content);
+    try {
+      setLoading(true);
+      const response = await protectedAPI.patch(`/mentee/qa/edit-answer`, {
+        content,
+        answerId,
+      });
+
+      if (response.status === 200 && response.data.success) {
+        setEditData({content:response.data?.answer,answerId:answerId!});
+        const updatedAnswer = response.data?.answer; 
+        setQuestions((prevQuestions) =>
+          prevQuestions.map((question) => ({
+            ...question,
+            answerData: question.answerData?.map((ans) => 
+              ans._id === answerId
+                ? { ...ans, answer:updatedAnswer } 
+                : ans
+            ),
+          }))
+        );
+        toast.success(response.data?.message);
+        setIsAnswerModalOpen(false);
+      }
+    } catch (error: unknown) {
+      errorHandler(error);
+    } finally {
+      
+        setLoading(false);
+    
+    }
+  };
+
   return (
     <div>
       <div className="mb-6 mt-16">
@@ -238,35 +314,45 @@ try {
       <QuestionFilter activeFilter={filter} onFilterChange={setFilter} />
       {/* <div className="h-0.5 bg-gray-200 w-full" /> */}
 
-      <section className="flex items-center justify-center mt-6">
-        <QuestionsList
-          onDeleteQestion={handleDeleteQuestion}
-          questions={filteredQuestions}
-          onEditQuestion={handleEditQuestion}
-          currentUserId={userId as string}
-          setAnswerQuestionId={setAnswerQuestionId}
-          onShowAnswers={handleShowAnswers}
-          setIsAnswerModalOpen={setIsAnswerModalOpen}
-        />
-        <Pagination
-          currentPage={currentPage}
-          totalPages={Math.ceil(filteredQuestions.length / 5)}
-          onPageChange={setCurrentPage}
-        />
+      <QuestionsList
+        onDeleteQestion={handleDeleteQuestion}
+        questions={filteredQuestions}
+        onEditQuestion={handleEditQuestion}
+        currentUserId={userId as string}
+        setAnswerQuestionId={setAnswerQuestionId}
+        onShowAnswers={handleShowAnswers}
+        setIsAnswerModalOpen={setIsAnswerModalOpen}
+        onEditAnswer={handleEditAnswer}
+        EditedData={editData}
 
-        <AddQuestion
-          isOpen={showAddModal}
-          onClose={() => setShowAddModal(false)}
-          onAdd={handleAddQuestion}
+      />
+
+      <AddQuestion
+        isOpen={showAddModal}
+        onClose={() => setShowAddModal(false)}
+        onAdd={handleAddQuestion}
+      />
+      {isAnswerModalOpen && (
+        <AnswerInputModal
+        isOpen={isAnswerModalOpen}
+        onClose={() => setIsAnswerModalOpen(false)}
+        onSubmit={handleAnswerSubmit}
         />
-        {isAnswerModalOpen && (
-          <AnswerInputModal
-            isOpen={isAnswerModalOpen}
-            onClose={() => setIsAnswerModalOpen(false)}
-            onSubmit={handleAnswerSubmit}
-          />
-        )}
-      </section>
+      )}
+      {editAnswerModalOpen && (
+        <AnswerInputModal
+        isOpen={editAnswerModalOpen}
+        onClose={() => setEditAnswerModalOpen(false)}
+        onSubmit={handleEditAnswerSubmit}
+        receiveAnswer={answer}
+        answerId={answerId}
+        />
+      )}
+      <Pagination
+        currentPage={currentPage}
+        totalPages={Math.ceil(filteredQuestions.length / 5)}
+        onPageChange={setCurrentPage}
+      />
     </div>
   );
 };
