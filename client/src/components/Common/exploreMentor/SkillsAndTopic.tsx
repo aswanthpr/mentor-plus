@@ -1,9 +1,8 @@
 interface SkillsAndTopicsProps {
     skills: string[];
-    topics: string[];
   }
   
-  export const SkillsAndTopics = ({ skills, topics }: SkillsAndTopicsProps) => {
+  export const SkillsAndTopics = ({ skills }: SkillsAndTopicsProps) => {
     return (
       <div className="space-y-6">
         <div>
@@ -20,19 +19,6 @@ interface SkillsAndTopicsProps {
           </div>
         </div>
         
-        <div>
-          <h2 className="text-lg font-semibold mb-3">Topics</h2>
-          <div className="flex flex-wrap gap-2">
-            {topics.map((topic, index) => (
-              <span
-                key={index}
-                className="px-3 py-1 bg-gray-100 text-gray-700 rounded-full text-sm"
-              >
-                {topic}
-              </span>
-            ))}
-          </div>
-        </div>
       </div>
     );
   };

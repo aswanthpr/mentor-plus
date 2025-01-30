@@ -10,12 +10,14 @@ import qaService from '../Service/qaService'
 import qaController from "../Controller/qaController";
 import questionRepository from "../Repository/questionRepository";
 import answerRespository from "../Repository/answerRepository";
+import timeSlotRepository from "../Repository/timeSlotRepository";
 
 const __menteeService = new menteeService(
     menteeRepository,
     mentorRepository,
     categoryRepository,
-    questionRepository
+    questionRepository,
+    timeSlotRepository,
 )
 const __menteeController = new menteeController(__menteeService);
 const __qaService = new qaService(questionRepository, answerRespository);
@@ -42,5 +44,8 @@ mentee_Router.get(`/home/:filter`, authorize, __menteeController.homeData.bind(_
 mentee_Router.delete(`/qa/delete/:questionId`, authorize, __qaController.deleteQuestion.bind(__qaController))
 
 mentee_Router.post(`/qa/create-answer`, authorize, __qaController.createNewAnswer.bind(__qaController));
-mentee_Router.patch(`/qa/edit-answer`,authorize,__qaController.editAnswer.bind(__qaController))
+mentee_Router.patch(`/qa/edit-answer`,authorize,__qaController.editAnswer.bind(__qaController));
+mentee_Router.get(`/explore/similar-mentors`,authorize,__menteeController.getSimilarMentors.bind(__menteeController));
+mentee_Router.get(`/slot-booking/slot`,__menteeController.getTimeSlots.bind(__menteeController));
+
 export default mentee_Router;

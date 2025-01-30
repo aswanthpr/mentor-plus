@@ -208,7 +208,7 @@ class mentorRepository
           },
         },
         {
-          $project: {
+          $project: { 
             _id: 0,
             skills: 1
           }
@@ -218,6 +218,29 @@ class mentorRepository
     } catch (error: unknown) { 
       throw new Error(
         `Error while finding category with skills ${error instanceof Error ? error.message : String(error)
+        }`
+      );
+    }
+  }
+
+  async findMentorsByCategory(category:string,mentorId:string):Promise<Imentor[]|[]>{
+    try {
+      return  this.aggregateData(mentorModel,[
+        {
+         
+          $match: {
+            category: category,
+            _id: { $ne: new mongoose.Types.ObjectId(mentorId) } 
+          }
+        },
+        // {
+        //   // Randomly sample 10 mentors
+        //   $sample: { size: 10 }
+        // }
+      ])
+    } catch (error:unknown) {
+      throw new Error(
+        `Error while finding  mentors by category  ${error instanceof Error ? error.message : String(error)
         }`
       );
     }

@@ -1,17 +1,9 @@
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { useRef } from 'react';
 
-interface Mentor {
-  id: string;
-  name: string;
-  image: string;
-  badge: string;
-  description: string;
-}
-
 interface MentorListByCategoryProps {
   title: string;
-  mentors: Mentor[];
+  mentors: IMentor[];
   onSeeAll: () => void;
 }
 
@@ -59,23 +51,23 @@ export const MentorListByCategory = ({
         >
           {mentors.map((mentor) => (
             <div
-              key={mentor.id}
+              key={mentor?._id}
               className="flex-shrink-0 w-[280px] bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow"
             >
               <div className="relative">
                 <img
-                  src={mentor.image}
-                  alt={mentor.name}
+                  src={mentor?.profileUrl}
+                  alt={mentor?.name}
                   className="w-full h-48 object-cover rounded-t-lg"
                 />
                 <span className="absolute top-4 left-4 px-3 py-1 bg-orange-500 text-white text-sm rounded-full">
-                  {mentor.badge}
+                  {mentor?.category}
                 </span>
               </div>
               <div className="p-4">
-                <h3 className="font-semibold text-lg mb-2">{mentor.name}</h3>
+                <h3 className="font-semibold text-lg mb-2">{mentor?.name}</h3>
                 <p className="text-gray-600 text-sm line-clamp-2">
-                  {mentor.description}
+                  {mentor?.jobTitle}
                 </p>
               </div>
             </div>

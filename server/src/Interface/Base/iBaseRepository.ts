@@ -5,6 +5,7 @@ import mongoose, {
   UpdateQuery,
   PipelineStage,
   DeleteResult,
+  // InsertManyOptions,
 } from "mongoose";
 
 export interface IbaseRepository<T extends Document> {
@@ -37,5 +38,10 @@ export interface IbaseRepository<T extends Document> {
     aggregationPipeline: PipelineStage[]
   ): Promise<T[]>;
 
-  deleteDocument( Id: string): Promise<DeleteResult | undefined> 
+  deleteDocument( Id: string): Promise<DeleteResult | undefined> ;
+  insert_Many<T extends Document>(
+      model: Model<T>,
+      documents: T[],
+      // options?:InsertManyOptions
+    ): Promise<T[]> 
 }

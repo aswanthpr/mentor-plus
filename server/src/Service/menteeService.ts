@@ -14,20 +14,22 @@ import { Imentor } from "../Model/mentorModel";
 import { ImentorRepository } from "../Interface/Mentor/iMentorRepository";
 import { IcategoryRepository } from "../Interface/Category/iCategoryRepository";
 import { Icategory } from "../Model/categorySchema";
-import { Iquestion } from "src/Model/questionModal";
-import { IquestionRepository } from "src/Interface/Qa/IquestionRepository";
+import { Iquestion } from "../Model/questionModal";
+import { IquestionRepository } from "../Interface/Qa/IquestionRepository";
+import { Status } from "../Utils/httpStatusCode";
+import { Itime } from "src/Model/timeModel";
+import { ItimeSlotRepository } from "src/Interface/timeSchedule/iTimeSchedule";
 
 export class menteeService implements ImenteeService {
   constructor(
     private _menteeRepository: ImenteeRepository,
     private _mentorRepository: ImentorRepository,
     private _categoryRepository: IcategoryRepository,
-    private _questionRepository: IquestionRepository
-  ) { }
+    private _questionRepository: IquestionRepository,
+    private _timeSlotRepository:ItimeSlotRepository,
+  ) {}
 
-  async menteeProfile(
-    refreshToken: string
-  ): Promise<{
+  async menteeProfile(refreshToken: string): Promise<{
     success: boolean;
     message: string;
     result: Imentee | null;
@@ -48,7 +50,6 @@ export class menteeService implements ImenteeService {
         };
       }
 
-     
       const result = await this._menteeRepository.findById(decode.userId);
       if (!result) {
         return {
@@ -62,14 +63,13 @@ export class menteeService implements ImenteeService {
       return { success: true, message: "success", result: result, status: 200 };
     } catch (error: unknown) {
       throw new Error(
-        `Error while bl metneeProfile in service: ${error instanceof Error ? error.message : String(error)
+        `Error while bl metneeProfile in service: ${
+          error instanceof Error ? error.message : String(error)
         }`
       );
     }
   }
-  async editMenteeProfile(
-    formData: Partial<Imentee>
-  ): Promise<{
+  async editMenteeProfile(formData: Partial<Imentee>): Promise<{
     success: boolean;
     message: string;
     result: Imentee | null;
@@ -105,7 +105,8 @@ export class menteeService implements ImenteeService {
       };
     } catch (error: unknown) {
       throw new Error(
-        `Error while bl metneeProfile edit in service: ${error instanceof Error ? error.message : String(error)
+        `Error while bl metneeProfile edit in service: ${
+          error instanceof Error ? error.message : String(error)
         }`
       );
     }
@@ -159,7 +160,8 @@ export class menteeService implements ImenteeService {
       return { success: true, message: "updation successfull", status: 200 };
     } catch (error: unknown) {
       throw new Error(
-        `Error while bl metneeProfile password change in service: ${error instanceof Error ? error.message : String(error)
+        `Error while bl metneeProfile password change in service: ${
+          error instanceof Error ? error.message : String(error)
         }`
       );
     }
@@ -180,10 +182,7 @@ export class menteeService implements ImenteeService {
       }
       const profileUrl = await uploadImage(image?.buffer);
 
-      const result = await this._menteeRepository.profileChange(
-        profileUrl,
-        id
-      );
+      const result = await this._menteeRepository.profileChange(profileUrl, id);
 
       if (!result) {
         return { success: false, message: "user not found", status: 401 };
@@ -196,7 +195,8 @@ export class menteeService implements ImenteeService {
       };
     } catch (error: unknown) {
       throw new Error(
-        `Error while bl metnee Profile  change in service: ${error instanceof Error ? error.message : String(error)
+        `Error while bl metnee Profile  change in service: ${
+          error instanceof Error ? error.message : String(error)
         }`
       );
     }
@@ -299,19 +299,33 @@ export class menteeService implements ImenteeService {
     }
   }
 
-  async homeData(filter:string): Promise<{ success: boolean; message: string; status: number; homeData: Iquestion[] | null; }> {
+  async homeData(
+    filter: string
+  ): Promise<{
+    success: boolean;
+    message: string;
+    status: number;
+    homeData: Iquestion[] | null;
+  }> {
     try {
-      if(!filter){
+      if (!filter) {
         return {
           success: false,
           message: "credentials not found",
           status: 400,
-          homeData:null
+          homeData: null,
         };
       }
 
-      const response = await this._questionRepository.allQuestionData(filter );
-      console.log(response)
+      const response = await this._questionRepository.allQuestionData(filter);
+      if (!response) {
+        return {
+          success: false,
+          message: "Data not found",
+          status: 404,
+          homeData: null,
+        };
+      }
       return {
         success: true,
         message: "Data successfully fetched",
@@ -332,5 +346,86 @@ export class menteeService implements ImenteeService {
       };
     }
   }
-  
+  // /mentee/explor/mentor/:id
+  async getMentorDetailes(
+    category:string,
+    mentorId: string,
+    
+  ): Promise<{
+    success: boolean;
+    message: string;
+    status: number;
+    mentor: Imentor[] | [];
+  }> {
+    try {
+      if (!mentorId) {
+        return {
+          status: Status.BadRequest,
+          message: "credential not found",
+          success: false,
+          mentor: [],
+        };
+      }
+      const response = await this._mentorRepository.findMentorsByCategory(
+        category as string,
+        mentorId
+      );
+      if (!response) {
+        return {
+          status: Status.Ok,
+          message: "Data not found",
+          success: false,
+          mentor: [],
+        };
+      }
+      return {
+        status: Status.Ok,
+        message: "Data fetched successfully",
+        success: true,
+        mentor: response,
+      };
+    } catch (error: unknown) {
+      throw new Error(
+        `${
+          error instanceof Error ? error.message : String(error)
+        } error while gettign mentor data in mentee service`
+      );
+    }
+  }
+
+
+  async getTimeSlots(mentorId: string): Promise<{ success: boolean; message: string; status: number; timeSlots: Itime[] | []; }> {
+    try {
+      if (!mentorId) {
+        return {
+          status: Status.BadRequest,
+          message: "credential not found",
+          success: false,
+         timeSlots: [],
+        };
+      }
+      const response = await this._timeSlotRepository.getMentorSlots(mentorId);
+      if (!response) {
+        return {
+          status: Status.Ok,
+          message: "Data not found",
+          success: false,
+          timeSlots: [],
+        };
+      }
+      console.log(response,'from service')
+      return {
+        status: Status.Ok,
+        message: "Data fetched successfully",
+        success: true,
+        timeSlots: response,
+      };
+    } catch (error:unknown) {
+      throw new Error(
+        `${
+          error instanceof Error ? error.message : String(error)
+        } error while gettign Time Slots in mentee service`
+      );
+    }
+  }
 }

@@ -18,7 +18,7 @@ const SidePanel: React.FC<ISideBar> = ({ SideBarItems}) => {
       <nav className='p-4 space-y-1'>
         {
           SideBarItems.map((item) => {
-            const isActive = location.pathname === item.path;
+            const isActive = location.pathname.startsWith(item.path);
             return (<NavLink
               key={item.name}
               to={item.path}

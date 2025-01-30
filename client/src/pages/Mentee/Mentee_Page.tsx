@@ -77,7 +77,7 @@ const Mentee_Page: React.FC = () => {
 
       {/* Main Content */}
       <main className={` lg:pl-64 transition-all duration-200`}>
-        <div className="p-6">
+        <div className="p-6 ">
           <Outlet />
         </div>
       </main>

@@ -23,7 +23,6 @@ export const errorHandler = (error: unknown) => {
     }
   } catch (catchError) {
     // Handle cases where error inspection itself fails
-    toast.error('An unexpected error occurred.');
     console.error('Error while handling the error:', catchError);
   }
 };

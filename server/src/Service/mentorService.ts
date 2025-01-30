@@ -1,26 +1,35 @@
 import bcrypt from "bcrypt";
-import { ImentorService } from "../Interface/Mentor/iMentorService";
-import { ImentorRepository } from "../Interface/Mentor/iMentorRepository";
-import { Imentor } from "../Model/mentorModel";
 import jwt from "jsonwebtoken";
+import { RRule } from "rrule";
 import {
   genAccesssToken,
   genRefreshToken,
   verifyRefreshToken,
 } from "../Utils/jwt.utils";
-import { IcategoryRepository } from "../Interface/Category/iCategoryRepository";
-import { Icategory } from "../Model/categorySchema";
+import { ISchedule, ISlots } from "src/Types";
+import { Itime } from "../Model/timeModel";
+import { Imentor } from "../Model/mentorModel";
 import hash_pass from "../Utils/hashPass.util";
+import { Iquestion } from "../Model/questionModal";
+import { Icategory } from "../Model/categorySchema";
 import { uploadFile, uploadImage } from "../Config/cloudinary.util";
-import { IquestionRepository } from "src/Interface/Qa/IquestionRepository";
-import { Iquestion } from "src/Model/questionModal";
+import { ImentorService } from "../Interface/Mentor/iMentorService";
+import { ImentorRepository } from "../Interface/Mentor/iMentorRepository";
+import { IcategoryRepository } from "../Interface/Category/iCategoryRepository";
+import { IquestionRepository } from "../Interface/Qa/IquestionRepository";
+import { WeekdayString } from "../Types/types";
+import { ObjectId } from "mongoose";
+import { ItimeSlotRepository } from "../Interface/timeSchedule/iTimeSchedule";
+import { Status } from "../Utils/httpStatusCode";
+import { convertTo24HourTime } from "../Utils/reuseFunctions";
 
 export class mentorService implements ImentorService {
   constructor(
     private _mentorRepository: ImentorRepository,
     private _categoryRepository: IcategoryRepository,
     private _questionRepository: IquestionRepository,
-  ) { }
+    private _timeSlotRepository: ItimeSlotRepository
+  ) {}
 
   async mentorProfile(token: string): Promise<{
     success: boolean;
@@ -77,7 +86,8 @@ export class mentorService implements ImentorService {
       };
     } catch (error: unknown) {
       throw new Error(
-        `Error while bl metneeProfile in service: ${error instanceof Error ? error.message : String(error)
+        `Error while bl metneeProfile in service: ${
+          error instanceof Error ? error.message : String(error)
         }`
       );
     }
@@ -194,7 +204,8 @@ export class mentorService implements ImentorService {
       };
     } catch (error: unknown) {
       throw new Error(
-        `Error during password change${error instanceof Error ? error.message : String(error)
+        `Error during password change${
+          error instanceof Error ? error.message : String(error)
         }`
       );
     }
@@ -216,7 +227,7 @@ export class mentorService implements ImentorService {
         return {
           success: false,
           message: "Image or ID is missing, please provide both.",
-          status: 400,
+          status: Status.BadRequest,
         };
       }
       const profileUrl = await uploadImage(image?.buffer);
@@ -224,7 +235,7 @@ export class mentorService implements ImentorService {
         return {
           success: false,
           message: "Failed to upload the image, please try again later.",
-          status: 500,
+          status: Status.InternalServerError,
         };
       }
       // const currentPublicId = this.extractPublicIdFromCloudinaryUrl(currentProfile.profileUrl);
@@ -250,18 +261,19 @@ export class mentorService implements ImentorService {
         return {
           success: false,
           message: "Mentor not found with the provided ID.",
-          status: 404,
+          status: Status.NotFound,
         };
       }
       return {
         success: true,
         message: "Profile image updated successfully.",
-        status: 200,
+        status: Status.Ok,
         profileUrl: result.profileUrl,
       };
     } catch (error: unknown) {
       throw new Error(
-        `Error while bl metnee Profile  change in service: ${error instanceof Error ? error.message : String(error)
+        `Error while bl metnee Profile  change in service: ${
+          error instanceof Error ? error.message : String(error)
         }`
       );
     }
@@ -277,7 +289,6 @@ export class mentorService implements ImentorService {
     result: Imentor | null;
   }> {
     try {
-
       const {
         _id,
         name,
@@ -290,7 +301,7 @@ export class mentorService implements ImentorService {
         bio,
         skills,
       } = mentorData;
-      console.log("\x1b[32m%s\x1b[0m", _id,);
+      console.log("\x1b[32m%s\x1b[0m", _id);
 
       if (
         !name ||
@@ -336,7 +347,6 @@ export class mentorService implements ImentorService {
         updatedData.githubUrl = githubUrl;
       if (existingMentor.bio !== bio) updatedData.bio = bio;
 
-
       if (resume) {
         const fileUrl = await uploadFile(resume.buffer, resume.originalname);
         if (!fileUrl) {
@@ -347,10 +357,7 @@ export class mentorService implements ImentorService {
         updatedData.resume = existingMentor.resume;
       }
 
-      const result = await this._mentorRepository.updateMentorById(
-        updatedData,
-      );
-
+      const result = await this._mentorRepository.updateMentorById(updatedData);
 
       if (!result) {
         return {
@@ -369,24 +376,30 @@ export class mentorService implements ImentorService {
       };
     } catch (error: unknown) {
       throw new Error(
-        `Error while  mentor Profile  edit details in service: ${error instanceof Error ? error.message : String(error)
+        `Error while  mentor Profile  edit details in service: ${
+          error instanceof Error ? error.message : String(error)
         }`
       );
     }
   }
-  async homeData(filter: string): Promise<{ success: boolean; message: string; status: number; homeData: Iquestion[] | null; }> {
+  async homeData(filter: string): Promise<{
+    success: boolean;
+    message: string;
+    status: number;
+    homeData: Iquestion[] | null;
+  }> {
     try {
       if (!filter) {
         return {
           success: false,
           message: "credentials not found",
           status: 400,
-          homeData: null
+          homeData: null,
         };
       }
 
       const response = await this._questionRepository.allQuestionData(filter);
-      console.log(response)
+      console.log(response);
       return {
         success: true,
         message: "Data successfully fetched",
@@ -395,9 +408,218 @@ export class mentorService implements ImentorService {
       };
     } catch (error: unknown) {
       throw new Error(
-        `Error while  mentor home data fetching in service: ${error instanceof Error ? error.message : String(error)
+        `Error while  mentor home data fetching in service: ${
+          error instanceof Error ? error.message : String(error)
+        }`
+      );
+    }
+  }
+
+  async createTimeSlots(
+    type: string,
+    schedule: unknown,
+    mentorId: ObjectId
+  ): Promise<{
+    success: boolean;
+    message: string;
+    status: number;
+    timeSlots: Itime | undefined;
+  }> {
+    console.log("hiaiiiiiiiiiiiiiiiiiiii");
+    try {
+      let result: Itime | undefined;
+      if (type === "recurring") {
+        const { endDate, price, selectedDays, startDate, slots } =
+          schedule as ISlots;
+        if (!endDate || !price || !selectedDays || !slots || !startDate) {
+          return {
+            success: false,
+            message: "credential missing",
+            status: Status.BadRequest,
+            timeSlots: undefined,
+          };
+        }
+
+        const dayMap = {
+          Monday: RRule.MO,
+          Tuesday: RRule.TU,
+          Wednesday: RRule.WE,
+          Thursday: RRule.TH,
+          Friday: RRule.FR,
+          Saturday: RRule.SA,
+          Sunday: RRule.SU,
+        };
+        const byWeekdays = (selectedDays as WeekdayString[]).map(
+          (day: WeekdayString) => dayMap[day]
+        );
+
+        const rrule = new RRule({
+          freq: RRule.WEEKLY,
+          dtstart: new Date(startDate),
+          until: new Date(endDate ?? ""),
+          byweekday: byWeekdays,
+          interval: 1,
+        });
+
+        const recurringDates = rrule.all();
+        const timeSlotsToInsert: Itime[] = [];
+
+        recurringDates.forEach((date) => {
+          slots.forEach((slot) => {
+            const start = convertTo24HourTime(
+              startDate,
+              slot.startTime as unknown as string
+            );
+            const end = convertTo24HourTime(
+              startDate,
+              slot.endTime as unknown as string
+            );
+
+            const timeSlot = {
+              startDate: date,
+              slots: [
+                {
+                  startTime: start,
+                  endTime: end,
+                  startStr: slot.startTime,
+                  endStr: slot.endTime,
+                },
+              ],
+              price,
+              mentorId,
+            };
+            timeSlotsToInsert.push(timeSlot as unknown as Itime);
+          });
+        });
+
+        result = await this._timeSlotRepository.createTimeSlot(
+          timeSlotsToInsert
+        );
+      } else {
+        const timeSlotsToInsert: Itime[] = [];
+
+        for (const entry of schedule as ISchedule[]) {
+          const { slots, price, startDate } = entry;
+
+          if (!price || !startDate || !mentorId) {
+            return {
+              success: false,
+              message: "credential missing",
+              status: Status.BadRequest,
+              timeSlots: undefined,
+            };
+          }
+          const entrySlots = slots.map((slot) => {
+            const start = convertTo24HourTime(
+              startDate,
+              slot.startTime as unknown as string
+            );
+            const end = convertTo24HourTime(
+              startDate,
+              slot.endTime as unknown as string
+            );
+
+            return {
+              startDate: new Date(startDate),
+              slots: [
+                {
+                  startTime: start,
+                  endTime: end,
+                  startStr: slot?.startTime,
+                  endStr: slot?.endTime,
+                },
+              ],
+              price,
+              mentorId,
+            };
+          });
+          timeSlotsToInsert.push(...(entrySlots as unknown as Itime[]));
+        }
+
+        result = await this._timeSlotRepository.createTimeSlot(
+          timeSlotsToInsert
+        );
+      }
+      console.log(result,'thsi is the result ')
+      return {
+        success: true,
+        message: "slot created successfully",
+        status: Status.Ok,
+        timeSlots: result as Itime,
+      };
+    } catch (error: unknown) {
+      throw new Error(
+        `"\x1b[33m%s\x1b[0m",Error while mentor creating timeSlots in service: ${
+          error instanceof Error ? error.message : String(error)
+        }`
+      );
+    }
+  }
+  async getTimeSlots(
+    mentorId: ObjectId
+  ): Promise<{
+    success: boolean;
+    message: string;
+    status: number;
+    timeSlots: Itime[] | [];
+  }> {
+    try {
+      if (!mentorId) {
+        return {
+          success: false,
+          message: "credentials not found",
+          status: Status.BadRequest,
+          timeSlots: [],
+        };
+      }
+      const response = await this._timeSlotRepository.getTimeSlots(mentorId);
+      return {
+        success: true,
+        message: "Data successfully fetched",
+        status: Status.Ok,
+        timeSlots: response,
+      };
+    } catch (error: unknown) {
+      throw new Error(
+        `Error while  get time slots in service: ${
+          error instanceof Error ? error.message : String(error)
+        }`
+      );
+    }
+  }
+  async removeTimeSlot(slotId:string): Promise<{ success: boolean; message: string; status: number; }> {
+    try {
+      if(!slotId){
+        return {
+          success: false,
+          message: "credentials not found",
+          status: Status.BadRequest,
+        };
+      }
+      const result = await this._timeSlotRepository.removeTimeSlot(slotId)
+      if (!result?.acknowledged || result.deletedCount === 0) {
+        return {
+          success: false,
+          message: "Slot not found or removal failed.",
+          status: Status.NotFound, 
+        };
+      }
+      console.log(result,'result')
+      return {
+        success: true,
+        message: "successfully removed",
+        status: Status.Ok,
+       
+      };
+    } catch (error:unknown) {
+      throw new Error(
+        `Error while  remove slots  in service: ${
+          error instanceof Error ? error.message : String(error)
         }`
       );
     }
   }
 }
+
+
+                                                        

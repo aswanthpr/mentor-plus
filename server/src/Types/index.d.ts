@@ -1,3 +1,4 @@
+import { slot } from "src/Model/timeModel";
 
   interface ImentorApplication {
    name: string;
@@ -28,5 +29,23 @@
   tags: string[];
   menteeId?:string
 }
+// export interface ITimeSlot {
+  
+//   startTime: string;
+//   endTime: string;
+// }
 
+export interface ISlots{
+  startDate:string,
+  endDate?:string;
+  slots :slot[]
+  selectedDays?:string[];
+  price:string
+}
 
+export interface ISchedule {
+  slots: slot[];    
+  price: string;    
+  startDate: string;
+  mentorId?:ObjectId
+}

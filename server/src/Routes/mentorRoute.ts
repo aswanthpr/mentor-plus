@@ -9,12 +9,13 @@ import questionRepository from "../Repository/questionRepository";
 import answerRepository from "../Repository/answerRepository";
 import qaService from "../Service/qaService";
 import qaController from "../Controller/qaController";
+import timeSlotRepository from "../Repository/timeSlotRepository";
 const __mentorService = new mentorService(
   mentorRepository,
   categoryRepository,
   questionRepository,
+  timeSlotRepository,
 
-  
 );
 
 const __mentorController = new mentorController(__mentorService);
@@ -59,4 +60,10 @@ mentor_Router.get(
 );
 mentor_Router.post(`/qa/create-new-answer`,mentorAuthorize,__qaController.createNewAnswer.bind(__qaController));
 mentor_Router.patch(`/qa/edit-answer`,mentorAuthorize,__qaController.editAnswer.bind(__qaController));
+
+//schedule
+mentor_Router.post(`/schedule/create-slots`,mentorAuthorize,__mentorController.createTimeSlots.bind(__mentorController));
+mentor_Router.get(`/schedule/get-time-slots`,mentorAuthorize,__mentorController.getTimeSlots.bind(__mentorController));
+mentor_Router.delete(`/schedule/remove-time-slot`,mentorAuthorize,__mentorController.removeTimeSlot.bind(__mentorController))
+
 export default mentor_Router;

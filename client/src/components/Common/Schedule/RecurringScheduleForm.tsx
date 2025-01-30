@@ -1,7 +1,7 @@
 import { Plus, Trash2 } from 'lucide-react';
 import TimePickers from './TimePickers';
 import dayjs from 'dayjs';
-import { TextField } from '@mui/material';
+
 
 interface TimeSlot {
   startTime: string;
@@ -21,9 +21,10 @@ interface RecurringScheduleFormProps {
   onAddTimeSlot: () => void;
   onRemoveTimeSlot: (index: number) => void;
   onTimeSlotChange: (index: number, key: keyof TimeSlot, value: string) => void;
+  // onSubmit: (data: any) => void; 
 }
 
-const DAYS = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+const DAYS = ["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
 
 export const RecurringScheduleForm = ({
   startDate,
@@ -38,10 +39,12 @@ export const RecurringScheduleForm = ({
   onAddTimeSlot,
   onRemoveTimeSlot,
   onTimeSlotChange,
+
 }: RecurringScheduleFormProps) => {
+
   return (
     <div className="space-y-6">
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pr-6">
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">
             Start Date
@@ -67,7 +70,7 @@ export const RecurringScheduleForm = ({
         </div>
       </div>
 
-      <div>
+      <div className='pr-6'>
         <label className="block text-sm font-medium text-gray-700 mb-2">
           Price for All Sessions
         </label>
@@ -127,12 +130,12 @@ export const RecurringScheduleForm = ({
                     const timeString = newValue?.format('HH:mm') || '';
                     onTimeSlotChange(index, "endTime", timeString);
                   }}
-                  slotProps={{ textField: { size: 'small' } }}
+                
                 />
             </div>
             <button
               onClick={() => onRemoveTimeSlot(index)}
-              className="mt-6 text-red-500 hover:text-red-700"
+              className="mt-6 text-red-500 hover:text-red-700 pr-6"
             >
               <Trash2 size={20} />
             </button>

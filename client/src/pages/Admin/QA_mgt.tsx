@@ -19,6 +19,7 @@ import { Tooltip } from "@mui/material";
 import { errorHandler } from "../../Utils/Reusable/Reusable";
 import { toast } from "react-toastify";
 
+
 const QUESTIONS_PER_PAGE = 8;
 
 type TSortOrder = "asc" | "desc";
@@ -44,6 +45,9 @@ const QA_mgt: React.FC = () => {
   const fetchQuestions = async () => {
 
     try {
+      const intravel =  setTimeout(() => {
+        setLoading(true)
+      }, 1000);
       const { data, status } = await API.get(`/admin/qa-management`, {
         params: {
           search: searchQuery,
@@ -59,9 +63,12 @@ const QA_mgt: React.FC = () => {
         setQuestions(data?.questions);
         setTotalDocuments(data?.docCount);
       }
+      clearInterval(intravel)
     } catch (error) {
       console.error("Error fetching questions:", error);
-    } 
+    } finally{
+      setLoading(false)
+    }
   };
 
   useEffect(() => {
@@ -270,7 +277,7 @@ const QA_mgt: React.FC = () => {
                     className="flex items-center gap-2 text-blue-600 hover:text-blue-800 mx-auto"
                   >
                     <Eye size={16} />
-                    View ({question?.answers})
+                    View ({question?.answerData?.length})
                   </button>
                 </td>
 

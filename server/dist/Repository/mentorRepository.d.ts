@@ -16,6 +16,7 @@ declare class mentorRepository extends baseRepository<Imentor> implements Imento
     changeMentorProfileImage(profileUrl: string, id: string): Promise<Partial<Imentor> | null>;
     updateMentorById(mentorData: Partial<Imentor>): Promise<Imentor | undefined | null>;
     categoryWithSkills(): Promise<Imentor[] | undefined>;
+    findMentorsByCategory(category: string, mentorId: string): Promise<Imentor[] | []>;
 }
 declare const _default: mentorRepository;
 export default _default;

@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import { ImenteeService } from "../Interface/Mentee/iMenteeService";
 import { ImenteeController } from "../Interface/Mentee/iMenteeController";
+import { log } from "console";
 
 export class menteeController implements ImenteeController {
   constructor(private _menteeService: ImenteeService) {}
@@ -129,10 +130,7 @@ export class menteeController implements ImenteeController {
               .profileImage[0]
           : null;
 
-      const result = await this._menteeService.profileChange(
-        profileImage,
-        _id
-      );
+      const result = await this._menteeService.profileChange(profileImage, _id);
 
       res.status(result.status).json(result);
     } catch (error: unknown) {
@@ -166,7 +164,7 @@ export class menteeController implements ImenteeController {
   }
   async homeData(req: Request, res: Response): Promise<void> {
     try {
-      const {filter} = req.params;
+      const { filter } = req.params;
       const { status, success, message, homeData } =
         await this._menteeService.homeData(filter as string);
       const userId = req.user as Express.User;
@@ -182,5 +180,42 @@ export class menteeController implements ImenteeController {
       );
     }
   }
-  
+  // /mentee/explore/mentor/:id
+
+  async getSimilarMentors(req: Request, res: Response): Promise<void>{
+    try {
+      const {category,mentorId}  = req.query;
+      console.log(category, "this is mentorid");
+      const { status, message, success, mentor } =
+        await this._menteeService.getMentorDetailes(category as string,mentorId as string);
+        console.log(mentor,'3333333333333333333')
+      res.status(status).json({ success, message, mentor });
+    } catch (error: unknown) {
+      throw new Error(
+        `Error while  getting mentor data in explore ${
+          error instanceof Error ? error.message : String(error)
+        }`
+      );
+    } 
+  }
+//get timeslots for booking page 
+//mentee/slot-booking/slot
+// @params mentorId
+// @returns timeSlot[]
+
+async getTimeSlots(req: Request, res: Response): Promise<void> {
+  try {
+    const {mentorId} = req.query;
+    console.log(mentorId,'mentorid')
+    const {success,status,message,timeSlots} = await this._menteeService.getTimeSlots(mentorId as string)
+console.log(timeSlots)
+     res.status(status).json({success,message,timeSlots});
+  } catch (error:unknown) {
+    throw new Error(
+      `Error while  getting timeslots for booking  ${
+        error instanceof Error ? error.message : String(error)
+      }`
+    );
+  }
+}
 }

@@ -19,3 +19,4 @@ interface ICategory {
   category: string;
   isBlocked: boolean;
 }
+ 

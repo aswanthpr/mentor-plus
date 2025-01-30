@@ -1,6 +1,8 @@
 import { Iquestion } from "../../Model/questionModal";
 import { Icategory } from "../../Model/categorySchema";
 import { Imentor } from "../../Model/mentorModel";
+import { Itime } from "../../Model/timeModel";
+import { ObjectId } from "mongoose";
 export interface ImentorService {
     mentorProfile(token: string): Promise<{
         success: boolean;
@@ -38,6 +40,23 @@ export interface ImentorService {
         message: string;
         status: number;
         homeData: Iquestion[] | null;
+    }>;
+    createTimeSlots(type: string, schedule: unknown, mentorId: ObjectId): Promise<{
+        success: boolean;
+        message: string;
+        status: number;
+        timeSlots: Itime | undefined;
+    }>;
+    getTimeSlots(mentorId: ObjectId): Promise<{
+        success: boolean;
+        message: string;
+        status: number;
+        timeSlots: Itime[] | [];
+    }>;
+    removeTimeSlot(slotId: string): Promise<{
+        success: boolean;
+        message: string;
+        status: number;
     }>;
 }
 //# sourceMappingURL=iMentorService.d.ts.map

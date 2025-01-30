@@ -11,5 +11,8 @@ export declare class mentorController implements ImentorController {
     mentorProfileImageChange(req: Request, res: Response): Promise<void>;
     mentorEditProfile(req: Request, res: Response): Promise<void>;
     homeData(req: Request, res: Response): Promise<void>;
+    createTimeSlots(req: Request, res: Response): Promise<void>;
+    getTimeSlots(req: Request, res: Response): Promise<void>;
+    removeTimeSlot(req: Request, res: Response): Promise<void>;
 }
 //# sourceMappingURL=mentorController.d.ts.map

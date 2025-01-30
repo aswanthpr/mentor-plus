@@ -18,7 +18,6 @@ import { corsOptions } from "./Middleware/index_middleware";
 import passport from "./Config/googleAuth";
 
 
-
 connectDb() 
 //using middlewares
 app.use(cors(corsOptions));
@@ -35,7 +34,6 @@ app.use(passport.session());
 app.use(morgan('dev'))
 app.use(fileLogger);// for log to the file 
 
- 
 // Routes
 app.use('/auth',auth_Router);
 app.use('/admin',admin_Router)
@@ -44,8 +42,32 @@ app.use('/mentor',mentor_Router);
 // app.use(errorLogger)
 
 
-app.listen(process.env.PORT
-    ,()=>{
-    console.log('\x1b[33m%s\x1b[0m',"server listen on http://localhost:3000 🥳")
-})
-export default app
+
+app.listen(process.env.PORT, () => {
+    console.log(`
+
+
+\x1b[1;36m
+                         _.'.__               0
+                      _.'      .
+':'.               .''   __ __  .               0
+  '.:._          ./  _ ''     "-'.__          
+.'''-: """-._    | .                "-"._    0
+ '.     .    "._.'                       "
+    '.   "-.___ .        .'          .  :o'. 0
+      |   .----  .      .           .'     (
+       '|  ----. '   ,.._                _-'
+        .' .---  |.""  .-:;.. _____.----'
+        |   .-""""    |      '
+      .'  _'          ''    _'
+     |_.-'             '-.'
+\x1b[0
+\x1b[1;32m******************************\x1b[0m
+\x1b[1;33m🌟 Server is up! 🌟\x1b[0m
+\x1b[1;34mServer running at http://localhost:${process.env.PORT}\x1b[0m
+\x1b[1;36mCurrent Time: ${new Date().toLocaleString()}\x1b[0m
+\x1b[1;32m******************************\x1b[0m`);
+});
+
+
+export default app;

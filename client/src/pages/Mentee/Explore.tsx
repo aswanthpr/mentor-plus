@@ -6,12 +6,14 @@ import MentorCard from "../../components/Mentee/MentorCard";
 
 import { MentorFilters } from "../../components/Mentee/Filters";
 import { protectedAPI } from "../../Config/Axios";
-import Spinner from "../../components/Common/common4All/Spinner";
+// import Spinner from "../../components/Common/common4All/Spinner";
 import { errorHandler } from "../../Utils/Reusable/Reusable";
+// import { useNavigate } from "react-router-dom";
 
 
 const ExplorePage: React.FC = () => {
-  const [loading, setLoading] = useState<boolean>(false);
+  // const navigate = useNavigate()
+  // const [loading, setLoading] = useState<boolean>(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [showFilters, setShowFilters] = useState(false);
   const [filters, setFilters] = useState<MentorFilters>({
@@ -37,16 +39,20 @@ const ExplorePage: React.FC = () => {
     },
   ]);
 
-  const handleBook = (mentorId: string) => {
-    console.log("Booking session with mentor:", mentorId);
-    // Implement booking logic
-  };
+  // const handleBook = (name: string,mentor:IMentor) => {
+  //   console.log(mentor,"Booking session with mentor:", name);
+  //   try {
+  //     navigate(`/mentee/explore/mentor/${name.toLowerCase()}`,{state:{mentor}});
+  //   } catch (error:unknown) {
+  //     errorHandler(error)
+  //   }
+  // };
 
   useEffect(() => {
+    
     const fetchMentor = async () => {
       try {
-        setLoading(true);
-        const { data } = await protectedAPI.get(`/mentee/explore`);
+        const { data } = await protectedAPI.get(`/mentee/explore/`);
         console.log(data.skills, "data ");
         setMentors(data?.mentor);
 
@@ -57,18 +63,16 @@ const ExplorePage: React.FC = () => {
         }));
       } catch (error: unknown) {
         errorHandler(error);
-      } finally {
-        setTimeout(() => {
-          setLoading(false);
-        }, 500);
-      }
+      } 
     };
     fetchMentor();
-    console.log(filters.categories, "wfassafafasf", filters.skills);
+    
+  ;
   }, []);
+
   return (
     <div className="relative mx-4 mt-20 ">
-      {loading && <Spinner />}
+      {/* {loading && <Spinner />} */}
       {/* Mobile Filters Modal */}
       {showFilters && (
         <div className=" fixed inset-0 bg-black bg-opacity-50 z-50 lg:hidden ">
@@ -119,7 +123,7 @@ const ExplorePage: React.FC = () => {
               <MentorCard
                 key={mentor._id}
                 mentor={mentor}
-                onBook={handleBook}
+                // onBook={handleBook}
               />
             ))}
           </div>

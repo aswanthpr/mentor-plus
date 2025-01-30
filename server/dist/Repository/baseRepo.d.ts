@@ -12,5 +12,6 @@ export declare class baseRepository<T extends Document> implements IbaseReposito
     aggregateData<T extends Document>(model: Model<T>, aggregationPipeline: PipelineStage[]): Promise<T[]>;
     deleteDocument(Id: string): Promise<DeleteResult | undefined>;
     deleteMany(filter: FilterQuery<T>): Promise<DeleteResult | undefined>;
+    insert_Many<T extends Document>(model: Model<T>, documents: T[]): Promise<T[]>;
 }
 //# sourceMappingURL=baseRepo.d.ts.map

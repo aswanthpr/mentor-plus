@@ -8,5 +8,6 @@ export interface IbaseRepository<T extends Document> {
     find_By_Id_And_Update<T extends Document>(model: Model<T>, id: string, updateData: UpdateQuery<T>, options: mongoose.QueryOptions): Promise<T | null>;
     aggregateData<T extends Document>(model: Model<T>, aggregationPipeline: PipelineStage[]): Promise<T[]>;
     deleteDocument(Id: string): Promise<DeleteResult | undefined>;
+    insert_Many<T extends Document>(model: Model<T>, documents: T[]): Promise<T[]>;
 }
 //# sourceMappingURL=iBaseRepository.d.ts.map

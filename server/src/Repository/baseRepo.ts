@@ -5,6 +5,7 @@ import mongoose, {
   UpdateQuery,
   PipelineStage,
   DeleteResult,
+  // InsertManyOptions,
 } from "mongoose";
 import { IbaseRepository } from "../Interface/Base/iBaseRepository";
 
@@ -151,6 +152,22 @@ export class baseRepository<T extends Document> implements IbaseRepository<T> {
     } catch (error: unknown) {
       console.error(
         `Error while deleting document: ${
+          error instanceof Error ? error.message : String(error)
+        }`
+      );
+    }
+  }
+
+  async  insert_Many<T extends Document>(
+    model: Model<T>,
+    documents: T[],
+    // options?:InsertManyOptions 
+  ): Promise<T[]> {
+    try {
+      return await model.insertMany(documents);
+    } catch (error: unknown) {
+      throw new Error(
+        `Error while inserting entities: ${
           error instanceof Error ? error.message : String(error)
         }`
       );

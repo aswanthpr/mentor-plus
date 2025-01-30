@@ -1,11 +1,12 @@
 interface ScheduleTypeSelectorProps {
     value: 'normal' | 'recurring';
     onChange: (value: 'normal' | 'recurring') => void;
+    classNames:string
   }
   
-  export const ScheduleTypeSelector = ({ value, onChange }: ScheduleTypeSelectorProps) => {
+  export const ScheduleTypeSelector = ({ value, onChange,classNames }: ScheduleTypeSelectorProps) => {
     return (
-      <div className="mb-6">
+      <div className={`mb-6 ${classNames}` }>
         <label className="block text-sm font-medium text-gray-700 mb-2">
           Schedule Type
         </label>

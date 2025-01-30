@@ -5,14 +5,17 @@ import { Imentor } from "../Model/mentorModel";
 import { ImentorRepository } from "../Interface/Mentor/iMentorRepository";
 import { IcategoryRepository } from "../Interface/Category/iCategoryRepository";
 import { Icategory } from "../Model/categorySchema";
-import { Iquestion } from "src/Model/questionModal";
-import { IquestionRepository } from "src/Interface/Qa/IquestionRepository";
+import { Iquestion } from "../Model/questionModal";
+import { IquestionRepository } from "../Interface/Qa/IquestionRepository";
+import { Itime } from "src/Model/timeModel";
+import { ItimeSlotRepository } from "src/Interface/timeSchedule/iTimeSchedule";
 export declare class menteeService implements ImenteeService {
     private _menteeRepository;
     private _mentorRepository;
     private _categoryRepository;
     private _questionRepository;
-    constructor(_menteeRepository: ImenteeRepository, _mentorRepository: ImentorRepository, _categoryRepository: IcategoryRepository, _questionRepository: IquestionRepository);
+    private _timeSlotRepository;
+    constructor(_menteeRepository: ImenteeRepository, _mentorRepository: ImentorRepository, _categoryRepository: IcategoryRepository, _questionRepository: IquestionRepository, _timeSlotRepository: ItimeSlotRepository);
     menteeProfile(refreshToken: string): Promise<{
         success: boolean;
         message: string;
@@ -56,6 +59,18 @@ export declare class menteeService implements ImenteeService {
         message: string;
         status: number;
         homeData: Iquestion[] | null;
+    }>;
+    getMentorDetailes(category: string, mentorId: string): Promise<{
+        success: boolean;
+        message: string;
+        status: number;
+        mentor: Imentor[] | [];
+    }>;
+    getTimeSlots(mentorId: string): Promise<{
+        success: boolean;
+        message: string;
+        status: number;
+        timeSlots: Itime[] | [];
     }>;
 }
 //# sourceMappingURL=menteeService.d.ts.map

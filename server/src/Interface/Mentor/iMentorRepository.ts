@@ -16,4 +16,5 @@ export interface ImentorRepository {
     changeMentorProfileImage(profileUrl: string, id: string): Promise<Partial<Imentor> | null>;
     updateMentorById(mentorData: Partial<Imentor>): Promise<Imentor | null | undefined>;
     categoryWithSkills(): Promise<Imentor[] | undefined>;
+    findMentorsByCategory(category:string,mentorId:string):Promise<Imentor[]|[]>
 }

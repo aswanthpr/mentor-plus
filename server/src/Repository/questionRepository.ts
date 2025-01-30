@@ -57,6 +57,8 @@ class questionRepository
         {
           $match: {
             menteeId: menteeId,
+           isBlocked:false,
+            
           },
         },
         {
@@ -115,6 +117,9 @@ class questionRepository
           path: '$answerData',
           preserveNullAndEmptyArrays: true,
         },
+      },
+      {
+        $match:{'answerData.isBlocked':false}
       },
      
       {
@@ -228,8 +233,12 @@ class questionRepository
 
       return await this.aggregateData(questionModal, [
         {
+          $match:{isBlocked:false}
+        },
+        {
           $sort: { createdAt: -1 },
         },
+        
         {
           $lookup: {
             from: "mentees",
@@ -282,14 +291,10 @@ class questionRepository
               preserveNullAndEmptyArrays: true,
             },
           },
-          // {
-          //   $lookup: {
-          //     from: 'answerData.authorType',
-          //     localField: 'answerData.authorId',
-          //     foreignField: '_id',
-          //     as: 'answerData.author',
-          //   },
-          // },
+          {
+            $match:{'answerData.isBlocked':false}
+          },
+
           {
             $lookup: {
               from: 'mentees',

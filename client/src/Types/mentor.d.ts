@@ -59,3 +59,48 @@ interface IMentor {
     profileImage: string
   }
 
+  interface TimeSlot {
+    startTime: string;
+    endTime: string;
+  }
+  
+  interface DaySchedule {
+    slots: TimeSlot[];
+    price: string;
+    startDate: string;
+  }
+  
+  interface ISchedule {
+    startDate: string;
+    endDate?: string;
+    slots: TimeSlot[];
+    selectedDays?: string[];
+    price: string;
+  }
+  
+  interface ScheduleModalProps {
+    isOpen: boolean;
+    onClose: () => void;
+    onSubmit: (scheduleData) => void;
+  }
+  interface Itime {
+    _id?:string
+    startDate:string; 
+    startTime:string;
+    endTime:string;
+    isBooked:boolean;
+    price:string
+    mentorId:string;
+    endStr:string;
+    startStr:string
+  }
+  
+  
+  interface RecurringSchedule {
+    startDate: string;
+    endDate: string;
+    slots: TimeSlot[];
+    selectedDays: string[];
+    price: string;
+  }
+  
