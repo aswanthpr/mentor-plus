@@ -9,11 +9,11 @@ interface TimeSlotCardProps {
   key:string
 }
 
-export const TimeSlotCard = ({ day, startTime, endTime, price, onDelete,key }: TimeSlotCardProps) => {
+export const TimeSlotCard = ({ day, startTime, endTime, price, onDelete }: TimeSlotCardProps) => {
     const  endStr = moment(`${endTime}`, ["HH.mm"]).format("hh:mm a")
   const  startStr = moment(`${startTime}`, ["HH.mm"]).format("hh:mm a")
   return (
-    <div key={key} className="bg-white rounded-lg shadow-md p-4">
+    <div  className="bg-white rounded-lg shadow-md p-4">
       <div className="flex justify-between items-start">
         <div>
           <h3 className="font-semibold text-lg text-gray-800">{day}</h3>

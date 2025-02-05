@@ -10,6 +10,9 @@ import answerRepository from "../Repository/answerRepository";
 import qaService from "../Service/qaService";
 import qaController from "../Controller/qaController";
 import timeSlotRepository from "../Repository/timeSlotRepository";
+import { bookingService } from "../Service/bookingService";
+import { bookingControlelr } from "../Controller/bookingController";
+import slotScheduleRepository from "../Repository/slotScheduleRepository";
 const __mentorService = new mentorService(
   mentorRepository,
   categoryRepository,
@@ -20,7 +23,10 @@ const __mentorService = new mentorService(
 
 const __mentorController = new mentorController(__mentorService);
 const __qaService = new qaService(questionRepository, answerRepository);
-const __qaController = new qaController(__qaService)
+const __qaController = new qaController(__qaService);
+const __bookingService = new bookingService(  timeSlotRepository,
+    slotScheduleRepository);
+const __bookingController = new bookingControlelr(__bookingService)
 const mentor_Router: Router = express.Router();
 
 mentor_Router.post(
@@ -66,4 +72,5 @@ mentor_Router.post(`/schedule/create-slots`,mentorAuthorize,__mentorController.c
 mentor_Router.get(`/schedule/get-time-slots`,mentorAuthorize,__mentorController.getTimeSlots.bind(__mentorController));
 mentor_Router.delete(`/schedule/remove-time-slot`,mentorAuthorize,__mentorController.removeTimeSlot.bind(__mentorController))
 
+mentor_Router.get(`/sessions`,mentorAuthorize,__bookingController.getBookedSession.bind(__bookingController));
 export default mentor_Router;

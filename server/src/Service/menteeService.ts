@@ -1,24 +1,32 @@
 import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
-import { ImenteeService } from "../Interface/Mentee/iMenteeService";
+
+
 import { Imentee } from "../Model/menteeModel";
-import { ImenteeRepository } from "../Interface/Mentee/iMenteeRepository";
-import hash_pass from "../Utils/hashPass.util";
-import { uploadImage } from "../Config/cloudinary.util";
 import {
   genAccesssToken,
   genRefreshToken,
   verifyRefreshToken,
 } from "../Utils/jwt.utils";
+
 import { Imentor } from "../Model/mentorModel";
-import { ImentorRepository } from "../Interface/Mentor/iMentorRepository";
-import { IcategoryRepository } from "../Interface/Category/iCategoryRepository";
-import { Icategory } from "../Model/categorySchema";
-import { Iquestion } from "../Model/questionModal";
-import { IquestionRepository } from "../Interface/Qa/IquestionRepository";
+import hash_pass from "../Utils/hashPass.util";
 import { Status } from "../Utils/httpStatusCode";
-import { Itime } from "src/Model/timeModel";
-import { ItimeSlotRepository } from "src/Interface/timeSchedule/iTimeSchedule";
+import { Iquestion } from "../Model/questionModal";
+import { Icategory } from "../Model/categorySchema";
+import { uploadImage } from "../Config/cloudinary.util";
+import { ImenteeService } from "../Interface/Mentee/iMenteeService";
+import { IcategoryRepository } from "../Interface/Category/iCategoryRepository";
+import { ImentorRepository } from "../Interface/Mentor/iMentorRepository";
+import { IquestionRepository } from "../Interface/Qa/IquestionRepository";
+import { ImenteeRepository } from "../Interface/Mentee/iMenteeRepository";
+
+
+
+
+
+
+// const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string)
 
 export class menteeService implements ImenteeService {
   constructor(
@@ -26,8 +34,9 @@ export class menteeService implements ImenteeService {
     private _mentorRepository: ImentorRepository,
     private _categoryRepository: IcategoryRepository,
     private _questionRepository: IquestionRepository,
-    private _timeSlotRepository:ItimeSlotRepository,
-  ) {}
+
+
+  ) { }
 
   async menteeProfile(refreshToken: string): Promise<{
     success: boolean;
@@ -63,8 +72,7 @@ export class menteeService implements ImenteeService {
       return { success: true, message: "success", result: result, status: 200 };
     } catch (error: unknown) {
       throw new Error(
-        `Error while bl metneeProfile in service: ${
-          error instanceof Error ? error.message : String(error)
+        `Error while bl metneeProfile in service: ${error instanceof Error ? error.message : String(error)
         }`
       );
     }
@@ -105,8 +113,7 @@ export class menteeService implements ImenteeService {
       };
     } catch (error: unknown) {
       throw new Error(
-        `Error while bl metneeProfile edit in service: ${
-          error instanceof Error ? error.message : String(error)
+        `Error while bl metneeProfile edit in service: ${error instanceof Error ? error.message : String(error)
         }`
       );
     }
@@ -160,8 +167,7 @@ export class menteeService implements ImenteeService {
       return { success: true, message: "updation successfull", status: 200 };
     } catch (error: unknown) {
       throw new Error(
-        `Error while bl metneeProfile password change in service: ${
-          error instanceof Error ? error.message : String(error)
+        `Error while bl metneeProfile password change in service: ${error instanceof Error ? error.message : String(error)
         }`
       );
     }
@@ -195,8 +201,7 @@ export class menteeService implements ImenteeService {
       };
     } catch (error: unknown) {
       throw new Error(
-        `Error while bl metnee Profile  change in service: ${
-          error instanceof Error ? error.message : String(error)
+        `Error while bl metnee Profile  change in service: ${error instanceof Error ? error.message : String(error)
         }`
       );
     }
@@ -299,9 +304,7 @@ export class menteeService implements ImenteeService {
     }
   }
 
-  async homeData(
-    filter: string
-  ): Promise<{
+  async homeData(filter: string): Promise<{
     success: boolean;
     message: string;
     status: number;
@@ -348,9 +351,8 @@ export class menteeService implements ImenteeService {
   }
   // /mentee/explor/mentor/:id
   async getMentorDetailes(
-    category:string,
-    mentorId: string,
-    
+    category: string,
+    mentorId: string
   ): Promise<{
     success: boolean;
     message: string;
@@ -386,46 +388,11 @@ export class menteeService implements ImenteeService {
       };
     } catch (error: unknown) {
       throw new Error(
-        `${
-          error instanceof Error ? error.message : String(error)
+        `${error instanceof Error ? error.message : String(error)
         } error while gettign mentor data in mentee service`
       );
     }
   }
 
-
-  async getTimeSlots(mentorId: string): Promise<{ success: boolean; message: string; status: number; timeSlots: Itime[] | []; }> {
-    try {
-      if (!mentorId) {
-        return {
-          status: Status.BadRequest,
-          message: "credential not found",
-          success: false,
-         timeSlots: [],
-        };
-      }
-      const response = await this._timeSlotRepository.getMentorSlots(mentorId);
-      if (!response) {
-        return {
-          status: Status.Ok,
-          message: "Data not found",
-          success: false,
-          timeSlots: [],
-        };
-      }
-      console.log(response,'from service')
-      return {
-        status: Status.Ok,
-        message: "Data fetched successfully",
-        success: true,
-        timeSlots: response,
-      };
-    } catch (error:unknown) {
-      throw new Error(
-        `${
-          error instanceof Error ? error.message : String(error)
-        } error while gettign Time Slots in mentee service`
-      );
-    }
-  }
+  
 }

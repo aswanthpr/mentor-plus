@@ -8,7 +8,12 @@ export const answerInputSchema = Yup.object().shape({
       .max(600, "Answer cannot exceed 600 characters.")
   });
 
-
+export const bookingInputValidation = Yup.object().shape({
+  message:Yup.string()
+  .required('message field is required')
+  .min(20,'message must be atleast 20 characters')
+  .max(200,'message can\'t be longer than 200 characters')
+});
 
  export const validateRecuuringSchema = Yup.object({
   startDate: Yup.string()

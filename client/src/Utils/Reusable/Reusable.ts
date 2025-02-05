@@ -1,8 +1,5 @@
 import { toast } from "react-toastify";
 
-
-
-
 export const errorHandler = (error: unknown) => {
   try {
     if (typeof error === 'object' && error !== null && 'response' in error) {
@@ -24,6 +21,7 @@ export const errorHandler = (error: unknown) => {
   } catch (catchError) {
     // Handle cases where error inspection itself fails
     console.error('Error while handling the error:', catchError);
+   
   }
 };
 

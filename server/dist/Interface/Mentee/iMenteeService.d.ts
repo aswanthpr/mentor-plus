@@ -2,7 +2,6 @@ import { Iquestion } from "../../Model/questionModal";
 import { Icategory } from "../../Model/categorySchema";
 import { Imentee } from "../../Model/menteeModel";
 import { Imentor } from "../../Model/mentorModel";
-import { Itime } from "src/Model/timeModel";
 export interface ImenteeService {
     homeData(filter: string): Promise<{
         success: boolean;
@@ -52,12 +51,6 @@ export interface ImenteeService {
         message: string;
         status: number;
         mentor: Imentor[] | [];
-    }>;
-    getTimeSlots(mentorId: string): Promise<{
-        success: boolean;
-        message: string;
-        status: number;
-        timeSlots: Itime[] | [];
     }>;
 }
 //# sourceMappingURL=iMenteeService.d.ts.map

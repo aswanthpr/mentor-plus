@@ -1,5 +1,5 @@
 import timeSchema, { Itime } from "../Model/timeModel";
-import { ItimeSlotRepository } from "../Interface/timeSchedule/iTimeSchedule";
+import { ItimeSlotRepository } from "../Interface/Booking/iTimeSchedule";
 
 import { baseRepository } from "./baseRepo";
 import mongoose, { DeleteResult, ObjectId } from "mongoose";
@@ -80,6 +80,7 @@ class timeSlotRepository
   async getMentorSlots(mentorId: string): Promise<Itime[] | []> {
     try {
       const currentDate = new Date();
+      console.log(currentDate,'thsi is the reate')
       return this.aggregateData(timeSchema, [
         {
             $unwind: "$slots",
@@ -92,7 +93,7 @@ class timeSlotRepository
               price: 1,
               startTime: "$slots.startTime",
               endTime: "$slots.endTime",
-              startStr: "$slots.startStr",
+              startStr: "$slots.startStr", 
               endStr: "$slots.endStr",
             },
           },
@@ -100,12 +101,27 @@ class timeSlotRepository
           $match: {
            mentorId:new mongoose.Types.ObjectId( mentorId),
             startTime: { $gt: currentDate },
+            isBooked:false
           },
+
         },
       ]);
     } catch (error: unknown) {
       throw new Error(
         `${"\x1b[35m%s\x1b[0m"}error while getting error while get speific mentor time slots :${
+          error instanceof Error ? error.message : String(error)
+        }`
+      );
+    }
+  }
+
+  //make the timeslot booked
+  async makeTimeSlotBooked(slotId:string):Promise<Itime|null>{
+    try {
+      return await this.find_By_Id_And_Update(timeSchema,slotId,{$set:{isBooked:true}})
+    } catch (error:unknown) {
+      throw new Error(
+        `${"\x1b[35m%s\x1b[0m"}error while getting editing speific mentor time slots :${
           error instanceof Error ? error.message : String(error)
         }`
       );

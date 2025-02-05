@@ -32,7 +32,8 @@
     "passport-google-oauth2": "^0.2.0",
     "passport-google-oauth20": "^2.0.0",
     "rotating-file-stream": "^3.2.5",
-    "rrule": "^2.8.1"
+    "rrule": "^2.8.1",
+    "stripe": "^17.6.0"
   },
   "devDependencies": {
     "@eslint/js": "^9.17.0",

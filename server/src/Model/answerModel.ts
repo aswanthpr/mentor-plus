@@ -3,9 +3,9 @@ import mongoose, { Schema,Document } from 'mongoose';
  
 export  interface Ianswer extends Document { 
     answer: string;
-    authorId: mongoose.Schema.Types.ObjectId;
+    authorId:  mongoose.Schema.Types.ObjectId;
     authorType: string;
-    questionId: mongoose.Schema.Types.ObjectId;
+    questionId:  mongoose.Schema.Types.ObjectId;
     isBlocked:boolean;
 }
 
@@ -26,7 +26,7 @@ const answerSchema: Schema<Ianswer> = new Schema(
             enum: ['mentee','mentor']
         },
         questionId: {
-            type: mongoose.Schema.Types.ObjectId,
+            type: mongoose.Types.ObjectId,
             ref: 'Question',
             required: true
         },

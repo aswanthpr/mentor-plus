@@ -39,14 +39,6 @@ const ExplorePage: React.FC = () => {
     },
   ]);
 
-  // const handleBook = (name: string,mentor:IMentor) => {
-  //   console.log(mentor,"Booking session with mentor:", name);
-  //   try {
-  //     navigate(`/mentee/explore/mentor/${name.toLowerCase()}`,{state:{mentor}});
-  //   } catch (error:unknown) {
-  //     errorHandler(error)
-  //   }
-  // };
 
   useEffect(() => {
     
@@ -104,16 +96,16 @@ const ExplorePage: React.FC = () => {
 
         {/* Main Content */}
         <div className="flex-1 ">
-          <div className="flex flex-col sm:flex-row gap-2 mb-6 mr-2">
-            <div className="flex-1 z-0">
+          <div className="flex flex-col sm:flex-row gap-2 mb-6 mr-1">
+            <div className="flex-1 z-0 xss:mx-1">
               <SearchBar value={searchQuery} onChange={setSearchQuery} />
             </div>
 
             <button
               onClick={() => setShowFilters(true)}
-              className="lg:hidden px-4 mt-6 flex items-center justify-center gap-2 mx-8 border border-gray-300 rounded-lg hover:bg-gray-50 py-2 "
+              className="lg:hidden px-4 mt-6 flex items-center justify-center gap-2 xss:mx-1 border border-gray-300 rounded-lg hover:bg-gray-50 py-2 "
             >
-              <Filter className="h-5 w-5 mx-" />
+              <Filter className="h-5 w-5 " />
               <span>Filters</span>
             </button>
           </div>

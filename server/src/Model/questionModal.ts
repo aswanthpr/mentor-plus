@@ -4,7 +4,7 @@ export interface Iquestion extends Document {
   title: string;
   content: string;
   tags: string[];
-  menteeId: mongoose.Schema.Types.ObjectId;
+  menteeId:  mongoose.Schema.Types.ObjectId;
   answers:number
   isBlocked:boolean;
 }
@@ -24,7 +24,7 @@ const questionSchema: Schema<Iquestion> = new Schema(
       default: [],
     },
     menteeId: {
-      type: mongoose.Schema.Types.ObjectId,
+      type: mongoose.Types.ObjectId,
       ref: "mentee",
       required: true,
     },

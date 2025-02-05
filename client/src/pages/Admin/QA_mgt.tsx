@@ -6,7 +6,7 @@ import { StatusBadge } from "../../components/Admin/StatusBadge";
 import {
   Eye,
   XCircle,
-  CheckCircle,
+  CheckCircle, 
   Search,
   Filter,
   ArrowUpDown,
@@ -22,9 +22,7 @@ import { toast } from "react-toastify";
 
 const QUESTIONS_PER_PAGE = 8;
 
-type TSortOrder = "asc" | "desc";
-type TSort = "createdAt" | "answers";
-type TFilter = "all" | "blocked" | "active";
+
 
 const QA_mgt: React.FC = () => {
   const [currentPage, setCurrentPage] = useState(1);

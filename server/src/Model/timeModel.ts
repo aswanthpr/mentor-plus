@@ -11,7 +11,7 @@ export interface Itime extends Document {
   slots: slot[];
   price: string;
   isBooked?: boolean;
-  mentorId: mongoose.Schema.Types.ObjectId;
+  mentorId:  mongoose.Schema.Types.ObjectId;
 }
 export const timeSchema: Schema<Itime> = new Schema(
   {
@@ -49,7 +49,7 @@ export const timeSchema: Schema<Itime> = new Schema(
       default:false
     },
     mentorId: {
-      type:Schema.Types.ObjectId,
+      type:mongoose.Types.ObjectId,
       ref: "mentor",
       required: true,
     },

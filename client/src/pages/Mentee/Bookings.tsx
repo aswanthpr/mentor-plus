@@ -1,84 +1,81 @@
-import React, { useState } from 'react'
-import RatingModal from '../../components/Common/Bookings/RatingModal'
-import { Search, User } from 'lucide-react';
+import React, { useEffect, useState } from 'react'
+// import RatingModal from '../../components/Common/Bookings/RatingModal'
+import {Search, User } from 'lucide-react';
 import SessionCard from '../../components/Common/Bookings/SessionCard';
-import { Pagination } from '../../components/Common/common4All/Pagination';
+// import { Pagination } from '../../components/Common/common4All/Pagination';
 import TabNavigation from '../../components/Common/Bookings/TabNavigation';
-interface Session {
-    id: string;
-    mentorName: string;
-    mentorAvatar: string;
-    date: string;
-    time: string;
-    duration: number;
-    topic: string;
-    status: 'scheduled' | 'completed' | 'cancelled';
-    rating?: number;
-    review?: string;
-  }
-  const mockSessions: Session[] = [
-    {
-      id: '1',
-      mentorName: 'John Doe',
-      mentorAvatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e',
-      date: '2024-03-25',
-      time: '10:00',
-      duration: 60,
-      topic: 'React Performance Optimization',
-      status: 'scheduled',
-    },
-    {
-      id: '2',
-      mentorName: 'Jane Smith',
-      mentorAvatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330',
-      date: '2024-03-20',
-      time: '15:00',
-      duration: 45,
-      topic: 'TypeScript Best Practices',
-      status: 'completed',
-      rating: 4,
-      review: 'Great session! Learned a lot about TypeScript best practices.',
-    },
-  ];
+import InputField from '../../components/Auth/InputField';
+import { errorHandler } from '../../Utils/Reusable/Reusable';
+import { protectedAPI } from '../../Config/Axios';
+import Spinner from '../../components/Common/common4All/Spinner';
+
+ 
   
 
 const Boooking: React.FC = () => {
+  const [loading,setLoading] = useState(false)
     const [activeTab, setActiveTab] = useState<'upcoming' | 'history'>('upcoming');
     const [searchQuery, setSearchQuery] = useState('');
     const [currentPage, setCurrentPage] = useState(1);
-    const [showRatingModal, setShowRatingModal] = useState(false);
-    const [selectedSession, setSelectedSession] = useState<string>('');
-    const [sessions, setSessions] = useState<Session[]>(mockSessions);
+    // const [showRatingModal, setShowRatingModal] = useState(false);
+    // const [selectedSession, setSelectedSession] = useState<string>('');
+    const [sessions, setSessions] = useState<ISession[]|[]>([]);
     const sessionsPerPage = 5;
 
+
+// const [sortField, setSortField] = useState<TSort>("createdAt");
+//   const [sortOrder, setSortOrder] = useState<TSortOrder>("desc");
+//   const [statusFilter, setStatusFilter] = useState<TFilter>("all");
+useEffect(()=>{
+const fetchData = async ()=>{
+try {
+  setLoading(true);
+
+  const {status,data} = await protectedAPI.get(`/mentee/booked-sessions`,{params:{activeTab}}
+  );
+  console.log('haii',data.slots)
+  if(status==200 && data?.success){
+    setSessions(data?.slots);
+
+  }
+} catch (error:unknown) {
+  errorHandler(error)
+}finally{
+  setLoading(false)
+}
+}
+fetchData()
+},[activeTab]);
+console.log(sessions,'sessions')
     const handleCancelSession = (sessionId: string) => {
         if (window.confirm('Are you sure you want to cancel this session?')) {
             setSessions(sessions.map(session =>
-                session.id === sessionId
-                    ? { ...session, status: 'cancelled' }
+                session?._id === sessionId
+                    ? { ...session, status: 'CANCELLED' }
                     : session
             ));
         }
     };
 
-    const handleRating = (sessionId: string) => {
-        setSelectedSession(sessionId);
-        setShowRatingModal(true);
-    };
+    // const handleRating = (sessionId: string) => {
+    //     setSelectedSession(sessionId);
+    //     setShowRatingModal(true);
+    // };
 
-    const handleSubmitRating = (rating: number, review: string) => {
-        setSessions(sessions.map(session =>
-            session.id === selectedSession
-                ? { ...session, rating, review }
-                : session
-        ));
-    };
+    // const handleSubmitRating = (rating: number, review: string) => {
+    //     setSessions(sessions.map(session =>
+    //         session?._id === selectedSession
+    //             ? { ...session, rating, review }
+    //             : session
+    //     ));
+    // };
 
     const filteredSessions = sessions.filter(session => {
-        const isUpcoming = session.status === 'scheduled';
-        const matchesSearch = session.topic.toLowerCase().includes(searchQuery.toLowerCase()) ||
-            session.mentorName.toLowerCase().includes(searchQuery.toLowerCase());
-        return (activeTab === 'upcoming' ? isUpcoming : !isUpcoming) && matchesSearch;
+        const isUpcoming = session?.status === "PENDING"|| "CONFIRMED";
+        const isHistory = session?.status === "COMPLETED"||session?.status ==="CANCELLED" ;
+        const matchesSearch = session?.description?.toLowerCase().includes(searchQuery?.toLowerCase()) ||
+            session?.user?.name?.toLowerCase()?.includes(searchQuery.toLowerCase());
+        return (activeTab === 'upcoming' ? isUpcoming : isHistory) && matchesSearch;
     });
 
     const totalPages = Math.ceil(filteredSessions.length / sessionsPerPage);
@@ -91,7 +88,7 @@ const Boooking: React.FC = () => {
 
     <div className="space-y-6 mt-10">
       <div className="bg- p-6 round ">
-        <h1 className="text-2xl font-bold mb-6">Bookings</h1>
+        {/* <h1 className="text-2xl font-bold mb-6">Bookings</h1> */}
         
         <TabNavigation
 
@@ -105,8 +102,9 @@ const Boooking: React.FC = () => {
       </div>
 
       <div className="bg-white p-6 rounded-lg shadow-sm">
+        {loading && <Spinner/>}
         <div className="mb-6 flex">
-          <div className="relative ">
+          {/* <div className="relative ">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5 " />
             <input
               type="search"
@@ -115,17 +113,70 @@ const Boooking: React.FC = () => {
               onChange={(e) => setSearchQuery(e.target.value)}
               className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#ff8800] focus:border-transparent "
             />
+          </div> */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+          {/* Search */}
+          <div className="relative">
+            <Search
+              className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
+              size={20}
+            />
+            <InputField
+              type={"search"}
+              placeholder="Search questions or authors..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="pl-10"
+            />
           </div>
+
+          {/* Filter */}
+          {/* <div className="flex items-center gap-2">
+            <Filter size={20} className="text-gray-400" />
+            <select
+              value={statusFilter}
+              onChange={(e: React.ChangeEvent<HTMLSelectElement>) =>
+                setStatusFilter(e.target.value as TFilter)
+              }
+              className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-orange-200 border-orange-500"
+            >
+              <option value="all">All Status</option>
+              <option value="active">Active</option>
+              <option value="blocked">Blocked</option>
+            </select>
+          </div>
+
+          {/* Sort */}
+          {/* <div className="flex items-center gap-2">
+            <ArrowUpDown size={20} className="text-gray-400" />
+            <select
+              value={`${sortField}-${sortOrder}`}
+              onChange={(e) => {
+                const [field, order] = e.target.value.split("-");
+                setSortField(field as TSort);
+                setSortOrder(order as TSortOrder);
+              }}
+              className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-orange-200 border-orange-500"
+            >
+              <option value="createdAt-desc">Newest First</option>
+              <option value="createdAt-asc">Oldest First</option>
+              <option value="answers-1">Answered</option>
+              <option value="answers-0">UnAnswered</option>
+            </select>
+          </div>  */}
+        </div>
         </div>
 
         <div className="space-y-4">
-          {paginatedSessions.map(session => (
+          {paginatedSessions.map(session => {
+            console.log(session,'from sessin card')
+            return (
             <SessionCard
              handleCancelSession={handleCancelSession} 
-            handleRating={handleRating}
-            key={session.id} 
+            // handleRating={handleRating}
+            key={session?._id} 
             session={session} />
-          ))}
+          )})}
         </div>
 
         {/* Pagination */}
@@ -139,7 +190,7 @@ const Boooking: React.FC = () => {
                   className={`w-10 h-10 rounded-lg font-medium ${
                     currentPage === page
                       ? 'bg-[#ff8800] text-white'
-                      : 'text-gray-600 hover:bg-gray-100'
+                      : 'text-gray-600 hover:bg-gray-100' 
                   }`}
                 >
                   {page}
@@ -150,6 +201,7 @@ const Boooking: React.FC = () => {
         )}
 
         {paginatedSessions.length === 0 && (
+        
           <div className="text-center py-12">
             <User className="mx-auto h-12 w-12 text-gray-400" />
             <h3 className="mt-2 text-sm font-medium text-gray-900">No sessions found</h3>
@@ -161,13 +213,13 @@ const Boooking: React.FC = () => {
           </div>
         )}
       </div>
-            <RatingModal
+            {/* <RatingModal
                 isOpen={showRatingModal}
                 onClose={() => setShowRatingModal(false)}
-                onSubmit={handleSubmitRating}
+                // onSubmit={handleSubmitRating}
                 sessionId={selectedSession}
-            />
-            {/* <Pagination
+            /> */}
+             {/* <Pagination
             currentPage={1}
             onPageChange={}
             totalPages={10}/> */}
@@ -175,4 +227,4 @@ const Boooking: React.FC = () => {
     )
 }
 
-export default Boooking
+export default Boooking;

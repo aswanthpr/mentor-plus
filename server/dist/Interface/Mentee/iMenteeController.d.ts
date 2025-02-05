@@ -9,6 +9,5 @@ export interface ImenteeController {
     exploreData(req: Request, res: Response): Promise<void>;
     homeData(req: Request, res: Response): Promise<void>;
     getSimilarMentors(req: Request, res: Response): Promise<void>;
-    getTimeSlots(req: Request, res: Response): Promise<void>;
 }
 //# sourceMappingURL=iMenteeController.d.ts.map

@@ -19,7 +19,7 @@ import { IcategoryRepository } from "../Interface/Category/iCategoryRepository";
 import { IquestionRepository } from "../Interface/Qa/IquestionRepository";
 import { WeekdayString } from "../Types/types";
 import { ObjectId } from "mongoose";
-import { ItimeSlotRepository } from "../Interface/timeSchedule/iTimeSchedule";
+import { ItimeSlotRepository } from "../Interface/Booking/iTimeSchedule";
 import { Status } from "../Utils/httpStatusCode";
 import { convertTo24HourTime } from "../Utils/reuseFunctions";
 

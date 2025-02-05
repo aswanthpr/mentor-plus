@@ -83,6 +83,12 @@ interface IMentor {
     onClose: () => void;
     onSubmit: (scheduleData) => void;
   }
+  interface IslotField{
+    startTime:string;
+    endTime:string;
+    startStr:string;
+    endStr:string
+  }
   interface Itime {
     _id?:string
     startDate:string; 
@@ -93,6 +99,7 @@ interface IMentor {
     mentorId:string;
     endStr:string;
     startStr:string
+    slots?:IslotField[];
   }
   
   

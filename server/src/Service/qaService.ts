@@ -22,7 +22,7 @@ class qaService implements IqaService {
     success: boolean;
     message: string;
     status: number;
-    question: Iquestion | undefined;
+    question: Iquestion | undefined; 
   }> {
     try {
       const { title, content, tags } = Data;

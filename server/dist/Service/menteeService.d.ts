@@ -1,21 +1,18 @@
-import { ImenteeService } from "../Interface/Mentee/iMenteeService";
 import { Imentee } from "../Model/menteeModel";
-import { ImenteeRepository } from "../Interface/Mentee/iMenteeRepository";
 import { Imentor } from "../Model/mentorModel";
-import { ImentorRepository } from "../Interface/Mentor/iMentorRepository";
-import { IcategoryRepository } from "../Interface/Category/iCategoryRepository";
-import { Icategory } from "../Model/categorySchema";
 import { Iquestion } from "../Model/questionModal";
+import { Icategory } from "../Model/categorySchema";
+import { ImenteeService } from "../Interface/Mentee/iMenteeService";
+import { IcategoryRepository } from "../Interface/Category/iCategoryRepository";
+import { ImentorRepository } from "../Interface/Mentor/iMentorRepository";
 import { IquestionRepository } from "../Interface/Qa/IquestionRepository";
-import { Itime } from "src/Model/timeModel";
-import { ItimeSlotRepository } from "src/Interface/timeSchedule/iTimeSchedule";
+import { ImenteeRepository } from "../Interface/Mentee/iMenteeRepository";
 export declare class menteeService implements ImenteeService {
     private _menteeRepository;
     private _mentorRepository;
     private _categoryRepository;
     private _questionRepository;
-    private _timeSlotRepository;
-    constructor(_menteeRepository: ImenteeRepository, _mentorRepository: ImentorRepository, _categoryRepository: IcategoryRepository, _questionRepository: IquestionRepository, _timeSlotRepository: ItimeSlotRepository);
+    constructor(_menteeRepository: ImenteeRepository, _mentorRepository: ImentorRepository, _categoryRepository: IcategoryRepository, _questionRepository: IquestionRepository);
     menteeProfile(refreshToken: string): Promise<{
         success: boolean;
         message: string;
@@ -65,12 +62,6 @@ export declare class menteeService implements ImenteeService {
         message: string;
         status: number;
         mentor: Imentor[] | [];
-    }>;
-    getTimeSlots(mentorId: string): Promise<{
-        success: boolean;
-        message: string;
-        status: number;
-        timeSlots: Itime[] | [];
     }>;
 }
 //# sourceMappingURL=menteeService.d.ts.map

@@ -1,10 +1,15 @@
 import { Request, Response } from "express";
 import { ImenteeService } from "../Interface/Mentee/iMenteeService";
 import { ImenteeController } from "../Interface/Mentee/iMenteeController";
-import { log } from "console";
+
+
+
+
 
 export class menteeController implements ImenteeController {
-  constructor(private _menteeService: ImenteeService) {}
+  constructor(
+    private _menteeService: ImenteeService
+  ) {}
 
   //for creating new access token
   async refreshToken(req: Request, res: Response): Promise<void> {
@@ -168,6 +173,7 @@ export class menteeController implements ImenteeController {
       const { status, success, message, homeData } =
         await this._menteeService.homeData(filter as string);
       const userId = req.user as Express.User;
+      console.log(filter,'pppppppppppppppppp')
       res.status(status).json({ success, message, homeData, userId });
     } catch (error: unknown) {
       res
@@ -188,7 +194,6 @@ export class menteeController implements ImenteeController {
       console.log(category, "this is mentorid");
       const { status, message, success, mentor } =
         await this._menteeService.getMentorDetailes(category as string,mentorId as string);
-        console.log(mentor,'3333333333333333333')
       res.status(status).json({ success, message, mentor });
     } catch (error: unknown) {
       throw new Error(
@@ -198,24 +203,9 @@ export class menteeController implements ImenteeController {
       );
     } 
   }
-//get timeslots for booking page 
-//mentee/slot-booking/slot
-// @params mentorId
-// @returns timeSlot[]
 
-async getTimeSlots(req: Request, res: Response): Promise<void> {
-  try {
-    const {mentorId} = req.query;
-    console.log(mentorId,'mentorid')
-    const {success,status,message,timeSlots} = await this._menteeService.getTimeSlots(mentorId as string)
-console.log(timeSlots)
-     res.status(status).json({success,message,timeSlots});
-  } catch (error:unknown) {
-    throw new Error(
-      `Error while  getting timeslots for booking  ${
-        error instanceof Error ? error.message : String(error)
-      }`
-    );
-  }
+
+
+
 }
-}
+ 

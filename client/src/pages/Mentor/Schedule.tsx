@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react'; 
 import { Search } from 'lucide-react';
 import Button from '../../components/Auth/Button';
 import InputField from '../../components/Auth/InputField';
@@ -102,7 +102,7 @@ const filteredTimeSlots = timeSlots.filter(slot =>{
     <div className="p-6 mt-10">
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-2xl font-bold">Schedule</h1>
-        <Button variant="orange" onClick={() => setIsModalOpen(true)}>
+        <Button variant="orange" onClick={() => setIsModalOpen(true)}> 
           Add Schedule
         </Button>
       </div>

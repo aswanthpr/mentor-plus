@@ -1,3 +1,4 @@
+import { toast } from "react-toastify";
 import React, { useEffect, useState } from "react";
 import { MessageCircleQuestion, Search } from "lucide-react";
 
@@ -8,7 +9,6 @@ import { Pagination } from "../../components/Common/common4All/Pagination";
 import Spinner from "../../components/Common/common4All/Spinner";
 import { errorHandler } from "../../Utils/Reusable/Reusable";
 import { protectedAPI } from "../../Config/Axios";
-import { toast } from "react-toastify";
 import ConfirmToast from "../../components/Common/common4All/ConfirmToast";
 import QuestionFilter from "../../components/Common/Qa/QuestionFilter";
 import AnswerInputModal from "../../components/Common/Qa/AnswerInputModal";
@@ -119,16 +119,19 @@ const QnA_page: React.FC = () => {
 
       if (response.status == 200 && response.data.success) {
         const question = response.data.question;
+        console.log(question,'999999')
         const update = {
-          _id: question?._id,
-          title: question?.title,
-          content: question?.content,
-          tags: question?.tags,
-          createdAt: question?.createdAt,
-          updatedAt: question?.updatedAt,
-          menteeId: question?.menteeId?._id,
-          answerId: question?.answerId,
-          user: question?.menteeId,
+          _id: question?._id as string,
+          title: question?.title as string,
+          content: question?.content as string,
+          tags: question?.tags as string[],
+          createdAt: question?.createdAt as string,
+          updatedAt: question?.updatedAt as string,
+          menteeId: question?.menteeId?._id as string,
+          answerId: question?.answerId as string,
+          user: question?.menteeId as IMentee,
+          isBlocked:question?.isBlocked as boolean,
+
         };
         setQuestions(questions.map((q) => (q._id === questionId ? update : q)));
         toast.success(response.data.message);

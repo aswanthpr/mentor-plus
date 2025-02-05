@@ -19,5 +19,14 @@ declare namespace NodeJS{
            CALLBACK_URL:string
 
            SESSION_SECRET:string
+           PLATFORM_FEE:string
+
+           STRIPE_SECRET_KEY:string;
+
+           CLIENT_ORIGIN_URL:string;
+           STRIPE_WEBHOOK_SECRET:string;
+
+
+        
     }
 }

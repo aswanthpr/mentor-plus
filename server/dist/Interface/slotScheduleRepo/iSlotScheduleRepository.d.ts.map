@@ -1,0 +1,1 @@
+{"version":3,"file":"iSlotScheduleRepository.d.ts","sourceRoot":"","sources":["../../../src/Interface/slotScheduleRepo/iSlotScheduleRepository.ts"],"names":[],"mappings":"AACA,OAAO,EAAE,aAAa,EAAE,MAAM,wBAAwB,CAAC;AACvD,OAAO,EAAE,gBAAgB,EAAE,MAAM,WAAW,CAAC;AAG7C,MAAM,WAAW,uBAAuB;IACtC,cAAc,CAAC,eAAe,EAAC,gBAAgB,GAAG,OAAO,CAAC,aAAa,GAAG,IAAI,CAAC,CAAC;CACjF"}

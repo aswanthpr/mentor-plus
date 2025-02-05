@@ -11,17 +11,26 @@ import qaController from "../Controller/qaController";
 import questionRepository from "../Repository/questionRepository";
 import answerRespository from "../Repository/answerRepository";
 import timeSlotRepository from "../Repository/timeSlotRepository";
+import slotScheduleRepository from "../Repository/slotScheduleRepository";
+import { bookingControlelr } from "../Controller/bookingController";
+import { bookingService } from "../Service/bookingService";
 
 const __menteeService = new menteeService(
     menteeRepository,
     mentorRepository,
     categoryRepository,
     questionRepository,
-    timeSlotRepository,
 )
 const __menteeController = new menteeController(__menteeService);
-const __qaService = new qaService(questionRepository, answerRespository);
-const __qaController = new qaController(__qaService)
+const __qaService = new qaService(
+    questionRepository,
+    answerRespository);
+const __qaController = new qaController(__qaService);
+const __bookingService = new bookingService(
+    timeSlotRepository,
+    slotScheduleRepository
+)
+const __bookingController =new bookingControlelr(__bookingService)
 const mentee_Router: Router = express.Router();
 
 mentee_Router.post(`/refresh-token`, __menteeController.refreshToken.bind(__menteeController));
@@ -44,8 +53,23 @@ mentee_Router.get(`/home/:filter`, authorize, __menteeController.homeData.bind(_
 mentee_Router.delete(`/qa/delete/:questionId`, authorize, __qaController.deleteQuestion.bind(__qaController))
 
 mentee_Router.post(`/qa/create-answer`, authorize, __qaController.createNewAnswer.bind(__qaController));
-mentee_Router.patch(`/qa/edit-answer`,authorize,__qaController.editAnswer.bind(__qaController));
-mentee_Router.get(`/explore/similar-mentors`,authorize,__menteeController.getSimilarMentors.bind(__menteeController));
-mentee_Router.get(`/slot-booking/slot`,__menteeController.getTimeSlots.bind(__menteeController));
 
+mentee_Router.patch(`/qa/edit-answer`,authorize,__qaController.editAnswer.bind(__qaController));
+
+mentee_Router.get(`/explore/similar-mentors`,authorize,__menteeController.getSimilarMentors.bind(__menteeController));
+
+mentee_Router.get(`/slot-booking`,__bookingController.getTimeSlots.bind(__bookingController));
+
+
+//slot book with rzorpay
+mentee_Router.post(`/slot-booking`,authorize,__bookingController.slotBooking.bind(__bookingController));
+
+mentee_Router.post(
+    '/webhook',
+    express.raw({ type: 'application/json' }),
+    __bookingController.stripeWebHook.bind(__bookingController))
+// ./stripe listen --forward-to localhost:3000/mentee/webhook
+
+
+mentee_Router.get(`/booked-sessions`,authorize,__bookingController.getBookedSlot.bind(__bookingController));
 export default mentee_Router;

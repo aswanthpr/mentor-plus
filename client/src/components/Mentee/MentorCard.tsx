@@ -2,21 +2,6 @@ import { BadgeCheckIcon } from "lucide-react";
 import React from "react";
 import { Link } from "react-router-dom";
 // import { Star, Clock } from 'lucide-react';
-// export interface Mentor extends Partial<IMentor> {
-//   _id?: string;
-//   name: string;
-//   profileUrl: string;
-//   jobTitle: string;
-//   category: string;
-//   // rating?: number;
-//   // reviewCount?: number;
-//   // hourlyRate?: number;
-//   // availability?: 'available' | 'busy' | 'offline';
-//   bio: string;
-//   linkedinUrl: string;
-//   skills: string[];
-//   githubUrl: string;
-// }
 
 interface MentorCardProps {
   mentor: IMentor;
@@ -31,7 +16,7 @@ const MentorCard: React.FC<MentorCardProps> = ({ mentor }) => {
   // }[mentor.availability??"available"];
 
   return (
-    <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 sm:p-6 hover:shadow-md transition-shadow mx-8">
+    <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-2 sm:p-6 hover:shadow-md transition-shadow mx-1">
       <div className="flex flex-col sm:flex-row sm:items-start gap-4">
         <img
           src={mentor?.profileUrl}
@@ -40,8 +25,8 @@ const MentorCard: React.FC<MentorCardProps> = ({ mentor }) => {
         />
         <div className="flex-1">
           <div className="flex flex-col sm:flex-row sm:items-center  gap-2">
-            <div className="flex items-center gap-2">
-              <h3 className="text-lg font-semibold text-gray-900">
+            <div className="flex items-center gap-2 justify-center ">
+              <h3 className="text-lg font-semibold text-gray-900 ">
                 {mentor?.name}
               </h3>
               <span className="mt-1">
@@ -81,7 +66,7 @@ const MentorCard: React.FC<MentorCardProps> = ({ mentor }) => {
         </div>
       </div>
       <p className="mt-4 text-sm text-gray-600 line-clamp-2 text-center sm:text-left">
-        {mentor.bio}
+        {/* {mentor.bio} */}
       </p>
       {/* <button
         onClick={() => onBook(mentor?.name as string,mentor as IMentor)}
@@ -92,7 +77,7 @@ const MentorCard: React.FC<MentorCardProps> = ({ mentor }) => {
       <Link
         to={`/mentee/explore/${mentor?.name.toLowerCase()}`}
         state={mentor}
-        className="mt-4 w-full px-4 py-2 bg-[#ff8800] text-white rounded-lg hover:bg-[#ff9900] transition-colors block text-center"
+        className="mt-4 w-full px-4 py-2 bg-[#ff8800] text-white rounded-lg hover:bg-[#ff9900] font-semibold transition-colors block text-center mx-auto"
       >
         View Profile
       </Link>

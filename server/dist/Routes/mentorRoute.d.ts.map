@@ -1,1 +1,1 @@
-{"version":3,"file":"mentorRoute.d.ts","sourceRoot":"","sources":["../../src/Routes/mentorRoute.ts"],"names":[],"mappings":"AAAA,OAAgB,EAAE,MAAM,EAAE,MAAM,SAAS,CAAC;AAuB1C,QAAA,MAAM,aAAa,EAAE,MAAyB,CAAC;AA6C/C,eAAe,aAAa,CAAC"}
+{"version":3,"file":"mentorRoute.d.ts","sourceRoot":"","sources":["../../src/Routes/mentorRoute.ts"],"names":[],"mappings":"AAAA,OAAgB,EAAE,MAAM,EAAE,MAAM,SAAS,CAAC;AA6B1C,QAAA,MAAM,aAAa,EAAE,MAAyB,CAAC;AA8C/C,eAAe,aAAa,CAAC"}

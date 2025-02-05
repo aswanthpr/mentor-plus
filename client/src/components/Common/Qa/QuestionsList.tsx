@@ -201,7 +201,7 @@ const QuestionList: React.FC<QuestionListProps> = ({
                       >
                         <PenLineIcon className="w-4 mr-1" />
                         <span className="text-sm">
-                          ({question.answerData?.length}){" "}
+                          {/* ({question.answerData?.length}){" "} */}
                         </span>
                       </button>
                     }
@@ -257,7 +257,7 @@ const QuestionList: React.FC<QuestionListProps> = ({
             <div className="p-4 overflow-y-auto overflow-x-hidden flex-1">
               {pickedQuestion?.answerData &&
               (pickedQuestion.answerData?.length ?? 0) > 0 ? (
-                <div className="space-y-6">
+                <div  key={pickedQuestion?._id} className="space-y-6">
                   {pickedQuestion.answerData.map((answer) => (
                     <div
                       key={answer?._id}

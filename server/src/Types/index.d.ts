@@ -1,4 +1,4 @@
-import { slot } from "src/Model/timeModel";
+import { Itime, slot } from "src/Model/timeModel";
 
   interface ImentorApplication {
    name: string;
@@ -29,11 +29,6 @@ import { slot } from "src/Model/timeModel";
   tags: string[];
   menteeId?:string
 }
-// export interface ITimeSlot {
-  
-//   startTime: string;
-//   endTime: string;
-// }
 
 export interface ISlots{
   startDate:string,
@@ -48,4 +43,25 @@ export interface ISchedule {
   price: string;    
   startDate: string;
   mentorId?:ObjectId
+}
+export interface  Itimes extends Itime{
+  startStr:string;
+  endStr:string;
+}
+
+export  interface CheckoutSessionData {
+  payment_status: string;
+  payment_intent: string;
+  amount_total: number;
+  customer: string;
+}
+export interface InewSlotSchedule{
+  menteeId: ObjectId;
+  slotId: ObjectId;
+  paymentStatus:string;
+  paymentTime:string;
+  paymentMethod:string;
+  paymentAmount: string;
+  duration:string;
+  description:string
 }
