@@ -29,15 +29,16 @@ class qaController implements IqaController {
       console.log(error instanceof Error ? error.message : String(error));
     }
   }
+  //edit question from mentee home && qa
   async editQuestion(req: Request, res: Response): Promise<void> {
     try {
-      console.log(req.body, "this si body", req.user);
-      const { questionId, updatedQuestion } = req.body;
+     
+      const { questionId, updatedQuestion,filter } = req.body;
       const { status, message, success, question } =
-        await this._qaService.editQuestion(questionId, updatedQuestion);
-      console.log(message, success, question, "this si response");
-
-      res.status(status).json({ success, message, question });
+        await this._qaService.editQuestion(questionId, updatedQuestion,filter);
+     
+console.log(question)
+      res.status(status).json({ success, message,question:question![0] });
     } catch (error: unknown) {
       console.log(
         "error while editing question",

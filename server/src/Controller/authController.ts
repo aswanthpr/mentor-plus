@@ -8,7 +8,7 @@ import { Imentee } from "src/Model/menteeModel";
 export class authController implements IauthController {
   constructor(
     private _AuthService: IauthService,
-    private _OtpService: IotpService
+    private _OtpService: IotpService 
   ) { }
 
   //mentee sinup controll

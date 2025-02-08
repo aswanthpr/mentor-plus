@@ -168,12 +168,13 @@ export class mentorController implements ImentorController {
       );
     }
   }
-  //create time slots in mentor side
+  //create time slots in mentor side 
   // /mentor/schedule/create-slots
   // get the scheule time in the req.body
   async createTimeSlots(req: Request, res: Response): Promise<void> {
     try {
       const { type, schedule } = req.body;
+      console.log(type,schedule,'creaeSchedule',) 
       const { success, status, message, timeSlots } =
         await this._mentorService.createTimeSlots(
           type,
@@ -186,9 +187,9 @@ export class mentorController implements ImentorController {
         `error while mentor creating time slots  ${error instanceof Error ? error.message : String(error)
         }`
       );
-    }
+    } 
   }
-
+ 
   //schedule getting data.  /schedule/get-time-slots
   async getTimeSlots(req: Request, res: Response): Promise<void> {
     try {

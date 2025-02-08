@@ -1,40 +1,36 @@
-import React from 'react';
-import { Dayjs } from 'dayjs';
-import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
-import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
-import { TimePicker as MuiTimePicker } from '@mui/x-date-pickers/TimePicker';
+import React from "react";
 
+import { TimePicker } from "@mui/x-date-pickers/TimePicker";
+import { Moment } from "moment";
 
 interface ReusableTimePickerProps {
   label?: string; // Label for the TimePicker
-  value: Dayjs | null; // Selected time value
-  onChange: (newValue: Dayjs | null) => void; // Callback when time changes
+  value: Moment | null; // Selected time value
+  onChange: (newValue: Moment | null) => void; // Callback when time changes
   ampm?: boolean; // Whether to show AM/PM format
   minutesStep?: number; // Interval for minutes selection
 }
 
 const TimePickers: React.FC<ReusableTimePickerProps> = ({
-  label = 'Select Time',
+  label = "Select Time",
   value,
   onChange,
   ampm = true,
   minutesStep = 1,
 }) => {
   // Handle the change event for TimePicker
-  const handleChange = (newValue: Dayjs | null) => {
+  const handleChange = (newValue: Moment | null) => {
     onChange(newValue); // Pass the new value to the parent
   };
 
   return (
-    <LocalizationProvider dateAdapter={AdapterDayjs}>
-      <MuiTimePicker
-        label={label}
-        value={value}
-        onChange={handleChange}
-        ampm={ampm}
-        minutesStep={minutesStep}
-      />
-    </LocalizationProvider>
+    <TimePicker
+      label={label}
+      value={value}
+      onChange={handleChange}
+      ampm={ampm}
+      minutesStep={minutesStep}
+    />
   );
 };
 

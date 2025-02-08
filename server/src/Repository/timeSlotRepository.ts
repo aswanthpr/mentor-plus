@@ -25,7 +25,6 @@ class timeSlotRepository
 
   async getTimeSlots(mentorId: ObjectId): Promise<Itime[] | []> {
     try {
-      const currentDate = new Date(); // Get the current date and time
 
       const res = await this.aggregateData(timeSchema, [
         {
@@ -37,6 +36,7 @@ class timeSlotRepository
             isBooked: 1,
             mentorId: 1,
             price: 1,
+            duration:1,
             startTime: "$slots.startTime",
             endTime: "$slots.endTime",
             startStr: "$slots.startStr",
@@ -45,9 +45,9 @@ class timeSlotRepository
         },
         {
           $match: {
-            mentorId: mentorId, // Replace mentorId with the actual value
+            mentorId: mentorId, 
             isBooked: false,
-            startTime: { $gt: currentDate }, // Ensures the startTime is greater than the current date
+            startDate: { $gte: new Date() }
           },
         },
         {
@@ -79,8 +79,7 @@ class timeSlotRepository
   //mentee side for mentor booking
   async getMentorSlots(mentorId: string): Promise<Itime[] | []> {
     try {
-      const currentDate = new Date();
-      console.log(currentDate,'thsi is the reate')
+     
       return this.aggregateData(timeSchema, [
         {
             $unwind: "$slots",
@@ -95,12 +94,13 @@ class timeSlotRepository
               endTime: "$slots.endTime",
               startStr: "$slots.startStr", 
               endStr: "$slots.endStr",
+              duration:1
             },
           },
         {
           $match: {
            mentorId:new mongoose.Types.ObjectId( mentorId),
-            startTime: { $gt: currentDate },
+            startDate: { $gt: new Date() },
             isBooked:false
           },
 

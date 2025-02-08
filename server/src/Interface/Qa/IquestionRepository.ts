@@ -11,8 +11,9 @@ export interface IquestionRepository {
   questionData(menteeId: ObjectId, filter: string): Promise<Iquestion[]>;
   editQuestions(
     questionId: string,
-    updatedQuestion: Iquestion
-  ): Promise<Iquestion | null>;
+    updatedQuestion: Iquestion,
+    filter:string
+  ): Promise<Iquestion[] | null>;
   allQuestionData(filter: string): Promise<Iquestion[] | null>;
   deleteQuestion(questionId: string): Promise<DeleteResult | undefined>;
   countAnswer(questionId:string):Promise<Iquestion|null>

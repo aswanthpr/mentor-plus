@@ -70,7 +70,6 @@ export class bookingService implements IbookingService {
     message: string,
     paymentMethod: string,
     totalAmount: string,
-    duration: string,
     mentorName: string,
     menteeId: ObjectId,
     protocol: string,
@@ -82,14 +81,13 @@ export class bookingService implements IbookingService {
     session?: Stripe.Response<Stripe.Checkout.Session>;
   }> {
     try {
-      console.log(timeSlot, message, paymentMethod, totalAmount, duration);
+      console.log(timeSlot, message, paymentMethod, totalAmount);
 
       if (
         !timeSlot ||
         !message ||
         !paymentMethod ||
-        !totalAmount ||
-        !duration
+        !totalAmount
       ) {
         return {
           status: Status.BadRequest,
@@ -127,7 +125,6 @@ export class bookingService implements IbookingService {
             timeSlot: JSON.stringify(timeSlot),
             message,
             paymentMethod,
-            duration,
             menteeId: String(menteeId),
           },
         });
@@ -201,14 +198,13 @@ console.log(event,'event aanuithu')
             return;
           }
 
-          const { timeSlot, message, paymentMethod, duration, menteeId } =
+          const { timeSlot, message, paymentMethod,menteeId } =
             metadata;
 
           if (
             !timeSlot ||
             !message ||
             !paymentMethod ||
-            !duration ||
             !menteeId
           ) {
             console.error("Invalid or missing metadata in Stripe webhook");
@@ -238,8 +234,9 @@ console.log(event,'event aanuithu')
             paymentTime: time,
             paymentMethod: "stripe",
             paymentAmount: String(totalAmount),
-            duration,
+            duration: JSON.parse(timeSlot)?.duration,
             description: message,
+            status:'CONFIRMED'
           };
 
           console.log(newSlotSchedule, "Updated newSlotSchedule Object");

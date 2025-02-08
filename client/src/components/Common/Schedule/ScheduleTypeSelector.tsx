@@ -1,23 +1,31 @@
+import { Select, MenuItem, InputLabel, FormControl } from "@mui/material";
+type Tmethod ='normal'|'recurring'
+
 interface ScheduleTypeSelectorProps {
-    value: 'normal' | 'recurring';
-    onChange: (value: 'normal' | 'recurring') => void;
+    value: Tmethod;
+    onChange: (value: Tmethod) => void;
     classNames:string
   }
   
   export const ScheduleTypeSelector = ({ value, onChange,classNames }: ScheduleTypeSelectorProps) => {
     return (
       <div className={`mb-6 ${classNames}` }>
-        <label className="block text-sm font-medium text-gray-700 mb-2">
-          Schedule Type
-        </label>
-        <select
+      <FormControl fullWidth variant="outlined">
+        <InputLabel>Schedule Type</InputLabel>
+        <Select
+          label="Schedule Type"  // Ensure the label prop is passed here
           value={value}
           onChange={(e) => onChange(e.target.value as 'normal' | 'recurring')}
-          className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-orange-200 border-orange-500"
+          className=" border border-none rounded-md focus:outline-none focus:ring-2 focus:ring-orange-200 border-orange-500"
         >
-          <option value="normal">Normal</option>
-          <option value="recurring">Recurring</option>
-        </select>
+          <MenuItem value="normal">Normal</MenuItem>
+          <MenuItem value="recurring">Recurring</MenuItem>
+        </Select>
+      </FormControl>
       </div>
     );
   };
+
+
+
+

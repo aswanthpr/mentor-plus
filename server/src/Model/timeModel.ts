@@ -1,16 +1,16 @@
 import mongoose, { Document, Schema } from "mongoose";
 
 export interface slot {
-  startTime: Date;
-  startStr:string
-  endTime: Date;
-  endStr:string;
+  startTime: string;
+  endTime: string;
+
 }
 export interface Itime extends Document {
   startDate: Date;
   slots: slot[];
   price: string;
   isBooked?: boolean;
+  duration:number;
   mentorId:  mongoose.Schema.Types.ObjectId;
 }
 export const timeSchema: Schema<Itime> = new Schema(
@@ -22,21 +22,15 @@ export const timeSchema: Schema<Itime> = new Schema(
     slots: [
       {
         startTime: {
-          type: Date,
-          required: true,
-        },
-        startStr: {
           type: String,
           required: true,
         },
+
         endTime: {
-          type: Date,
-          required: true,
-        },
-        endStr: {
           type: String,
           required: true,
         },
+
       },
     ],
     price: {
@@ -53,6 +47,10 @@ export const timeSchema: Schema<Itime> = new Schema(
       ref: "mentor",
       required: true,
     },
+    duration:{
+      type:Number,
+      required:true,
+    }
   },
   {
     timestamps: true,

@@ -1,15 +1,14 @@
 import mongoose, { Document, Schema } from "mongoose";
 export interface slot {
-    startTime: Date;
-    startStr: string;
-    endTime: Date;
-    endStr: string;
+    startTime: string;
+    endTime: string;
 }
 export interface Itime extends Document {
     startDate: Date;
     slots: slot[];
     price: string;
     isBooked?: boolean;
+    duration: number;
     mentorId: mongoose.Schema.Types.ObjectId;
 }
 export declare const timeSchema: Schema<Itime>;

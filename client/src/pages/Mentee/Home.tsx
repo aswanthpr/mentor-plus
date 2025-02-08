@@ -99,26 +99,18 @@ const Home: React.FC = () => {
 
     try {
       setLoading(true);
-      const response = await protectedAPI.patch(`/mentee/qa/edit-question`, {
-        questionId,
-        updatedQuestion,
-      });
+      const { status, data } = await protectedAPI.patch(
+        `/mentee/qa/edit-question`,
+        {
+          questionId,
+          updatedQuestion,
+          filter,
+        }
+      );
 
-      if (response.status == 200 && response.data.success) {
-        const question = response.data.question;
-        const update = {
-          _id: question?._id,
-          title: question?.title,
-          content: question?.content,
-          tags: question?.tags,
-          createdAt: question?.createdAt,
-          updatedAt: question?.updatedAt,
-          menteeId: question?.menteeId?._id,
-          answerId: question?.answerId,
-          menteeData: question?.menteeId,
-        };
-        setQuestions(questions.map((q) => (q._id === questionId ? update : q)));
-        toast.success(response.data.message);
+      if (status == 200 && data.success) {
+        setQuestions(questions.map((q) => (q._id === questionId ? data?.question : q)));
+        toast.success(data.message);
       }
     } catch (error: unknown) {
       errorHandler(error);
@@ -183,35 +175,35 @@ const Home: React.FC = () => {
     console.log(answerQuestionId, "thsi sit he question id ");
     try {
       setLoading(true);
-      const response = await protectedAPI.post(`/mentee/qa/create-answer`, {
+      const { status, data }= await protectedAPI.post(`/mentee/qa/create-answer`, {
         answer: content,
         questionId: answerQuestionId,
         userType: "mentee",
       });
-
-      if (response.status === 200 && response.data.success) {
-        toast.success(response.data.message);
+console.log(data.answers)
+      if (status === 200 &&data.success) {
+        toast.success(data.message);
         setIsAnswerModalOpen(false);
-        
+
+        setQuestions((prevQuestions) =>
+          prevQuestions.map((question) =>
+            question._id === answerQuestionId
+              ? {
+                  ...question,
+                  answerData: [
+                    ...(question.answerData || []),
+                    data?.answers,
+                  ],
+                }
+              : question
+          )
+        );
+        if (filter == "unanswered") {
           setQuestions((prevQuestions) =>
-            prevQuestions.map((question) =>
-              question._id === answerQuestionId
-                ? {
-                    ...question,
-                    answerData: [
-                      ...(question.answerData || []),
-                      response?.data?.answers,
-                    ],
-                  }
-                : question
+            prevQuestions.filter(
+              (question) => question._id !== answerQuestionId
             )
           );
-          if (filter == "unanswered") {
-            setQuestions((prevQuestions) =>
-              prevQuestions.filter(
-                (question) => question._id !== answerQuestionId
-              )
-            );
         }
       }
     } catch (error: unknown) {
@@ -280,8 +272,8 @@ const Home: React.FC = () => {
             Asked Questions
           </h2>
           <div className="flex justify-between items-center  sm:gap-4 mt-3">
-        <QuestionFilter activeFilter={filter} onFilterChange={setFilter} />
-      </div>
+            <QuestionFilter activeFilter={filter} onFilterChange={setFilter} />
+          </div>
           <div className="w-96 mt-4 xss:w-auto">
             <InputField
               type="search"
@@ -294,7 +286,6 @@ const Home: React.FC = () => {
           </div>
         </section>
       </div>
-    
 
       <QuestionsList
         onDeleteQestion={handleDeleteQuestion}

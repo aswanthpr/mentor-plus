@@ -3,7 +3,7 @@ import { Iquestion } from "src/Model/questionModal";
 export interface IquestionRepository {
     createQuestion(title: string, content: string, tags: string[], userId: ObjectId): Promise<Iquestion | null>;
     questionData(menteeId: ObjectId, filter: string): Promise<Iquestion[]>;
-    editQuestions(questionId: string, updatedQuestion: Iquestion): Promise<Iquestion | null>;
+    editQuestions(questionId: string, updatedQuestion: Iquestion, filter: string): Promise<Iquestion[] | null>;
     allQuestionData(filter: string): Promise<Iquestion[] | null>;
     deleteQuestion(questionId: string): Promise<DeleteResult | undefined>;
     countAnswer(questionId: string): Promise<Iquestion | null>;

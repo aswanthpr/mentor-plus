@@ -18,10 +18,11 @@ interface IQuestion {
   menteeId: string;
   createdAt: string;
   updatedAt: string;
-  answers?: number;
+  answers?: string;
   user?:IMentee;
   answerData?:Ianswer[];
-  isBlocked:boolean
+  isBlocked:boolean;
+
   
 } 
 interface Answer {

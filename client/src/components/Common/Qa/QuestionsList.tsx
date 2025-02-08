@@ -50,12 +50,12 @@ const QuestionList: React.FC<QuestionListProps> = ({
     if (EditedData&&Object.values(EditedData).length) {
       setPickedQuestion((prev) => {
         if (prev) {
-          // Ensure `title` is defined or fallback to an empty string
+         
           const { title = "", answerData } = prev;
 
           return {
             ...prev,
-            title, // ensure title is always a string
+            title, 
             answerData: answerData
               ? answerData.map((ans) =>
                   ans._id === EditedData.answerId
@@ -201,7 +201,7 @@ const QuestionList: React.FC<QuestionListProps> = ({
                       >
                         <PenLineIcon className="w-4 mr-1" />
                         <span className="text-sm">
-                          {/* ({question.answerData?.length}){" "} */}
+                          ({question.answerData?.length??question.answers}){" "}
                         </span>
                       </button>
                     }

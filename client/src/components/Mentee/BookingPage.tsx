@@ -2,14 +2,13 @@ import * as Yup from "yup";
 import moment from "moment";
 import { useEffect, useState } from "react";
 import { useLocation } from "react-router-dom";
-import { Calendar, Clock10Icon, PlayCircle, Wallet } from "lucide-react";
+import { Calendar, Clock10Icon, PlayCircle } from "lucide-react";
 import Button from "../Auth/Button";
 // import papalIcon from "../../Asset/icons8-paypal.svg";
 import stripeLogo from "../../Asset/stripe-icon.svg";
 import { protectedAPI } from "../../Config/Axios";
 import { errorHandler } from "../../Utils/Reusable/Reusable";
 import { bookingInputValidation } from "../../Validation/yupValidation";
-
 
 interface IBookingError {
   message: string;
@@ -25,7 +24,7 @@ const initialState: IBookingError = {
 };
 
 export const BookingPage: React.FC = () => {
-  const { state,pathname } = useLocation();
+  const { state, pathname } = useLocation();
 
   const [selectedSlot, setSelectedSlot] = useState<Itime | null>(null);
   const [message, setMessage] = useState("");
@@ -38,7 +37,7 @@ export const BookingPage: React.FC = () => {
   const [timeDifference, setTimeDifference] = useState<number | null>(null);
   const [platformFee, setPlatformFee] = useState<number | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
-  const [mentorName]  =useState<string>(pathname.split("/")[2])
+  const [mentorName] = useState<string>(pathname.split("/")[2]);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -72,24 +71,25 @@ export const BookingPage: React.FC = () => {
       }
       await bookingInputValidation.validate({ message });
       setErrors(initialState);
-console.log( selectedSlot,
-  message,
-  selectedPayment,
-  totalPrice,
-  timeDifference,)
-      const { data, status } = await protectedAPI.post(`/mentee/slot-booking`,{
+      console.log(
+        selectedSlot,
+        message,
+        selectedPayment,
+        totalPrice,
+        timeDifference
+      );
+      const { data, status } = await protectedAPI.post(`/mentee/slot-booking`, {
         timeSlot: selectedSlot,
         message,
         paymentMethod: selectedPayment,
         totalAmount: totalPrice,
-        duration: timeDifference,
-        mentorName
+        mentorName,
       });
-      console.log(status,data,'this is response')
+      console.log(status, data, "this is response");
       if (status == 200 && data.success) {
-        console.log(data.session,'this si seesion',data.session.url)
-        if(data.session?.url){
-          window.location.href = data.session?.url
+        console.log(data.session, "this si seesion", data.session.url);
+        if (data.session?.url) {
+          window.location.href = data.session?.url;
         }
       }
 
@@ -102,22 +102,14 @@ console.log( selectedSlot,
       if (error instanceof Yup.ValidationError) {
         setErrors((pre) => ({ ...pre, message: error?.message }));
       } else {
-          setErrorMessage("An unexpected error occurred.");
-        }
-      
+        errorHandler(error);
+      }
     }
   };
 
   // Function to handle time slot selection and check for future time
   const handleSlotClick = (slot: Itime) => {
-    // const currentTime = moment();
-    const slotStartTime = moment(slot.startStr, ["HH.mm"]);
-    const timeDifference = moment(`${slot?.endStr}`, ["HH.mm"]).diff(
-      slotStartTime,
-      "minutes"
-    );
-    setTimeDifference(timeDifference);
-    // Check if the selected slot time is in the future
+ 
     // if (slotStartTime.isAfter(currentTime)) {
     setSelectedSlot(slot);
   };
@@ -142,21 +134,17 @@ console.log( selectedSlot,
                       : "border-gray-200 hover:border-orange-200"
                   }`}
                 >
-                  <p className="font-light text-sm flex">
+                  <p className="text-gray-600 text-sm flex">
+                    <Calendar className="w-3 mr-1" />
+                    {moment(slot?.startDate).format('DD-MM-YYYY')}
+                  </p>
+                  <p className="text-gray-600 font-light text-sm flex">
                     <PlayCircle className="w-3 mr-1" />{" "}
-                    {moment(`${slot?.startStr} `, ["HH.mm"]).format("hh:mm a")}
+                    {moment(slot?.startTime).format("hh:mm a")}
                   </p>
                   <p className="text-gray-600 text-sm flex">
                     <Clock10Icon className="w-3 mr-1" />{" "}
-                    {moment(`${slot?.endStr}`, ["HH.mm"]).diff(
-                      moment(`${slot?.startStr}`, ["HH.mm"]),
-                      "minutes"
-                    )}
-                    min
-                  </p>
-                  <p className="text-gray-600 text-sm flex">
-                    <Calendar className="w-3 mr-1" />
-                    {slot?.startDate.split("T")[0]}
+                    {slot?.duration}  min
                   </p>
                   <p className="text-gray-600 text-sm">${slot?.price}</p>
                 </button>
@@ -269,16 +257,14 @@ console.log( selectedSlot,
             </Elements>
           </div>
         ) : ( */}
-          <Button
-            onClick={handleBook}
-            className="w-full font-bold py-4 "
-            variant="orange"
-          >
-            Book Session
-          </Button>
+        <Button
+          onClick={handleBook}
+          className="w-full font-bold py-4 "
+          variant="orange"
+        >
+          Book Session
+        </Button>
         {/* // )} */}
-
-
       </div>
     </div>
   );

@@ -3,14 +3,14 @@ export interface IslotSchedule extends Document {
     menteeId: mongoose.Schema.Types.ObjectId;
     status: string;
     slotId: mongoose.Schema.Types.ObjectId;
-    isAttended: boolean;
-    isExpired: boolean;
+    isAttended?: boolean;
+    isExpired?: boolean;
     paymentStatus: string;
     paymentMethod: string;
     paymentAmount: string;
     paymentTime: string;
     duration: string;
-    meetingLink: string | null;
+    meetingLink?: string | null;
     description: string;
 }
 declare const _default: mongoose.Model<IslotSchedule, {}, {}, {}, mongoose.Document<unknown, {}, IslotSchedule> & IslotSchedule & Required<{

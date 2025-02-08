@@ -85,8 +85,6 @@ interface IMentor {
   }
   interface IslotField{
     startTime:string;
-    endTime:string;
-    startStr:string;
     endStr:string
   }
   interface Itime {
@@ -97,11 +95,12 @@ interface IMentor {
     isBooked:boolean;
     price:string
     mentorId:string;
-    endStr:string;
-    startStr:string
+    // endStr:string;
+    // startStr:string
     slots?:IslotField[];
+    duration?:number
   }
-  
+   
   
   interface RecurringSchedule {
     startDate: string;

@@ -2,7 +2,7 @@ import mongoose, { Schema, Document } from "mongoose";
 
 export interface Iquestion extends Document {
   title: string;
-  content: string;
+  content: string; 
   tags: string[];
   menteeId:  mongoose.Schema.Types.ObjectId;
   answers:number
@@ -41,3 +41,7 @@ const questionSchema: Schema<Iquestion> = new Schema(
 );
 
 export default mongoose.model<Iquestion>("Question", questionSchema);
+
+
+
+

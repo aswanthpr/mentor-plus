@@ -64,7 +64,7 @@ mentor_Router.get(
   mentorAuthorize,
   __mentorController.homeData.bind(__mentorController)
 );
-mentor_Router.post(`/qa/create-new-answer`,mentorAuthorize,__qaController.createNewAnswer.bind(__qaController));
+mentor_Router.post(`/qa/create-new-answer`,mentorAuthorize, __qaController.createNewAnswer.bind(__qaController));
 mentor_Router.patch(`/qa/edit-answer`,mentorAuthorize,__qaController.editAnswer.bind(__qaController));
 
 //schedule

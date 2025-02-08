@@ -1,7 +1,8 @@
-import { Plus, Trash2 } from 'lucide-react';
-import TimePickers from './TimePickers';
-import dayjs from 'dayjs';
-
+import { Plus, Trash2 } from "lucide-react";
+import TimePickers from "./TimePickers";
+import moment, { Moment } from "moment";
+import DatePickers from "./DatePickers";
+import MuiInput from "./MuiInput";
 
 interface TimeSlot {
   startTime: string;
@@ -21,10 +22,18 @@ interface RecurringScheduleFormProps {
   onAddTimeSlot: () => void;
   onRemoveTimeSlot: (index: number) => void;
   onTimeSlotChange: (index: number, key: keyof TimeSlot, value: string) => void;
-  // onSubmit: (data: any) => void; 
+  // onSubmit: (data: any) => void;
 }
 
-const DAYS = ["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
+const DAYS = [
+  "Sunday",
+  "Monday",
+  "Tuesday",
+  "Wednesday",
+  "Thursday",
+  "Friday",
+  "Saturday",
+];
 
 export const RecurringScheduleForm = ({
   startDate,
@@ -39,47 +48,59 @@ export const RecurringScheduleForm = ({
   onAddTimeSlot,
   onRemoveTimeSlot,
   onTimeSlotChange,
-
 }: RecurringScheduleFormProps) => {
-
   return (
     <div className="space-y-6">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pr-6">
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
-            Start Date
-          </label>
-          <input
-            type="date"
-            value={startDate}
-            onChange={(e) => onStartDateChange(e.target.value)}
-            className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-orange-200 border-orange-500"
+        <div className="w-auto flex  xss:grid-col-1 md:flex-row sm:flex-row gap-x-20 gap-y-5 xss:w-full ">
+
+        
+          <DatePickers
+            disablePast
+            format="DD-MM-YYYY"
+            label="Start Date"
+            onChange={(newValue: Moment | null) => {
+              if (newValue) {
+                const formattedDate = newValue.format("YYYY-MM-DD");
+                onStartDateChange(formattedDate);
+              } else {
+                onStartDateChange("");
+              }
+            }}
+            className="w-full"
+            value={moment(startDate,'YYYY-MM-DD')}
           />
-          
-        </div>
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
-            End Date
-          </label>
-          <input
-            type="date"
-            value={endDate}
-            onChange={(e) => onEndDateChange(e.target.value)}
-            className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-orange-200 border-orange-500"
+    
+
+          <DatePickers
+            disablePast
+            format="DD-MM-YYYY"
+            label="End Date"
+            className="w-full "
+            value={moment(endDate,'YYYY-MM-DD')}
+            onChange={(newValue: Moment | null) => {
+              if (newValue) {
+                const formattedDate = newValue.format("YYYY-MM-DD");
+                onEndDateChange(formattedDate);
+              } else {
+                onEndDateChange("");
+              }
+            }}
           />
         </div>
       </div>
 
-      <div className='pr-6'>
-        <label className="block text-sm font-medium text-gray-700 mb-2">
-          Price for All Sessions
-        </label>
-        <input
+      <div className="pr-6">
+        <MuiInput
+          label= {'Price for All Sessions'}
           type="number"
           value={price}
-          onChange={(e) => onPriceChange(e.target.value)}
+          onChange={(e) =>
+            onPriceChange(e.target.value)
+          }
           placeholder="Enter price"
-          className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-orange-200 border-orange-500"
+          className="w-1/full items-center"
+          min={0}
         />
       </div>
 
@@ -112,26 +133,27 @@ export const RecurringScheduleForm = ({
                 Start Time
               </label>
               <TimePickers
-                  value={slot.startTime ? dayjs(slot.startTime, 'HH:mm') : null}
-                  onChange={(newValue) => {
-                    const timeString = newValue?.format('HH:mm') || '';
-                    onTimeSlotChange(index, "startTime", timeString);
-                  }}
-                  // slotProps={{ extField: { size: 'small' } }}
-                />
+                value={
+                  slot.startTime ? moment(slot.startTime, "hh:mm A") : null
+                }
+                onChange={(newValue) => {
+                  const timeString = newValue?.format("HH:mm") || "";
+                  onTimeSlotChange(index, "startTime", timeString);
+                }}
+                // slotProps={{ extField: { size: 'small' } }}
+              />
             </div>
             <div className="flex-1">
               <label className="block text-sm text-gray-600 mb-1">
                 End Time
               </label>
               <TimePickers
-                  value={slot.endTime ? dayjs(slot.endTime, 'HH:mm') : null}
-                  onChange={(newValue) => {
-                    const timeString = newValue?.format('HH:mm') || '';
-                    onTimeSlotChange(index, "endTime", timeString);
-                  }}
-                
-                />
+                value={slot.endTime ? moment(slot.endTime, "hh:mm A") : null}
+                onChange={(newValue) => {
+                  const timeString = newValue?.format("HH:mm") || "";
+                  onTimeSlotChange(index, "endTime", timeString);
+                }}
+              />
             </div>
             <button
               onClick={() => onRemoveTimeSlot(index)}

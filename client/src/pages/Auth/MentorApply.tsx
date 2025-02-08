@@ -12,7 +12,7 @@ import { EyeClosedIcon, EyeIcon } from "lucide-react";
 import { errorHandler } from "../../Utils/Reusable/Reusable";
 
 const MentorApply: React.FC = () => {
-  const Data ={
+  const Data:IErrors ={
     name: "",
     email: "",
     password: "",
@@ -26,7 +26,7 @@ const MentorApply: React.FC = () => {
     resume: "",
     profileImage: '' 
   }
-  const [formData, setFormData] = useState<IFormData>({
+  const initialform:IFormData ={
     name: "",
     email: "",
     password: "",
@@ -41,11 +41,9 @@ const MentorApply: React.FC = () => {
     profileImage: null
 
 
-  });
-
-  const [errors, setErrors] = useState<IErrors>({
-  ...Data
-  });
+  }
+  const [formData, setFormData] = useState<IFormData>(initialform);
+  const [errors, setErrors] = useState<IErrors>(Data);
   const[isPasswordVisible,setIsPasswordVisible]=useState<boolean>(false)
   const [skills, setSkills] = useState<string[]>([]);
   const [resume, setResume] = useState<File | null>(null);
@@ -192,31 +190,20 @@ const MentorApply: React.FC = () => {
 
     setLoading(true)
     try {
-      const response = await unProtectedAPI.post(`/auth/apply_as_mentor`, form, {
+      const {status,data}= await unProtectedAPI.post(`/auth/apply_as_mentor`, form, {
         headers: {
           'Content-Type': 'multipart/form-data'
         },
       });
 
-      if (response.data && response.data.status == 200) {
-        console.log(response.data.message);
-        toast.success(response.data.message);
+      if (data.success && status == 200) {
+        console.log(data.message);
+        toast.success(data.message);
 
-        setFormData({
-          name: "",
-          email: "",
-          password: "",
-          phone: "",
-          jobTitle: "",
-          category: "",
-          linkedinUrl: "",
-          githubUrl: "",
-          bio: "",
-          skills: [],
-          profileImage: null,
-          resume: null,
-        });
-        navigate('/auth/login')
+        setFormData(initialform);
+        navigate('/auth/login/mentor')
+        
+        toast.info('"Your application is currently under review. Once verified, you will receive a notification via email within 3 working days. Have a great day!"')
       }
     }catch (error:unknown) {
           errorHandler(error)
@@ -425,6 +412,7 @@ const MentorApply: React.FC = () => {
           </Link>
         </p>
       </div>
+
     </div>
   );
 };

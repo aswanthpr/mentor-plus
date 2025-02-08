@@ -89,7 +89,7 @@ export class menteeService implements ImenteeService {
         return {
           success: false,
           message: "credential is  missing",
-          status: 400,
+          status: Status.BadRequest,
           result: null,
         };
       }
@@ -108,7 +108,7 @@ export class menteeService implements ImenteeService {
       return {
         success: true,
         message: "edit successfully",
-        status: 200,
+        status: Status.Ok,
         result: result,
       };
     } catch (error: unknown) {
@@ -130,7 +130,7 @@ export class menteeService implements ImenteeService {
         return {
           success: false,
           message: "credentials not found",
-          status: 400,
+          status: Status.BadRequest,
         };
       }
       if (currentPassword == newPassword) {
@@ -196,7 +196,7 @@ export class menteeService implements ImenteeService {
       return {
         success: true,
         message: "updation successfull",
-        status: 200,
+        status:  Status.Ok,
         profileUrl: result.profileUrl,
       };
     } catch (error: unknown) {
@@ -224,7 +224,7 @@ export class menteeService implements ImenteeService {
         return {
           success: false,
           message: "Your session has expired. Please log in again.",
-          status: 401,
+          status: Status.NotFound,
         };
       }
 
@@ -241,7 +241,7 @@ export class menteeService implements ImenteeService {
         message: "Token refresh successfully",
         accessToken,
         refreshToken,
-        status: 200,
+        status:  Status.Ok,
       };
     } catch (error: unknown) {
       console.error("Error while generating access or refresh token:", error);
@@ -264,7 +264,7 @@ export class menteeService implements ImenteeService {
         return {
           success: false,
           message: "Data not found",
-          status: 404,
+          status: Status.NotFound,
           skills: undefined,
         };
       }
@@ -274,7 +274,7 @@ export class menteeService implements ImenteeService {
         return {
           success: false,
           message: "Data not found",
-          status: 404,
+          status:  Status.NotFound,
           skills: undefined,
         };
       }
@@ -284,7 +284,7 @@ export class menteeService implements ImenteeService {
       return {
         success: false,
         message: "Data fetch successfully ",
-        status: 200,
+        status: Status.Ok,
         mentor: mentorData,
         category: categoryData,
         skills: categoryWithSkill,
@@ -303,7 +303,7 @@ export class menteeService implements ImenteeService {
       };
     }
   }
-
+//this is for getting mentee home question data
   async homeData(filter: string): Promise<{
     success: boolean;
     message: string;
@@ -315,7 +315,7 @@ export class menteeService implements ImenteeService {
         return {
           success: false,
           message: "credentials not found",
-          status: 400,
+          status: Status.BadRequest,
           homeData: null,
         };
       }
@@ -325,14 +325,14 @@ export class menteeService implements ImenteeService {
         return {
           success: false,
           message: "Data not found",
-          status: 404,
+          status: Status.NotFound,
           homeData: null,
         };
       }
       return {
         success: true,
         message: "Data successfully fetched",
-        status: 200,
+        status: Status.Ok,
         homeData: response,
       };
     } catch (error: unknown) {
@@ -344,7 +344,7 @@ export class menteeService implements ImenteeService {
       return {
         success: false,
         message: "Internal server error",
-        status: 500,
+        status: Status.InternalServerError,
         homeData: null,
       };
     }
@@ -363,7 +363,7 @@ export class menteeService implements ImenteeService {
       if (!mentorId) {
         return {
           status: Status.BadRequest,
-          message: "credential not found",
+          message: "credential not found", 
           success: false,
           mentor: [],
         };

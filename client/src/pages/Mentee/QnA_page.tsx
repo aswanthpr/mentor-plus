@@ -112,29 +112,16 @@ const QnA_page: React.FC = () => {
 
     try {
       setLoading(true);
-      const response = await protectedAPI.patch(`/mentee/qa/edit-question`, {
+      const { status, data } = await protectedAPI.patch(`/mentee/qa/edit-question`, {
         questionId,
         updatedQuestion,
+        filter
       });
 
-      if (response.status == 200 && response.data.success) {
-        const question = response.data.question;
-        console.log(question,'999999')
-        const update = {
-          _id: question?._id as string,
-          title: question?.title as string,
-          content: question?.content as string,
-          tags: question?.tags as string[],
-          createdAt: question?.createdAt as string,
-          updatedAt: question?.updatedAt as string,
-          menteeId: question?.menteeId?._id as string,
-          answerId: question?.answerId as string,
-          user: question?.menteeId as IMentee,
-          isBlocked:question?.isBlocked as boolean,
+      if (status == 200 && data.success) {
 
-        };
-        setQuestions(questions.map((q) => (q._id === questionId ? update : q)));
-        toast.success(response.data.message);
+        setQuestions(questions.map((q) => (q._id === questionId ? data?.question : q)));
+        toast.success(data.message);
       }
     } catch (error: unknown) {
       errorHandler(error);

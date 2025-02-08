@@ -18,7 +18,7 @@ export declare class bookingService implements IbookingService {
         timeSlots: Itime[] | [];
         platformFee: string | undefined;
     }>;
-    slotBooking(timeSlot: Itimes, message: string, paymentMethod: string, totalAmount: string, duration: string, mentorName: string, menteeId: ObjectId, protocol: string, host: string): Promise<{
+    slotBooking(timeSlot: Itimes, message: string, paymentMethod: string, totalAmount: string, mentorName: string, menteeId: ObjectId, protocol: string, host: string): Promise<{
         success: boolean;
         message: string;
         status: number;

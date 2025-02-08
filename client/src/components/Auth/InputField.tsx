@@ -1,3 +1,4 @@
+
 import React from 'react';
 interface InputFieldProps{
     label?:string;
@@ -10,6 +11,8 @@ interface InputFieldProps{
     required?:boolean;
     className?:string;
     name?:string
+    min?:string|number;
+    max?:string|number;
 }
 
 const InputField:React.FC<InputFieldProps> = (props) => {
@@ -20,6 +23,7 @@ const InputField:React.FC<InputFieldProps> = (props) => {
         className='block text-sm font-medium text-grey-700'>{props.label}
         </label>
         <input
+        min={props?.min}
          type={props.type}
          id={props.id}
          name={props.name}

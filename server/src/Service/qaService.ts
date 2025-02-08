@@ -120,15 +120,16 @@ class qaService implements IqaService {
 
   async editQuestion(
     questionId: string,
-    updatedQuestion: Iquestion
+    updatedQuestion: Iquestion,
+    filter:string,
   ): Promise<{
     success: boolean;
     message: string;
     status: number;
-    question: Iquestion | null;
+    question: Iquestion[] | null;
   }> {
     try {
-      if (!questionId || !updatedQuestion) {
+      if (!questionId || !updatedQuestion||!filter) {
         return {
           success: false,
           message: "Invalid input: title, content, and tags are required",
@@ -136,16 +137,18 @@ class qaService implements IqaService {
           question: null,
         };
       }
+
       const response = await this.__questionRepository.editQuestions(
         questionId,
-        updatedQuestion
+        updatedQuestion,
+        filter
       );
 
       return {
         success: true,
         message: "Edit Successfully!",
         status: 200,
-        question: response,
+        question:response,
       };
     } catch (error: unknown) {
       throw new Error(

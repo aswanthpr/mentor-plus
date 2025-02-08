@@ -42,7 +42,6 @@ export class bookingControlelr implements IbookingController {
         message,
         paymentMethod,
         totalAmount,
-        duration,
         mentorName,
       } = req.body;
 
@@ -51,7 +50,6 @@ export class bookingControlelr implements IbookingController {
         message,
         paymentMethod,
         totalAmount,
-        duration,
         mentorName,
         req.user as ObjectId,
         req.protocol as string,

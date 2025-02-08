@@ -1,4 +1,4 @@
-import { Itime, slot } from "src/Model/timeModel";
+import { Itime, slot } from "../Model/timeModel";
 
   interface ImentorApplication {
    name: string;
@@ -64,4 +64,5 @@ export interface InewSlotSchedule{
   paymentAmount: string;
   duration:string;
   description:string
+  status:string
 }

@@ -159,7 +159,7 @@ export class menteeController implements ImenteeController {
     } catch (error: unknown) {
       res
         .status(500)
-        .json({ success: false, message: "Internal server error" });
+        .json({ success: false, message: "Internal server error" }); 
       throw new Error(
         `Error getting mentor data in explore ${
           error instanceof Error ? error.message : String(error)

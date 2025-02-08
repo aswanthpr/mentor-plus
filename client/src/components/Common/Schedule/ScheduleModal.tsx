@@ -1,12 +1,17 @@
-import { useState } from "react";
+import moment, { Moment } from "moment";
+import   { useState } from "react";
+import { toast } from "react-toastify";
 import { Plus, Trash2 } from "lucide-react";
+import MuiInput from "./MuiInput";
 import Button from "../../Auth/Button";
 import Modal from "../common4All/Modal";
+import TimePickers from "./TimePickers";
+import DatePickers from "./DatePickers";
 import { ScheduleTypeSelector } from "./ScheduleTypeSelector";
 import { RecurringScheduleForm } from "./RecurringScheduleForm";
-import TimePickers from "./TimePickers";
-import dayjs from "dayjs";
-import { toast } from "react-toastify";
+
+
+
 
 
 export const ScheduleModal = ({
@@ -31,6 +36,7 @@ export const ScheduleModal = ({
   const [selectedDates, setSelectedDates] = useState<string[]>([]);
 
   const handleDateSelection = (date: string) => {
+
     if (selectedDates.length < 7 && !selectedDates.includes(date)) {
       setSelectedDates([...selectedDates, date]);
 
@@ -60,6 +66,7 @@ export const ScheduleModal = ({
     key: keyof TimeSlot,
     value: string
   ) => {
+    console.log(value,'timeString',typeof value)
     const updated = [...normalSchedule];
     updated[dayIndex] = {
       ...updated[dayIndex],
@@ -113,19 +120,13 @@ export const ScheduleModal = ({
       }))
       .filter((day) => day.slots.length > 0 || day.price);
 
-    const cleanRecurringSchedule = {
-      ...recurringSchedule,
-      timeSlots: recurringSchedule.slots.filter(
-        (slot) => slot.startTime && slot.endTime
-      ),
-    };
 
     const scheduleData = {
       type: scheduleType,
       schedule:
         scheduleType === "normal"
           ? cleanNormalSchedule
-          : cleanRecurringSchedule,
+          : recurringSchedule,
     };
 
     console.log("Cleaned Schedule Data:", scheduleData);
@@ -164,7 +165,7 @@ export const ScheduleModal = ({
     );
     setRecurringSchedule({ ...recurringSchedule, slots: updatedTimeSlots });
   };
-
+  
   return (
     <Modal isOpen={isOpen} onClose={onClose}>
       <div className="max-h-[80vh] overflow-y-auto ">
@@ -175,24 +176,37 @@ export const ScheduleModal = ({
         <ScheduleTypeSelector
           value={scheduleType}
           onChange={setScheduleType}
-          classNames={"pr-6"}
+          classNames={"pr-6 w-full"}
         />
 
         {scheduleType === "normal" ? (
           <div className="space-y-6 pr-6">
             <div className="mb-4">
-              <label className="block text-sm text-gray-600 mb-1">
-                Select Dates
-              </label>
-              <input
-                type="date"
-                onChange={(e) => handleDateSelection(e.target.value)}
-                className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-orange-200 border-orange-500"
-              />
+            <DatePickers
+            className="w-full"
+                disablePast
+                format="DD-MM-YYYY"
+                label="Select Dates"
+        
+                value={null}
+                onChange={(newValue: Moment | null) => {
+              
+                  if (newValue) {
+                    const formattedDate = newValue.format("YYYY-MM-DD"); 
+                    // console.log(formattedDate,'formattedDate')
+                    handleDateSelection(formattedDate);
+                  } else {
+                    handleDateSelection(''); 
+                  }
+                }}
+                
+
+            />
+              
               <div className="mt-2 flex gap-2">
                 {selectedDates.map((date, index) => (
                   <div key={index} className="flex items-center gap-2">
-                    <span>{date}</span>
+                    <span className="font-semibold">{date}</span>
                     <button
                       onClick={() => removeDate(date)}
                       className="text-red-500 hover:text-red-700"
@@ -207,45 +221,52 @@ export const ScheduleModal = ({
             {selectedDates.map((date, dateIndex) => (
               <div key={date} className="border-b pb-4 last:border-b-0">
                 <div className="flex justify-start items-center mb-4 pr-6">
-                  <div className="w-1/3">
-                    <label className="block text-sm text-gray-600 mb-1">
-                      Price for {date}
-                    </label>
-                    <input
-                      type="text"
-                      value={normalSchedule[dateIndex]?.price}
-                      onChange={(e) =>
-                        handleNormalPriceChange(dateIndex, e.target.value)
-                      }
-                      placeholder="Enter price"
-                      className="w-auto px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-orange-200 border-orange-500 "
-                    />
+                  <div className="w-auto">
+                  <MuiInput
+                   label= {`price of ${date.split('-').reverse().join('-')}`}
+                   type="text"
+                   value={normalSchedule[dateIndex]?.price}
+                   onChange={(e) =>
+                     handleNormalPriceChange(dateIndex, e.target.value)
+                   }
+                   placeholder="Enter price"
+                   className="ml-0 pl-0"
+                   min={0}
+                   />        
                   </div>
-                  <h3 className="font-semibold text-lg">{date}</h3>
                 </div>
 
                 {normalSchedule[dateIndex]?.slots.map((slot, slotIndex) => (
-                  <div key={slotIndex} className="flex items-center gap-4 mb-2">
-                    <div className="flex-1">
+                  <div key={slotIndex} className="flex items-center gap-1 mb-2">
+                    <div className="flex-1 w-full sm:w-1/2 md:w-1/3">
                       <TimePickers
                         label="StartTime"
-                        value={slot.startTime ? dayjs(slot.startTime, 'HH:mm') : null}
+                        value={
+                          slot.startTime ? moment(slot.startTime, "hh:mm A") : null
+                        }
                         onChange={(newValue) => {
-                          const timeString = newValue?.format('hh:mm A') || ''; // Format for display (AM/PM)
-                        
-                          handleNormalTimeChange(dateIndex, slotIndex, "startTime", timeString);
+                          const timeString = newValue?.format("HH:mm:ss") || ""; // Format for display (AM/PM)
+                          handleNormalTimeChange(
+                            dateIndex,
+                            slotIndex,
+                            "startTime",
+                            timeString
+                          );
+                          console.log(timeString,'timeString',newValue)
                         }}
                       />
                     </div>
 
-                    <div className="flex-1">
+                    <div className="flex-1 w-full xss:w-1/6 md:w-1/3 xss:flex ">
                       <TimePickers
+                      
                         label="EndTime"
                         value={
-                          slot.endTime ? dayjs(slot.endTime, "HH:mm") : null
+                          slot.endTime ? moment(slot.endTime,"hh:mm A") : null
                         }
                         onChange={(newValue) => {
-                          const timeString = newValue?.format("hh:mm A") || "";
+                          const timeString = newValue?.format("HH:mm:ss") || "";
+                          
                           handleNormalTimeChange(
                             dateIndex,
                             slotIndex,
@@ -254,18 +275,20 @@ export const ScheduleModal = ({
                           );
                         }}
                       />
+
                       {slotIndex >=
                         normalSchedule[dateIndex]?.slots.length - 1 && (
-                          <button
-                            onClick={() =>
-                              removeNormalTimeSlot(dateIndex, slotIndex)
-                            }
-                            className={`mt-6 text-red-500 hover:text-red-700 pl-4 ${slotIndex == 0 ? "hidden" : "visible"
-                              }`}
-                          >
-                            <Trash2 size={20} />
-                          </button>
-                        )}
+                        <button
+                          onClick={() =>
+                            removeNormalTimeSlot(dateIndex, slotIndex)
+                          }
+                          className={`mt-6 text-red-500 hover:text-red-700 pl-4 ${
+                            slotIndex == 0 ? "hidden" : "visible"
+                          }`}
+                        >
+                          <Trash2 className="h-5 xss:w-4" />
+                        </button>
+                      )}
                     </div>
                   </div>
                 ))}

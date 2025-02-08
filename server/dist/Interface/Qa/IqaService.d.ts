@@ -16,11 +16,11 @@ export interface IqaService {
         question: Iquestion[];
         userId?: ObjectId;
     }>;
-    editQuestion(questionId: string, updatedQuestion: Iquestion): Promise<{
+    editQuestion(questionId: string, updatedQuestion: Iquestion, filter: string): Promise<{
         success: boolean;
         message: string;
         status: number;
-        question: Iquestion | null;
+        question: Iquestion[] | null;
     }>;
     createNewAnswer(answer: string, questionId: ObjectId, userId: ObjectId, userType: string): Promise<{
         success: boolean;

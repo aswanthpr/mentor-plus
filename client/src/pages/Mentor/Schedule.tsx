@@ -1,21 +1,15 @@
-import { useEffect, useState } from 'react'; 
+import moment from 'moment';
 import { Search } from 'lucide-react';
+import { toast } from 'react-toastify';
+import { useEffect, useState } from 'react'; 
 import Button from '../../components/Auth/Button';
 import InputField from '../../components/Auth/InputField';
 import { ScheduleModal } from '../../components/Common/Schedule/ScheduleModal';
 import { TimeSlotCard } from '../../components/Common/Schedule/TimeSlotCard';
 import { errorHandler } from '../../Utils/Reusable/Reusable';
 import { axiosInstance } from '../../Config/mentorAxios';
-import { toast } from 'react-toastify';
 import ConfirmToast from '../../components/Common/common4All/ConfirmToast';
 
-// interface TimeSlot {
-//   id: string;
-//   day: string;
-//   startTime: string;
-//   endTime: string;
-//   price: string;
-// }
 
 const Schedule: React.FC = () => {
 
@@ -26,7 +20,7 @@ const Schedule: React.FC = () => {
   const [timeSlots, setTimeSlots] = useState<Itime[]>([]);
 
 
-useEffect(()=>{
+useEffect(()=>{ 
   const fetchData = async ()=>{
   const {data,status} = await axiosInstance.get(`/mentor/schedule/get-time-slots`);
 
@@ -38,8 +32,8 @@ useEffect(()=>{
   fetchData()
 },[searchQuery]);
 const filteredTimeSlots = timeSlots.filter(slot =>{
-  console.log(slot.startDate.split('T')[0]  ,slot.startDate.toLowerCase())
-  return slot.startDate.toLowerCase().includes(searchQuery.toLowerCase())
+  const formattedStartDate = slot?.startDate.split('T')[0];
+  return formattedStartDate.toLowerCase().includes(searchQuery.toLowerCase())
   
 }
 );
@@ -72,7 +66,7 @@ const filteredTimeSlots = timeSlots.filter(slot =>{
         toast.success(
           data.message
         )
-        setTimeSlots(timeSlots.filter(slot => slot._id !== id));
+        setTimeSlots(timeSlots.filter(slot => slot._id !== id)); 
         console.log(data.message)
       }
     } catch (error:unknown) {
@@ -83,15 +77,25 @@ const filteredTimeSlots = timeSlots.filter(slot =>{
   };
 
   const handleSaveSchedule =  async  (scheduleData: { type: string; schedule: TimeSlot[] }) => {
-
+   
     try {
+      console.log(scheduleData,'00000000000')
       const response = await axiosInstance.post(`/mentor/schedule/create-slots`,scheduleData);
       if(response.status ==200 && response.data.success){
         toast.success(response.data?.message);
         setTimeSlots((pre)=>[...pre,...response.data.timeSlots])
-
+        
         console.log(response.data,'this is the data  in the response');
       }
+      // {      const formattedTimeSlots = scheduleData.schedule.map((slot)=>{
+      //         return {
+      //           ...slot,
+                
+      //           startTime:moment(slot?.startTime,'HH:mm').format('hh:mm a '),
+      //           endTime:moment(slot?.endTime,'HH:mm').format('hh:mm a')
+      //       }
+      //       })
+      //       setTimeSlots(formattedTimeSlots)}
       console.error(response.data,'failed resonse response');
     } catch (error:unknown) {
       errorHandler(error);
@@ -123,18 +127,27 @@ const filteredTimeSlots = timeSlots.filter(slot =>{
         </div>
       </div>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {filteredTimeSlots.map((slot) => (
-          
-          <TimeSlotCard
+        {filteredTimeSlots.map((slot) => {
 
-            key={slot?._id as string}
-            day={slot.startDate.split('T')[0]}
-            startTime={slot.startStr}
-            endTime={slot.endStr}
-            price={slot.price}
-            onDelete={() => handleDelete(slot._id as string)}
-          />
-        ))}
+          const startDate = moment(slot?.startDate).format('DD-MM-YYYY')
+          console.log(slot.startDate,'0000') 
+          console.log({...slot},typeof slot.startDate,'this is slot')
+          const startTime = moment(slot?.startTime).format("hh:mm A");
+          const endTime = moment(slot?.endTime).format("hh:mm A")
+          return (
+
+            <TimeSlotCard
+  
+              key={slot?._id as string}
+              day={startDate}
+              startTime={startTime}
+              endTime={endTime}
+              price={slot.price}
+              onDelete={() => handleDelete(slot._id as string)}
+            />
+          )
+          
+})}
       </div>
       <ScheduleModal
         isOpen={isModalOpen}

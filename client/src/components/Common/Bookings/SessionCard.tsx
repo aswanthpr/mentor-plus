@@ -1,6 +1,5 @@
 import React, { useEffect } from 'react';
 import { Calendar, Clock } from 'lucide-react';
-import { format } from 'date-fns';
 
 interface SessionCardProps {
   session: ISession;
@@ -43,13 +42,13 @@ const SessionCard: React.FC<SessionCardProps> = ({ session, handleCancelSession 
       <div className="flex items-center gap-2">
         <Calendar className="w-4 h-4 text-gray-400" />
         <span className="text-sm text-gray-600">
-          {format(new Date(session?.slotDetails?.startDate.split('T')[0]), 'MMM d, yyyy')}
+          {session?.slotDetails?.startTime }
         </span>
       </div>
       <div className="flex items-center gap-2">
         <Clock className="w-4 h-4 text-gray-400" />
         <span className="text-sm text-gray-600">
-          {session?.slotDetails?.slots[0]?.startStr} ({session?.duration} min)
+          {session?.slotDetails?.startTime} ({session?.duration} min)
         </span>
       </div>
       <div className="flex justify-end">
