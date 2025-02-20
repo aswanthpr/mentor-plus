@@ -2,22 +2,24 @@ import React from "react";
 import { Bell, X } from "lucide-react";
 // import Button from "../../auth/Button";
 import NotificationItems from "./NotificationItem";
-import { INotification } from "./NotificationItem";
+
 interface INotificationPanel {
   isOpen: boolean;
   onClose: () => void;
-  notification: INotification[];
   onReadNotification: (id: string) => void;
+  notification:Inotification[]
 }
 
 const NotificationPanel: React.FC<INotificationPanel> = ({
   isOpen,
   onClose,
-  notification,
   onReadNotification,
+  notification
 }) => {
+ 
   if (!isOpen) return null;
-  const unreadCount = notification.filter((n) => !n.read).length;
+  const unreadCount = notification.filter((n) => !n.isRead).length;
+
   return (
     <div className="absolute right-0 mt-2 w-80 sm:w-96 bg-white rounded-lg shadow-lg border border-gray-200 z-50">
       <div className="p-4 border-b border-gray-200">
@@ -45,7 +47,7 @@ const NotificationPanel: React.FC<INotificationPanel> = ({
         {notification.length > 0 ? (
           notification.map((notify) => (
             <NotificationItems
-              key={notify.id}
+              key={notify._id}
               notification={notify}
               onRead={onReadNotification}
             />
@@ -58,7 +60,7 @@ const NotificationPanel: React.FC<INotificationPanel> = ({
       </div>
       {notification.length > 0 && (
         <div className="p-4 border-t border-gray-200">
-          <button className=" w-full text-center text-sm text-[#ff8800] hover:text-[#ff9900] font-bold">
+          <button disabled className=" w-full text-center text-sm text-[#ff8800] hover:text-[#ff9900] font-bold">
           View all Notification
              </button>
         </div>

@@ -4,5 +4,7 @@ export interface IbookingController{
     slotBooking(req: Request, res: Response): Promise<void>;
     stripeWebHook(req: Request, res: Response): Promise<void>;
     getBookedSlot(req: Request, res: Response): Promise<void> ;
-    getBookedSession(req: Request, res: Response): Promise<void>
+    getBookedSession(req: Request, res: Response): Promise<void>;
+    cancelSlot(req: Request, res: Response): Promise<void>;
+    
 }

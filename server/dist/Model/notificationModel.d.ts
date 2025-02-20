@@ -1,13 +1,11 @@
 import mongoose, { Schema, Document } from "mongoose";
-export type Tpriority = 'less' | 'medium' | 'high';
+import { Ttype } from "src/Types/types";
 export interface Inotification extends Document {
     userId: Schema.Types.ObjectId;
     title: string;
     message: string;
     isRead: boolean;
-    userType: string;
-    priority: Tpriority;
-    isRemove: boolean;
+    userType: Ttype;
     url?: string;
 }
 declare const _default: mongoose.Model<Inotification, {}, {}, {}, mongoose.Document<unknown, {}, Inotification> & Inotification & Required<{

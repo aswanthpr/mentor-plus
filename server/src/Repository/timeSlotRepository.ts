@@ -25,7 +25,7 @@ class timeSlotRepository
 
   async getTimeSlots(mentorId: ObjectId): Promise<Itime[] | []> {
     try {
-
+ 
       const res = await this.aggregateData(timeSchema, [
         {
           $unwind: "$slots",

@@ -10,13 +10,17 @@ import { uploadFile, uploadImage } from "../Config/cloudinary.util";
 import { IcategoryRepository } from "../Interface/Category/iCategoryRepository";
 import { ImenteeRepository } from "../Interface/Mentee/iMenteeRepository";
 import { ImentorApplyData } from "../Types";
+import { InotificationRepository } from "../Interface/Notification/InotificationRepository";
+import { ObjectId } from "mongoose";
+// import { sendNotification } from "../Socket/notificationSocket";
 
 export class authService implements IauthService {
   constructor(
     private _OtpService: IotpService,
     private _categoryRepository: IcategoryRepository,
     private _MentorRepository: ImentorRepository,
-    private _MenteeRepository: ImenteeRepository
+    private _MenteeRepository: ImenteeRepository,
+    private _notificationRepository: InotificationRepository
   ) {}
 
   async mentee_Signup(
@@ -39,8 +43,24 @@ export class authService implements IauthService {
       const hashPassword = await hash_pass(userData.password);
       userData.password = hashPassword;
 
-     await this._MenteeRepository.create_Mentee(userData);
+      const response = await this._MenteeRepository.create_Mentee(userData);
 
+      if (!response) {
+        return {
+          success: false,
+          message: "Singup Failed",
+        };
+      }
+
+      await this._notificationRepository.createNotification(
+        response?._id as ObjectId,
+        `Welcome ${response?.name}`,
+        `Start exploring and connect with mentors today.`,
+        `mentee`,
+        `${process.env.CLIENT_ORIGIN_URL}/mentee/explore`
+      );
+
+      // sendNotification(response?._id as string, result!);
       return { success: true, message: "signup successfull" };
     } catch (error: unknown) {
       if (error instanceof Error) {
@@ -71,7 +91,7 @@ export class authService implements IauthService {
       const result: Imentee | null = await this._MenteeRepository.mainLogin(
         email
       );
-      
+
       if (!result || result?.email != email) {
         return { success: false, message: "user not exist.Please signup" };
       }
@@ -246,7 +266,7 @@ export class authService implements IauthService {
     mentorData: ImentorApplyData
   ): Promise<{ success: boolean; message: string; status: number }> {
     try {
-      const {email,phone,} = mentorData.body;
+      const { email, phone } = mentorData.body;
       const { profileImage, resume } = mentorData.files;
 
       if (!mentorData.body || !mentorData.files) {
@@ -292,6 +312,15 @@ export class authService implements IauthService {
           status: 409,
         };
       }
+      const admin = await this._MenteeRepository._find();
+      await this._notificationRepository.createNotification(
+        admin?._id as ObjectId,
+        `New Mentor Has Joined!`,
+        `${result?.name} Applied as mentor. Please review their profile and verify`,
+        "admin",
+        `${process.env.CLIENT_ORIGIN_URL}/admin/mentor_management/not_verified`
+      );
+      
       return {
         success: true,
         message: "Mentor application submitted!",
@@ -353,7 +382,7 @@ export class authService implements IauthService {
       if (!checkPass) {
         return { success: false, message: "Incorrect password", status: 400 };
       }
-      const mentorId: string = result._id as string;
+      const mentorId = `${result._id}`;
       console.log(mentorId, "userid");
       const accessToken = genAccesssToken(mentorId as string);
       const refreshToken = genRefreshToken(mentorId as string);
@@ -425,11 +454,9 @@ export class authService implements IauthService {
       return { success: false, message: "Internal server error" };
     }
   }
-  async googleAuth(
-    user: Imentee
-  ): Promise<{
+  async googleAuth(user: Imentee): Promise<{
     success: boolean;
-    message: string; 
+    message: string;
     status: number;
     accessToken?: string;
     refreshToken?: string;
@@ -438,7 +465,7 @@ export class authService implements IauthService {
       if (!user) {
         throw new Error("user deailes not found");
       }
-      console.log(user,'this is the user')
+      console.log(user, "this is the user");
       const accessToken = genAccesssToken(user?._id as string);
       const refreshToken = genRefreshToken(user?._id as string);
 
@@ -449,7 +476,6 @@ export class authService implements IauthService {
         accessToken,
         refreshToken,
       };
-
     } catch (error: unknown) {
       throw new Error(`error while google authentication
       ${error instanceof Error ? error.message : String(error)}`);

@@ -1,14 +1,16 @@
 import {configureStore} from "@reduxjs/toolkit";
 
 import accessReducer from './menteeSlice';
-import adminReducer from './adminSlice'
-import menterReducer from './mentorSlice'
+import adminReducer from './adminSlice';
+import menterReducer from './mentorSlice';
+import notificationSlice from './notificationSlice';
 
 export const store = configureStore({
     reducer:{
         mentee:accessReducer,
         admin:adminReducer,
-        menter:menterReducer
+        menter:menterReducer,
+        notificationSlice,
     }
 })
 

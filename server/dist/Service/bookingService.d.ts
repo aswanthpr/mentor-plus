@@ -5,12 +5,14 @@ import { ItimeSlotRepository } from "../Interface/Booking/iTimeSchedule";
 import { ObjectId } from "mongoose";
 import { Itimes } from "../Types";
 import { IslotSchedule } from "../Model/slotSchedule";
-import { Itime } from "src/Model/timeModel";
+import { Itime } from "../Model/timeModel";
+import { InotificationRepository } from "../Interface/Notification/InotificationRepository";
 export declare class bookingService implements IbookingService {
     private readonly _timeSlotRepository;
     private readonly _slotScheduleRepository;
+    private readonly _notificationRepository;
     private readonly stripe;
-    constructor(_timeSlotRepository: ItimeSlotRepository, _slotScheduleRepository: IslotScheduleRepository, stripe?: Stripe);
+    constructor(_timeSlotRepository: ItimeSlotRepository, _slotScheduleRepository: IslotScheduleRepository, _notificationRepository: InotificationRepository, stripe?: Stripe);
     getTimeSlots(mentorId: string): Promise<{
         success: boolean;
         message: string;
@@ -51,6 +53,18 @@ export declare class bookingService implements IbookingService {
         message: string;
         status: number;
         slots: IslotSchedule[] | [];
+    }>;
+    cancelSlot(sessionId: string, reason: string, customReason: string): Promise<{
+        success: boolean;
+        message: string;
+        status: number;
+        result: IslotSchedule | null;
+    }>;
+    mentorSlotCancel(sessionId: string, statusValue: string): Promise<{
+        success: boolean;
+        message: string;
+        status: number;
+        result: IslotSchedule | null;
     }>;
 }
 //# sourceMappingURL=bookingService.d.ts.map

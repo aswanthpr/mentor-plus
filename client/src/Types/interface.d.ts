@@ -37,3 +37,30 @@ interface ISession {
   slotDetails:Itime;
   user:IMentor|IMentee
   }
+
+
+
+  interface Ichat{
+    _id:string;
+    menteeId: string;
+    mentorId:string;
+    lastMessage: string;
+    createdAt: string;
+    updatedAt: string;
+    users:IMentee|IMentor|null
+    online?:boolean;
+  };
+
+   interface Imessage {
+    _id?:string
+    chatId:string;
+    senderId:string;
+    receiverId:string;
+    senderType:"mentee"|"mentor";
+    content:string;
+    seen?:boolean;
+    messageType?:string;
+    mediaUrl?:string;
+    createdAt?:string;
+    updatedAt?:string;
+}

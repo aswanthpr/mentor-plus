@@ -1,3 +1,5 @@
+
+import { IanswerWithQuestion } from "src/Types";
 import { IanswerRepository } from "../Interface/Qa/IanswerRepository";
 import answerModel, { Ianswer } from "../Model/answerModel";
 import { baseRepository } from "./baseRepo";
@@ -15,15 +17,36 @@ class answerRespository
     questionId: ObjectId,
     userId: ObjectId,
     userType: string
-  ): Promise<Ianswer | null> {
+  ): Promise<{ result: Ianswer | null; menteeId: ObjectId }> {
     try {
-      return this.createDocument({
-        answer,
-        questionId,
-        authorId: userId,
-        authorType: userType,
-      });
-      // return ( await res).populate('authorId','name _id profileUrl githubUrl likedinUrl')
+      const result = await (
+        await this.createDocument({
+          answer,
+          questionId,
+          authorId: userId,
+          authorType: userType,
+        })
+      );
+
+     const data =  await this.aggregateData(answerModel, [
+       {
+         $match: { questionId, _id: result?._id }
+       },
+       {
+         $lookup: {
+           from: "questions",
+           localField: "questionId",
+           foreignField: "_id",
+           as: "question",
+           pipeline: [{ $project: { menteeId: 1 } }],
+         },
+       },
+       {
+         $unwind: "$question",
+       }
+     ]) as unknown as IanswerWithQuestion[] ;
+
+      return { result, menteeId:data[0]?.question?.menteeId as IanswerWithQuestion['question']['menteeId'] }
     } catch (error: unknown) {
       throw new Error(
         `Error occured while create answer ${
@@ -34,8 +57,10 @@ class answerRespository
   }
   async editAnswer(content: string, answerId: string): Promise<Ianswer | null> {
     try {
-      return this.find_By_Id_And_Update(answerModel,answerId,{$set:{answer:content}})
-    } catch (error:unknown) {
+      return this.find_By_Id_And_Update(answerModel, answerId, {
+        $set: { answer: content },
+      });
+    } catch (error: unknown) {
       throw new Error(
         `Error occured while edit answer ${
           error instanceof Error ? error.message : String(error)
@@ -45,8 +70,8 @@ class answerRespository
   }
   async deleteAnswer(questionId: string): Promise<DeleteResult | undefined> {
     try {
-      return this.deleteMany({questionId})
-    } catch (error:unknown) {
+      return this.deleteMany({ questionId });
+    } catch (error: unknown) {
       throw new Error(
         `Error occured while delete answer ${
           error instanceof Error ? error.message : String(error)
@@ -54,19 +79,18 @@ class answerRespository
       );
     }
   }
-    async changeAnswerStatus(answerId: string): Promise<Ianswer | null> {
-      try {
-        return this.find_By_Id_And_Update(answerModel,answerId,[
-          { $set: { isBlocked: { $not: "$isBlocked" } } },
-        ])
-      } catch (error:unknown) {
-        throw new Error(
-          `Error occured while Question STatus chagne ${
-            error instanceof Error ? error.message : String(error)
-          }`
-        );
-      }
+  async changeAnswerStatus(answerId: string): Promise<Ianswer | null> {
+    try {
+      return this.find_By_Id_And_Update(answerModel, answerId, [
+        { $set: { isBlocked: { $not: "$isBlocked" } } },
+      ]);
+    } catch (error: unknown) {
+      throw new Error(
+        `Error occured while Question STatus chagne ${
+          error instanceof Error ? error.message : String(error)
+        }`
+      );
     }
+  }
 }
-export default new answerRespository(); 
-  
+export default new answerRespository();

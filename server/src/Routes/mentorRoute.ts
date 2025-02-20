@@ -1,18 +1,28 @@
 import express, { Router } from "express";
-import { mentorService } from "../Service/mentorService";
-import { mentorController } from "../Controller/mentorController";
-import mentorRepository from "../Repository/mentorRepository";
-import mentorAuthorize from "../Middleware/mentorAuthorization";
-import categoryRepository from "../Repository/categoryRepository";
 import upload from "../Config/multer.util";
-import questionRepository from "../Repository/questionRepository";
-import answerRepository from "../Repository/answerRepository";
-import qaService from "../Service/qaService";
+import mentorAuthorize from "../Middleware/mentorAuthorization";
+
 import qaController from "../Controller/qaController";
-import timeSlotRepository from "../Repository/timeSlotRepository";
-import { bookingService } from "../Service/bookingService";
+import { mentorController } from "../Controller/mentorController";
 import { bookingControlelr } from "../Controller/bookingController";
+import { chatController } from "../Controller/chatController";
+import { notificationController } from "../Controller/notificationController";
+
+import qaService from "../Service/qaService";
+import chatService from "../Service/chatService";
+import { mentorService } from "../Service/mentorService";
+import { bookingService } from "../Service/bookingService";
+import { notificationService } from "../Service/notificationService";
+
+import chatRepository from "../Repository/chatRepository";
+import mentorRepository from "../Repository/mentorRepository";
+import answerRepository from "../Repository/answerRepository";
+import questionRepository from "../Repository/questionRepository";
+import categoryRepository from "../Repository/categoryRepository";
+import timeSlotRepository from "../Repository/timeSlotRepository";
 import slotScheduleRepository from "../Repository/slotScheduleRepository";
+import notificationRepository from "../Repository/notificationRepository";
+
 const __mentorService = new mentorService(
   mentorRepository,
   categoryRepository,
@@ -22,11 +32,16 @@ const __mentorService = new mentorService(
 );
 
 const __mentorController = new mentorController(__mentorService);
-const __qaService = new qaService(questionRepository, answerRepository);
+const __qaService = new qaService(questionRepository, answerRepository,notificationRepository);
 const __qaController = new qaController(__qaService);
 const __bookingService = new bookingService(  timeSlotRepository,
-    slotScheduleRepository);
+    slotScheduleRepository,notificationRepository);
 const __bookingController = new bookingControlelr(__bookingService)
+const __notificationService = new notificationService(notificationRepository);
+const __notificationController = new notificationController(__notificationService);
+const __chatService = new chatService(chatRepository);
+const __chatController = new chatController(__chatService);
+
 const mentor_Router: Router = express.Router();
 
 mentor_Router.post(
@@ -73,4 +88,12 @@ mentor_Router.get(`/schedule/get-time-slots`,mentorAuthorize,__mentorController.
 mentor_Router.delete(`/schedule/remove-time-slot`,mentorAuthorize,__mentorController.removeTimeSlot.bind(__mentorController))
 
 mentor_Router.get(`/sessions`,mentorAuthorize,__bookingController.getBookedSession.bind(__bookingController));
+
+mentor_Router.patch(`/sessions/cancel_request/:sessionId`,mentorAuthorize,__bookingController.mentorSlotCancel.bind(__bookingController))
+
+mentor_Router.get(`/notification`,mentorAuthorize,__notificationController.getNotification.bind(__notificationController));
+
+mentor_Router.patch(`/notification-read/:notificationId`,mentorAuthorize,__notificationController.markAsReadNotif.bind(__notificationController));
+
+mentor_Router.get(`/chats`,mentorAuthorize,__chatController.getChats.bind(__chatController));
 export default mentor_Router;

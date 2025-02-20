@@ -1,9 +1,11 @@
 import mongoose, { Document } from 'mongoose';
+import { Iquestion } from './questionModal';
 export interface Ianswer extends Document {
+    name: string;
     answer: string;
     authorId: mongoose.Schema.Types.ObjectId;
     authorType: string;
-    questionId: mongoose.Schema.Types.ObjectId;
+    questionId: mongoose.Schema.Types.ObjectId | Iquestion;
     isBlocked: boolean;
 }
 declare const _default: mongoose.Model<Ianswer, {}, {}, {}, mongoose.Document<unknown, {}, Ianswer> & Ianswer & Required<{

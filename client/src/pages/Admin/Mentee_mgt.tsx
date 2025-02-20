@@ -2,7 +2,6 @@ import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
 import { BanIcon, CircleCheckBigIcon } from "lucide-react";
 import { Table } from "../../components/Admin/Table";
-import { Pagination } from "../../components/Common/common4All/Pagination";
 import { StatusBadge } from "../../components/Admin/StatusBadge";
 import profile from "../../Asset/rb_2877.png";
 import ConfirmToast from "../../components/Common/common4All/ConfirmToast";
@@ -10,6 +9,7 @@ import ConfirmToast from "../../components/Common/common4All/ConfirmToast";
 import Spinner from "../../components/Common/common4All/Spinner";
 import { API } from "../../Config/adminAxios";
 import { errorHandler } from "../../Utils/Reusable/Reusable";
+import { Pagination } from "@mui/material";
 
 const MENTEES_PER_PAGE = 8;
 
@@ -29,6 +29,13 @@ export const Mentee_mgt: React.FC = () => {
 
   const [loading, setLoading] = useState<boolean>(false);
   const [menteeData, setMenteeData] = useState<IMentee[]>([]);
+
+  const indexOfLastMentee = currentPage * MENTEES_PER_PAGE;
+  const indexOfFirstMentee= indexOfLastMentee - MENTEES_PER_PAGE;
+  const currentMentee = menteeData.slice(
+    indexOfFirstMentee,
+    indexOfLastMentee
+  );
 
   useEffect(() => {
     const fetchUserData = async (): Promise<void> => {
@@ -104,7 +111,10 @@ export const Mentee_mgt: React.FC = () => {
       },500);
     }
   };
-
+  const handlePageChange = (event: React.ChangeEvent<unknown>, value: number) => {
+    event.preventDefault()
+    setCurrentPage(value);
+  };
   return (
     <div className="p-4 pb-4 mt-16">
       {loading && <Spinner />}
@@ -115,7 +125,7 @@ export const Mentee_mgt: React.FC = () => {
       <hr className="mb-6" />
 
       <Table headers={["Profile", "Name", "Email", "Status", "Actions"]}>
-        {menteeData.map((mentee) => (
+        {currentMentee.map((mentee) => (
           <tr key={mentee?._id}>
             <td className=" py-4 flex justify-center">
               <img
@@ -149,11 +159,19 @@ export const Mentee_mgt: React.FC = () => {
           </tr>
         ))}
       </Table>
-      <Pagination
-        currentPage={currentPage}
-        totalPages={Math.ceil(menteeData.length / MENTEES_PER_PAGE)}
-        onPageChange={setCurrentPage}
+<div className="flex justify-center mt-2">
+
+       <Pagination
+       count={Math.ceil(menteeData.length / MENTEES_PER_PAGE)}  // Total pages
+       page={currentPage}  // Current page
+       onChange={handlePageChange}  // Page change handler
+       color="standard"  // Pagination color
+       shape="circular"  // Rounded corners
+       size="small"  // Size of pagination
+       siblingCount={1}  // Number of sibling pages shown next to the current page
+       boundaryCount={1}  // Number of boundary pages to show at the start and end
       />
+</div>
 
 
     </div>

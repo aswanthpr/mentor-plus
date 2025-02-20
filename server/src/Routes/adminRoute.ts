@@ -9,12 +9,14 @@ import qaService from '../Service/qaService';
 import qaController from '../Controller/qaController';
 import questionRepository from '../Repository/questionRepository';
 import answerRepository from '../Repository/answerRepository';
+import notificationRepository from '../Repository/notificationRepository';
+
 const admin_Router:Router = express.Router();
 
-const _adminService = new adminService(categoryRepository,menteeRepository,mentorRepository);
+const _adminService = new adminService(categoryRepository,menteeRepository,mentorRepository,notificationRepository);
 
 const _adminController  = new adminController(_adminService);
-const __qaService = new qaService(questionRepository, answerRepository);
+const __qaService = new qaService(questionRepository, answerRepository,notificationRepository);
 const __qaController = new qaController(__qaService)
 //---------------------------------------------------------------------------------------------------------
 admin_Router.post('/logout',_adminController.adminLogout.bind(_adminController));

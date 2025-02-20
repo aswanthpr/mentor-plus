@@ -35,6 +35,7 @@ const Home: React.FC = () => {
     content: "",
     answerId: "",
   });
+  const [newAns, setNewAns] = useState<Ianswer | null>(null);
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -109,7 +110,9 @@ const Home: React.FC = () => {
       );
 
       if (status == 200 && data.success) {
-        setQuestions(questions.map((q) => (q._id === questionId ? data?.question : q)));
+        setQuestions(
+          questions.map((q) => (q._id === questionId ? data?.question : q))
+        );
         toast.success(data.message);
       }
     } catch (error: unknown) {
@@ -175,25 +178,25 @@ const Home: React.FC = () => {
     console.log(answerQuestionId, "thsi sit he question id ");
     try {
       setLoading(true);
-      const { status, data }= await protectedAPI.post(`/mentee/qa/create-answer`, {
-        answer: content,
-        questionId: answerQuestionId,
-        userType: "mentee",
-      });
-console.log(data.answers)
-      if (status === 200 &&data.success) {
+      const { status, data } = await protectedAPI.post(
+        `/mentee/qa/create-answer`,
+        {
+          answer: content,
+          questionId: answerQuestionId,
+          userType: "mentee",
+        }
+      );
+      console.log(data.answers);
+      if (status === 200 && data.success) {
         toast.success(data.message);
         setIsAnswerModalOpen(false);
-
+        setNewAns(data?.answers);
         setQuestions((prevQuestions) =>
           prevQuestions.map((question) =>
             question._id === answerQuestionId
               ? {
                   ...question,
-                  answerData: [
-                    ...(question.answerData || []),
-                    data?.answers,
-                  ],
+                  answerData: [...(question.answerData || []), data?.answers],
                 }
               : question
           )
@@ -297,6 +300,7 @@ console.log(data.answers)
         onEditQuestion={handleEditQuestion}
         onEditAnswer={handleEditAnswer}
         EditedData={editData}
+        newAns={newAns}
       />
 
       <Pagination

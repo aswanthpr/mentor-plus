@@ -5,5 +5,6 @@ export interface IbookingController {
     stripeWebHook(req: Request, res: Response): Promise<void>;
     getBookedSlot(req: Request, res: Response): Promise<void>;
     getBookedSession(req: Request, res: Response): Promise<void>;
+    cancelSlot(req: Request, res: Response): Promise<void>;
 }
 //# sourceMappingURL=iBookingController.d.ts.map

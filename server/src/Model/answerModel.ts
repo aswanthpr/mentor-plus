@@ -1,11 +1,12 @@
 import mongoose, { Schema,Document } from 'mongoose';
+import { Iquestion } from './questionModal';
 
- 
-export  interface Ianswer extends Document { 
+export  interface Ianswer extends Document {
+    name: string; 
     answer: string;
     authorId:  mongoose.Schema.Types.ObjectId;
     authorType: string;
-    questionId:  mongoose.Schema.Types.ObjectId;
+    questionId:  mongoose.Schema.Types.ObjectId|Iquestion;
     isBlocked:boolean;
 }
 

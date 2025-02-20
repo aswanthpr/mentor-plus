@@ -1,4 +1,11 @@
+
+import { Ianswer } from "../Model/answerModel";
 import { Itime, slot } from "../Model/timeModel";
+
+import { Imentee } from "../Model/menteeModel";
+import { Imentor } from "../Model/mentorModel";
+
+
 
   interface ImentorApplication {
    name: string;
@@ -45,8 +52,8 @@ export interface ISchedule {
   mentorId?:ObjectId
 }
 export interface  Itimes extends Itime{
-  startStr:string;
-  endStr:string;
+  startTime:string;
+  endTime:string;
 }
 
 export  interface CheckoutSessionData {
@@ -64,5 +71,28 @@ export interface InewSlotSchedule{
   paymentAmount: string;
   duration:string;
   description:string
-  status:string
+  status:string;
+  times?:Itime
+}
+
+
+//extended types 
+export interface IanswerWithQuestion extends Ianswer{
+  question:{
+    _id:ObjectId,
+    menteeId:ObjectId
+  }
+}
+
+
+
+interface IchatWithUser {
+
+    _id:string
+    menteeId:string;
+    mentorId:string;
+    lastMessage: string;
+    createdAt:string;
+    users?:Imentee|Imentor
+ 
 }

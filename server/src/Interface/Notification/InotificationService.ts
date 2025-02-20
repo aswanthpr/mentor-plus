@@ -1,4 +1,7 @@
-// eslint-disable-next-line @typescript-eslint/no-empty-object-type
-export  interface InotificationService{
+import { ObjectId } from "mongoose";
+import { Inotification } from "../../Model/notificationModel";
 
+export  interface InotificationService{
+getNotification(mentorId:ObjectId):Promise<{success:boolean;message:string;status:number,result:Inotification[] | null}>
+markAsReadNotification(notificationId:string,userId:ObjectId):Promise<{success:boolean,message:string,status:number}>
 }

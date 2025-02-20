@@ -5,10 +5,12 @@ import { IquestionRepository } from "../Interface/Qa/IquestionRepository";
 import { Ianswer } from "../Model/answerModel";
 import { Iquestion } from "../Model/questionModal";
 import { IcreateQuestion } from "../Types";
+import { InotificationRepository } from "../Interface/Notification/InotificationRepository";
 declare class qaService implements IqaService {
-    private __questionRepository;
-    private __answerRepository;
-    constructor(__questionRepository: IquestionRepository, __answerRepository: IanswerRepository);
+    private readonly __questionRepository;
+    private readonly __answerRepository;
+    private readonly __notificationRepository;
+    constructor(__questionRepository: IquestionRepository, __answerRepository: IanswerRepository, __notificationRepository: InotificationRepository);
     addQuestionService(Data: IcreateQuestion, userId: ObjectId): Promise<{
         success: boolean;
         message: string;

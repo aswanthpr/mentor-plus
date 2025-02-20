@@ -189,5 +189,13 @@ export class menteeRepository
       return null;
     }
   }
+  async _find():Promise<Imentee|null>{
+    try {
+      return this.find_One({isAdmin:true});
+    } catch (error:unknown) {
+      throw new Error(`${error instanceof Error ? error.message:String(error)}`)
+    }
+  }
 }
+
 export default new menteeRepository();

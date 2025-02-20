@@ -113,7 +113,6 @@ class questionRepository
             as: "answerData.author1",
           },
         },
-
         {
           $lookup: {
             from: "mentors",
@@ -394,7 +393,7 @@ class questionRepository
           },
         },
         {
-          $match: matchCondition,
+          $match: matchCondition, 
         },
         {
           $addFields: {

@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { StatusBadge } from "../../components/Admin/StatusBadge";
-import { Pagination } from "../../components/Common/common4All/Pagination";
+// import { Pagination } from "../../components/Common/common4All/Pagination";
 import { Table } from "../../components/Admin/Table";
-import {toast } from "react-toastify";
+import { toast } from "react-toastify";
 import Spinner from "../../components/Common/common4All/Spinner";
 import { categoryValidation } from "../../Validation/Validation";
 import { BanIcon, CircleCheckBigIcon, PencilLineIcon } from "lucide-react";
@@ -10,6 +10,7 @@ import CategoryModal from "../../components/Admin/CategoryModal";
 import ConfirmToast from "../../components/Common/common4All/ConfirmToast";
 import { API } from "../../Config/adminAxios";
 import { errorHandler } from "../../Utils/Reusable/Reusable";
+import { Pagination } from "@mui/material";
 
 interface Category {
   _id: string;
@@ -34,7 +35,6 @@ const Category_mgt: React.FC = () => {
   // Handle modal opening
   const handleAddCategoryClick = async (): Promise<void> => {
     setIsModalOpen(true);
-   
   };
 
   // Handle modal close
@@ -56,7 +56,7 @@ const Category_mgt: React.FC = () => {
     e.preventDefault();
     setCategory(e.target.value);
   };
-  
+
   // Pagination logic
   const indexOfLastCategory = currentPage * CATEGORIES_PER_PAGE;
   const indexOfFirstCategory = indexOfLastCategory - CATEGORIES_PER_PAGE;
@@ -64,8 +64,8 @@ const Category_mgt: React.FC = () => {
     indexOfFirstCategory,
     indexOfLastCategory
   );
-  
-  // Handle add category 
+
+  // Handle add category
   const handleAddCategory = async (): Promise<void> => {
     const categoryValue = category.trim().toLowerCase();
     const isValid = await categoryValidation(categoryValue);
@@ -84,24 +84,22 @@ const Category_mgt: React.FC = () => {
       });
 
       if (response.data.success && response.status === 201) {
-        setCategories((prev) => [...prev, response.data.result])
+        setCategories((prev) => [...prev, response.data.result]);
 
         handleCloseModal();
         toast.success(response.data.message);
       }
     } catch (error: unknown) {
-      errorHandler(error)
+      errorHandler(error);
     } finally {
       setTimeout(() => {
-        setLoading(false)
-        
-      },500);
+        setLoading(false);
+      }, 500);
     }
   };
 
   //fetch category data
   useEffect(() => {
-    
     const fetchCategories = async () => {
       setLoading(true);
       try {
@@ -112,7 +110,7 @@ const Category_mgt: React.FC = () => {
           toast.error("Failed to load categories");
         }
       } catch (error: unknown) {
-        errorHandler(error)
+        errorHandler(error);
       } finally {
         setLoading(false);
       }
@@ -158,12 +156,11 @@ const Category_mgt: React.FC = () => {
         );
       }
     } catch (error: unknown) {
-     errorHandler(error)
+      errorHandler(error);
     } finally {
-      setTimeout(()=>{
-
+      setTimeout(() => {
         setLoading(false);
-      },500)
+      }, 500);
       handleEditCloseModal();
     }
   };
@@ -172,7 +169,13 @@ const Category_mgt: React.FC = () => {
     // Show confirmation toast before performing block action
     notify(id);
   };
-
+  const handlePageChange = (
+    event: React.ChangeEvent<unknown>,
+    value: number
+  ) => {
+    event.preventDefault();
+    setCurrentPage(value);
+  };
   const notify = (id: string) => {
     toast(
       <ConfirmToast
@@ -192,12 +195,8 @@ const Category_mgt: React.FC = () => {
   //HANDLE CATEGORY BLOCK UNBLOCK;
   const handleBlock = async (id: string): Promise<void> => {
     try {
-      setLoading(true)
-      const response = await 
-      API.put(
-        `/admin/change_category_status`,
-        { id }
-      );
+      setLoading(true);
+      const response = await API.put(`/admin/change_category_status`, { id });
 
       console.log(response.data, response.status, response.data.message);
       if (response.data.success && response.status === 200) {
@@ -213,12 +212,11 @@ const Category_mgt: React.FC = () => {
         }, 500);
       }
     } catch (error: unknown) {
-     errorHandler(error)
-    }finally{
-      setTimeout(()=>{
-
+      errorHandler(error);
+    } finally {
+      setTimeout(() => {
         setLoading(false);
-      },500)
+      }, 500);
     }
   };
 
@@ -229,9 +227,7 @@ const Category_mgt: React.FC = () => {
         {loading && <Spinner />}
 
         <div className="flex items-center justify-between mb-4">
-          <h1 className="text-2xl font-bold ml-5">
-            Category Management
-          </h1>
+          <h1 className="text-2xl font-bold ml-5">Category Management</h1>
           <button
             onClick={handleAddCategoryClick}
             className="mt-4 mr-8 bg-[#ff8800] text-white hover:bg-[#e67a00] px-4 py-2 rounded-md font-bold transition-colors"
@@ -294,11 +290,19 @@ const Category_mgt: React.FC = () => {
       </Table>
 
       {/* Pagination component */}
+      <div className="flex justify-center items-center">
       <Pagination
-        currentPage={currentPage}
-        totalPages={Math.ceil(categories.length / CATEGORIES_PER_PAGE)}
-        onPageChange={setCurrentPage}
+        count={Math.ceil(categories.length / CATEGORIES_PER_PAGE)} // Total pages
+        page={currentPage} // Current page
+        onChange={handlePageChange} // Page change handler
+        color="standard" // Pagination color
+        shape="circular" // Rounded corners
+        size="small" // Size of pagination
+        siblingCount={1} // Number of sibling pages shown next to the current page
+        boundaryCount={1} // Number of boundary pages to show at the start and end
       />
+
+      </div>
 
       {/* Modal for eding Category */}
       {isEditModalOpen && (
@@ -313,7 +317,6 @@ const Category_mgt: React.FC = () => {
           error={error}
         />
       )}
-
     </div>
   );
 };

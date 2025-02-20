@@ -95,8 +95,6 @@ interface IMentor {
     isBooked:boolean;
     price:string
     mentorId:string;
-    // endStr:string;
-    // startStr:string
     slots?:IslotField[];
     duration?:number
   }

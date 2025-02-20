@@ -5,11 +5,13 @@ import { IadminService } from "../Interface/Admin/iAdminService";
 import { IcategoryRepository } from "../Interface/Category/iCategoryRepository";
 import { ImenteeRepository } from "../Interface/Mentee/iMenteeRepository";
 import { ImentorRepository } from "../Interface/Mentor/iMentorRepository";
+import { InotificationRepository } from "../Interface/Notification/InotificationRepository";
 export declare class adminService implements IadminService {
-    private _categoryRepository;
-    private _menteeRepository;
-    private _mentorRepository;
-    constructor(_categoryRepository: IcategoryRepository, _menteeRepository: ImenteeRepository, _mentorRepository: ImentorRepository);
+    private readonly _categoryRepository;
+    private readonly _menteeRepository;
+    private readonly _mentorRepository;
+    private readonly _notificationRepository;
+    constructor(_categoryRepository: IcategoryRepository, _menteeRepository: ImenteeRepository, _mentorRepository: ImentorRepository, _notificationRepository: InotificationRepository);
     adminRefreshToken(refresh: string): Promise<{
         success: boolean;
         message: string;

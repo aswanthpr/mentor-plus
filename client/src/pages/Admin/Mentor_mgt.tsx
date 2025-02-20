@@ -1,7 +1,6 @@
 import { useState, useEffect, useMemo } from 'react';
 import { Table } from '../../components/Admin/Table';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { Pagination } from '../../components/Common/common4All/Pagination';
 import { StatusBadge } from '../../components/Admin/StatusBadge';
 import { toast } from 'react-toastify';
 import profile from "../../Asset/rb_2877.png";
@@ -10,6 +9,7 @@ import ConfirmToast from '../../components/Common/common4All/ConfirmToast';
 import Spinner from '../../components/Common/common4All/Spinner';
 import { API } from '../../Config/adminAxios';
 import { errorHandler } from '../../Utils/Reusable/Reusable';
+import { Pagination } from '@mui/material';
 
 
 const MENTORS_PER_PAGE = 8;
@@ -28,7 +28,17 @@ export const Mentor_mgt: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(false);
   const [activeTab, setActiveTab] = useState<'verified' | 'not-verified'>(getActiveTabFromPath(location.pathname));
   
-  
+  const indexOfLastMentors = currentPage * MENTORS_PER_PAGE;
+  const indexOfFirstMentors = indexOfLastMentors - MENTORS_PER_PAGE;
+  const currentMentors = mentors.slice(
+    indexOfFirstMentors,
+    indexOfLastMentors
+  );
+  // Pagination change handler
+  const handlePageChange = (event: React.ChangeEvent<unknown>, value: number) => {
+    event.preventDefault()
+    setCurrentPage(value);
+  };
 
   // Fetch the mentor data (replace with actual API call)
   useEffect(() => {
@@ -155,10 +165,10 @@ export const Mentor_mgt: React.FC = () => {
   }
   // Filter mentors based on the active tab (verified or not-verified)
   const filteredMentors = useMemo(() => {
-    return mentors.filter(
+    return currentMentors.filter(
       (mentor) => mentor?.verified === (activeTab === 'verified')
     );
-  }, [ activeTab, mentors]);
+  }, [activeTab, currentMentors]);
 
   return (
     <div className="p-6 pb-24 mt-16">
@@ -263,11 +273,19 @@ export const Mentor_mgt: React.FC = () => {
       </Table>
 
 
-      <Pagination
-        currentPage={currentPage}
-        totalPages={Math.ceil(filteredMentors.length / MENTORS_PER_PAGE)}
-        onPageChange={setCurrentPage}
-      />
+      <div className="flex justify-center items-center mt-2">
+           <Pagination
+             count={(Math.ceil(mentors.length / MENTORS_PER_PAGE)) } // Total pages
+             page={currentPage} // Current page
+             onChange={handlePageChange} // Page change handler
+             color="standard" // Pagination color
+             shape="circular" // Rounded corners
+             size="small" // Size of pagination
+             siblingCount={1} // Number of sibling pages shown next to the current page
+             boundaryCount={1} // Number of boundary pages to show at the start and end
+           />
+     
+           </div>
 
     </div>
   );

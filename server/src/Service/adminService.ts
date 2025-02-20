@@ -1,4 +1,4 @@
-import mongoose from "mongoose";
+import mongoose, { ObjectId } from "mongoose";
 import { Imentor } from "../Model/mentorModel";
 import { Imentee } from "../Model/menteeModel";
 import { Icategory } from "../Model/categorySchema";
@@ -11,12 +11,14 @@ import {
   genRefreshToken,
   verifyRefreshToken,
 } from "../Utils/jwt.utils";
-
+import { InotificationRepository } from "../Interface/Notification/InotificationRepository";
+import { sendNotification } from "../Socket/notificationSocket";
 export class adminService implements IadminService {
   constructor(
-    private _categoryRepository: IcategoryRepository,
-    private _menteeRepository: ImenteeRepository,
-    private _mentorRepository: ImentorRepository
+    private readonly _categoryRepository: IcategoryRepository,
+    private readonly _menteeRepository: ImenteeRepository,
+    private readonly _mentorRepository: ImentorRepository,
+    private readonly _notificationRepository:InotificationRepository
   ) {}
 
   async adminRefreshToken(refresh: string): Promise<{
@@ -366,7 +368,7 @@ export class adminService implements IadminService {
         };
       }
 
-      const mentorId: mongoose.Types.ObjectId = new mongoose.Types.ObjectId(id);
+      const mentorId = new mongoose.Types.ObjectId(id);
       const response = await this._mentorRepository.verifyMentor(mentorId);
 
       if (!response) {
@@ -377,6 +379,14 @@ export class adminService implements IadminService {
           result: null,
         };
       }
+      const notification =  await this._notificationRepository.createNotification(
+        mentorId as unknown as ObjectId,
+        `Welcome ${response?.name}`,
+        `Start exploring mentorPlus  and connect with mentees today.`,
+        `mentor`,
+        `${process.env.CLIENT_ORIGIN_URL}/mentor/schedule`,
+      );
+      sendNotification(id,notification!)
       return {
         success: true,
         message: "mentor verified Successfully!",

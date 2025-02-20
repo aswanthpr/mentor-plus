@@ -49,8 +49,7 @@ console.log(question)
   async createNewAnswer(req: Request, res: Response): Promise<void> {
     try {
       const { answer, questionId, userType } = req.body;
-      console.log(typeof questionId, userType, 'controllerdata', questionId)
-
+     
       const questId = new mongoose.Types.ObjectId(questionId as string) as unknown as mongoose.Schema.Types.ObjectId;
 
 

@@ -9,6 +9,7 @@ import { MentorProfile } from "../pages/Mentee/MentorProfile";
 import { BookingPage } from "../components/Mentee/BookingPage";
 import StripeCheckoutCancel from "../components/Common/Stripe/StripeCheckoutCancel";
 import { StripeComplete } from "../components/Common/Stripe/StripeComplete";
+import Message from "../pages/Mentee/Message";
 
 const Bookings = lazy(() => import("../pages/Mentee/Bookings"));
 const Wallet = lazy(() => import("../pages/Mentee/Wallet"));
@@ -53,7 +54,11 @@ const MenteeRoute: React.FC = () => (
           element={<MenteeLogin element={<Bookings />} />}
         />
         ;
-        <Route path="/wallet" element={<MenteeLogin element={<Wallet />} />} />;
+        <Route
+          path="/messages"
+          element={<MenteeLogin element={<Message/>} />}
+        />
+        {/* <Route path="/wallet" element={<MenteeLogin element={<Wallet />} />} />; */}
         <Route path="/qa" element={<MenteeLogin element={<QnA_page />} />} />;
         <Route path="/google/success" element={<GoogleSuccess />} />;
         <Route path="/google/failure" element={<GoogleFailure />} />;

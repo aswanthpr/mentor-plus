@@ -6,7 +6,7 @@ import {
   genRefreshToken,
   verifyRefreshToken,
 } from "../Utils/jwt.utils";
-import { ISchedule, ISlots } from "src/Types";
+import { ISchedule, ISlots } from "../Types";
 import { Itime, slot } from "../Model/timeModel";
 import { Imentor } from "../Model/mentorModel";
 import hash_pass from "../Utils/hashPass.util";
@@ -22,7 +22,6 @@ import { ObjectId } from "mongoose";
 import { ItimeSlotRepository } from "../Interface/Booking/iTimeSchedule";
 import { Status } from "../Utils/httpStatusCode";
 import moment from "moment";
-
 
 export class mentorService implements ImentorService {
   constructor(
@@ -322,9 +321,8 @@ export class mentorService implements ImentorService {
         };
       }
       const existingMentor = await this._mentorRepository.findMentorById(
-        _id as string
+        `${_id}`
       );
-      console.log("sdfasifisoifjasojfoisjojd");
 
       if (!existingMentor) {
         return {
@@ -400,7 +398,7 @@ export class mentorService implements ImentorService {
       }
 
       const response = await this._questionRepository.allQuestionData(filter);
-      console.log(response);
+
       return {
         success: true,
         message: "Data successfully fetched",
@@ -436,17 +434,6 @@ export class mentorService implements ImentorService {
         const startDateStr = new Date(startDate);
         const endDateStr = new Date(endDate!);
 
-        console.log(
-          startDate,
-          endDate,
-          "9009090",
-          startDateStr,
-          endDateStr,
-          "090900990",
-          today,
-          today.setHours(0, 0, 0, 0)
-        );
-
         if (startDateStr < today) {
           return {
             success: false,
@@ -474,8 +461,7 @@ export class mentorService implements ImentorService {
             timeSlots: undefined,
           };
         }
-       
-        
+
         const dayMap = {
           Monday: RRule.MO,
           Tuesday: RRule.TU,
@@ -502,8 +488,8 @@ export class mentorService implements ImentorService {
 
         recurringDates.forEach((date) => {
           slots.forEach((slot) => {
-            const dateStr = date.toISOString()
-            console.log('thisis the date ')
+            const dateStr = date.toISOString();
+
             const start = moment(
               `${dateStr.split("T")[0]} ${slot?.startTime}`,
               "YYYY-MM-DD HH:mm:ss"
@@ -514,7 +500,6 @@ export class mentorService implements ImentorService {
             );
             const duration = moment.duration(end.diff(start));
             const minutesDifference = duration.asMinutes();
-
 
             if (minutesDifference < 30 || minutesDifference > 60) {
               return {
@@ -545,12 +530,11 @@ export class mentorService implements ImentorService {
               ],
               price,
               mentorId,
-              duration:minutesDifference
+              duration: minutesDifference,
             };
             timeSlotsToInsert.push(timeSlot as unknown as Itime);
           });
         });
-
 
         result = await this._timeSlotRepository.createTimeSlot(
           timeSlotsToInsert
@@ -571,8 +555,7 @@ export class mentorService implements ImentorService {
           }
           const givenDate = moment(startDate, "YYYY-MM-DD");
           const currentDate = moment().startOf("day");
-          
-         
+
           if (givenDate.isBefore(currentDate)) {
             return {
               success: false,
@@ -581,7 +564,7 @@ export class mentorService implements ImentorService {
               timeSlots: undefined,
             };
           }
-        
+
           const entrySlots = slots.map((slot: slot) => {
             const start = moment(
               `${startDate} ${slot?.startTime}`,
@@ -591,8 +574,17 @@ export class mentorService implements ImentorService {
               `${startDate} ${slot?.endTime}`,
               "YYYY-MM-DD HH:mm:ss"
             );
-            console.log('11111111111111111111111111')
+            console.log(start, "11111111111111111111111111", end);
             const duration = moment.duration(end.diff(start));
+            if (!duration) {
+              return {
+                success: false,
+                message: "Time difference is not in between 20 to 60.",
+                status: Status.BadRequest,
+                timeSlots: undefined,
+              };
+            }
+
             const minutesDifference = duration.asMinutes();
             console.log(
               start,
@@ -620,7 +612,7 @@ export class mentorService implements ImentorService {
                 timeSlots: null,
               };
             }
-          
+
             // Create a date string in ISO format
 
             const startStr = start.format("YYYY-MM-DDTHH:mm:ss");
@@ -635,8 +627,8 @@ export class mentorService implements ImentorService {
               startStr,
               endStr
             );
-            const startDateInDate = new Date(startDate)
-            
+            const startDateInDate = new Date(startDate);
+
             return {
               startDate: startDateInDate,
               slots: [
@@ -647,7 +639,7 @@ export class mentorService implements ImentorService {
               ],
               price,
               mentorId,
-              duration:minutesDifference
+              duration: minutesDifference,
             };
           });
           timeSlotsToInsert.push(...(entrySlots as unknown as Itime[]));

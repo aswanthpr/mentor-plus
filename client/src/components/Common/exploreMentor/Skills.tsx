@@ -1,8 +1,8 @@
-interface SkillsAndTopicsProps {
+interface SkillsProps {
     skills: string[];
   }
   
-  export const SkillsAndTopics = ({ skills }: SkillsAndTopicsProps) => {
+  export const Skills = ({ skills }: SkillsProps) => {
     return (
       <div className="space-y-6">
         <div>

@@ -3,33 +3,42 @@ import mongoose, { Document, Schema } from "mongoose";
 export interface IslotSchedule extends Document {
   menteeId: mongoose.Schema.Types.ObjectId;
   status: string;
-  slotId:  mongoose.Schema.Types.ObjectId;
+  slotId: mongoose.Schema.Types.ObjectId;
   isAttended?: boolean;
   isExpired?: boolean;
   paymentStatus: string;
   paymentMethod: string;
   paymentAmount: string;
-  paymentTime:string;
+  paymentTime: string;
   duration: string;
-  meetingLink?: string|null;
-  description:string;
+  meetingLink?: string | null;
+  description: string;
+  cancelReason:string|null
 }
 
 const slotScheduleSchema: Schema<IslotSchedule> = new Schema(
   {
     menteeId: {
-      type:mongoose.Types.ObjectId,
+      type: mongoose.Types.ObjectId,
       ref: "mentee",
       required: true,
     },
     status: {
       type: String,
       required: true,
-      enum: ["RESCHEDULED", "CANCELLED", "PENDING", "CONFIRMED", "COMPLETED"],
+      enum: [
+        "RESCHEDULED",
+        "CANCELLED",
+        "PENDING",
+        "CONFIRMED",
+        "COMPLETED",
+        "RECLAIM_REQUESTED",
+        "REJECTED"
+      ],
       default: "PENDING",
     },
     slotId: {
-      type:mongoose.Types.ObjectId,
+      type: mongoose.Types.ObjectId,
       ref: "time",
       required: true,
     },
@@ -49,7 +58,7 @@ const slotScheduleSchema: Schema<IslotSchedule> = new Schema(
       required: true,
     },
     isExpired: {
-      type:Boolean,
+      type: Boolean,
       default: false,
       required: true,
     },
@@ -57,22 +66,27 @@ const slotScheduleSchema: Schema<IslotSchedule> = new Schema(
       type: String,
       required: true,
     },
-    paymentAmount:{
+    paymentAmount: {
       type: String,
       required: true,
     },
-    paymentTime:{
-      type:String,
-      required:true,
-      default:null
+    paymentTime: {
+      type: String,
+      required: true,
+      default: null,
     },
-    description:{
-      type:String,
-      required:true
+    description: {
+      type: String,
+      required: true,
     },
     meetingLink: {
       type: String,
-      default:null,
+      default: null,
+    },
+
+    cancelReason: {
+      type: String,
+      default: null,
     },
   },
   {

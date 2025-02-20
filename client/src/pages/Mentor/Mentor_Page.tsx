@@ -1,13 +1,15 @@
-import React,{useState} from 'react'
-import Header from '../../components/Common/common4All/Header'
-import { Home,MessageSquare,Calendar,Wallet, Video} from 'lucide-react';
-// HelpCircle,
-import SidePanel from '../../components/Common/common4All/SidePanel';
-import { Outlet } from 'react-router-dom';
-import { axiosInstance } from '../../Config/mentorAxios';
-import { useDispatch } from 'react-redux';
-import { clearMentorToken } from '../../Redux/mentorSlice'; 
 import { toast } from 'react-toastify';
+import { Outlet } from 'react-router-dom';
+import React,{useEffect, useState} from 'react'
+import { useDispatch ,useSelector} from 'react-redux';
+import { Home,MessageSquare,Calendar,Wallet, Video} from 'lucide-react';
+
+import { RootState } from '../../Redux/store';
+import { axiosInstance } from '../../Config/mentorAxios';
+import { markAsRead, setNotification } from '../../Redux/notificationSlice';
+import { clearMentorToken } from '../../Redux/mentorSlice'; 
+import Header from '../../components/Common/common4All/Header'
+import SidePanel from '../../components/Common/common4All/SidePanel';
 
 
 interface INavItem{
@@ -25,10 +27,51 @@ const navItems:INavItem[]= [
   ];
  
 const Mentor_Page:React.FC = () => {
-  const dispatch = useDispatch()
+  const dispatch = useDispatch();
+  const notification = useSelector((state:RootState)=>
+    state.notificationSlice.mentorNotification
+  )
   const [isSideBarOpen,setIsSideBarOpen] = useState<boolean>(false);
   const [searchValue,setSearchValue] = useState<string>('');
   
+ useEffect(() => {
+    let flag = true;
+
+    const fetchData = async () => {
+      try {
+        const { data, status } = await axiosInstance.get(`/mentor/notification`);
+        console.log(data, status);
+        if (flag && status == 200 && data.success) {
+          dispatch(
+            setNotification({ userType: "mentor", notification: data?.result })
+          );
+        }
+      } catch (error: unknown) {
+        console.log(
+          `${error instanceof Error ? error.message : String(error)}`
+        );
+      }
+    };
+
+    fetchData();
+    return () => {
+      flag = false;
+    };
+  }, [dispatch]);
+
+    const handleReadNotification = async (id: string) => {
+      try {
+        const { status, data } = await axiosInstance.patch(
+          `/mentor/notification-read/${id}`
+        );
+  
+        if (status == 200 && data.success) {
+          dispatch(markAsRead({ userType: "mentor", id }));
+        }
+      } catch (error: unknown) {
+        console.log(`${error instanceof Error ? error.message : String(error)}`);
+      }
+    };
   const ToggleSideBar =()=>{
     setIsSideBarOpen(!isSideBarOpen);
   }
@@ -59,6 +102,8 @@ const Mentor_Page:React.FC = () => {
       userType='mentor'
       logout={mentorLogout}
       profileLink='/mentor/profile'
+      onRead={handleReadNotification}
+      notifData={notification}
       />
       {/* Overlay for Small Screens */}
       {isSideBarOpen && (

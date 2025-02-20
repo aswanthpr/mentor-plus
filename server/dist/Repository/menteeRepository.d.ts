@@ -19,6 +19,7 @@ export declare class menteeRepository extends baseRepository<Imentee> implements
     mainLogin(email: string): Promise<Imentee | null>;
     forgot_PasswordChange(email: string, password: string): Promise<Imentee | null | undefined>;
     adminLogin(email: string): Promise<Imentee | null>;
+    _find(): Promise<Imentee | null>;
 }
 declare const _default: menteeRepository;
 export default _default;

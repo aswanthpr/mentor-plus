@@ -1,8 +1,10 @@
 import slotScheduleSchema, { IslotSchedule } from "../Model/slotSchedule";
 import { baseRepository } from "./baseRepo";
 import { IslotScheduleRepository } from "../Interface/Booking/iSlotScheduleRepository";
-import { ObjectId } from "mongoose";
+import mongoose, { ObjectId } from "mongoose";
 import slotSchedule from "../Model/slotSchedule";
+import { InewSlotSchedule } from "src/Types";
+
 
 class slotScheduleRepository
   extends baseRepository<IslotSchedule>
@@ -14,152 +16,215 @@ class slotScheduleRepository
 
   async newSlotBooking(
     newSlotSchedule: IslotSchedule
-  ): Promise<IslotSchedule | null> {
+  ): Promise<InewSlotSchedule | null> {
     try {
-      return await this.createDocument(newSlotSchedule);
+      const res =  await this.createDocument(newSlotSchedule);
+     const result=  await this.aggregateData(slotSchedule,
+        [
+          {
+            $match:{
+              slotId:res?.slotId
+             
+            }
+          },
+          {
+            $lookup:{
+              from:'times',
+              localField:'slotId',
+              foreignField:"_id",
+              as:"times"
+            }
+          },
+          {
+            $unwind:{
+              path:"$times",
+              preserveNullAndEmptyArrays:true
+            }
+          },
+          // {
+          //   $project:{
+          //     mentorId:"$times.mentorId",
+
+          //   }
+          // }
+        ]
+      ) ;
+      console.log(result,'result')
+      return result[0];
     } catch (error: unknown) {
       throw new Error(
-        ` error while creating new Booking slots${error instanceof Error ? error.message : String(error)}`
+        ` error while creating new Booking slots${
+          error instanceof Error ? error.message : String(error)
+        }`
       );
     }
   }
-/**
- * Retrieves the booked slots for a specified mentee.
- *
- * @param menteeId - The ObjectId of the mentee for whom the booked slots are to be retrieved.
- * @param tabCond - A boolean condition used to filter slots based on additional criteria.
- * 
- * @returns A promise resolving to an array of booked slots (`IslotSchedule[]`) or an empty array if no slots are found.
- * 
- * @throws Error - Throws an error if there is an issue during the aggregation process.
- */
+  /**
+   * Retrieves the booked slots for a specified mentee.
+   *
+   * @param menteeId - The ObjectId of the mentee for whom the booked slots are to be retrieved.
+   * @param tabCond - A boolean condition used to filter slots based on additional criteria.
+   *
+   * @returns A promise resolving to an array of booked slots (`IslotSchedule[]`) or an empty array if no slots are found.
+   *
+   * @throws Error - Throws an error if there is an issue during the aggregation process.
+   */
 
-
-  async getBookedSlot(menteeId: ObjectId,tabCond:boolean): Promise<IslotSchedule[] | []> {
+  async getBookedSlot(
+    menteeId: ObjectId,
+    tabCond: boolean
+  ): Promise<IslotSchedule[] | []> {
     try {
-      // const pipeline 
-      const matchFilter:Record<string, unknown>={
+      // const pipeline
+      const matchFilter: Record<string, unknown> = {
         menteeId,
-        paymentStatus:"Paid",
+        paymentStatus: "Paid",
+      };
+      if (tabCond) {
+        //based on the tab
 
-      }
-      if (tabCond) {//based on the tab
-
-        matchFilter['status'] = { $in: ["CANCELLED", "COMPLETED"] };
-        matchFilter['isAttended'] = true;
+        matchFilter["status"] = { $in: ["CANCELLED", "COMPLETED"] };
+        matchFilter["isAttended"] = true;
       } else {
-        
-        matchFilter['status'] = { $in: ["RESCHEDULED", "PENDING", "CONFIRMED"] };
-        matchFilter['isAttended'] = false;
+        matchFilter["status"] = {
+          $in: ["RESCHEDULED", "CONFIRMED", "PENDING","CANCEL_REQUESTED","CANCEL_REJECTED"],
+        };
+        matchFilter["isAttended"] = false;
       }
-console.log(matchFilter,'matchFilter')
-      return await this.aggregateData(slotSchedule,[
+      console.log(matchFilter, "matchFilter");
+      return await this.aggregateData(slotSchedule, [
         {
-          $match:matchFilter
+          $match: matchFilter,
         },
         {
-          $lookup:{
-            from:'times',
-            localField:'slotId',
-            foreignField:'_id',
-            as:'slotDetails'
-          }
+          $lookup: {
+            from: "times",
+            localField: "slotId",
+            foreignField: "_id",
+            as: "slotDetails",
+          },
         },
         {
-          $unwind:{
-            path:'$slotDetails',
-            preserveNullAndEmptyArrays:true
-,          }
+          $unwind: {
+            path: "$slotDetails",
+            preserveNullAndEmptyArrays: true,
+          },
         },
         {
           $lookup: {
             from: "mentors",
             localField: "slotDetails.mentorId",
             foreignField: "_id",
-
-            as:"user",
+            as: "user",
           },
         },
         {
-          $unwind:{
-            path:'$user',
-            preserveNullAndEmptyArrays:true
-,          }
+          $unwind: {
+            path: "$user",
+            preserveNullAndEmptyArrays: true,
+          },
         },
         {
-          $sort:{
-            createdAt:-1
-          }
-        }
-      ])
-    } catch (error:unknown) {
+          $sort: {
+            createdAt: -1,
+          },
+        },
+      ]);
+    } catch (error: unknown) {
       throw new Error(
         `${error instanceof Error ? error.message : String(error)}`
       );
     }
   }
-  async getBookedSession(mentorId: ObjectId,tabCond:boolean): Promise<IslotSchedule[] | []> {
+  async getBookedSession(
+    mentorId: ObjectId,
+    tabCond: boolean
+  ): Promise<IslotSchedule[] | []> {
     try {
-
       const matchFilter: Record<string, unknown> = {
-        'slotDetails.mentorId': mentorId,
+        // "slotDetails.mentorId": mentorId,
         paymentStatus: "Paid",
       };
+console.log('\x1b[32m%s\x1b[0m',mentorId)
+      if (tabCond) {
+        //based on the tab
 
-      if (tabCond) {//based on the tab
-
-        matchFilter['status'] = { $in: ["PENDING", "CANCELLED", "COMPLETED"] };
-        matchFilter['isAttended'] = true;
+        matchFilter["status"] = { $in: [ "CANCELLED", "COMPLETED"] };
+        matchFilter["isAttended"] = true;
       } else {
-        
-        matchFilter['status'] = { $in: ["RESCHEDULED", "PENDING", "CONFIRMED"] };
-        matchFilter['isAttended'] = false;
+        matchFilter["status"] = {
+          $in: ["RESCHEDULED", "CONFIRMED", "PENDING","CANCEL_REQUESTED","CANCEL_REJECTED"],
+        };
+        matchFilter["isAttended"] = false;
       }
-
-
-      return await this.aggregateData(slotSchedule,[
+console.log(matchFilter,'filter')
+      return await this.aggregateData(slotSchedule, [
         {
-          $lookup:{
-            from:'times',
-            localField:'slotId',
-            foreignField:'_id',
-            as:'slotDetails'
-          }
+          $match: matchFilter,
         },
         {
-          $unwind:{
-            path:'$slotDetails',
-            preserveNullAndEmptyArrays:true
-,          }
-        },
-         {
           $lookup: {
             from: "mentees",
             localField: "menteeId",
             foreignField: "_id",
 
-            as:"user",
+            as: "user",
           },
         },
         {
-          $unwind:{
-            path:'$user',
-            preserveNullAndEmptyArrays:true
-,          }
+          $unwind: {
+            path: "$user",
+            preserveNullAndEmptyArrays: true,
+          },
         },
-         {
-          $match:matchFilter
-        },
-        
         {
-          $sort:{
-            createdAt:-1
-          }
-        }
-      ])
-    } catch (error:unknown) {
+          $lookup: {
+            from: "times",
+            localField: "slotId",
+            foreignField: "_id",
+            as: "slotDetails",
+          },
+        },
+        {
+          $unwind: {
+            path: "$slotDetails",
+            preserveNullAndEmptyArrays: true,
+          },
+        },
+
+        {
+          $sort: {
+            createdAt: -1,
+          },
+        },
+      ]);
+    } catch (error: unknown) {
       throw new Error(
         `${error instanceof Error ? error.message : String(error)}`
+      );
+    }
+  }
+
+  async cancelSlot(sessionId: string, issue: string): Promise<IslotSchedule | null> {
+    try {
+      console.log(sessionId,issue);
+      return await this.find_By_Id_And_Update(slotSchedule,new mongoose.Types.ObjectId(sessionId),{$set:{status:'CANCEL_REQUESTED',cancelReason:issue}}) ;
+   
+    } catch (error:unknown) {
+      throw new Error(
+        `error while cancel the slot in slot schedule repositry${error instanceof Error ? error.message : String(error)}`
+      );
+    }
+  }
+
+  async mentorSlotCancel(sessionId: string, slotValule: string): Promise<IslotSchedule | null> {
+    try {
+
+      return await this.find_By_Id_And_Update(slotSchedule,new mongoose.Types.ObjectId(sessionId),{$set:{status:slotValule}}) ;
+   
+    } catch (error:unknown) {
+      throw new Error(
+        `error while mentor handle  cancel  slot request  in slot schedule repositry${error instanceof Error ? error.message : String(error)}`
       );
     }
   }

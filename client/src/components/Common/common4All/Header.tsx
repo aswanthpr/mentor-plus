@@ -3,7 +3,6 @@ import logo from "../../../Asset/mentorPlus.png";
 import { AlignJustify, Bell, LogOut, User } from "lucide-react";
 // import InputField from '../../auth/InputField';
 import NotificationPanel from "./NotificationPanel";
-import { INotification } from "./NotificationItem";
 import { Link } from "react-router-dom";
 import profile from "../../../Asset/images.png";
 
@@ -16,35 +15,20 @@ interface IHeader {
   userType: "mentor" | "mentee" | "admin";
   profileLink: string;
   logout: () => void;
+  onRead: (id: string) => void;
+  notifData:Inotification[]
 }
+
 const Header: React.FC<IHeader> = (props) => {
-  const { userType, ToggleSideBar } = props;
+  const { userType, ToggleSideBar, profileLink, logout, onRead ,notifData} = props;
 
   const [showProfileMenu, setShowProfileMenu] = useState<boolean>(false);
   const [showNotification, setShowNotification] = useState<boolean>(false);
-  const [notifications, setNotifications] = useState<INotification[]>([
-    {
-      id: "1",
-      title: "New Message from John Doe",
-      message:
-        "Hey, I would like to schedule a mentoring session with you next week.",
-      timestamp: new Date(Date.now() - 1000 * 60 * 30), // 30 minutes ago
-      read: false,
-      type: "message",
-    },
-    {
-      id: "2",
-      title: "Upcoming Session",
-      message: "Your mentoring session with Sarah starts in 1 hour.",
-      timestamp: new Date(Date.now() - 1000 * 60 * 60), // 1 hour ago
-      read: false,
-      type: "booking",
-    },
-  ]);
+
+
   const profileMenuRef = useRef<HTMLDivElement>(null);
   const profileMenuButtonRef = useRef<HTMLButtonElement>(null);
 
-  // Use effect to add event listener to close menu if clicked outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       // Check if the click is outside the profile button or profile menu
@@ -58,44 +42,35 @@ const Header: React.FC<IHeader> = (props) => {
       }
     };
 
-    // Add event listener when component mounts
-    document.addEventListener("mousedown", handleClickOutside);
+  
 
-    // Cleanup event listener when component unmounts
+    document.addEventListener("mousedown", handleClickOutside);
+    
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
+      
     };
   }, []);
 
-  const unreadCount = notifications.filter((n) => !n.read!).length;
+  const unreadCount:number|undefined = notifData?.filter((n) => !n.isRead!).length;
 
-  const handleReadNotification = (id: string) => {
-    setNotifications((prev) =>
-      prev.map((notification) =>
-        notification.id === id ? { ...notification, read: true } : notification
-      )
-    );
-    };
-    const handleProfileClick = () => {
-        setShowProfileMenu(false); // Close menu on profile click
-    };
-    return (
-        <header className="bg-white border-b border-gray-200 top-0 left-0 right-0 z-50 fixed ">
-        <div className="h-16 px-4 flex items-center justify-between ">
-                <div className="flex items-center gap-2">
-                <div
-                    className="lg:hidden"
-                    onClick={ToggleSideBar}
-                    aria-label="Toggle Sidebar"
-                    >
-                    <AlignJustify className="mr-2 cursor-pointer" />
-                </div>
-                
+  const handleProfileClick = () => {
+    setShowProfileMenu(false); // Close menu on profile click
+  };
+  return (
+    <header className="bg-white border-b border-gray-200 top-0 left-0 right-0 z-50 fixed ">
+      <div className="h-16 px-4 flex items-center justify-between ">
+        <div className="flex items-center gap-2">
+          <div
+            className="lg:hidden"
+            onClick={ToggleSideBar}
+            aria-label="Toggle Sidebar"
+          >
+            <AlignJustify className="mr-2 cursor-pointer" />
+          </div>
 
-                <img src={logo} alt="logo" className="w-auto h-24" />
-                
-                
-            </div>
+          <img src={logo} alt="logo" className="w-auto h-24" />
+        </div>
 
         {/* {userType !== 'mentor' && (
                     <div className='flex-1 max-w-xl mx-4'>
@@ -123,7 +98,7 @@ const Header: React.FC<IHeader> = (props) => {
               aria-label={`${unreadCount} unread notifications`}
             >
               <Bell className="h-6 w-6 text-gray-600" />
-              {unreadCount > 0 && (
+              {unreadCount! > 0 && (
                 <span className="absolute top-0 right-0 h-5 w-5 bg-[#ff8800] text-white text-xs flex items-center justify-center rounded-full">
                   {unreadCount}
                 </span>
@@ -132,8 +107,8 @@ const Header: React.FC<IHeader> = (props) => {
             <NotificationPanel
               isOpen={showNotification}
               onClose={() => setShowNotification(false)}
-              onReadNotification={handleReadNotification}
-              notification={notifications}
+              onReadNotification={onRead}
+              notification={notifData}
             />
           </div>
           <div className="relative">
@@ -157,7 +132,7 @@ const Header: React.FC<IHeader> = (props) => {
               >
                 {userType !== "admin" && (
                   <Link
-                    to={props.profileLink}
+                    to={profileLink}
                     onClick={handleProfileClick}
                     className="flex items-center px-4 py-2 text-gray-700 hover:bg-gray-100"
                   >
@@ -166,7 +141,7 @@ const Header: React.FC<IHeader> = (props) => {
                   </Link>
                 )}
                 <button
-                  onClick={props.logout}
+                  onClick={logout}
                   className="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
                 >
                   <LogOut className="h-4 w-2 mr-2 " />

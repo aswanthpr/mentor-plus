@@ -30,5 +30,17 @@ export interface IbookingService {
         status: number;
         slots: IslotSchedule[] | [];
     }>;
+    cancelSlot(sessionId: string, reason: string, customReason: string): Promise<{
+        success: boolean;
+        message: string;
+        status: number;
+        result: IslotSchedule | null;
+    }>;
+    mentorSlotCancel(sessionId: string, statusValue: string): Promise<{
+        success: boolean;
+        message: string;
+        status: number;
+        result: IslotSchedule | null;
+    }>;
 }
 //# sourceMappingURL=iBookingService.d.ts.map

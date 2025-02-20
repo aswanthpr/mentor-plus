@@ -259,7 +259,7 @@ export class menteeService implements ImenteeService {
     skills: Imentor[] | undefined;
   }> {
     try {
-      const mentorData = await this._mentorRepository.findAllMentor();
+      const mentorData = await this._mentorRepository.findVerifiedMentor(); 
       if (!mentorData) {
         return {
           success: false,
@@ -268,7 +268,7 @@ export class menteeService implements ImenteeService {
           skills: undefined,
         };
       }
-      console.log(mentorData, "sfasfaf");
+
       const categoryData = await this._categoryRepository.categoryData();
       if (!categoryData) {
         return {

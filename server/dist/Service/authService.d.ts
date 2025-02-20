@@ -6,12 +6,14 @@ import { ImentorRepository } from "../Interface/Mentor/iMentorRepository";
 import { IcategoryRepository } from "../Interface/Category/iCategoryRepository";
 import { ImenteeRepository } from "../Interface/Mentee/iMenteeRepository";
 import { ImentorApplyData } from "../Types";
+import { InotificationRepository } from "../Interface/Notification/InotificationRepository";
 export declare class authService implements IauthService {
     private _OtpService;
     private _categoryRepository;
     private _MentorRepository;
     private _MenteeRepository;
-    constructor(_OtpService: IotpService, _categoryRepository: IcategoryRepository, _MentorRepository: ImentorRepository, _MenteeRepository: ImenteeRepository);
+    private _notificationRepository;
+    constructor(_OtpService: IotpService, _categoryRepository: IcategoryRepository, _MentorRepository: ImentorRepository, _MenteeRepository: ImenteeRepository, _notificationRepository: InotificationRepository);
     mentee_Signup(userData: Imentee): Promise<{
         success: boolean;
         message: string;

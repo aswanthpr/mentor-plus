@@ -1,5 +1,5 @@
 import mongoose, {
-  Model,
+  Model, 
   Document,
   FilterQuery,
   UpdateQuery,

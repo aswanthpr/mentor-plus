@@ -54,12 +54,22 @@ class mentorRepository
         `error while creating mentor ${error instanceof Error ? error.message : String(error)
         }`
       );
-    }
+    } 
   }
   //finding all mentors
   async findAllMentor(): Promise<Imentor[] | null> {
     try {
-      return await this.find(mentorModel, {});
+      return await this.find(mentorModel, {}); 
+    } catch (error: unknown) {
+      throw new Error(
+        `error while finding mentor data from data base${error instanceof Error ? error.message : String(error)
+        }`
+      );
+    }
+  }
+   async findVerifiedMentor(): Promise<Imentor[] | null> {
+    try {
+      return await this.find(mentorModel, {verified:true});
     } catch (error: unknown) {
       throw new Error(
         `error while finding mentor data from data base${error instanceof Error ? error.message : String(error)

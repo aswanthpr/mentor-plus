@@ -37,13 +37,8 @@ export class bookingControlelr implements IbookingController {
   }
   async slotBooking(req: Request, res: Response): Promise<void> {
     try {
-      const {
-        timeSlot,
-        message,
-        paymentMethod,
-        totalAmount,
-        mentorName,
-      } = req.body;
+      const { timeSlot, message, paymentMethod, totalAmount, mentorName } =
+        req.body;
 
       const result = await this._bookingService.slotBooking(
         timeSlot,
@@ -56,13 +51,11 @@ export class bookingControlelr implements IbookingController {
         req.get("host") as string
       );
 
-      res
-        .status(result?.status)
-        .json({
-          message: result?.message,
-          success: result?.success,
-          session: result?.session,
-        });
+      res.status(result?.status).json({
+        message: result?.message,
+        success: result?.success,
+        session: result?.session,
+      });
     } catch (error: unknown) {
       throw new Error(
         `Error while  getting timeslots for booking  ${
@@ -73,7 +66,7 @@ export class bookingControlelr implements IbookingController {
   }
   //stripe webhook conifgureation
   async stripeWebHook(req: Request, res: Response): Promise<void> {
-    const signature = req.headers["stripe-signature"] as string ;
+    const signature = req.headers["stripe-signature"] as string;
 
     await this._bookingService.stripeWebHook(signature, req.body as Buffer);
     res.status(200).json({ success: true });
@@ -110,13 +103,13 @@ export class bookingControlelr implements IbookingController {
   async getBookedSession(req: Request, res: Response): Promise<void> {
     try {
       const { activeTab } = req.query;
-console.log(activeTab,'activeTab aane')
+      console.log(activeTab, "activeTab aane");
       const { status, message, success, slots } =
         await this._bookingService.getBookedSessions(
           req.user as Express.User as ObjectId,
           activeTab as string
         );
-        
+
       console.log(slots, "result");
       res.status(status).json({ success, message, slots });
     } catch (error: unknown) {
@@ -127,4 +120,42 @@ console.log(activeTab,'activeTab aane')
       );
     }
   }
+  async cancelSlot(req: Request, res: Response): Promise<void> {
+    try {
+      const { success, result, message, status } =
+        await this._bookingService.cancelSlot(
+          req.params.sessionId as string,
+          req.body?.reason,
+          req.body?.customReason
+        );
+
+      res.status(status).json({ success, result, message });
+    } catch (error: unknown) {
+      throw new Error(
+        `Error when cancelling booked sessions in controller ${
+          error instanceof Error ? error.message : String(error)
+        }`
+      );
+    }
+  }
+  //mentor side cancel request handle
+  async mentorSlotCancel(req: Request, res: Response): Promise<void>{
+    try {
+console.log( req.params.sessionId,req.body?.value)
+      const { success, result, message, status } =
+        await this._bookingService.mentorSlotCancel(
+          req.params.sessionId as string,
+          req.body?.value,
+        );
+
+      res.status(status).json({ success, result, message });
+    } catch (error: unknown) {
+      throw new Error(
+        `Error when mentor handle cancel  booked sessions in controller ${
+          error instanceof Error ? error.message : String(error)
+        }`
+      );
+    }
+  }
+
 }

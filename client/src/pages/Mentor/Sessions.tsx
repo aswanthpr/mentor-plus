@@ -1,10 +1,14 @@
-import React, { useEffect, useState } from "react";
+import  { useEffect, useState } from "react";
 import TabNavigation from "../../components/Common/Bookings/TabNavigation";
 import { Search, User } from "lucide-react";
 import { axiosInstance } from "../../Config/mentorAxios";
 import { errorHandler } from "../../Utils/Reusable/Reusable";
 import SessionCard from "../../components/Common/Bookings/SessionCard";
 import Spinner from "../../components/Common/common4All/Spinner";
+import { useSelector } from "react-redux";
+import { RootState } from "../../Redux/store";
+import ConfirmToast from "../../components/Common/common4All/ConfirmToast";
+import { toast } from "react-toastify";
 
 const Sessions = () => {
   const [loading, setLoading] = useState(false);
@@ -16,16 +20,16 @@ const Sessions = () => {
 
   const [sessions, setSessions] = useState<ISession[] | []>([]);
   const sessionsPerPage = 5;
+  const role = useSelector((state: RootState) => state.menter.mentorRole);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
         setLoading(true);
 
-        const { status, data } = await axiosInstance.get(
-          `/mentor/sessions`,
-          { params: { activeTab } }
-        );
+        const { status, data } = await axiosInstance.get(`/mentor/sessions`, {
+          params: { activeTab },
+        });
         if (status == 200 && data?.success) {
           setSessions(data?.slots);
         }
@@ -38,31 +42,73 @@ const Sessions = () => {
     fetchData();
   }, [activeTab]);
 
-  const handleCancelSession = (sessionId: string) => {
-    if (window.confirm("Are you sure you want to cancel this session?")) {
-      setSessions(
-        sessions.map((session) =>
-          session?._id === sessionId
-            ? { ...session, status: "CANCELLED" }
-            : session
-        )
-      );
-    }
-  };
 
   const filteredSessions = sessions.filter((session) => {
-    const isUpcoming = session?.status === "PENDING" ||session?.status === "CONFIRMED";
-    const isHistory = session?.status === "COMPLETED"||session?.status ==="CANCELLED" ;
+    const isUpcoming =
+      session?.status === "PENDING" ||
+      session?.status === "CONFIRMED" ||
+      session?.status === "CANCEL_REQUESTED"||
+      session?.status === "CANCEL_REJECTED"
+    const isHistory =
+      session?.status === "COMPLETED" || session?.status === "CANCELLED";
     const matchesSearch =
       session?.description
         ?.toLowerCase()
         .includes(searchQuery?.toLowerCase()) ||
       session?.user?.name?.toLowerCase()?.includes(searchQuery.toLowerCase());
-    return (
-      (activeTab === "upcoming" ? isUpcoming :isHistory) && matchesSearch
-    );
+    return (activeTab === "upcoming" ? isUpcoming : isHistory) && matchesSearch;
   });
 
+  const handleReclaimRequest = (sessionId: string, value: string) => {
+    const val = value==="APPROVE"?"CANCELLED":"CANCEL_REJECTED"
+    try {
+      const handleRequest = async (sessionId: string, value: string) => {
+  
+        const { data, status } = await axiosInstance.patch(
+          `/mentor/sessions/cancel_request/${sessionId}`,
+          {
+            val,
+          }
+        );
+      toast.dismiss();
+        if (status == 200 && data.success) {
+          toast.success(data?.message);
+          setSessions(
+            sessions.map((session) =>
+              session?._id === sessionId
+                ? { ...session, status: value }
+                : session
+
+              
+            )
+            .filter((session) => (value !== "CANCEL_REJECTED" ? true : session?._id !== sessionId))
+          )
+          
+        }
+      };
+      toast(
+        <ConfirmToast
+          message="change Request Status"
+          description="This is final confirmation to change?"
+          onReply={() =>
+            handleRequest(sessionId as string, value as string)
+          }
+          onIgnore={() => toast.dismiss()}
+          ariaLabel=" status confirmation"
+        />,
+        {
+          closeButton: false,
+          className: "p-0  border border-purple-600/40 ml-0",
+          autoClose: false,
+        }
+      );
+
+      console.log(sessionId, value);
+    } catch (error: unknown) {
+      console.log(error)
+      errorHandler(error);
+    }
+  };
   const totalPages = Math.ceil(filteredSessions.length / sessionsPerPage);
   const paginatedSessions = filteredSessions.slice(
     (currentPage - 1) * sessionsPerPage,
@@ -98,10 +144,12 @@ const Sessions = () => {
       <div className="space-y-4">
         {paginatedSessions.map((session) => (
           <SessionCard
-            handleCancelSession={handleCancelSession}
             // handleRating={handleRating}
             key={session?._id}
             session={session}
+            role={role}
+            handleReclaimRequest={handleReclaimRequest}
+
           />
         ))}
       </div>

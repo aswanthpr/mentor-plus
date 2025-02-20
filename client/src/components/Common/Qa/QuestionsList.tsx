@@ -11,7 +11,7 @@ import {
   X,
 } from "lucide-react";
 import AddQuestion from "./AddQuestion";
-import falseLogo from "../../../Asset/images.png";
+import falseLogo from "../../../Asset/images.png"; 
 
 interface QuestionListProps {
   questions: IQuestion[];
@@ -23,6 +23,7 @@ interface QuestionListProps {
   setAnswerQuestionId: React.Dispatch<React.SetStateAction<string>>;
   onEditAnswer: (content: string, answerId: string) => void;
   EditedData: { content: string; answerId: string };
+  newAns?:Ianswer|null;
 
 }
 const QuestionList: React.FC<QuestionListProps> = ({
@@ -34,6 +35,7 @@ const QuestionList: React.FC<QuestionListProps> = ({
   onDeleteQestion,
   setAnswerQuestionId,
   setIsAnswerModalOpen,
+ 
 
 }) => {
   const [editingQuestion, setEditingQuestion] = useState<IQuestion | undefined>(
@@ -70,7 +72,6 @@ const QuestionList: React.FC<QuestionListProps> = ({
     }
 
     
-   
   }, [questions, EditedData]);
   return (
     <>

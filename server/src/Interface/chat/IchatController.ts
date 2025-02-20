@@ -1,0 +1,5 @@
+import { Request, Response } from "express";
+
+export interface  IchatController {
+    getChats(req:Request,res:Response):Promise<void>
+}

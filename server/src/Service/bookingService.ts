@@ -6,11 +6,16 @@ import mongoose, { ObjectId } from "mongoose";
 import { InewSlotSchedule, Itimes } from "../Types";
 import { IslotSchedule } from "../Model/slotSchedule";
 import { Status } from "../Utils/httpStatusCode";
-import { Itime } from "src/Model/timeModel";
+import { Itime } from "../Model/timeModel";
+import { InotificationRepository } from "../Interface/Notification/InotificationRepository";
+// import { sendNotification } from "../Socket/notificationSocket";
+import moment from "moment";
+
 export class bookingService implements IbookingService {
   constructor(
     private readonly _timeSlotRepository: ItimeSlotRepository,
     private readonly _slotScheduleRepository: IslotScheduleRepository,
+    private readonly _notificationRepository: InotificationRepository,
     private readonly stripe: Stripe = new Stripe(
       process.env.STRIPE_SECRET_KEY as string,
       {
@@ -83,12 +88,7 @@ export class bookingService implements IbookingService {
     try {
       console.log(timeSlot, message, paymentMethod, totalAmount);
 
-      if (
-        !timeSlot ||
-        !message ||
-        !paymentMethod ||
-        !totalAmount
-      ) {
+      if (!timeSlot || !message || !paymentMethod || !totalAmount) {
         return {
           status: Status.BadRequest,
           message: "credential not found",
@@ -96,8 +96,8 @@ export class bookingService implements IbookingService {
         };
       }
       if (paymentMethod == "stripe") {
-        const startStr = String(timeSlot.startStr);
-        const endStr = String(timeSlot.endStr);
+        const startStr = moment(timeSlot["startTime"]).format(`hh:mm A`);
+        const endStr = moment(timeSlot["endTime"]).format(`hh:mm A`);
 
         const session = await this.stripe.checkout.sessions.create({
           payment_method_types: ["card"],
@@ -110,12 +110,12 @@ export class bookingService implements IbookingService {
                 unit_amount: parseInt(totalAmount) * 100,
                 product_data: {
                   name: `Your mentor is  ${mentorName.toLocaleUpperCase()}`,
-                  description: `YOUR SLOT DATE IS  :${
+                  description: `YOUR SLOT DATE IS :${
                     String(timeSlot?.startDate).split("T")[0]
-                  } ,TIME IS IN BETWEEN ${startStr}-${endStr}`,
+                  }
+                TIME IS IN BETWEEN ${startStr}-${endStr}`,
                 },
               },
-
               quantity: 1,
             },
           ],
@@ -158,8 +158,7 @@ export class bookingService implements IbookingService {
    */
 
   async stripeWebHook(
-
-    signature:string|Buffer,
+    signature: string | Buffer,
     bodyData: Buffer
   ): Promise<void> {
     try {
@@ -167,17 +166,15 @@ export class bookingService implements IbookingService {
         return;
       }
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      let event:  any;
+      let event: any;
 
       try {
-console.log(process.env.STRIPE_WEBHOOK_SECRET,'sdfjasdf',signature)
+        console.log(process.env.STRIPE_WEBHOOK_SECRET, "sdfjasdf", signature);
         event = this.stripe.webhooks.constructEvent(
           bodyData,
           signature as string | Buffer,
           process.env.STRIPE_WEBHOOK_SECRET as string
-
         );
-console.log(event,'event aanuithu')
       } catch (err: unknown) {
         console.error(
           "⚠️ Webhook signature verification failed.",
@@ -198,15 +195,9 @@ console.log(event,'event aanuithu')
             return;
           }
 
-          const { timeSlot, message, paymentMethod,menteeId } =
-            metadata;
+          const { timeSlot, message, paymentMethod, menteeId } = metadata;
 
-          if (
-            !timeSlot ||
-            !message ||
-            !paymentMethod ||
-            !menteeId
-          ) {
+          if (!timeSlot || !message || !paymentMethod || !menteeId) {
             console.error("Invalid or missing metadata in Stripe webhook");
             return;
           }
@@ -236,9 +227,8 @@ console.log(event,'event aanuithu')
             paymentAmount: String(totalAmount),
             duration: JSON.parse(timeSlot)?.duration,
             description: message,
-            status:'CONFIRMED'
+            status: "CONFIRMED",
           };
-
           console.log(newSlotSchedule, "Updated newSlotSchedule Object");
           const response = await this._slotScheduleRepository.newSlotBooking(
             newSlotSchedule as IslotSchedule
@@ -247,14 +237,37 @@ console.log(event,'event aanuithu')
           const res = await this._timeSlotRepository.makeTimeSlotBooked(
             String(slotId)
           );
+
+          // const menteeNotification =
+            await this._notificationRepository.createNotification(
+              menteeObjectId as unknown as ObjectId,
+              `Slot booked successfully`,
+              `Congratulations! You've been successfully booked your slot.`,
+              `mentee`,
+              `${process.env.CLIENT_ORIGIN_URL}/mentee/bookings`
+            );
+          // sendNotification(menteeId, menteeNotification!); //send notification to the mentee with sepecific room id
+          let mentorId: ObjectId;
+          if (response) {
+            mentorId = response.times?.mentorId as ObjectId;
+          }
+          // const mentorNotification =
+            await this._notificationRepository.createNotification(
+              mentorId!,
+              `Your new slot were Scheduled`,
+              `new slot were scheduled . checkout now`,
+              `mentor`,
+              `${process.env.CLIENT_ORIGIN_URL}/mentor/session`
+            );
+
+          // sendNotification(`${mentorId!}`, mentorNotification!); //sending notification to the mentor
           if (response) {
             console.log(response, res);
             console.log("timeslot booked successfully");
             return;
           } else {
-            throw new Error("Failed to create appointment");
+            throw new Error("Failed to create appointment"); 
           }
-          break;
         }
 
         default:
@@ -296,7 +309,7 @@ console.log(event,'event aanuithu')
     slots: IslotSchedule[] | [];
   }> {
     try {
-        console.log(currentTab,menteeId,'098765432')
+      console.log(currentTab, menteeId, "098765432");
       if (
         !menteeId ||
         !currentTab ||
@@ -310,9 +323,7 @@ console.log(event,'event aanuithu')
         };
       }
       const tabCond = currentTab == "upcoming" ? false : true;
-      console.log(tabCond,currentTab,
-        'this si tab'
-      )
+      console.log(tabCond, currentTab, "this si tab");
 
       const response = await this._slotScheduleRepository.getBookedSlot(
         menteeId,
@@ -327,14 +338,12 @@ console.log(event,'event aanuithu')
         };
       }
 
-     
-        return {
-          success: true,
-          message: "slots found",
-          status: Status.Ok,
-          slots: response,
-        };
-      
+      return {
+        success: true,
+        message: "slots found",
+        status: Status.Ok,
+        slots: response,
+      };
     } catch (error: unknown) {
       throw new Error(
         `${
@@ -354,7 +363,7 @@ console.log(event,'event aanuithu')
     slots: IslotSchedule[] | [];
   }> {
     try {
-        console.log(currentTab,mentorId,'098765432')
+      console.log(currentTab, mentorId, "098765432");
       if (
         !mentorId ||
         !currentTab ||
@@ -368,9 +377,7 @@ console.log(event,'event aanuithu')
         };
       }
       const tabCond = currentTab == "upcoming" ? false : true;
-      console.log(tabCond,currentTab,
-        'this si tab'
-      )
+      console.log(tabCond, currentTab, "this si tab");
 
       const response = await this._slotScheduleRepository.getBookedSession(
         mentorId,
@@ -385,19 +392,115 @@ console.log(event,'event aanuithu')
         };
       }
 
-     
-        return {
-          success: true,
-          message: "slots retrieved",
-          status: Status.Ok,
-          slots: response,
-        };
-      
+      return {
+        success: true,
+        message: "slots retrieved",
+        status: Status.Ok,
+        slots: response,
+      };
     } catch (error: unknown) {
       throw new Error(
         `${
           error instanceof Error ? error.message : String(error)
         } error while webhook handling in mentee service`
+      );
+    }
+  }
+  async cancelSlot(
+    sessionId: string,
+    reason: string,
+    customReason: string
+  ): Promise<{
+    success: boolean;
+    message: string;
+    status: number;
+    result: IslotSchedule | null;
+  }> {
+    try {
+      if (!sessionId || !reason || (reason == "other" && customReason == "")) {
+        return {
+          success: false,
+          message: "credential not found",
+          status: Status.BadRequest,
+          result: null,
+        };
+      }
+      let issue: string | undefined = undefined;
+      if (reason !== "other") {
+        issue = reason;
+      } else {
+        issue = customReason;
+      }
+
+      const response = await this._slotScheduleRepository.cancelSlot(
+        sessionId,
+        issue
+      );
+      if (!response) {
+        return {
+          success: false,
+          message: "something went wrong",
+          status: Status.NotFound,
+          result: null,
+        };
+      }
+      return {
+        success: true,
+        message: "cancel requested successfully",
+        status: Status.Ok,
+        result: response,
+      };
+    } catch (error: unknown) {
+      throw new Error(
+        `${
+          error instanceof Error ? error.message : String(error)
+        } error while slot cancel in  service`
+      );
+    }
+  }
+  //mentor handle cancel slot req
+  async mentorSlotCancel(
+    sessionId: string,
+    statusValue: string
+  ): Promise<{
+    success: boolean;
+    message: string;
+    status: number;
+    result: IslotSchedule | null;
+  }> {
+    try {
+      if (!sessionId || !statusValue) {
+        return {
+          success: false,
+          message: "credential not found",
+          status: Status.BadRequest,
+          result: null,
+        };
+      }
+
+      const response = await this._slotScheduleRepository.mentorSlotCancel(
+        sessionId,
+        statusValue
+      );
+      if (!response) {
+        return {
+          success: false,
+          message: "result not found ",
+          status: Status.NotFound,
+          result: null,
+        };
+      }
+      return {
+        success: true,
+        message: "cancel requested successfully",
+        status: Status.Ok,
+        result: response,
+      };
+    } catch (error: unknown) {
+      throw new Error(
+        `${
+          error instanceof Error ? error.message : String(error)
+        } error while metnor slot cancel  handle in  service`
       );
     }
   }

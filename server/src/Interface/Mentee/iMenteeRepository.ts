@@ -20,4 +20,5 @@ export interface ImenteeRepository {
     password: string
   ): Promise<Imentee | null | undefined>;
   adminLogin(email: string): Promise<Imentee | null>;
+  _find(): Promise<Imentee | null>;
 }

@@ -6,13 +6,17 @@ import { Ianswer } from "../Model/answerModel";
 import { Iquestion } from "../Model/questionModal";
 import { IcreateQuestion } from "../Types";
 import { Status } from "../Utils/httpStatusCode";
+import { InotificationRepository } from "../Interface/Notification/InotificationRepository";
+
 
 
 
 class qaService implements IqaService {
   constructor(
-    private __questionRepository: IquestionRepository,
-    private __answerRepository: IanswerRepository
+    private readonly __questionRepository: IquestionRepository,
+    private readonly __answerRepository: IanswerRepository,
+    private readonly __notificationRepository:InotificationRepository,
+
   ) { }
 
   async addQuestionService(
@@ -65,6 +69,7 @@ class qaService implements IqaService {
         };
       }
 
+     
       return {
         success: true,
         message: "Question created Successfully!",
@@ -102,7 +107,7 @@ class qaService implements IqaService {
         userId,
         filter
       );
-      console.log(response, "this is the response");
+     
       return {
         success: true,
         message: "Data retrieved successfully",
@@ -170,7 +175,7 @@ class qaService implements IqaService {
   }> {
     try {
 
-      if (!answer || !questionId || !userId || !userType) {
+      if (!answer || !questionId || !userId || !userType) { 
         return {
           success: false,
           message: "Credential missing",
@@ -178,15 +183,15 @@ class qaService implements IqaService {
           answers: null,
         };
       }
-
-      const response = await this.__answerRepository
+      const response = await this?.__answerRepository
         .createNewAnswer(
           answer,
           questionId,
           userId,
-          userType
+          userType,
         );
-      if (!response) {
+
+      if (!response?.menteeId||!response?.result) {
         return {
           success: false,
           message: "Answer not saved !unexpected error",
@@ -194,11 +199,23 @@ class qaService implements IqaService {
           answers: null,
         };
       }
+      
+      if(userId!== response?.menteeId){
+
+        await this.__notificationRepository.createNotification(
+         response?.menteeId,
+          "You've Got a New Answer!",
+          "Good news! you got replied to your question ",
+          "mentee",
+          `${process.env.CLIENT_ORIGIN_URL}/mentee/qa`
+        )
+      }
+
       const questId = questionId as unknown as string;
 
       const result = await this.__questionRepository.countAnswer(questId)
       console.log(response, 'thsi is the respnose of answer tha tcreated me ', result)
-      if (!response) {
+      if (!result){
         return {
           success: false,
           message: "Unexpected Error ! answer not created",
@@ -206,11 +223,12 @@ class qaService implements IqaService {
           answers: null,
         }
       }
+
       return {
         success: true,
         message: "Answer Created Successfully",
         status: Status.Ok,
-        answers: response,
+        answers: response?.result,
       }
 
     } catch (error: unknown) {
@@ -306,7 +324,7 @@ class qaService implements IqaService {
 
   async allQaData(search: string, status: string, sortField: string, sortOrder: string, page: string, limit: string): Promise<{ success: boolean; message: string; status: number; questions: Iquestion[] | undefined, docCount: number | undefined }> {
     try {
-      console.log(search, status, sortField, sortOrder, page, limit)
+     
       if (!status || !sortField ||
         !sortOrder || !page || !limit) {
         return {
@@ -324,7 +342,7 @@ class qaService implements IqaService {
       // pages = Math.max(pages, 1);
       const skip = (parseInt(page) - 1) * parseInt(limit);
       const respnose = await this.__questionRepository.allQaData(skip, search, status, limit, sortOrder, sortField);
-console.log(respnose,'thsi si rea')
+
       return {
         success: true,
         message: "data fetched successfully",

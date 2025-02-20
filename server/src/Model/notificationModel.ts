@@ -1,16 +1,13 @@
 import mongoose, { Schema, Document } from "mongoose";
-
-export type  Tpriority = 'less'|'medium'|'high';
+import { Ttype } from "src/Types/types";
 
 export interface Inotification extends Document {
   userId: Schema.Types.ObjectId;
   title: string;
   message: string;
   isRead: boolean;
-  userType: string;
-  priority:Tpriority;
-  isRemove:boolean;
-  url?:string
+  userType: Ttype;
+  url?: string;
 }
 
 const notificatoinSchema: Schema<Inotification> = new Schema(
@@ -20,16 +17,19 @@ const notificatoinSchema: Schema<Inotification> = new Schema(
       refPath: "userType",
       required: true,
     },
-    userType: { type: String, required: true, enum: ["mentee", "mentor","admin"] },
+    userType: {
+      type: String,
+      required: true,
+      enum: ["mentee", "mentor", "admin"],
+    },
     title: { type: String, required: true },
     message: { type: String, required: true },
     isRead: { type: Boolean, default: false },
-    priority:{type:String,enum:['low','medium','high'],default:'medium'},
-    isRemove:{type:Boolean,default:false},
-    url:{type:String,default:null}
+    url: { type: String, default: null },
   },
   {
     timestamps: true,
+    capped:{max:10,size:1000000}
   }
 );
 export default mongoose.model("notification", notificatoinSchema);

@@ -1,6 +1,6 @@
 // import { Breadcrumb } from '../../components/Common/exploreMentor/BreadCrumb';
 import { ProfileHeader } from "../../components/Common/exploreMentor/ProfileHeader";
-import { SkillsAndTopics } from "../../components/Common/exploreMentor/SkillsAndTopic";
+import { Skills } from "../../components/Common/exploreMentor/Skills";
 
 import { BookOption } from "../../components/Common/exploreMentor/BookOption";
 import MentorListByCategory from "../../components/Common/exploreMentor/MentorListByCategory";
@@ -74,7 +74,7 @@ export const MentorProfile = () => {
             <p className="text-white/90 mb-1  font-light">
               {mentorData?.email}
             </p>
-            <SkillsAndTopics skills={mentorData?.skills as string[]} />
+            <Skills skills={mentorData?.skills as string[]} />
 
             <div>
               <h2 className="text-xl font-bold mt-16 mb-4">About</h2>

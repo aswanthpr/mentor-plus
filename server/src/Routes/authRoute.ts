@@ -8,13 +8,13 @@ import upload from '../Config/multer.util';
 import mentorRepository from '../Repository/mentorRepository';
 import passport from 'passport';
 import menteeRepository from '../Repository/menteeRepository';
-
+import notificationRepository from '../Repository/notificationRepository';
 
 const __otpService = new otpService(otpRepo,menteeRepository)
-const __authService = new authService(__otpService,categoryRepository,mentorRepository,menteeRepository)
+const __authService = new authService(__otpService,categoryRepository,mentorRepository,menteeRepository,notificationRepository)
 const __authController = new authController(__authService,__otpService);
 
-const auth_Router :Router = express.Router()
+const auth_Router :Router = express.Router();
 
 //mentee auth
 auth_Router.post('/signup',__authController.menteeSignup.bind(__authController));

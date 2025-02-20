@@ -12,6 +12,7 @@ export interface IslotSchedule extends Document {
     duration: string;
     meetingLink?: string | null;
     description: string;
+    cancelReason: string | null;
 }
 declare const _default: mongoose.Model<IslotSchedule, {}, {}, {}, mongoose.Document<unknown, {}, IslotSchedule> & IslotSchedule & Required<{
     _id: unknown;

@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from "react";
 import { Table } from "../../components/Admin/Table";
-import { Pagination } from "../../components/Common/common4All/Pagination";
 import Modal from "../../components/Common/common4All/Modal";
 import { StatusBadge } from "../../components/Admin/StatusBadge";
 import {
@@ -15,12 +14,13 @@ import InputField from "../../components/Auth/InputField";
 import { API } from "../../Config/adminAxios";
 
 import Spinner from "../../components/Common/common4All/Spinner";
-import { Tooltip } from "@mui/material";
+import { Pagination, Tooltip } from "@mui/material";
 import { errorHandler } from "../../Utils/Reusable/Reusable";
 import { toast } from "react-toastify";
+import { TFilter, TSort, TSortOrder } from "../../Types/type";
 
 
-const QUESTIONS_PER_PAGE = 8;
+const QUESTIONS_PER_PAGE = 6;
 
 
 
@@ -43,6 +43,7 @@ const QA_mgt: React.FC = () => {
   const fetchQuestions = async () => {
 
     try {
+      let flag = true
       const intravel =  setTimeout(() => {
         setLoading(true)
       }, 1000);
@@ -57,11 +58,14 @@ const QA_mgt: React.FC = () => {
         },
       });
       console.log(data?.questions);
-      if (status === 200 && data?.success) {
+      if (status === 200 && data?.success&&flag) {
         setQuestions(data?.questions);
         setTotalDocuments(data?.docCount);
       }
       clearInterval(intravel)
+      return ()=>{
+        flag=false
+      }
     } catch (error) {
       console.error("Error fetching questions:", error);
     } finally{
@@ -72,7 +76,8 @@ const QA_mgt: React.FC = () => {
   useEffect(() => {
 
     fetchQuestions();
-  }, [sortField, searchQuery, sortOrder, statusFilter,currentPage]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [sortField, searchQuery, sortOrder, statusFilter, currentPage]);
 
   const filterQuestions = (questions: IQuestion[]) => {
     return questions
@@ -96,9 +101,9 @@ const QA_mgt: React.FC = () => {
             : new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
         } else {
           return sortOrder === "asc"
-            ? (a?.answers ? a?.answers : 0) - (b?.answers ? b?.answers : 0)
-            : (b?.answers ? b?.answers : 0) - (a?.answers ? a.answers : 0);
-        }
+          ? (Number(a?.answers) || 0) - (Number(b?.answers) || 0)
+          : (Number(b?.answers) || 0) - (Number(a?.answers) || 0);
+      }
       });
   };
 
@@ -187,13 +192,14 @@ const QA_mgt: React.FC = () => {
   const totalPages = Math.ceil(totalDocuments / QUESTIONS_PER_PAGE);
   const indexOfLastCategory = currentPage * QUESTIONS_PER_PAGE;
   const indexOfFirstCategory = indexOfLastCategory - QUESTIONS_PER_PAGE;
-  const currentQuestions = filteredQuestions.slice(
-    indexOfFirstCategory,
-    indexOfLastCategory
-  );
+  const currentQuestions = filteredQuestions.slice(indexOfFirstCategory, indexOfLastCategory);
+
   // (currentPage-1 ) * QUESTIONS_PER_PAGE,
   // currentPage * QUESTIONS_PER_PAGE
-
+const handlePageChange = (event: React.ChangeEvent<unknown>, value: number) => {
+  event.preventDefault()
+    setCurrentPage(value);
+  };
   return (
     <div className="p-6 pb-24">
       <h1 className="text-3xl font-bold mb-8">Q&A Management</h1>
@@ -317,15 +323,22 @@ const QA_mgt: React.FC = () => {
             ))}
           </Table>
         )}
+       <hr className="h-px my-8 bg-gray-200 border-0 dark:bg-gray-700"/>
+            <div className="flex justify-center mt-2">
+      <Pagination
+        count={totalPages}
+        page={currentPage}  // Current page
+        onChange={handlePageChange}  // Page change handler
+        color="standard"  // Pagination color
+        shape="circular"  // Rounded corners
+        size="small"  // Size of pagination
+        siblingCount={1}  // Number of sibling pages shown next to the current page
+        boundaryCount={1}  // Number of boundary pages to show at the start and end
+      />
+      </div>
       </div>
 
-      <div className="fixed bottom-0 left-0 right-0">
-      <Pagination
-      currentPage={currentPage}
-      totalPages={totalPages}
-      onPageChange={setCurrentPage}
-    />
-      </div>
+  
 
       <Modal
         isOpen={isAnswersModalOpen}

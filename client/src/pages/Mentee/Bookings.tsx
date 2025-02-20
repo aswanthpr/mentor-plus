@@ -8,6 +8,11 @@ import InputField from "../../components/Auth/InputField";
 import { errorHandler } from "../../Utils/Reusable/Reusable";
 import { protectedAPI } from "../../Config/Axios";
 import Spinner from "../../components/Common/common4All/Spinner";
+import { toast } from "react-toastify";
+import { useSelector } from "react-redux";
+import { RootState } from "../../Redux/store";
+import VideoCallModal from "../../components/Common/Bookings/VideoPage";
+import VideoContainer from "../../components/Common/Bookings/VideoContainer";
 
 const Boooking: React.FC = () => {
   const [loading, setLoading] = useState(false);
@@ -19,8 +24,31 @@ const Boooking: React.FC = () => {
   // const [showRatingModal, setShowRatingModal] = useState(false);
   // const [selectedSession, setSelectedSession] = useState<string>('');
   const [sessions, setSessions] = useState<ISession[] | []>([]);
-  const sessionsPerPage = 5;
+  const [showVideoCallModal, setShowVideoCallModal] = useState(false);
+  const [showVideoCallInterface, setShowVideoCallInterface] = useState(false);
+  const [mockParticipants] = useState([
+    {
+      id: '1',
+      name: 'John Doe',
+      avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e',
+      isMuted: false,
+      isVideoOff: false,
+    },
+    {
+      id: '2',
+      name: 'Jane Smith',
+      avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330',
+      isMuted: true,
+      isVideoOff: false,
+    },
 
+
+   
+  ]);
+  const sessionsPerPage = 5;
+  
+  const role = useSelector((state: RootState) => state?.mentee.role);
+  
   // const [sortField, setSortField] = useState<TSort>("createdAt");
   //   const [sortOrder, setSortOrder] = useState<TSortOrder>("desc");
   //   const [statusFilter, setStatusFilter] = useState<TFilter>("all");
@@ -28,12 +56,11 @@ const Boooking: React.FC = () => {
     const fetchData = async () => {
       try {
         setLoading(true);
-
-        const { status, data } = await protectedAPI.get(
-          `/mentee/booked-sessions`,
-          { params: { activeTab } }
-        );
-        console.log("haii", data.slots);
+        
+        const { status, data } = await protectedAPI.get(`/mentee/sessions`, {
+          params: { activeTab },
+        });
+        
         if (status == 200 && data?.success) {
           setSessions(data?.slots);
         }
@@ -45,16 +72,42 @@ const Boooking: React.FC = () => {
     };
     fetchData();
   }, [activeTab]);
-  console.log(sessions, "sessions");
-  const handleCancelSession = (sessionId: string) => {
-    if (window.confirm("Are you sure you want to cancel this session?")) {
-      setSessions(
-        sessions.map((session) =>
-          session?._id === sessionId
-            ? { ...session, status: "CANCELLED" }
-            : session
-        )
+  
+  
+    const handleJoinClick = (id:string,description:string,duration:string) => {
+      setShowVideoCallModal(true);
+    };
+  
+    const handleJoinCall = () => {
+      setShowVideoCallModal(false);
+      setShowVideoCallInterface(true);
+    };
+  const handleCancelSession = async (
+    sessionId: string,
+    reason: string,
+    customReason: string
+  ) => {
+    try {
+      const { status, data } = await protectedAPI.patch(
+        `/mentee/sessions/cancel_request/${sessionId}`,
+        {
+          customReason,
+          reason,
+        }
       );
+
+      if (status === 200 && data.success) {
+        setSessions(
+          sessions.map((session) =>
+            session?._id === sessionId
+              ? { ...session, status: "CANCEL_REQUESTED" }
+              : session
+          )
+        );
+        toast.success(data?.message);
+      }
+    } catch (error: unknown) {
+      errorHandler(error);
     }
   };
 
@@ -72,7 +125,11 @@ const Boooking: React.FC = () => {
   // };
 
   const filteredSessions = sessions.filter((session) => {
-    const isUpcoming = session?.status === "PENDING" || "CONFIRMED";
+    const isUpcoming =
+      session?.status === "PENDING" ||
+      session?.status === "CONFIRMED" ||
+      session?.status === "CANCEL_REJECTED" ||
+      session?.status === "CANCEL_REQUESTED";
     const isHistory =
       session?.status === "COMPLETED" || session?.status === "CANCELLED";
     const matchesSearch =
@@ -177,6 +234,9 @@ const Boooking: React.FC = () => {
                 // handleRating={handleRating}
                 key={session?._id}
                 session={session}
+                role={role}
+                handleJoin={handleJoinClick}
+               
               />
             );
           })}
@@ -229,6 +289,30 @@ const Boooking: React.FC = () => {
             currentPage={1}
             onPageChange={}
             totalPages={10}/> */}
+            {
+    showVideoCallModal && (
+        <VideoCallModal
+          isOpen={showVideoCallModal}
+          onClose={() => setShowVideoCallModal(false)}
+          onJoinCall={handleJoinCall}
+          sessionDetails={{
+            mentor: "John Doe",
+            topic: "React Development",
+            duration: "1 hour",
+          }}
+        />
+
+    )
+}
+{showVideoCallInterface &&(
+    <VideoContainer
+      isOpen={showVideoCallInterface}
+      onClose={() => setShowVideoCallInterface(false)}
+      participants={mockParticipants}
+
+    />
+
+)}
     </div>
   );
 };
