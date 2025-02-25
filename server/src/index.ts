@@ -5,32 +5,37 @@ import morgan from "morgan";
 import session from "express-session";
 import cookieParser from "cookie-parser";
 import { Server } from "socket.io";
-import dotenv from "dotenv";
-dotenv.config();
+import dotenv from "dotenv";dotenv.config();
+
+//custorm imports 
 import { fileLogger } from "./Config/logger";
-
-const app: Application = express();
-const server = http.createServer(app);
-const io = new Server(server, {
-  cors: {
-    origin: process.env.CLIENT_ORIGIN_URL,
-    methods: ["GET", "POST"],
-    credentials: true,
-  },
-});
-
 import { connectDb } from "./Config/dataBase";
 import { corsOptions } from "./Middleware/index_middleware";
-import passport from "./Config/googleAuth";
+import passport from "./Config/googleAuth"; 
 import { SocketManager } from "./Socket/socket";
+
+//routes import   
 import auth_Router from "./Routes/authRoute";
 import admin_Router from "./Routes/adminRoute";
 import mentee_Router from "./Routes/menteeRoute";
 import mentor_Router from "./Routes/mentorRoute";
 
+// Initializing the application and server
+const app: Application = express();
+const server = http.createServer(app);
+export const io = new Server(server, {
+  cors: {
+    origin: process.env.CLIENT_ORIGIN_URL as string,
+    methods: ["GET,HEAD,OPTIONS,PUT,PATCH,POST,DELETE",],
+    allowedHeaders: ["Content-Type"], 
+    credentials: true,
+  },
+});
+// connected with database
 connectDb();
 
-const socketManager = new SocketManager(io);
+//initialize the socket 
+export const socketManager = new SocketManager(io);
 socketManager.initialize();
 
 //using middlewares
@@ -56,15 +61,18 @@ app.use(
 );
 app.use(passport.initialize());
 app.use(passport.session());
-app.use(morgan("dev"));
-app.use(fileLogger); // for log to the file
 
-// Routes
+app.use(morgan("dev"));
+app.use(fileLogger); 
+
+// Routes 
 app.use("/auth", auth_Router);
 app.use("/admin", admin_Router);
 app.use("/mentee", mentee_Router);
 app.use("/mentor", mentor_Router);
 // app.use(errorLogger)
+
+//server listening
 
 server.listen(process.env.PORT, () => {
   console.log(`
@@ -80,12 +88,13 @@ server.listen(process.env.PORT, () => {
 ░  ░      ░ ░ ░  ░░ ░░   ░ ▒░    ░      ░ ▒ ▒░   ░▒ ░ ▒░   ░▒ ░     ░ ░ ▒  ░░░▒░ ░ ░ ░ ░▒  ░ ░
 ░      ░      ░      ░   ░ ░   ░      ░ ░ ░ ▒    ░░   ░    ░░         ░ ░    ░░░ ░ ░ ░  ░  ░  
        ░      ░  ░         ░              ░ ░     ░                     ░  ░   ░           ░  
-                                                                                          \x1b[0
+\x1b[0
 \x1b[1;32m******************************\x1b[0m
 \x1b[1;33m🌟 Server is up! 🌟\x1b[0m
 \x1b[1;34mServer running at http://localhost:${process.env.PORT}\x1b[0m
 \x1b[1;36mCurrent Time: ${new Date().toLocaleString()}\x1b[0m
 \x1b[1;32m******************************\x1b[0m`);
 });
-
+ 
 export default app;
+  

@@ -15,20 +15,21 @@ const mentorAuthorize = async (
         const authHeader = req.headers.authorization;
         if (!authHeader || !authHeader.startsWith('Bearer')) {
             res.status(Status.Forbidden).json({ success: false, message: "Unauthorized. No token provided.", user: false })
-            console.log('authHeader ')
-
+            return 
         }
 
         const token: string | undefined = authHeader?.split(' ')[1];
         if (!token) {
-            res.status(Status.Forbidden).json({ success: false, message: "You do not have permission to access this resource.", user: false }); return
+            res.status(Status.Forbidden).json({ success: false, message: "You do not have permission to access this resource.", user: false });
+             return
         }
 
         const decode = verifyAccessToken(token as string);
 
 
         if (!decode || !decode.userId) {
-            res.status(Status.Forbidden).json({ success: false, message: "You do not have permission to access this resource.", user: false }); return
+            res.status(Status.Forbidden).json({ success: false, message: "You do not have permission to access this resource.", user: false });
+             return
         }
 
         const menteeData = await mentorModel.findById(decode?.userId);

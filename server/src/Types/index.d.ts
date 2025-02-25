@@ -96,3 +96,15 @@ interface IchatWithUser {
     users?:Imentee|Imentor
  
 }
+ interface IMessage {
+  chatId:string;
+  senderId:string;
+  receiverId: string;
+  senderType: "mentee" | "mentor";
+  content: string;
+  seen: boolean;
+  messageType: string;
+  mediaUrl: string;
+  createdAt: string;
+  updatedAt: string;
+}

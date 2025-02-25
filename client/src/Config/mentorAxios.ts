@@ -4,7 +4,7 @@ import { clearMentorToken, setMentorToken } from "../Redux/mentorSlice";
 
 // Initialize Axios instances
 export const axiosInstance = axios.create({
-  baseURL: "http://localhost:3000",
+  baseURL: import.meta.env.VITE_SERVER_URL,
   headers: {
     "Content-type": "application/json",
   },

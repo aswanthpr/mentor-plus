@@ -1,3 +1,5 @@
+
+
 interface IMentee {
   _id: string;
   bio: string;
@@ -29,7 +31,7 @@ interface Inotification {
   title: string;
   message: string;
   isRead: boolean;
-  userType: "mentor" | "mentee";
+  userType:"mentor" | "mentee" | "admin",
   url?: string;
   createdAt: string;
 }

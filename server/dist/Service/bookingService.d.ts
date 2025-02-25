@@ -7,12 +7,14 @@ import { Itimes } from "../Types";
 import { IslotSchedule } from "../Model/slotSchedule";
 import { Itime } from "../Model/timeModel";
 import { InotificationRepository } from "../Interface/Notification/InotificationRepository";
+import { IchatRepository } from "src/Interface/chat/IchatRepository";
 export declare class bookingService implements IbookingService {
     private readonly _timeSlotRepository;
     private readonly _slotScheduleRepository;
     private readonly _notificationRepository;
+    private readonly _chatRepository;
     private readonly stripe;
-    constructor(_timeSlotRepository: ItimeSlotRepository, _slotScheduleRepository: IslotScheduleRepository, _notificationRepository: InotificationRepository, stripe?: Stripe);
+    constructor(_timeSlotRepository: ItimeSlotRepository, _slotScheduleRepository: IslotScheduleRepository, _notificationRepository: InotificationRepository, _chatRepository: IchatRepository, stripe?: Stripe);
     getTimeSlots(mentorId: string): Promise<{
         success: boolean;
         message: string;

@@ -38,6 +38,7 @@ const __bookingService = new bookingService(
   timeSlotRepository,
   slotScheduleRepository,
   notificationRepository,
+  chatRepository,
   new Stripe(process.env.STRIPE_SECRET_KEY as string, {
     apiVersion: "2025-01-27.acacia",
     maxNetworkRetries: 4,
@@ -174,6 +175,8 @@ mentee_Router.get(`/notification`,authorize,__notificationController.getNotifica
 
 mentee_Router.patch(`/notification-read/:notificationId`,authorize,__notificationController.markAsReadNotif.bind(__notificationController));
 
-mentee_Router.get(`/chat`,authorize,__chatController.getChats.bind(__chatController));
+mentee_Router.get("/chats",authorize,__chatController.getChats.bind(__chatController));
+
+mentee_Router.get("/messages",authorize,__chatController.getUserMessage.bind(__chatController));
 
 export default mentee_Router;

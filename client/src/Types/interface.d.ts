@@ -47,8 +47,16 @@ interface ISession {
     lastMessage: string;
     createdAt: string;
     updatedAt: string;
-    users:IMentee|IMentor|null
-    online?:boolean;
+    users:{
+      _id:string;
+      name:string;
+      online?:boolean;
+      email: string,
+      phone:string,
+      profileUrl:string,
+      linkedinUrl:string,
+      githubUrl: string
+    }
   };
 
    interface Imessage {
@@ -56,7 +64,7 @@ interface ISession {
     chatId:string;
     senderId:string;
     receiverId:string;
-    senderType:"mentee"|"mentor";
+    senderType:string;
     content:string;
     seen?:boolean;
     messageType?:string;

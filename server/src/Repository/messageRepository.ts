@@ -22,6 +22,17 @@ class messageRepository
     }
   }
 
+async createMessage(data:Partial<Imessage>):Promise<Imessage|null>{
+  try {
+    return this.createDocument(data)
+  } catch (error:unknown) {
+    throw new Error(
+      `${"\x1b[35m%s\x1b[0m"}error while creating message slot :${
+        error instanceof Error ? error.message : String(error)
+      }`
+    );
+  }
+}
 
 }
 export default new messageRepository();

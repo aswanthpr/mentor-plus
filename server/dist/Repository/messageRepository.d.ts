@@ -8,4 +8,4 @@ declare class messageRepository extends baseRepository<Imessage> implements Imes
 }
 declare const _default: messageRepository;
 export default _default;
-//# sourceMappingURL=messgeRepository.d.ts.map
+//# sourceMappingURL=messageRepository.d.ts.map

@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Outlet } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-// import {io,Socket} from 'socket.io-client'
+
 
 import {
   Home,
@@ -18,6 +18,7 @@ import { protectedAPI } from "../../Config/Axios";
 import { toast } from "react-toastify";
 import { markAsRead, setNotification } from "../../Redux/notificationSlice";
 import { RootState } from "../../Redux/store";
+import { connectToNotifications, disconnectNotificationSocket } from "../../Socket/connect";
 
 interface INavItem {
   name: string;
@@ -42,7 +43,7 @@ const Mentee_Page: React.FC = () => {
 
   const [isSideBarOpen, setIsSideBarOpen] = useState<boolean>(false);
   const [searchValue, setSearchValue] = useState<string>("");
-  // const [userId,setUserId] = useState<string>('')
+  const [userId,setUserId] = useState<string>("")
 
   useEffect(() => {
     let flag = true;
@@ -50,11 +51,17 @@ const Mentee_Page: React.FC = () => {
     const fetchData = async () => {
       try {
         const { data, status } = await protectedAPI.get(`/mentee/notification`);
-        console.log(data, status);
+      
         if (flag && status == 200 && data.success) {
+          const user_Id = data.result[0]['userId'] as string;
+          setUserId(user_Id);
           dispatch(
-            setNotification({ userType: "mentee", notification: data?.result })
+            setNotification({ userType: "mentee", notification: data['result'] })
           );
+          if(user_Id){
+
+            connectToNotifications(userId,'mentee')
+          }
         }
       } catch (error: unknown) {
         console.log(
@@ -66,13 +73,11 @@ const Mentee_Page: React.FC = () => {
     fetchData();
     return () => {
       flag = false;
+      disconnectNotificationSocket();
     };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [dispatch]);
 
-  useEffect(() => {
-
-
-  }, []);
   const ToggleSideBar = () => {
     setIsSideBarOpen(!isSideBarOpen);
   };
@@ -102,15 +107,6 @@ const Mentee_Page: React.FC = () => {
       console.log(`${error instanceof Error ? error.message : String(error)}`);
     }
   };
-  // useEffect(() => {
-  //   // Disable scrolling when the component mounts
-  //   document.body.style.overflow = 'hidden';
-  
-  //   // Clean up to re-enable scrolling when the component unmounts
-  //   return () => {
-  //     document.body.style.overflow = 'auto';
-  //   };
-  // }, []);
   return (
     <div className="h-screen bg-gray-50">
       <Header

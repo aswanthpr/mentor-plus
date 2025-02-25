@@ -86,15 +86,16 @@ const Login: React.FC = () => {
         }
       });
       setErrors(newErrors);
-
+      
       if (Object.keys(newErrors).length === 0) {
+        
         if (userType == "mentee") {
-          console.log("hiaii", formData);
+         
           const response = await protectedAPI.post(
-            "http://localhost:3000/auth/login/mentee",
+            `/auth/login/mentee`,
             formData
           );
-          console.log(response.data, "response from mentee login");
+          
           if (response.status == 200) {
             dispatch(
               setAccessToken({
@@ -106,16 +107,18 @@ const Login: React.FC = () => {
             toast.success(response.data.message);
 
             navigate("/mentee/home");
+          
           }
         }
         if (userType == "mentor") {
           setLoading(true);
           const response = await axiosInstance.post(
-            "http://localhost:3000/auth/login/mentor",
+            "/auth/login/mentor",
             formData
           );
 
           if (response.status == 200 && response.data.success) {
+            
             dispatch(
               setMentorToken({
                 mentorToken: response.data?.accessToken,
@@ -127,10 +130,10 @@ const Login: React.FC = () => {
               "thsi is from redux",
               response.data
             );
-            toast.success(response.data.message);
-
+            
             navigate("/mentor/home");
           }
+          toast.success(response.data.message);
         }
       }
     } catch (error: unknown) {
@@ -145,7 +148,7 @@ const Login: React.FC = () => {
   const handleSocialLogin = async (provider: string) => {
    if(provider ==='google'){
 
-    window.location.href=`http://localhost:3000/auth/google` ;
+    window.location.href=`${import.meta.env.VITE_SERVER_URL}/auth/google` ;
    }
   };
 

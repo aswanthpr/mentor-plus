@@ -75,7 +75,7 @@ const Schedule: React.FC = () => {
     schedule: TimeSlot[];
   }) => {
     try {
-      console.log(scheduleData, "00000000000");
+    
       const response = await axiosInstance.post(
         `/mentor/schedule/create-slots`,
         scheduleData
@@ -84,17 +84,7 @@ const Schedule: React.FC = () => {
         toast.success(response.data?.message);
         setTimeSlots((pre) => [...response.data.timeSlots, ...pre]);
 
-        console.log(response.data, "this is the data  in the response");
       }
-      // {      const formattedTimeSlots = scheduleData.schedule.map((slot)=>{
-      //         return {
-      //           ...slot,
-
-      //           startTime:moment(slot?.startTime,'HH:mm').format('hh:mm a '),
-      //           endTime:moment(slot?.endTime,'HH:mm').format('hh:mm a')
-      //       }
-      //       })
-      //       setTimeSlots(formattedTimeSlots)}
       console.error(response.data, "failed resonse response");
     } catch (error: unknown) {
       errorHandler(error);
@@ -131,8 +121,7 @@ const Schedule: React.FC = () => {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {filteredTimeSlots.map((slot) => {
           const startDate = moment(slot?.startDate).format("DD-MM-YYYY");
-          console.log(slot.startDate, "0000");
-          console.log({ ...slot }, typeof slot.startDate, "this is slot");
+         
           const startTime = moment(slot?.startTime).format("hh:mm A");
           const endTime = moment(slot?.endTime).format("hh:mm A");
           return (

@@ -24,7 +24,7 @@ import slotScheduleRepository from "../Repository/slotScheduleRepository";
 import notificationRepository from "../Repository/notificationRepository";
 
 const __mentorService = new mentorService(
-  mentorRepository,
+  mentorRepository, 
   categoryRepository,
   questionRepository,
   timeSlotRepository,
@@ -34,8 +34,12 @@ const __mentorService = new mentorService(
 const __mentorController = new mentorController(__mentorService);
 const __qaService = new qaService(questionRepository, answerRepository,notificationRepository);
 const __qaController = new qaController(__qaService);
-const __bookingService = new bookingService(  timeSlotRepository,
-    slotScheduleRepository,notificationRepository);
+const __bookingService = new bookingService(  
+  timeSlotRepository,
+    slotScheduleRepository,
+    notificationRepository,
+    chatRepository,
+  );
 const __bookingController = new bookingControlelr(__bookingService)
 const __notificationService = new notificationService(notificationRepository);
 const __notificationController = new notificationController(__notificationService);
@@ -96,4 +100,6 @@ mentor_Router.get(`/notification`,mentorAuthorize,__notificationController.getNo
 mentor_Router.patch(`/notification-read/:notificationId`,mentorAuthorize,__notificationController.markAsReadNotif.bind(__notificationController));
 
 mentor_Router.get(`/chats`,mentorAuthorize,__chatController.getChats.bind(__chatController));
+mentor_Router.get("/messages",mentorAuthorize,__chatController.getUserMessage.bind(__chatController));
 export default mentor_Router;
+

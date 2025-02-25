@@ -1,4 +1,3 @@
-import axios from "axios";
 import React, { useState } from "react";
 import { EyeClosedIcon, EyeIcon  } from "lucide-react";
 import { toast } from "react-toastify";
@@ -14,6 +13,7 @@ import {
   validateConfirmPassword,
 } from "../../Validation/Validation";
 import { errorHandler } from "../../Utils/Reusable/Reusable";
+import { unProtectedAPI } from "../../Config/Axios";
 
 interface IFormErrors {
   name?: string;
@@ -67,7 +67,7 @@ const SignupForm:React.FC = () => {
         return undefined;
     }
   };
-
+ 
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -85,8 +85,8 @@ const SignupForm:React.FC = () => {
     if (Object.keys(newErrors).length === 0) {
       setLoading(true)
       try { 
-        const response = await axios.post("http://localhost:3000/auth/signup", formData);
-        console.log(response, "this is response");
+        const response = await unProtectedAPI.post("/auth/signup", formData);
+       
         if (response.status == 200) {
           setLoading(false)
           setShowOtpModal(true);
@@ -111,7 +111,7 @@ const SignupForm:React.FC = () => {
     
     setLoading(true)
     console.log("Verifying OTP:", otp,email);;
-    const response = await axios.post('http://localhost:3000/auth/verify-otp',{email,otp,type:'signup'});
+    const response = await unProtectedAPI.post('/auth/verify-otp',{email,otp,type:'signup'});
 
     console.log(response,'this is the response',response.data);
     if(response.status==200&&response.data.success){
@@ -131,7 +131,7 @@ const SignupForm:React.FC = () => {
   const handleResendOtp = async()=>{
     try {
       const {email} = formData;
-      const response = await axios.post('http://localhost:3000/auth/resend-otp',{email});
+      const response = await unProtectedAPI.post('/auth/resend-otp',{email});
       if(response.status == 200){
         toast.success(response.data.message||'OTP resend successfull')
       }else{
@@ -166,7 +166,7 @@ const SignupForm:React.FC = () => {
               onClick={() => handleSocialLogin("LinkedIn")}
             /> */}
             <button
-              onClick={() => (window.location.href = 'http://localhost:3000/auth/google')}
+              onClick={() => (window.location.href = `${import.meta.env.VITE_SERVER_URL}auth/google`)}
               className="w-full flex items-center justify-center gap-2 px-4 py-2 border-2 border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
             >
               <img

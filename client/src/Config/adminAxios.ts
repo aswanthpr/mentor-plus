@@ -4,14 +4,14 @@ import { clearToken, setToken } from "../Redux/adminSlice";
 
 // Initialize Axios instances
 export const API = axios.create({
-  baseURL: "http://localhost:3000",
+  baseURL:import.meta.env.VITE_SERVER_URL, 
   headers: {
     "Content-type": "application/json",
   },
   withCredentials: true,//this is required to sending cookies
 });
 export const unAPI = axios.create({
-  baseURL: "http://localhost:3000",
+  baseURL:import.meta.env.VITE_SERVER_URL,
   headers: {
     "Content-type": "application/json",
   },

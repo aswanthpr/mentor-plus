@@ -7,9 +7,8 @@ import { Iquestion } from "../Model/questionModal";
 import { IcreateQuestion } from "../Types";
 import { Status } from "../Utils/httpStatusCode";
 import { InotificationRepository } from "../Interface/Notification/InotificationRepository";
-
-
-
+import { socketManager } from "../index";
+import { Inotification } from "../Model/notificationModel";
 
 class qaService implements IqaService {
   constructor(
@@ -202,15 +201,16 @@ class qaService implements IqaService {
       
       if(userId!== response?.menteeId){
 
-        await this.__notificationRepository.createNotification(
+       const notif =  await this.__notificationRepository.createNotification(
          response?.menteeId,
           "You've Got a New Answer!",
           "Good news! you got replied to your question ",
           "mentee",
           `${process.env.CLIENT_ORIGIN_URL}/mentee/qa`
         )
+        const  user_Id = String(response?.menteeId);
+        socketManager.sendNotification(user_Id,notif as Inotification);
       }
-
       const questId = questionId as unknown as string;
 
       const result = await this.__questionRepository.countAnswer(questId)

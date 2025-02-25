@@ -22,4 +22,21 @@ export class chatController implements IchatController {
       );
     }
   }
+  // get user messages
+  async getUserMessage(req: Request, res: Response): Promise<void> {
+    try {
+      const {chatId}  = req.query;
+      console.log(chatId,'this si the chat id');
+      const {message,result,status,success} = await this._chatService.getUserMessage(chatId as string);
+      res.status(status).json({message,result,success});
+
+    } catch (error:unknown) {
+      throw new Error(
+        `Error while  getting user messages  from  chat controller  ${
+          error instanceof Error ? error.message : String(error)
+        }`
+      );
+    }
+  }
+ 
 }

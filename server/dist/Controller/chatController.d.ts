@@ -5,5 +5,6 @@ export declare class chatController implements IchatController {
     private _chatService;
     constructor(_chatService: IchatService);
     getChats(req: Request, res: Response): Promise<void>;
+    getUserMessage(req: Request, res: Response): Promise<void>;
 }
 //# sourceMappingURL=chatController.d.ts.map

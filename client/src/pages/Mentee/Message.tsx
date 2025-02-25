@@ -1,172 +1,215 @@
-import React, { useState, useRef, useEffect, useLayoutEffect } from 'react';
-import { Search, Send, Paperclip, Mic, X, } from 'lucide-react';
-import { format } from 'date-fns';
-import { connectToChat } from '../../Socket/connect';
-import { errorHandler } from '../../Utils/Reusable/Reusable';
-import { protectedAPI } from '../../Config/Axios';
-import { checkOnline, disconnect, joinRoom, listenOnline, registerUser, sendMessage } from '../../Socket/socketService';
+import React, { useState, useRef, useEffect } from "react";
+import { Search, Send, Paperclip, Mic, X } from "lucide-react";
 
-interface Message {
-  id: string;
-  senderId: string;
-  content: string;
-  timestamp: string;
-  type: 'text' | 'image' | 'document' | 'audio';
-  fileUrl?: string;
-  fileName?: string;
-}
-
-// Mock data
-// const mockUsers: User[] = [
-//   {
-//     id: '1',
-//     name: 'John Doe',
-//     avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e',
-//     lastMessage: 'Thanks for the session!',
-//     lastMessageTime: '10:30 AM',
-//     unreadCount: 2,
-//     online: true,
-//   },
-// ];
-
-// const mockMessages: Message[] = [
-//   {
-//     id: '1',
-//     senderId: '1',
-//     content: 'Hi, how are you?',
-//     timestamp: '10:30 AM',
-//     type: 'text',
-//   },
-//   {
-//     id: '2',
-//     senderId: 'me',
-//     content: 'I\'m good, thanks! How about you?',
-//     timestamp: '10:31 AM',
-//     type: 'text',
-//   },
-// ];
+import { errorHandler } from "../../Utils/Reusable/Reusable";
+import { protectedAPI } from "../../Config/Axios";
+import { Socket } from "socket.io-client";
+import { connectToChat } from "../../Socket/connect";
+import { axiosInstance } from "../../Config/mentorAxios";
 
 const Message: React.FC = () => {
-  const [selectedUser, setSelectedUser] = useState<Ichat| null>(null);
-  const [users,setUsers] = useState<Ichat[]|[]>([]);
-  const [userId,setUserId] = useState<string>("");
-  const [messages, setMessages] = useState<Imessage[]|[]>([]);
-  const [messageInput, setMessageInput] = useState('');
+  const [selectedUser, setSelectedUser] = useState<Ichat | undefined>(
+    undefined
+  );
+  // const [selectedChat,setSelectedChat] = useState<Imessage[]|[]>([]);
+  const [users, setUsers] = useState<Ichat[] | []>([]);
+  // const [userId, setUserId] = useState<string>("");
+  // const [messages, setMessages] = useState<Imessage[] | []>([]);
+  const [messageInput, setMessageInput] = useState("");
   const [isRecording, setIsRecording] = useState(false);
   const [recordingTime, setRecordingTime] = useState(0);
   const [audioBlob, setAudioBlob] = useState<Blob | null>(null);
-  const [searchQuery, setSearchQuery] = useState('');
+  const [searchQuery, setSearchQuery] = useState("");
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const [currentUser, setCurrentUser] = useState<string>("");
 
   const fileInputRef = useRef<HTMLInputElement>(null);
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const chunksRef = useRef<Blob[]>([]);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const selectedChatRef = useRef<Imessage[]>([]);
+  const userId = useRef<string>("");
+  const chatSocket = useRef<Socket | null>(null);
 
-  const chatSocket = connectToChat();
+  useEffect(() => {
+    const usr = location.pathname.split("/")![1];
+    setCurrentUser(usr);
+    let flag = true;
+    const fetchChat = async () => {
+      try {
+        const { status, data } = await (usr=="mentee"?protectedAPI:axiosInstance).get(`/${usr}/chats`, {
+          params: { role: usr },
+        });
+
+        if (flag && status == 200 && data) {
+          setUsers([...data.result]);
+          userId.current = data?.userId;
+        }
+      } catch (error: unknown) {
+        errorHandler(error);
+      }
+    };
+    if (flag) {
+      fetchChat();
+    }
+
+    return () => {
+      flag = false;
+    };
+  }, []);
+
+  useEffect(() => {
+    if (userId.current && !chatSocket.current) {
+      chatSocket.current = connectToChat(userId.current) as Socket;
+    }
+
+    if (!chatSocket.current) return;
+
+    chatSocket.current.on("connect", () => {
+      console.log(
+        "Connected to chat namespace with ID:",
+        chatSocket.current?.id
+      );
+    });
+    chatSocket.current.on("disconnect", () => {
+      console.log("Disconnected from chat namespace");
+    });
+    chatSocket.current.on("userOnline", (data) => {
+      console.log(userId.current, data.userId, "User Online:", data.userId);
+      setUsers((pre) =>
+        pre.map((usr) =>
+          usr.users?._id === data?.userId
+            ? { ...usr, users: { ...usr.users, online: true } }
+            : usr
+        )
+      );
+    });
+
+    chatSocket.current.on("userOffline", (data) => {
+      setUsers((pre) =>
+        pre.map((usr) =>
+          usr.users?._id === data?.userId
+            ? { ...usr, users: { ...usr.users, online: false } }
+            : usr
+        )
+      );
+      console.log("user goes offline");
+    });
+    chatSocket.current.on("receive-message", (data) => {
+      console.log(data.result, data.roomId, "messagerecieved");
+    });
+    // chatSocket.on("reconnect", (attempt) => {
+    //   console.log(`Reconnected after ${attempt} attempts`);
+    // });
+
+    chatSocket.current.on("connect_error", (err) => {
+      console.error("Connection error:", err);
+    });
+    return () => {
+      if (!chatSocket.current) return;
+      chatSocket.current.off("userOnline");
+      chatSocket.current.off("userOffline");
+      chatSocket.current.off("connect");
+      chatSocket.current.off("disconnect");
+      chatSocket.current.off("connect_error");
+    };
+  }, [chatSocket, users]);
 
   useEffect(() => {
     if (messagesEndRef.current) {
-      messagesEndRef.current.scrollIntoView({ behavior: 'smooth' });
+      messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
     }
-  }, [messages]);
+  }, [selectedChatRef]);
 
-  const filteredUsers = users.filter(user =>
+  const filteredUsers = users.filter((user) =>
     user.users?.name.toLowerCase().includes(searchQuery.toLowerCase())
   );
+  console.log(currentUser, "currentUser");
 
-useLayoutEffect(()=>{
-  let flag = true
-const fetchChat = async ()=>{
-try {
-  const {status,data} = await protectedAPI(`/mentee/chat`,{params:{role:'mentee'}});
+  const getMessage = async (chatId: string): Promise<void> => {
+    try {
+      const { status, data } = await (currentUser=='mentee'?protectedAPI:axiosInstance).get(
+        `/${currentUser}/messages`,
+        { params: chatId }
+      );
 
-  if(flag && status ==200 && data){
-    setUsers([...data.result]);
-    setUserId(data?.userId)
-  }
-} catch (error:unknown) {
-  errorHandler(error)
-}
-}
-if(flag){
-  fetchChat()
-}
-  if (userId) {
-      registerUser(userId);
+      if (status == 200 && data.success) {
+        // setSelectedChat(data?.result);
+        selectedChatRef.current = data?.result;
+      }
+    } catch (error: unknown) {
+      console.error(error instanceof Error ? error.message : String(error));
     }
-  return () => {
-   
-    flag = false
-    registerUser(userId);
   };
-},[])
+  const handleSelectedUser = async (user: Ichat) => {
+    if (selectedUser?._id !== user?._id) {
+      selectedChatRef.current = [];
+    }
 
-const handleSelectedUser = (user:Ichat)=>{
-  setSelectedUser(user); // save the selected User
-  checkOnline(user?.mentorId as string); // for check the opposite person online
-  joinRoom(user?._id,userId); // join to the chat room
- }
-  useEffect(()=>{
- listenOnline((data)=>{
-   setSelectedUser((pre)=>{
-     if(pre&&pre._id ===data?.userId){
-       return {...pre,"online":data?.online}
-     }else{
-       return pre
-     }
-   })
- });
- return ()=>{
-   disconnect('userOnline')
- }
-  },[])
+    setSelectedUser(user); // save the selected User
+    console.log(user, "thsi si the seledted user");
+    if (chatSocket.current) {
+      chatSocket.current.emit("join-room", { roomId: user["_id"] });
+    }
+    console.log(user?._id, "roomid");
+    const res = await getMessage(user?._id);
+    console.log(res, "this si get message", selectedChatRef);
+  };
+
   const handleSendMessage = () => {
     if (messageInput.trim() || selectedFile || audioBlob) {
-          const newMessage:Imessage = {
-            chatId: selectedUser?._id as string,
-            senderId: selectedUser?.menteeId as string,
-            receiverId: selectedUser?.mentorId as string,
-            content: messageInput.trim(),
-            senderType: "mentee",
-    
-          };
-       
-    
-          if (selectedFile) {
-            newMessage.messageType = selectedFile.type.startsWith("image/")
-              ? "image"
-              : "document";
-            newMessage.mediaUrl = previewUrl || "";
-            // newMessage.fileName = selectedFile.name;
-          } else if (audioBlob) {
-            newMessage.messageType = "audio";
-            newMessage.mediaUrl = URL.createObjectURL(audioBlob);
-          }
-         
-          setMessages([...messages, newMessage]);
-          setMessageInput("");
-          setSelectedFile(null);
-          setPreviewUrl(null);
-          setAudioBlob(null);
-          sendMessage(
-            newMessage?.chatId,
-            newMessage?.senderId,
-            newMessage.receiverId,
-            newMessage.senderType,
-            newMessage?.content,
-           newMessage?.messageType,
-            newMessage?.mediaUrl,
-          )//socket send message
-        }
-  };
+      let senderId: string;
+      let receiverId: string;
+      if (currentUser == "mentee") {
+        senderId = selectedUser?.menteeId as string;
+        receiverId = selectedUser?.mentorId as string;
+      } else {
+        senderId = selectedUser?.mentorId as string;
+        receiverId = selectedUser?.menteeId as string;
+      }
 
+      const newMessage: Imessage = {
+        chatId: selectedUser?._id as string,
+        senderId,
+        receiverId,
+        content: messageInput.trim(),
+        senderType: currentUser,
+        messageType: "text",
+      };
+
+      if (selectedFile) {
+        newMessage.messageType = selectedFile.type.startsWith("image/")
+          ? "image"
+          : "document";
+        newMessage.mediaUrl = previewUrl || "";
+        // newMessage.fileName = selectedFile.name;
+      } else if (audioBlob) {
+        newMessage.messageType = "audio";
+        newMessage.mediaUrl = URL.createObjectURL(audioBlob);
+      }
+
+      // setMessages([...selectedChatRef.current, newMessage]);
+      console.log(newMessage, "thsi si the new mewsage");
+      if (chatSocket.current) {
+        chatSocket.current?.emit("new-message", {
+          roomId: selectedUser?._id,
+          message: newMessage,
+        });
+      }
+      selectedChatRef.current.push(newMessage);
+      setMessageInput("");
+      setSelectedFile(null);
+      setPreviewUrl(null);
+      setAudioBlob(null);
+    }
+  };
+  console.log(selectedChatRef.current, "chat", selectedUser);
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
       setSelectedFile(file);
-      if (file.type.startsWith('image/')) {
+      if (file.type.startsWith("image/")) {
         const reader = new FileReader();
         reader.onloadend = () => {
           setPreviewUrl(reader.result as string);
@@ -188,9 +231,9 @@ const handleSelectedUser = (user:Ichat)=>{
       };
 
       mediaRecorder.onstop = () => {
-        const blob = new Blob(chunksRef.current, { type: 'audio/webm' });
+        const blob = new Blob(chunksRef.current, { type: "audio/webm" });
         setAudioBlob(blob);
-        stream.getTracks().forEach(track => track.stop());
+        stream.getTracks().forEach((track) => track.stop());
       };
 
       mediaRecorder.start();
@@ -202,12 +245,12 @@ const handleSelectedUser = (user:Ichat)=>{
         setRecordingTime(Math.floor((Date.now() - startTime) / 1000));
       }, 1000);
 
-      mediaRecorder.addEventListener('stop', () => {
+      mediaRecorder.addEventListener("stop", () => {
         clearInterval(timerInterval);
         setRecordingTime(0);
       });
     } catch (error) {
-      console.error('Error accessing microphone:', error);
+      console.error("Error accessing microphone:", error);
     }
   };
 
@@ -221,10 +264,9 @@ const handleSelectedUser = (user:Ichat)=>{
   const formatTime = (seconds: number) => {
     const mins = Math.floor(seconds / 60);
     const secs = seconds % 60;
-    return `${mins}:${secs.toString().padStart(2, '0')}`;
+    return `${mins}:${secs.toString().padStart(2, "0")}`;
   };
 
-  console.log(selectedUser);
   return (
     <div className="h-[calc(100vh-4rem)] pt-10 flex">
       {/* Users List */}
@@ -246,9 +288,9 @@ const handleSelectedUser = (user:Ichat)=>{
           {filteredUsers.map((user) => (
             <button
               key={user.users?._id}
-              onClick={()=>handleSelectedUser(user as Ichat)}
+              onClick={() => handleSelectedUser(user as Ichat)}
               className={`w-full p-4 flex items-center gap-4 hover:bg-gray-50 ${
-                selectedUser?._id === user.users?._id ? 'bg-gray-50' : ''
+                selectedUser?._id === user.users?._id ? "bg-gray-50" : ""
               }`}
             >
               <div className="relative">
@@ -257,16 +299,23 @@ const handleSelectedUser = (user:Ichat)=>{
                   alt={user.users?.name}
                   className="w-12 h-12 rounded-full"
                 />
-                {/* {user?.online && (
-                  <span className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 rounded-full border-2 border-white" />
-                )} */}
+
+                {user.users?.online && (
+                  <span
+                    className={`absolute bottom-0 right-0 w-3 h-3 bg-green-500 rounded-full border-2 border-white`}
+                  />
+                )}
               </div>
               <div className="flex-1 min-w-0">
                 <div className="flex justify-between items-start">
-                  <p className="font-medium text-gray-900 truncate">{user?.users?.name}</p>
+                  <p className="font-medium text-gray-900 truncate">
+                    {user?.users?.name}
+                  </p>
                   {/* <span className="text-xs text-gray-500">{user?.lastMessageTime}</span> */}
                 </div>
-                <p className="text-sm text-gray-500 truncate">{user.lastMessage}</p>
+                <p className="text-sm text-gray-500 truncate">
+                  {user.lastMessage}
+                </p>
               </div>
               {/* {user.unreadCount > 0 && (
                 <span className="bg-[#ff8800] text-white text-xs font-medium px-2 py-1 rounded-full">
@@ -290,7 +339,9 @@ const handleSelectedUser = (user:Ichat)=>{
                 className="w-10 h-10 rounded-full"
               />
               <div>
-                <h2 className="font-medium text-gray-900">{selectedUser?.users?.name}</h2>
+                <h2 className="font-medium text-gray-900">
+                  {selectedUser?.users?.name}
+                </h2>
                 {/* <p className="text-sm text-gray-500">
                   {selectedUser.online ? 'Online' : 'Offline'}
                 </p> */}
@@ -298,49 +349,64 @@ const handleSelectedUser = (user:Ichat)=>{
             </div>
 
             {/* Messages */}
-            <div className="flex-1 overflow-y-auto p-4">
-              <div className="space-y-4">
-                {messages?.map((message) => (
+            <div
+              className="flex-1 overflow-y-auto p-4"
+              key={`${selectedUser?._id}`}
+            >
+              {selectedChatRef?.current?.map((message, index) => (
+                <div className="space-y-4" key={message?._id || index}>
                   <div
-                    key={message?._id}
-                    className={`flex ${message.senderId === 'me' ? 'justify-end' : 'justify-start'}`}
+                    className={`flex ${
+                      message.senderId !== selectedUser?._id
+                        ? "justify-end items-end "
+                        : "justify-start"
+                    }`}
                   >
                     <div
                       className={`max-w-[70%] rounded-lg p-3 ${
-                        message.senderId === 'me'
-                          ? 'bg-[#ff8800] text-white'
-                          : 'bg-white border border-gray-200'
+                        message.senderId !== selectedUser?._id
+                          ? "bg-[#ff8800] text-white"
+                          : "bg-white border border-gray-200"
                       }`}
                     >
-                      {message.messageType === 'text' && (
+                      {message.messageType === "text" && (
                         <p>{message.content}</p>
                       )}
-                      {message.messageType === 'image' && message?.mediaUrl && (
+                      {message.messageType === "image" && message?.mediaUrl && (
                         <img
                           src={message?.mediaUrl}
                           alt="Shared image"
                           className="rounded-lg max-w-full"
                         />
                       )}
-                      {message.messageType === 'document' && message?.mediaUrl && (
-                        <div className="flex items-center gap-2">
-                          <Paperclip className="h-4 w-4" />
-                          <span>{message?.mediaUrl}</span>
-                        </div>
+                      {message.messageType === "document" &&
+                        message?.mediaUrl && (
+                          <div className="flex items-center gap-2">
+                            <Paperclip className="h-4 w-4" />
+                            <span>{message?.mediaUrl}</span>
+                          </div>
+                        )}
+                      {message.messageType === "audio" && message?.mediaUrl && (
+                        <audio
+                          src={message?.mediaUrl}
+                          controls
+                          className="w-full"
+                        />
                       )}
-                      {message.messageType === 'audio' && message?.mediaUrl && (
-                        <audio src={message?.mediaUrl} controls className="w-full" />
-                      )}
-                      <span className={`text-xs ${
-                        message.senderId === 'me' ? 'text-white/80' : 'text-gray-500'
-                      } block mt-1`}>
+                      <span
+                        className={`text-xs ${
+                          message.senderId !== selectedUser?._id
+                            ? "text-white/80"
+                            : "text-gray-500"
+                        } block mt-1`}
+                      >
                         {message?.createdAt}
                       </span>
                     </div>
                   </div>
-                ))}
-                <div ref={messagesEndRef} />
-              </div>
+                  <div ref={messagesEndRef} />
+                </div>
+              ))}
             </div>
 
             {/* Input Area */}
@@ -369,7 +435,11 @@ const handleSelectedUser = (user:Ichat)=>{
 
               {audioBlob && !isRecording && (
                 <div className="mb-4 flex items-center gap-4">
-                  <audio src={URL.createObjectURL(audioBlob)} controls className="flex-1" />
+                  <audio
+                    src={URL.createObjectURL(audioBlob)}
+                    controls
+                    className="flex-1"
+                  />
                   <button
                     onClick={() => setAudioBlob(null)}
                     className="p-1 text-gray-500 hover:text-gray-700"
@@ -396,8 +466,9 @@ const handleSelectedUser = (user:Ichat)=>{
                 <input
                   type="text"
                   value={messageInput}
-                   onChange={(e) => setMessageInput(e.target.value)}
-                  
+                  onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                    setMessageInput(e.target.value)
+                  }
                   placeholder="Type a message..."
                   className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#ff8800] focus:border-transparent"
                 />

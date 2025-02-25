@@ -1,5 +1,9 @@
 /// <reference types="vite/client" />
 
-import { SOCKET_URL } from "./Socket/connect";
+interface ImportMetaEnv {
+  readonly VITE_SERVER_URL: string;
+}
 
-SOCKET_URL
+interface ImportMeta {
+  readonly env: ImportMetaEnv;
+}

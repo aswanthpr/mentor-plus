@@ -427,7 +427,7 @@ export class authController implements IauthController {
         sameSite:'lax',
         maxAge: 7 * 24 * 60 * 60 * 1000,
       })
-      res.redirect(`http://localhost:5173/mentee/google/success?token=${accessToken}`);
+      res.redirect(`${process.env.CLIENT_ORIGIN_URL}/mentee/google/success?token=${accessToken}`);
     } catch (error: unknown) {
       res.status(500).json({
         status: 'error',

@@ -10,7 +10,7 @@ interface ErrorResponseData {
 
 // Initialize Axios instances
 export const protectedAPI = axios.create({
-  baseURL: "http://localhost:3000",
+  baseURL:import.meta.env.VITE_SERVER_URL,
   headers: {
     "Content-type": "application/json",
   },
@@ -18,7 +18,7 @@ export const protectedAPI = axios.create({
 });
 
 export const unProtectedAPI = axios.create({
-  baseURL: "http://localhost:3000",
+  baseURL:import.meta.env.VITE_SERVER_URL,
   withCredentials: true,
   headers: {
     "Content-type": "application/json",

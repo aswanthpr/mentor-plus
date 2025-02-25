@@ -1,50 +1,60 @@
-import { toast } from 'react-toastify';
-import { Outlet } from 'react-router-dom';
-import React,{useEffect, useState} from 'react'
-import { useDispatch ,useSelector} from 'react-redux';
-import { Home,MessageSquare,Calendar,Wallet, Video} from 'lucide-react';
+import { toast } from "react-toastify";
+import { Outlet } from "react-router-dom";
+import React, { useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { Home, MessageSquare, Calendar, Wallet, Video } from "lucide-react";
 
-import { RootState } from '../../Redux/store';
-import { axiosInstance } from '../../Config/mentorAxios';
-import { markAsRead, setNotification } from '../../Redux/notificationSlice';
-import { clearMentorToken } from '../../Redux/mentorSlice'; 
-import Header from '../../components/Common/common4All/Header'
-import SidePanel from '../../components/Common/common4All/SidePanel';
+import { RootState } from "../../Redux/store";
+import { axiosInstance } from "../../Config/mentorAxios";
+import { markAsRead, setNotification } from "../../Redux/notificationSlice";
+import { clearMentorToken } from "../../Redux/mentorSlice";
+import Header from "../../components/Common/common4All/Header";
+import SidePanel from "../../components/Common/common4All/SidePanel";
+import { connectToNotifications, disconnectNotificationSocket } from "../../Socket/connect";
 
-
-interface INavItem{
-  name:string;
-  path:string;
-  icon:React.FC<React.SVGProps<SVGSVGElement>>;
+interface INavItem {
+  name: string;
+  path: string;
+  icon: React.FC<React.SVGProps<SVGSVGElement>>;
 }
-const navItems:INavItem[]= [
-    { name: 'Home', path: '/mentor/home', icon: Home },
-    { name: 'Session', path: '/mentor/session', icon: Video },
-    { name: 'Messages', path: '/mentor/messages', icon: MessageSquare },
-    { name: 'Schedule', path: '/mentor/Schedule', icon: Calendar },
-    { name: 'Wallet', path: '/mentor/wallet', icon: Wallet },
-    // { name: 'Q&A', path: '/mentor/qa', icon: HelpCircle },
-  ];
- 
-const Mentor_Page:React.FC = () => {
+const navItems: INavItem[] = [
+  { name: "Home", path: "/mentor/home", icon: Home },
+  { name: "Session", path: "/mentor/session", icon: Video },
+  { name: "Messages", path: "/mentor/messages", icon: MessageSquare },
+  { name: "Schedule", path: "/mentor/Schedule", icon: Calendar },
+  { name: "Wallet", path: "/mentor/wallet", icon: Wallet },
+  // { name: 'Q&A', path: '/mentor/qa', icon: HelpCircle },
+];
+
+const Mentor_Page: React.FC = () => {
   const dispatch = useDispatch();
-  const notification = useSelector((state:RootState)=>
-    state.notificationSlice.mentorNotification
-  )
-  const [isSideBarOpen,setIsSideBarOpen] = useState<boolean>(false);
-  const [searchValue,setSearchValue] = useState<string>('');
-  
- useEffect(() => {
+  const notification = useSelector(
+    (state: RootState) => state.notificationSlice.mentorNotification
+  );
+  const [isSideBarOpen, setIsSideBarOpen] = useState<boolean>(false);
+  const [searchValue, setSearchValue] = useState<string>("");
+  const [userId, setUserId] = useState<string>("");
+  useEffect(() => {
     let flag = true;
 
     const fetchData = async () => {
       try {
-        const { data, status } = await axiosInstance.get(`/mentor/notification`);
+        const { data, status } = await axiosInstance.get(
+          `/mentor/notification`
+        );
         console.log(data, status);
         if (flag && status == 200 && data.success) {
+          const user_Id = data.result[0]["userId"] as string;
+          setUserId(user_Id);
           dispatch(
-            setNotification({ userType: "mentor", notification: data?.result })
+            setNotification({
+              userType: "mentor",
+              notification: data["result"],
+            })
           );
+          if (user_Id) {
+            connectToNotifications(userId, "mentor");
+          }
         }
       } catch (error: unknown) {
         console.log(
@@ -56,54 +66,52 @@ const Mentor_Page:React.FC = () => {
     fetchData();
     return () => {
       flag = false;
+       disconnectNotificationSocket();
     };
   }, [dispatch]);
 
-    const handleReadNotification = async (id: string) => {
-      try {
-        const { status, data } = await axiosInstance.patch(
-          `/mentor/notification-read/${id}`
-        );
-  
-        if (status == 200 && data.success) {
-          dispatch(markAsRead({ userType: "mentor", id }));
-        }
-      } catch (error: unknown) {
-        console.log(`${error instanceof Error ? error.message : String(error)}`);
-      }
-    };
-  const ToggleSideBar =()=>{
-    setIsSideBarOpen(!isSideBarOpen);
-  }
+  const handleReadNotification = async (id: string) => {
+    try {
+      const { status, data } = await axiosInstance.patch(
+        `/mentor/notification-read/${id}`
+      );
 
-  const handleSearchChange=(e:React.ChangeEvent<HTMLInputElement>)=>{
+      if (status == 200 && data.success) {
+        dispatch(markAsRead({ userType: "mentor", id }));
+      }
+    } catch (error: unknown) {
+      console.log(`${error instanceof Error ? error.message : String(error)}`);
+    }
+  };
+  const ToggleSideBar = () => {
+    setIsSideBarOpen(!isSideBarOpen);
+  };
+
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchValue(e.target.value);
-  }
-  const mentorLogout=async()=>{
-  
+  };
+  const mentorLogout = async () => {
     const response = await axiosInstance.post(`/mentor/logout`);
-    if(response.data.success&&response.status==200){
-    
+    if (response.data.success && response.status == 200) {
       dispatch(clearMentorToken());
-      localStorage.removeItem('mentorToken');
-      localStorage.removeItem('mentor');
-      
+      localStorage.removeItem("mentorToken");
+      localStorage.removeItem("mentor");
+
       toast.success(response.data.message);
     }
-    
-  }
+  };
   return (
-    <div className='min-h-screen bg-gray-50'>
+    <div className="min-h-screen bg-gray-50">
       <Header
-      onChange={handleSearchChange}
-      value={searchValue}
-      ToggleSideBar={ToggleSideBar} 
-      placeholder='Search...'
-      userType='mentor'
-      logout={mentorLogout}
-      profileLink='/mentor/profile'
-      onRead={handleReadNotification}
-      notifData={notification}
+        onChange={handleSearchChange}
+        value={searchValue}
+        ToggleSideBar={ToggleSideBar}
+        placeholder="Search..."
+        userType="mentor"
+        logout={mentorLogout}
+        profileLink="/mentor/profile"
+        onRead={handleReadNotification}
+        notifData={notification}
       />
       {/* Overlay for Small Screens */}
       {isSideBarOpen && (
@@ -116,18 +124,18 @@ const Mentor_Page:React.FC = () => {
       {/* Sidebar */}
       <div
         className={`fixed left-0 top-0 h-full w-64 bg-white border-r border-gray-200 transform transition-transform duration-200 ease-in-out z-40 ${
-          isSideBarOpen ? 'translate-x-0' : '-translate-x-full'
+          isSideBarOpen ? "translate-x-0" : "-translate-x-full"
         } lg:translate-x-0`}
       >
         <SidePanel SideBarItems={navItems} />
       </div>
-        <main className={` lg:pl-64 transition-all duration-200`} >
+      <main className={` lg:pl-64 transition-all duration-200`}>
         <div className="p-6 ">
           <Outlet />
         </div>
-        </main>
+      </main>
     </div>
-  )
-}
- 
-export default Mentor_Page;    
+  );
+};
+
+export default Mentor_Page;

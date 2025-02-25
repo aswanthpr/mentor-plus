@@ -2,6 +2,7 @@ import mongoose, { Schema, Document } from "mongoose";
 import { Ttype } from "src/Types/types";
 
 export interface Inotification extends Document {
+  _id:mongoose.Schema.Types.ObjectId;
   userId: Schema.Types.ObjectId;
   title: string;
   message: string;

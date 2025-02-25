@@ -7,7 +7,7 @@ export interface Ichat extends Document {
   lastMessage: Types.ObjectId;
   createdAt: Date;
   updatedAt: Date;
-} 
+}
 
 export const chatRoomSchema: Schema<Ichat> = new Schema(
   {
@@ -24,5 +24,6 @@ export const chatRoomSchema: Schema<Ichat> = new Schema(
   }
 );
 
-
 export default model<Ichat>('chats',chatRoomSchema);
+
+

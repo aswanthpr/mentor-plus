@@ -1,5 +1,5 @@
-import { Document, Types } from "mongoose";
-export type TmessgeType = "text" | "image" | 'video' | "file";
+import { Types, Document } from "mongoose";
+export type TmessageType = "text" | "image" | "video" | "document";
 export interface Imessage extends Document {
     chatId: Types.ObjectId;
     senderId: Types.ObjectId;
@@ -7,7 +7,7 @@ export interface Imessage extends Document {
     senderType: "mentee" | "mentor";
     content: string;
     seen: boolean;
-    messageType: TmessgeType;
+    messageType: TmessageType;
     mediaUrl: string;
     createdAt: Date;
     updatedAt: Date;

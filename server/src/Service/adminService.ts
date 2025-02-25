@@ -12,7 +12,9 @@ import {
   verifyRefreshToken,
 } from "../Utils/jwt.utils";
 import { InotificationRepository } from "../Interface/Notification/InotificationRepository";
-import { sendNotification } from "../Socket/notificationSocket";
+import { socketManager } from "../index";
+import { Inotification } from "src/Model/notificationModel";
+
 export class adminService implements IadminService {
   constructor(
     private readonly _categoryRepository: IcategoryRepository,
@@ -379,14 +381,14 @@ export class adminService implements IadminService {
           result: null,
         };
       }
-      const notification =  await this._notificationRepository.createNotification(
+       await this._notificationRepository.createNotification(
         mentorId as unknown as ObjectId,
         `Welcome ${response?.name}`,
         `Start exploring mentorPlus  and connect with mentees today.`,
         `mentor`,
         `${process.env.CLIENT_ORIGIN_URL}/mentor/schedule`,
       );
-      sendNotification(id,notification!)
+
       return {
         success: true,
         message: "mentor verified Successfully!",

@@ -12,7 +12,8 @@ import { ImenteeRepository } from "../Interface/Mentee/iMenteeRepository";
 import { ImentorApplyData } from "../Types";
 import { InotificationRepository } from "../Interface/Notification/InotificationRepository";
 import { ObjectId } from "mongoose";
-// import { sendNotification } from "../Socket/notificationSocket";
+import {socketManager } from "../index";
+
 
 export class authService implements IauthService {
   constructor(
@@ -52,15 +53,18 @@ export class authService implements IauthService {
         };
       }
 
-      await this._notificationRepository.createNotification(
+      const notfi = await this._notificationRepository.createNotification(
         response?._id as ObjectId,
         `Welcome ${response?.name}`,
         `Start exploring and connect with mentors today.`,
         `mentee`,
         `${process.env.CLIENT_ORIGIN_URL}/mentee/explore`
       );
-
-      // sendNotification(response?._id as string, result!);
+      if ( response?.id && notfi) {
+        socketManager.sendNotification(response?._id as string, notfi)
+        
+     
+      }
       return { success: true, message: "signup successfull" };
     } catch (error: unknown) {
       if (error instanceof Error) {
@@ -313,14 +317,17 @@ export class authService implements IauthService {
         };
       }
       const admin = await this._MenteeRepository._find();
-      await this._notificationRepository.createNotification(
+     const notifi =  await this._notificationRepository.createNotification(
         admin?._id as ObjectId,
         `New Mentor Has Joined!`,
         `${result?.name} Applied as mentor. Please review their profile and verify`,
         "admin",
         `${process.env.CLIENT_ORIGIN_URL}/admin/mentor_management/not_verified`
       );
-      
+      if(admin?._id && notifi){
+
+        socketManager.sendNotification(admin?._id as string, notifi)
+      }
       return {
         success: true,
         message: "Mentor application submitted!",

@@ -1,5 +1,5 @@
 export const corsOptions = {
-  origin: "http://localhost:5173",
+  origin: process.env.CLIENT_ORIGIN_URL,
   credentials: true,
   methods: "GET,HEAD,OPTIONS,PUT,PATCH,POST,DELETE",
   allowedHeaders: [

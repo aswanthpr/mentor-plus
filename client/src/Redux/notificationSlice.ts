@@ -3,22 +3,24 @@ import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
 interface Inotify {
   menteeNotification: Inotification[],
-  mentorNotification: Inotification[]
+  mentorNotification: Inotification[],
+  adminNotification:Inotification[]
 }
 const initialState: Inotify = {
   menteeNotification: [],
   mentorNotification: [],
+  adminNotification: [],
 }
 
 const notificaitonSlice = createSlice({
   name: "notificaitons",
   initialState,
   reducers: {
-    addNewNotification: (state, action: PayloadAction<Inotification>) => {
+    addNewNotification: (state, action: PayloadAction<{ userType: Inotification['userType'];notification:Inotification }>) => {
       if (action.payload.userType === 'mentee') {
-        state.menteeNotification.push(action.payload)
+        state.menteeNotification.unshift(action.payload.notification)
       } else {
-        state.mentorNotification.push(action.payload)
+        state.mentorNotification.unshift(action.payload.notification)
       }
     },
     markAsRead: (state, action: PayloadAction<{ userType: Inotification['userType']; id: Inotification['_id'] }>) => {

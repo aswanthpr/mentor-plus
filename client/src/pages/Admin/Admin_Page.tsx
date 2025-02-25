@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import Header from '../../components/Common/common4All/Header'
 import { PaperclipIcon, LayoutDashboard, HandCoins, HelpCircle, UserRoundPenIcon, Users } from 'lucide-react';
 import SidePanel from '../../components/Common/common4All/SidePanel';
@@ -28,8 +28,33 @@ const Admin_Page: React.FC = () => {
   const [isSideBarOpen, setIsSideBarOpen] = useState<boolean>(true);
   const [searchValue, setSearchValue] = useState<string>('');
 
+    useEffect(() => {
+      let flag = true;
+  
+      const fetchData = async () => {
+        try {
+          const { data, status } = await API.get(`/mentee/notification`);
+          console.log(data, status);
+          if (flag && status == 200 && data.success) {
+            dispatch(
+              setNotification({ userType: "mentee", notification: data?.result })
+            );
+          }
+        } catch (error: unknown) {
+          console.log(
+            `${error instanceof Error ? error.message : String(error)}`
+          );
+        }
+      };
+  
+      fetchData();
+      return () => {
+        flag = false;
+      };
+    }, [dispatch]);
+
   const ToggleSideBar = () => {
-    setIsSideBarOpen(!isSideBarOpen);
+    setIsSideBarOpen(!isSideBarOpen); 
   }
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {

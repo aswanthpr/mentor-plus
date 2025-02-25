@@ -2,15 +2,15 @@ import React, { useState, useRef, useEffect } from "react";
 import { Search, Send, Paperclip, Mic, X } from "lucide-react";
 import { errorHandler } from "../../Utils/Reusable/Reusable";
 import { axiosInstance } from "../../Config/mentorAxios";
-import {
-  checkOnline,
-  disconnect,
-  joinRoom,
-  listenOnline,
-  registerUser,
-  sendMessage,
-} from "../../Socket/socketService";
-import { connectToChat } from "../../Socket/connect";
+// import {
+//   checkOnline,
+//   disconnect,
+//   joinRoom,
+//   listenOnline,
+//   registerUser,
+//   sendMessage,
+// } from "../../Socket/socketService";
+// import { connectToChat } from "../../Socket/connect";
 
 // interface User {
 //   id: string;
@@ -72,7 +72,7 @@ import { connectToChat } from "../../Socket/connect";
 // ];
 
 const Chat: React.FC = () => {
-  const chatSocket = connectToChat();
+  // const chatSocket = connectToChat();
   const [selectedUser, setSelectedUser] = useState<Ichat | null>(null);
   const [users, setUsers] = useState<Ichat[] | []>([]);
   const [userId, setUserId] = useState<string>("");
@@ -114,38 +114,38 @@ const Chat: React.FC = () => {
     if (flag) {
       fetchChat();
     }
-    if (userId) {
-      registerUser(userId);
-    }
+    // if (userId) {
+    //   registerUser(userId);
+    // }
 
     return () => {
       flag = false;
 
-      disconnect("register");
+      // disconnect("register");
     };
-  }, [chatSocket, userId]);
+  }, []);
 
   const handleSelectedUser = (user: Ichat) => {
     setSelectedUser(user);
-    checkOnline(user?.menteeId as string);
-    joinRoom(user?._id, userId);
+    // checkOnline(user?.menteeId as string);
+    // joinRoom(user?._id, userId);
   };
 
-  useEffect(() => {
-    listenOnline((data) => {
-      console.log(data.online, "this is data");
-      setSelectedUser((prev) => {
-        if (prev && prev.users?._id === data?.userId) {
-          return { ...prev, online: data.online };
-        }
-        return prev;
-      });
-    });
+  // useEffect(() => {
+  //   listenOnline((data) => {
+  //     console.log(data.online, "this is data");
+  //     setSelectedUser((prev) => {
+  //       if (prev && prev.users?._id === data?.userId) {
+  //         return { ...prev, online: data.online };
+  //       }
+  //       return prev;
+  //     });
+  //   });
   
-    return () => {
-      disconnect("userOnline");
-    };
-  }, [chatSocket]);
+  //   return () => {
+  //     disconnect("userOnline");
+  //   };
+  // }, [chatSocket]);
   const filteredUsers = users.filter((user) =>
     user.users?.name.toLowerCase().includes(searchQuery.toLowerCase())
   );
@@ -178,15 +178,15 @@ const Chat: React.FC = () => {
       setSelectedFile(null);
       setPreviewUrl(null);
       setAudioBlob(null);
-      sendMessage(
-        newMessage?.chatId,
-        newMessage?.senderId,
-        newMessage.receiverId,
-        newMessage.senderType,
-        newMessage?.content,
-       newMessage?.messageType,
-        newMessage?.mediaUrl,
-      )//socket send message
+      // sendMessage(
+      //   newMessage?.chatId,
+      //   newMessage?.senderId,
+      //   newMessage.receiverId,
+      //   newMessage.senderType,
+      //   newMessage?.content,
+      //  newMessage?.messageType,
+      //   newMessage?.mediaUrl,
+      // )//socket send message
     }
   };
 

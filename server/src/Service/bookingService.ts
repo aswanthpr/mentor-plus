@@ -8,14 +8,17 @@ import { IslotSchedule } from "../Model/slotSchedule";
 import { Status } from "../Utils/httpStatusCode";
 import { Itime } from "../Model/timeModel";
 import { InotificationRepository } from "../Interface/Notification/InotificationRepository";
-// import { sendNotification } from "../Socket/notificationSocket";
 import moment from "moment";
+import { socketManager } from "../index";
+import { Inotification } from "../Model/notificationModel";
+import { IchatRepository } from "src/Interface/chat/IchatRepository";
 
 export class bookingService implements IbookingService {
   constructor(
     private readonly _timeSlotRepository: ItimeSlotRepository,
     private readonly _slotScheduleRepository: IslotScheduleRepository,
     private readonly _notificationRepository: InotificationRepository,
+    private readonly _chatRepository: IchatRepository,
     private readonly stripe: Stripe = new Stripe(
       process.env.STRIPE_SECRET_KEY as string,
       {
@@ -163,13 +166,12 @@ export class bookingService implements IbookingService {
   ): Promise<void> {
     try {
       if (!signature || !bodyData) {
-        return;
+        throw new Error("Missing signature or body data in webhook request.");
       }
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       let event: any;
 
       try {
-        console.log(process.env.STRIPE_WEBHOOK_SECRET, "sdfjasdf", signature);
         event = this.stripe.webhooks.constructEvent(
           bodyData,
           signature as string | Buffer,
@@ -183,7 +185,7 @@ export class bookingService implements IbookingService {
         return;
       }
 
-      console.log(event, "Received webhook event");
+      console.log("🔔 Received webhook event:", event.type);
 
       switch (event.type) {
         case "checkout.session.completed": {
@@ -233,52 +235,51 @@ export class bookingService implements IbookingService {
           const response = await this._slotScheduleRepository.newSlotBooking(
             newSlotSchedule as IslotSchedule
           );
-          console.log(response, "thsi is response after save");
-          const res = await this._timeSlotRepository.makeTimeSlotBooked(
-            String(slotId)
-          );
-
-          // const menteeNotification =
-            await this._notificationRepository.createNotification(
-              menteeObjectId as unknown as ObjectId,
-              `Slot booked successfully`,
-              `Congratulations! You've been successfully booked your slot.`,
-              `mentee`,
-              `${process.env.CLIENT_ORIGIN_URL}/mentee/bookings`
-            );
-          // sendNotification(menteeId, menteeNotification!); //send notification to the mentee with sepecific room id
-          let mentorId: ObjectId;
-          if (response) {
-            mentorId = response.times?.mentorId as ObjectId;
+          if (!response) {
+            return;
           }
-          // const mentorNotification =
-            await this._notificationRepository.createNotification(
-              mentorId!,
+          const mentorId = response.times?.mentorId as ObjectId;
+          const mentorID = String(mentorId);
+
+          await this._timeSlotRepository.makeTimeSlotBooked(String(slotId));
+          //notification for mentee
+          const notific = await this._notificationRepository.createNotification(
+            menteeObjectId as unknown as ObjectId,
+            `Slot booked successfully`,
+            `Congratulations! You've been successfully booked your slot.`,
+            `mentee`,
+            `${process.env.CLIENT_ORIGIN_URL}/mentee/bookings`
+          );
+          if (menteeId && notific) {
+            socketManager.sendNotification(menteeId as string, notific);
+          }
+
+          if (mentorId) {
+            //notification for mentor
+            const notif = await this._notificationRepository.createNotification(
+              mentorId as mongoose.Schema.Types.ObjectId,
               `Your new slot were Scheduled`,
               `new slot were scheduled . checkout now`,
               `mentor`,
               `${process.env.CLIENT_ORIGIN_URL}/mentor/session`
             );
-
-          // sendNotification(`${mentorId!}`, mentorNotification!); //sending notification to the mentor
+            socketManager.sendNotification(
+              mentorID as string,
+              notif as Inotification
+            );
+          }
+          //creating chat document
+          await this._chatRepository.createChatDocs(mentorId, menteeObjectId);
           if (response) {
-            console.log(response, res);
-            console.log("timeslot booked successfully");
             return;
           } else {
-            throw new Error("Failed to create appointment"); 
+            throw new Error("Failed to create appointment");
           }
         }
 
         default:
           console.log(`Unhandled event type ${event.type}`);
       }
-
-      // console.log(response,'thsi is response after save')
-      //   //   await this._timeSlotRepository.SlotStatusChange
-      //   // }
-
-      // return { status: Status.Ok, message: " successfull" }
     } catch (error: unknown) {
       throw new Error(
         `${

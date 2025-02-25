@@ -18,7 +18,7 @@ class slotScheduleRepository
     newSlotSchedule: IslotSchedule
   ): Promise<InewSlotSchedule | null> {
     try {
-      const res =  await this.createDocument(newSlotSchedule);
+      const res =  await this.createDocument(newSlotSchedule); 
      const result=  await this.aggregateData(slotSchedule,
         [
           {
