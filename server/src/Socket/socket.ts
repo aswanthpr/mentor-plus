@@ -3,6 +3,9 @@
 import { Server, Socket } from "socket.io";
 import { Inotification } from "../Model/notificationModel";
 import messageRepository from "../Repository/messageRepository";
+import mongoose from "mongoose";
+import chatRepository from "../Repository/chatRepository";
+import chatSchema from "../Model/chatSchema";
 
 const chatMap = new Map();
 
@@ -41,6 +44,7 @@ export class SocketManager {
       .emit("receive-notification", message);
   };
   //chat===========================================
+
   private setupChat() {
     const chatNsp = this.io.of("/chat");
 
@@ -52,29 +56,44 @@ export class SocketManager {
         socket.disconnect();
         return;
       }
-      if (socket.connected) {
-        console.log(`ChatSocket with ID ${socket.id} is connected`);
-        // user broadcast online status
-      }
-      socket.broadcast.emit("userOnline", { userId });
-      chatMap.set(userId, socket?.id);
 
-      socket.on("join-room", (data) => {
-        console.log(data, "this is the data");
+      if (socket.connected) {
+        console.log(`ChatSocket with ID ${socket.id} is connected`,)
+        chatMap.set(userId, socket?.id);
+      }
+
+      // user broadcast online status
+      socket.broadcast.emit("userOnline", [...chatMap.keys()] );
+
+      socket.on("join-room", async (data) => {
+        if (!data?.roomId) return;
+        console.log(`user joined in the room`, data?.roomId);
         socket.join(data?.roomId);
-        console.log(`user joined in the room`);
+        try {
+          const result = await messageRepository.getMessage( new  mongoose.Types.ObjectId(data?.roomId as string) as unknown as  mongoose.Schema.Types.ObjectId)
+         
+          
+
+          chatNsp.to(data?.roomId).emit('all-message', { result, roomId: data?.roomId });
+
+        } catch (error: unknown) {
+          throw new Error(`${error instanceof Error ? error.message : String(error)}`)
+        }
       });
 
       socket.on("new-message", async ({ roomId, message }) => {
-        console.log(`Message to Room ${roomId}: ${message}`,message?.senderId ,
-          message?.chatId ,
-          message?.receiverId ,
-          message?.content ,message?.mediaUrl,
-          message?.senderType ,
-          message?.messageType);
+        console.log(
+          `Message to Room ${roomId}: ${message}`,
+          message?.senderId,
+          message?.chatId,
+          message?.receiverId,
+          message?.content,
+          message?.senderType,
+          message?.messageType
+        );
         try {
           if (!roomId) {
-            console.log('no room')
+            console.log("no room");
             throw new Error("Invalid or missing roomId.");
           }
           if (
@@ -82,19 +101,34 @@ export class SocketManager {
             !message?.senderId ||
             !message?.chatId ||
             !message?.receiverId ||
-            !message?.content ||
+            !message?.content?.trim() ||
             !message?.senderType ||
             !message?.messageType
           ) {
-            console.log('no message')
+            //&& !message?.mediaUrl)
+           
             throw new Error("Message cannot be empty.");
           }
-         const result = await messageRepository.createMessage(message);
-         if(!result){
 
-           chatNsp.to(roomId).emit("errorMessage", { error: "message not created " });
-         }
-         chatNsp.to(roomId).emit("receive-message", {result,roomId});
+          const result = await messageRepository.createMessage(message);
+          
+          if (!result) {
+            chatNsp
+            .to(roomId)
+            .emit("errorMessage", { error: "message not created " });
+          }
+          
+          chatNsp.to(roomId).emit("receive-message", { result, roomId });
+          const messageContent = message?.messageType=='text'?message?.content:  decodeURIComponent( message?.content.split('/').pop())
+           console.log('hai',messageContent); 
+         
+           await chatRepository.find_By_Id_And_Update(
+            chatSchema,
+           message?.chatId as string,
+            { $set: { lastMessage: String(messageContent) } 
+          }
+          );
+
         } catch (error: unknown) {
           console.error(
             "Error in sendMessageToRoom:",
@@ -108,105 +142,11 @@ export class SocketManager {
       socket.on("disconnect", () => {
         console.log(`chatSocket with ID ${socket.id} is disconnected`);
         chatMap.delete(userId);
+        console.log(chatMap.has(userId),'user exist or not ')
         //broadcast if user is goes to offline
-        socket.broadcast.emit("userOffline", { userId });
-
+        socket.broadcast.emit("userOffline", [...chatMap.keys()]);
       });
     });
-
-    // chatNamespace.on("connection", (socket: Socket) => {
-    //   if (socket.connected) {
-    //     console.log(`Socket with ID ${socket.id} is connected`);
-    //   }
-    //   //when user starts chating they where register to chat section
-    //   socket.on("register", (userId) => {
-    //     users.set(socket.id, userId);
-    //     console.log(
-    //       `user ${userId} is connected with socketId ${socket.id} and `
-    //     );
-    //     console.log("success ");
-    //   });
-
-    //   socket.on("checkOnline", (userId: string) => {
-    //     if (userId && [...users.values()].includes(userId)) {
-    //       socket.emit("userOnline", { userId, online: true });
-    //       console.log("useronline");
-    //     } else {
-    //       socket.emit("userOnline", { userId, online: false });
-    //     }
-    //   });
-
-    //   //join them to the room
-
-    //   socket.on("join_room", (roomId: string, userId: string) => {
-    //     if (roomId) {
-    //       socket.join(roomId);
-    //       console.log(`User ${userId} joined room ${roomId}`);
-    //       socket.to(roomId).emit("room_joined", { userId, roomId });
-    //     } else {
-    //       console.log("User not connected to room online");
-    //     }
-    //   });
-
-    //   socket.on(`sendMessage`, async(data: Imessage) => {
-    //     const {
-    //       chatId,
-    //       senderId,
-    //       receiverId,
-    //       senderType,
-    //       mediaUrl,
-    //       messageType,
-    //       content,
-    //     } = data;
-    //     if (
-    //       !chatId ||
-    //       !senderId ||
-    //       !receiverId ||
-    //       !senderType ||
-    //       !messageType ||
-    //       !content ||
-    //       !mediaUrl
-    //     ) {
-    //       socket
-    //       .to(String(chatId))
-    //       .emit("receiveMessage", {
-    //         message: "credential not received",
-    //         result: null,
-    //       });
-    //     }
-    //     console.log(`send message form
-    //       ${senderId} to ${receiverId}`);
-
-    //       let mentorId,menteeId;
-    //       if(senderType=="mentee"){
-    //             menteeId=senderId
-    //             mentorId = receiverId
-
-    //           }else{
-    //             menteeId = receiverId
-    //             mentorId  = senderId
-    //         }
-    //         const chatExist = await chatRepository.find_One({menteeId,mentorId,});
-    //         if(!chatExist){
-    //             // socket
-    //         // .to(String(chatId))
-    //         // .emit("receiveMessage", {
-    //         //   message: "credential not received",
-    //         //   result: null,
-    //         // });
-    //         // await chatRepository.createDocument({
-    //           //     menteeId,
-    //           //     mentorId,
-    //           // })
-    //         }
-
-    //       });
-
-    //           // Emit a connection event to the client
-    //           socket.on("disconnect", () => {
-    //     console.log(`Chat user disconnected: ${socket.id}`);
-    //   });
-    // });
   }
 }
 //============================================================================

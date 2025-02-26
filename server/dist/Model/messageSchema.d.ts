@@ -1,18 +1,17 @@
-import { Types, Document } from "mongoose";
-export type TmessageType = "text" | "image" | "video" | "document";
+import mongoose, { Document } from "mongoose";
+export type TmessageType = "text" | "image" | "document";
 export interface Imessage extends Document {
-    chatId: Types.ObjectId;
-    senderId: Types.ObjectId;
-    receiverId: Types.ObjectId;
+    chatId: mongoose.Schema.Types.ObjectId;
+    senderId: mongoose.Schema.Types.ObjectId;
+    receiverId: mongoose.Schema.Types.ObjectId;
     senderType: "mentee" | "mentor";
     content: string;
     seen: boolean;
     messageType: TmessageType;
-    mediaUrl: string;
     createdAt: Date;
     updatedAt: Date;
 }
-declare const _default: import("mongoose").Model<Imessage, {}, {}, {}, Document<unknown, {}, Imessage> & Imessage & Required<{
+declare const _default: mongoose.Model<Imessage, {}, {}, {}, mongoose.Document<unknown, {}, Imessage> & Imessage & Required<{
     _id: unknown;
 }> & {
     __v: number;

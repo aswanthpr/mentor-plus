@@ -6,7 +6,7 @@ import { IchatService } from "../Interface/chat/IchatService";
 
 export class chatController implements IchatController {
     constructor(
-       private  _chatService:IchatService
+       private  _chatService:IchatService 
     ){}
   async getChats(req: Request, res: Response): Promise<void> {
     try {

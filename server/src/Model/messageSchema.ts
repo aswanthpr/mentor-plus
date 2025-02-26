@@ -1,42 +1,40 @@
-import { Schema, Types, model, Document } from "mongoose";
+import mongoose, { Schema, model, Document } from "mongoose";
 
-export type TmessageType = "text" | "image" | "video" | "document";
+export type TmessageType = "text" | "image"| "document";
 export interface Imessage extends Document {
-  chatId: Types.ObjectId;
-  senderId: Types.ObjectId;
-  receiverId: Types.ObjectId;
+  chatId: mongoose.Schema.Types.ObjectId;
+  senderId:  mongoose.Schema.Types.ObjectId;
+  receiverId:  mongoose.Schema.Types.ObjectId;
   senderType: "mentee" | "mentor";
   content: string;
-  seen: boolean;
+  seen: boolean; 
   messageType: TmessageType;
-  mediaUrl: string;
   createdAt: Date;
   updatedAt: Date;
 }
 
-const messgeSchema: Schema<Imessage> = new Schema(
+const messageSchema: Schema<Imessage> = new Schema(
   {
     chatId: {
-      type: Schema.Types.ObjectId,
+      type: mongoose.Types.ObjectId,
       ref: "chat",
       required: true,
       index: true,
     },
     senderId: {
-      type: Schema.Types.ObjectId,
+      type: mongoose.Types.ObjectId,
       refPath: "senderType",
       required: true,
       index: true,
     },
-    receiverId: { type: Schema.Types.ObjectId, required: true, index: true },
+    receiverId: { type:mongoose.Types.ObjectId, required: true, index: true },
     senderType: { type: String, enum: ["mentee", "mentor"], required: true },
-    content: { type: String, required: true },
+    content: { type: String,default:null },
     messageType: {
       type: String,
-      enum: ["text", "image", "video", "document"],
+      enum: ["text", "image","document"],
       default: "text",
     },
-    mediaUrl: { type: String, default: null },
     seen: { type: Boolean, default: false },
   },
   {
@@ -44,4 +42,5 @@ const messgeSchema: Schema<Imessage> = new Schema(
   }
 );
 
-export default model<Imessage>("message", messgeSchema);
+export default model<Imessage>("message", messageSchema);
+ 

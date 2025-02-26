@@ -68,7 +68,7 @@ const Schedule: React.FC = () => {
         errorHandler(error);
       }
     };
-  };
+  }; 
 
   const handleSaveSchedule = async (scheduleData: {
     type: string;
@@ -82,8 +82,21 @@ const Schedule: React.FC = () => {
       );
       if (response.status == 200 && response.data.success) {
         toast.success(response.data?.message);
-        setTimeSlots((pre) => [...response.data.timeSlots, ...pre]);
-
+        console.log(response.data.timeSlots,'thsi si timeslots')
+        // setTimeSlots((pre) => [...response.data.timeSlots, ...pre]);
+        
+        const formattedSlots = response.data.timeSlots.map((slot: Itime) => ({
+          ...slot,
+          startDate: moment(slot.startDate).toISOString(),
+          slots: slot.slots!.map((s: IslotField) => ({
+            ...s,
+            startTime: moment(s.startTime).toISOString(),
+            endTime: moment(s.endTime).toISOString(),
+          })),
+        }));
+  
+        setTimeSlots((pre) => [...formattedSlots, ...pre]);
+        window.location.reload();
       }
       console.error(response.data, "failed resonse response");
     } catch (error: unknown) {

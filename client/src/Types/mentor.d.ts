@@ -85,7 +85,7 @@ interface IMentor {
   }
   interface IslotField{
     startTime:string;
-    endStr:string
+    endTime:string
   }
   interface Itime {
     _id?:string

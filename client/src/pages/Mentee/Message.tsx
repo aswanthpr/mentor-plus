@@ -6,29 +6,30 @@ import { protectedAPI } from "../../Config/Axios";
 import { Socket } from "socket.io-client";
 import { connectToChat } from "../../Socket/connect";
 import { axiosInstance } from "../../Config/mentorAxios";
+import { uploadFile } from "../../Utils/Reusable/cloudinary";
+import { Link } from "react-router-dom";
+import Spinner from "../../components/Common/common4All/Spinner";
+import moment from "moment";
 
 const Message: React.FC = () => {
-  const [selectedUser, setSelectedUser] = useState<Ichat | undefined>(
-    undefined
-  );
+  const [selectedUser, setSelectedUser] = useState<Ichat | null>(null);
   // const [selectedChat,setSelectedChat] = useState<Imessage[]|[]>([]);
-  const [users, setUsers] = useState<Ichat[] | []>([]);
   // const [userId, setUserId] = useState<string>("");
-  // const [messages, setMessages] = useState<Imessage[] | []>([]);
+  // const [isRecording, setIsRecording] = useState(false);
+  // const [recordingTime, setRecordingTime] = useState(0);
+  // const [audioBlob, setAudioBlob] = useState<Blob | null>(null);
+  // const mediaRecorderRef = useRef<MediaRecorder | null>(null);
+  const [users, setUsers] = useState<Ichat[] | []>([]);
   const [messageInput, setMessageInput] = useState("");
-  const [isRecording, setIsRecording] = useState(false);
-  const [recordingTime, setRecordingTime] = useState(0);
-  const [audioBlob, setAudioBlob] = useState<Blob | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [currentUser, setCurrentUser] = useState<string>("");
-
+  const [btnDisable, setBtnDisable] = useState(false);
+  const [messages, setMessages] = useState<Imessage[] | []>([]);
+  // const chunksRef = useRef<Blob[]>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const mediaRecorderRef = useRef<MediaRecorder | null>(null);
-  const chunksRef = useRef<Blob[]>([]);
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  const selectedChatRef = useRef<Imessage[]>([]);
   const userId = useRef<string>("");
   const chatSocket = useRef<Socket | null>(null);
 
@@ -38,7 +39,10 @@ const Message: React.FC = () => {
     let flag = true;
     const fetchChat = async () => {
       try {
-        const { status, data } = await (usr=="mentee"?protectedAPI:axiosInstance).get(`/${usr}/chats`, {
+        const { status, data } = await (usr == "mentee"
+          ? protectedAPI
+          : axiosInstance
+        ).get(`/${usr}/chats`, {
           params: { role: usr },
         });
 
@@ -72,14 +76,16 @@ const Message: React.FC = () => {
         chatSocket.current?.id
       );
     });
+
     chatSocket.current.on("disconnect", () => {
       console.log("Disconnected from chat namespace");
     });
+
     chatSocket.current.on("userOnline", (data) => {
       console.log(userId.current, data.userId, "User Online:", data.userId);
       setUsers((pre) =>
         pre.map((usr) =>
-          usr.users?._id === data?.userId
+          data.includes(usr.users?._id)
             ? { ...usr, users: { ...usr.users, online: true } }
             : usr
         )
@@ -89,23 +95,29 @@ const Message: React.FC = () => {
     chatSocket.current.on("userOffline", (data) => {
       setUsers((pre) =>
         pre.map((usr) =>
-          usr.users?._id === data?.userId
+          data.includes(usr.users?._id)
             ? { ...usr, users: { ...usr.users, online: false } }
             : usr
         )
       );
-      console.log("user goes offline");
     });
+
     chatSocket.current.on("receive-message", (data) => {
-      console.log(data.result, data.roomId, "messagerecieved");
+      console.error(data.result, data.roomId, "messagerecieved");
+      setMessages((prevMessages) => [...prevMessages, data.result]);
     });
-    // chatSocket.on("reconnect", (attempt) => {
-    //   console.log(`Reconnected after ${attempt} attempts`);
-    // });
+
+    chatSocket.current.on("all-message", ({ result, roomId }) => {
+      if (selectedUser?._id == roomId) {
+        setMessages(result);
+        console.log(roomId, `full messages ${result} `, result);
+      }
+    });
 
     chatSocket.current.on("connect_error", (err) => {
       console.error("Connection error:", err);
     });
+
     return () => {
       if (!chatSocket.current) return;
       chatSocket.current.off("userOnline");
@@ -113,102 +125,57 @@ const Message: React.FC = () => {
       chatSocket.current.off("connect");
       chatSocket.current.off("disconnect");
       chatSocket.current.off("connect_error");
+      chatSocket.current.off("receive-message");
+      chatSocket.current.off("all-message");
+      
     };
-  }, [chatSocket, users]);
+  }, [selectedUser?._id, users]);
 
   useEffect(() => {
     if (messagesEndRef.current) {
       messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
     }
-  }, [selectedChatRef]);
+  }, [messages]);
 
   const filteredUsers = users.filter((user) =>
-    user.users?.name.toLowerCase().includes(searchQuery.toLowerCase())
+    user?.users?.name.toLowerCase().includes(searchQuery.toLowerCase())
   );
   console.log(currentUser, "currentUser");
 
-  const getMessage = async (chatId: string): Promise<void> => {
-    try {
-      const { status, data } = await (currentUser=='mentee'?protectedAPI:axiosInstance).get(
-        `/${currentUser}/messages`,
-        { params: chatId }
-      );
+  // const getMessage = async (chatId: string): Promise<void> => {
+  //   try {
+  //     const resposne = await (currentUser == "mentee"
+  //       ? protectedAPI
+  //       : axiosInstance
+  //     ).get(`/${currentUser}/messages`, { params: chatId });
 
-      if (status == 200 && data.success) {
-        // setSelectedChat(data?.result);
-        selectedChatRef.current = data?.result;
-      }
-    } catch (error: unknown) {
-      console.error(error instanceof Error ? error.message : String(error));
-    }
-  };
+  //     if (resposne?.data && resposne?.data.success) {
+  //       setMessages(resposne?.data?.result);
+  //       console.log(resposne?.data.result, "theis si teh user meessage");
+
+  //     }
+  //   } catch (error: unknown) {
+  //     console.error(error instanceof Error ? error.message : String(error));
+  //   }
+  // };
+
   const handleSelectedUser = async (user: Ichat) => {
-    if (selectedUser?._id !== user?._id) {
-      selectedChatRef.current = [];
-    }
-
+    setMessages([]);
+  
     setSelectedUser(user); // save the selected User
     console.log(user, "thsi si the seledted user");
+    if (!user?._id) return;
     if (chatSocket.current) {
       chatSocket.current.emit("join-room", { roomId: user["_id"] });
     }
-    console.log(user?._id, "roomid");
-    const res = await getMessage(user?._id);
-    console.log(res, "this si get message", selectedChatRef);
   };
 
-  const handleSendMessage = () => {
-    if (messageInput.trim() || selectedFile || audioBlob) {
-      let senderId: string;
-      let receiverId: string;
-      if (currentUser == "mentee") {
-        senderId = selectedUser?.menteeId as string;
-        receiverId = selectedUser?.mentorId as string;
-      } else {
-        senderId = selectedUser?.mentorId as string;
-        receiverId = selectedUser?.menteeId as string;
-      }
-
-      const newMessage: Imessage = {
-        chatId: selectedUser?._id as string,
-        senderId,
-        receiverId,
-        content: messageInput.trim(),
-        senderType: currentUser,
-        messageType: "text",
-      };
-
-      if (selectedFile) {
-        newMessage.messageType = selectedFile.type.startsWith("image/")
-          ? "image"
-          : "document";
-        newMessage.mediaUrl = previewUrl || "";
-        // newMessage.fileName = selectedFile.name;
-      } else if (audioBlob) {
-        newMessage.messageType = "audio";
-        newMessage.mediaUrl = URL.createObjectURL(audioBlob);
-      }
-
-      // setMessages([...selectedChatRef.current, newMessage]);
-      console.log(newMessage, "thsi si the new mewsage");
-      if (chatSocket.current) {
-        chatSocket.current?.emit("new-message", {
-          roomId: selectedUser?._id,
-          message: newMessage,
-        });
-      }
-      selectedChatRef.current.push(newMessage);
-      setMessageInput("");
-      setSelectedFile(null);
-      setPreviewUrl(null);
-      setAudioBlob(null);
-    }
-  };
-  console.log(selectedChatRef.current, "chat", selectedUser);
-  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const handleFileSelect = (e: any) => {
+    const file: File | null = e.target.files?.[0];
     if (file) {
       setSelectedFile(file);
+
       if (file.type.startsWith("image/")) {
         const reader = new FileReader();
         reader.onloadend = () => {
@@ -219,56 +186,114 @@ const Message: React.FC = () => {
     }
   };
 
-  const handleStartRecording = async () => {
-    try {
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      const mediaRecorder = new MediaRecorder(stream);
-      mediaRecorderRef.current = mediaRecorder;
-      chunksRef.current = [];
+  const handleSendMessage = async () => {
+    setBtnDisable(true);
 
-      mediaRecorder.ondataavailable = (e) => {
-        chunksRef.current.push(e.data);
-      };
+    if (!selectedFile && !messageInput.trim()) {
+      //|| audioBlob
 
-      mediaRecorder.onstop = () => {
-        const blob = new Blob(chunksRef.current, { type: "audio/webm" });
-        setAudioBlob(blob);
-        stream.getTracks().forEach((track) => track.stop());
-      };
+      return;
+    }
+    let senderId: string;
+    let receiverId: string;
+    if (currentUser == "mentee") {
+      senderId = selectedUser?.menteeId as string;
+      receiverId = selectedUser?.mentorId as string;
+    } else {
+      senderId = selectedUser?.mentorId as string;
+      receiverId = selectedUser?.menteeId as string;
+    }
 
-      mediaRecorder.start();
-      setIsRecording(true);
+    const newMessage: Imessage = {
+      chatId: selectedUser?._id as string,
+      senderId,
+      receiverId,
+      content: messageInput.trim(),
+      senderType: currentUser,
+      messageType: "text",
+    };
 
-      // Start timer
-      const startTime = Date.now();
-      const timerInterval = setInterval(() => {
-        setRecordingTime(Math.floor((Date.now() - startTime) / 1000));
-      }, 1000);
+    if (selectedFile) {
+      console.log("selectedFile");
 
-      mediaRecorder.addEventListener("stop", () => {
-        clearInterval(timerInterval);
-        setRecordingTime(0);
+      newMessage.messageType = selectedFile.type.startsWith("image/")
+        ? "image"
+        : "document";
+
+      newMessage.content = await uploadFile(selectedFile);
+    }
+    //  else if (audioBlob) {
+    //   newMessage.messageType = "audio";
+    //   newMessage.mediaUrl = URL.createObjectURL(audioBlob);
+    // }
+
+   
+    console.log(newMessage, "thsi si the new mewsage");
+
+    if (chatSocket.current) {
+      chatSocket.current?.emit("new-message", {
+        roomId: selectedUser?._id,
+        message: newMessage,
       });
-    } catch (error) {
-      console.error("Error accessing microphone:", error);
     }
+ 
+    setMessageInput("");
+    setSelectedFile(null);
+    setPreviewUrl(null);
+    setBtnDisable(false);
+    // setAudioBlob(null);
   };
 
-  const handleStopRecording = () => {
-    if (mediaRecorderRef.current && isRecording) {
-      mediaRecorderRef.current.stop();
-      setIsRecording(false);
-    }
-  };
+  // const handleStartRecording = async () => {
+  //   try {
+  //     const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+  //     const mediaRecorder = new MediaRecorder(stream);
+  //     mediaRecorderRef.current = mediaRecorder;
+  //     chunksRef.current = [];
 
-  const formatTime = (seconds: number) => {
-    const mins = Math.floor(seconds / 60);
-    const secs = seconds % 60;
-    return `${mins}:${secs.toString().padStart(2, "0")}`;
-  };
+  //     mediaRecorder.ondataavailable = (e) => {
+  //       chunksRef.current.push(e.data);
+  //     };
+
+  //     mediaRecorder.onstop = () => {
+  //       const blob = new Blob(chunksRef.current, { type: "audio/webm" });
+  //       setAudioBlob(blob);
+  //       stream.getTracks().forEach((track) => track.stop());
+  //     };
+
+  //     mediaRecorder.start();
+  //     setIsRecording(true);
+
+  //     // Start timer
+  //     const startTime = Date.now();
+  //     const timerInterval = setInterval(() => {
+  //       setRecordingTime(Math.floor((Date.now() - startTime) / 1000));
+  //     }, 1000);
+
+  //     mediaRecorder.addEventListener("stop", () => {
+  //       clearInterval(timerInterval);
+  //       setRecordingTime(0);
+  //     });
+  //   } catch (error) {
+  //     console.error("Error accessing microphone:", error);
+  //   }
+  // };
+
+  // const handleStopRecording = () => {
+  //   if (mediaRecorderRef.current && isRecording) {
+  //     mediaRecorderRef.current.stop();
+  //     setIsRecording(false);
+  //   }
+  // };
+
+  // const formatTime = (seconds: number) => {
+  //   const mins = Math.floor(seconds / 60);
+  //   const secs = seconds % 60;
+  //   return `${mins}:${secs.toString().padStart(2, "0")}`;
+  // };
 
   return (
-    <div className="h-[calc(100vh-4rem)] pt-10 flex">
+    <div className="h-[calc(100vh-3rem)] pt-12 flex">
       {/* Users List */}
       <div className="w-80 border-r border-gray-200 bg-white">
         <div className="p-4">
@@ -287,34 +312,34 @@ const Message: React.FC = () => {
         <div className="overflow-y-auto h-[calc(100%-5rem)]">
           {filteredUsers.map((user) => (
             <button
-              key={user.users?._id}
+              key={user?.users?._id}
               onClick={() => handleSelectedUser(user as Ichat)}
-              className={`w-full p-4 flex items-center gap-4 hover:bg-gray-50 ${
-                selectedUser?._id === user.users?._id ? "bg-gray-50" : ""
+              className={`w-full p-4 flex items-center gap-4 hover:bg-gray-100 ${
+                selectedUser?._id === user?.users?._id ? "bg-gray-50" : ""
               }`}
             >
               <div className="relative">
                 <img
-                  src={user.users?.profileUrl}
-                  alt={user.users?.name}
+                  src={user?.users?.profileUrl}
+                  alt={user?.users?.name}
                   className="w-12 h-12 rounded-full"
                 />
 
-                {user.users?.online && (
+                {user?.users?.online && (
                   <span
                     className={`absolute bottom-0 right-0 w-3 h-3 bg-green-500 rounded-full border-2 border-white`}
                   />
                 )}
               </div>
-              <div className="flex-1 min-w-0">
-                <div className="flex justify-between items-start">
+              <div className="flex-1 min-w-0 ">
+                <div className="flex justify-between items-end">
                   <p className="font-medium text-gray-900 truncate">
                     {user?.users?.name}
                   </p>
-                  {/* <span className="text-xs text-gray-500">{user?.lastMessageTime}</span> */}
+                  <span className="text-xs text-gray-600 justify-end ">{moment(user?.updatedAt).format('HH-mm')}</span>
                 </div>
-                <p className="text-sm text-gray-500 truncate">
-                  {user.lastMessage}
+                <p className="text-sm text-gray-500 truncate  ">
+                {user?.lastMessage}
                 </p>
               </div>
               {/* {user.unreadCount > 0 && (
@@ -332,7 +357,10 @@ const Message: React.FC = () => {
         {selectedUser ? (
           <>
             {/* Chat Header */}
-            <div className="p-4 bg-white border-b border-gray-200 flex items-center gap-4">
+            <div
+              className="p-4 bg-white border-b border-gray-200 flex items-center gap-4"
+              key={selectedUser?._id}
+            >
               <img
                 src={selectedUser?.users?.profileUrl}
                 alt={selectedUser?.users?.name}
@@ -349,58 +377,91 @@ const Message: React.FC = () => {
             </div>
 
             {/* Messages */}
-            <div
-              className="flex-1 overflow-y-auto p-4"
-              key={`${selectedUser?._id}`}
-            >
-              {selectedChatRef?.current?.map((message, index) => (
-                <div className="space-y-4" key={message?._id || index}>
+            <div className="flex-1 overflow-y-auto p-4 break-words overflow-hidden">
+              {messages?.map((message, index) => (
+                <div className="space-y-2" key={message?._id || index}>
                   <div
                     className={`flex ${
-                      message.senderId !== selectedUser?._id
-                        ? "justify-end items-end "
-                        : "justify-start"
+                      message.receiverId ==
+                      (currentUser === "mentee"
+                        ? selectedUser?.menteeId
+                        : selectedUser?.mentorId)
+                        ? "justify-start"
+                        : "justify-end "
                     }`}
                   >
                     <div
-                      className={`max-w-[70%] rounded-lg p-3 ${
-                        message.senderId !== selectedUser?._id
-                          ? "bg-[#ff8800] text-white"
-                          : "bg-white border border-gray-200"
-                      }`}
+                      className={`max-w-[100%] rounded-lg p-3  flex space-x-2 ${
+                        message.receiverId ===
+                        (currentUser === "mentee"
+                          ? selectedUser?.menteeId
+                          : selectedUser?.mentorId)
+                          ? "bg-white border border-gray-200"
+                          : "bg-[#a0a0a0] text-white"
+                      } `}
                     >
                       {message.messageType === "text" && (
                         <p>{message.content}</p>
                       )}
-                      {message.messageType === "image" && message?.mediaUrl && (
+                      {message.messageType === "image" && message?.content && (
                         <img
-                          src={message?.mediaUrl}
+                          src={message?.content}
                           alt="Shared image"
-                          className="rounded-lg max-w-full"
+                          className="rounded-lg max-w-sm"
                         />
                       )}
-                      {message.messageType === "document" &&
-                        message?.mediaUrl && (
-                          <div className="flex items-center gap-2">
-                            <Paperclip className="h-4 w-4" />
-                            <span>{message?.mediaUrl}</span>
-                          </div>
-                        )}
-                      {message.messageType === "audio" && message?.mediaUrl && (
+                      {message?.messageType === "document" &&
+                        message?.content &&
+                        (() => {
+                          const decoded = decodeURIComponent(
+                            message?.content.split("/").pop() || ""
+                          );
+                          return (
+                            <div
+                              className={`flex items-center gap-3 p-3 rounded-lg border ${
+                                message.receiverId ===
+                                (currentUser === "mentee"
+                                  ? selectedUser?.menteeId
+                                  : selectedUser?.mentorId)
+                                  ? "border-[#a3a3a3] text-gray-400 "
+                                  : " border-gray-300  text-white-400"
+                              }`}
+                            >
+                              <Link
+                                to={message?.content}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="flex items-center gap-2"
+                              >
+                                <div className="p-2 bg-teal-100 text-teal-600 rounded-full">
+                                  <Paperclip className="h-5 w-5" />
+                                </div>
+                                <span className="truncate max-w-[200px] font-medium">
+                                  {decoded}
+                                </span>
+                              </Link>
+                            </div>
+                          );
+                        })()}
+
+                      {/* {message.messageType === "audio" && message?.mediaUrl && (
                         <audio
                           src={message?.mediaUrl}
                           controls
                           className="w-full"
                         />
-                      )}
+                      )} */}
                       <span
-                        className={`text-xs ${
-                          message.senderId !== selectedUser?._id
-                            ? "text-white/80"
-                            : "text-gray-500"
+                        className={`text-xs flex ${
+                          message.receiverId ===
+                          (currentUser === "mentee"
+                            ? selectedUser?.menteeId
+                            : selectedUser?.mentorId)
+                            ? "text-gray-400 justify-start items-end"
+                            : "text-gray-200 justify-end items-end"
                         } block mt-1`}
                       >
-                        {message?.createdAt}
+                        {moment(message?.createdAt).format("HH-mm")}
                       </span>
                     </div>
                   </div>
@@ -433,7 +494,7 @@ const Message: React.FC = () => {
                 </div>
               )}
 
-              {audioBlob && !isRecording && (
+              {/* {audioBlob && !isRecording && (
                 <div className="mb-4 flex items-center gap-4">
                   <audio
                     src={URL.createObjectURL(audioBlob)}
@@ -447,9 +508,9 @@ const Message: React.FC = () => {
                     <X className="h-4 w-4" />
                   </button>
                 </div>
-              )}
+              )} */}
 
-              {isRecording && (
+              {/* {isRecording && (
                 <div className="mb-4 flex items-center gap-4 text-red-500">
                   <span className="animate-pulse">●</span>
                   <span>Recording {formatTime(recordingTime)}</span>
@@ -460,12 +521,13 @@ const Message: React.FC = () => {
                     <X className="h-4 w-4" />
                   </button>
                 </div>
-              )}
+              )} */}
 
               <div className="flex items-center gap-4">
                 <input
                   type="text"
                   value={messageInput}
+                  disabled={selectedFile ? true : false}
                   onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
                     setMessageInput(e.target.value)
                   }
@@ -488,7 +550,7 @@ const Message: React.FC = () => {
                   <Paperclip className="h-5 w-5" />
                 </button>
 
-                <button
+                {/* <button
                   onClick={() => {
                     if (isRecording) {
                       handleStopRecording();
@@ -499,14 +561,14 @@ const Message: React.FC = () => {
                   className="p-2 text-gray-500 hover:text-gray-700"
                 >
                   <Mic className="h-5 w-5" />
-                </button>
+                </button> */}
 
                 <button
                   onClick={handleSendMessage}
-                  disabled={!messageInput && !selectedFile && !audioBlob}
+                  disabled={(!messageInput && !selectedFile) || btnDisable} //&& !audioBlob
                   className="p-2 text-white bg-[#ff8800] rounded-lg hover:bg-[#ff9900] disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  <Send className="h-5 w-5" />
+                  {btnDisable ? <Spinner /> : <Send className="h-5 w-5" />}
                 </button>
               </div>
             </div>

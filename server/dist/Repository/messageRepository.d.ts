@@ -1,10 +1,11 @@
 import { baseRepository } from "./baseRepo";
 import { ImessageRepository } from "../Interface/chat/ImessageRepository";
 import { Imessage } from "../Model/messageSchema";
+import { ObjectId } from "mongoose";
 declare class messageRepository extends baseRepository<Imessage> implements ImessageRepository {
     constructor();
-    getMessage(): Promise<Imessage[] | []>;
-    createMessage(data: Partial<Imessage>): Promise<Imessage | null>;
+    getMessage(chatId: ObjectId): Promise<Imessage[] | []>;
+    createMessage(data: Imessage): Promise<Imessage | null>;
 }
 declare const _default: messageRepository;
 export default _default;

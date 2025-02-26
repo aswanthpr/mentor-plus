@@ -58,7 +58,7 @@ const MenteeRoute: React.FC = () => (
           path="/messages"
           element={<MenteeLogin element={<Message/>} />}
         />
-        {/* <Route path="/wallet" element={<MenteeLogin element={<Wallet />} />} />; */}
+        <Route path="/wallet" element={<MenteeLogin element={<Wallet />} />} />;
         <Route path="/qa" element={<MenteeLogin element={<QnA_page />} />} />;
         <Route path="/google/success" element={<GoogleSuccess />} />;
         <Route path="/google/failure" element={<GoogleFailure />} />;

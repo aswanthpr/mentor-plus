@@ -14,8 +14,8 @@ export const StripeComplete=() =>{
         <p className="text-gray-600 my-2">Thank you for completing your secure online payment.</p>
         <p>Have a great day!</p>
         <div className="py-10">
-          <Link to="/mentee/explore" className="px-12 bg-indigo-600 hover:bg-indigo-500 text-white font-semibold py-3 rounded-lg">
-            Go to Explore
+          <Link to="/mentee/bookings" className="px-12 bg-indigo-600 hover:bg-indigo-500 text-white font-semibold py-3 rounded-lg">
+            Go to Bookings
           </Link>
         </div>
       </div>
