@@ -121,40 +121,44 @@ export const BookingPage: React.FC = () => {
 
         {/* Time Slots */}
         <div className="bg-white rounded-lg shadow-md p-6 mb-8">
-          <h2 className="text-xl font-semibold mb-4">Select Time Slot</h2>
-          <div className="relative">
-            <div className="flex overflow-x-auto gap-4 pb-4 scrollbar-hide">
-              {timeSlot.map((slot) => (
-                <button
-                  key={slot?._id}
-                  onClick={() => handleSlotClick(slot)}
-                  className={`flex-shrink-0 p-4 rounded-lg border-2 transition-colors ${
-                    selectedSlot?._id === slot?._id
-                      ? "border-orange-500 bg-orange-50"
-                      : "border-gray-200 hover:border-orange-200"
-                  }`}
-                >
-                  <p className="text-gray-600 text-sm flex">
-                    <Calendar className="w-3 mr-1" />
-                    {moment(slot?.startDate).format('DD-MM-YYYY')}
-                  </p>
-                  <p className="text-gray-600 font-light text-sm flex">
-                    <PlayCircle className="w-3 mr-1" />{" "}
-                    {moment(slot?.startTime).format("hh:mm a")}
-                  </p>
-                  <p className="text-gray-600 text-sm flex">
-                    <Clock10Icon className="w-3 mr-1" />{" "}
-                    {slot?.duration}  min
-                  </p>
-                  <p className="text-gray-600 text-sm">${slot?.price}</p>
-                </button>
-              ))}
-            </div>
-          </div>
-          {errorMessage && (
-            <p className="text-red-500 text-sm mt-2">{errorMessage}</p>
-          )}
-        </div>
+  <h2 className="text-xl font-semibold mb-4">Select Time Slot</h2>
+  <div className="relative">
+    {timeSlot.length > 0 ? (
+      <div className="flex overflow-x-auto gap-4 pb-4 scrollbar-hide">
+        {timeSlot.map((slot) => (
+          <button
+            key={slot?._id}
+            onClick={() => handleSlotClick(slot)}
+            className={`flex-shrink-0 p-4 rounded-lg border-2 transition-colors ${
+              selectedSlot?._id === slot?._id
+                ? "border-orange-500 bg-orange-50"
+                : "border-gray-200 hover:border-orange-200"
+            }`}
+          >
+            <p className="text-gray-600 text-sm flex">
+              <Calendar className="w-3 mr-1" />
+              {moment(slot?.startDate).format('DD-MM-YYYY')}
+            </p>
+            <p className="text-gray-600 font-light text-sm flex">
+              <PlayCircle className="w-3 mr-1" />{" "}
+              {moment(slot?.startTime).format("hh:mm a")}
+            </p>
+            <p className="text-gray-600 text-sm flex">
+              <Clock10Icon className="w-3 mr-1" />{" "}
+              {slot?.duration} min
+            </p>
+            <p className="text-gray-600 text-sm">${slot?.price}</p>
+          </button>
+        ))}
+      </div>
+    ) : (
+      <div className="flex flex-col items-center justify-center text-gray-500 p-6">
+        <Calendar className="w-8 h-8 mb-2 text-gray-400" />
+        <p className="text-sm">No slots available</p>
+      </div>
+    )}
+  </div>
+</div>
         {/* Message */}
         <div className="bg-white rounded-lg shadow-md p-6 mb-8">
           <h2 className="text-xl font-semibold mb-4">

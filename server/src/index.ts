@@ -6,6 +6,7 @@ import session from "express-session";
 import cookieParser from "cookie-parser";
 import { Server } from "socket.io";
 import dotenv from "dotenv";dotenv.config();
+import helmet from "helmet";
 
 //custorm imports 
 import { fileLogger } from "./Config/logger";
@@ -41,7 +42,7 @@ socketManager.initialize();
 //using middlewares
 app.use(cors(corsOptions));
 app.use(cookieParser());
-
+app.use(helmet())
 app.use((req, res, next) => {
   if (req.originalUrl === "/mentee/webhook") {
  

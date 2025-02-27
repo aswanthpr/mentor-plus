@@ -12,5 +12,6 @@ export const corsOptions = {
     "Set-Cookie",
   ],
   preflightContinue: false,
-  optionsSuccessStatus: 200,
+  optionsSuccessStatus: 204,
 };
+
