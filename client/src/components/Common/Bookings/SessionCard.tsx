@@ -171,6 +171,7 @@ const handleSessionJoin = () => {
                 setMentorStatusChange(e.target?.value);
                 if (handleReclaimRequest) {
                   handleReclaimRequest(session?._id, e.target?.value);
+                  setMentorStatusChange("")
                 }
               }}
               options={["APPROVE","REJECTED"]}

@@ -18,7 +18,7 @@ const NotificationPanel: React.FC<INotificationPanel> = ({
 }) => {
  
   if (!isOpen) return null;
-  const unreadCount = notification.filter((n) => !n.isRead).length;
+  const unreadCount = notification?.filter((n) => !n.isRead).length;
 
   return (
     <div className="absolute right-0 mt-2 w-80 sm:w-96 bg-white rounded-lg shadow-lg border border-gray-200 z-50">
@@ -44,7 +44,7 @@ const NotificationPanel: React.FC<INotificationPanel> = ({
         </div>
       </div>
       <div className="divide-y divide-gray-200 max-h-[calc(100vh-200px)] overflow-y-auto">
-        {notification.length > 0 ? (
+        {notification?.length > 0 ? (
           notification.map((notify) => (
             <NotificationItems
               key={notify._id}

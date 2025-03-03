@@ -105,6 +105,21 @@ const Message: React.FC = () => {
     chatSocket.current.on("receive-message", (data) => {
       console.error(data.result, data.roomId, "messagerecieved");
       setMessages((prevMessages) => [...prevMessages, data.result]);
+      setUsers((pre) =>
+        pre.map((usr) =>
+          usr?._id == data?.result?.chatId
+            ? {
+                ...usr,
+                lastMessage:
+                  data?.result?.messageType == "text"
+                    ? data?.result?.content
+                    : decodeURIComponent(
+                        data?.result?.content.split("/").pop()
+                      ),
+              }
+            : usr
+        )
+      );
     });
 
     chatSocket.current.on("all-message", ({ result, roomId }) => {
@@ -127,7 +142,6 @@ const Message: React.FC = () => {
       chatSocket.current.off("connect_error");
       chatSocket.current.off("receive-message");
       chatSocket.current.off("all-message");
-      
     };
   }, [selectedUser?._id, users]);
 
@@ -142,26 +156,9 @@ const Message: React.FC = () => {
   );
   console.log(currentUser, "currentUser");
 
-  // const getMessage = async (chatId: string): Promise<void> => {
-  //   try {
-  //     const resposne = await (currentUser == "mentee"
-  //       ? protectedAPI
-  //       : axiosInstance
-  //     ).get(`/${currentUser}/messages`, { params: chatId });
-
-  //     if (resposne?.data && resposne?.data.success) {
-  //       setMessages(resposne?.data?.result);
-  //       console.log(resposne?.data.result, "theis si teh user meessage");
-
-  //     }
-  //   } catch (error: unknown) {
-  //     console.error(error instanceof Error ? error.message : String(error));
-  //   }
-  // };
-
   const handleSelectedUser = async (user: Ichat) => {
     setMessages([]);
-  
+
     setSelectedUser(user); // save the selected User
     console.log(user, "thsi si the seledted user");
     if (!user?._id) return;
@@ -227,7 +224,6 @@ const Message: React.FC = () => {
     //   newMessage.mediaUrl = URL.createObjectURL(audioBlob);
     // }
 
-   
     console.log(newMessage, "thsi si the new mewsage");
 
     if (chatSocket.current) {
@@ -236,7 +232,7 @@ const Message: React.FC = () => {
         message: newMessage,
       });
     }
- 
+
     setMessageInput("");
     setSelectedFile(null);
     setPreviewUrl(null);
@@ -336,10 +332,12 @@ const Message: React.FC = () => {
                   <p className="font-medium text-gray-900 truncate">
                     {user?.users?.name}
                   </p>
-                  <span className="text-xs text-gray-600 justify-end ">{moment(user?.updatedAt).format('HH-mm')}</span>
+                  <span className="text-xs text-gray-600 justify-end ">
+                    {moment(user?.updatedAt).format("HH-mm")}
+                  </span>
                 </div>
                 <p className="text-sm text-gray-500 truncate  ">
-                {user?.lastMessage}
+                  {user?.lastMessage}
                 </p>
               </div>
               {/* {user.unreadCount > 0 && (

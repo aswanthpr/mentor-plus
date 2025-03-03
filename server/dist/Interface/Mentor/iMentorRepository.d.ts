@@ -1,11 +1,14 @@
-import mongoose from "mongoose";
+import mongoose, { PipelineStage } from "mongoose";
 import { Imentor } from "../../Model/mentorModel";
 import { ImentorApplication } from "../../Types";
 export interface ImentorRepository {
     findMentor(email?: string, phone?: string): Promise<Imentor | null>;
     createMentor(mentorData: ImentorApplication, imageUrl: string, fileUrl: string): Promise<Imentor | undefined>;
     findAllMentor(): Promise<Imentor[] | null>;
-    findVerifiedMentor(): Promise<Imentor[] | null>;
+    findVerifiedMentor(aggregateData: PipelineStage[]): Promise<{
+        mentor: Imentor[] | null;
+        count: number;
+    }>;
     verifyMentor(id: mongoose.Types.ObjectId): Promise<Imentor | null>;
     changeMentorStatus(id: mongoose.Types.ObjectId): Promise<Imentor | null>;
     findMentorAndUpdate(email: string, password: string): Promise<Imentor | null>;

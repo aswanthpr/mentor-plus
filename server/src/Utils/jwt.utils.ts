@@ -4,7 +4,7 @@ import jwt, { JwtPayload } from "jsonwebtoken";
 export const genAccesssToken = (payload: string): string | undefined => {
   try {
     return jwt.sign({userId:payload}, process?.env?.JWT_ACCESS_SECRET as string, {
-      expiresIn:process.env.ACCESS_TOKEN_EXPIRY as string,
+      expiresIn:'1h',
     });
   } catch (error: unknown) {
     console.log(
@@ -17,7 +17,7 @@ export const genAccesssToken = (payload: string): string | undefined => {
 export const genRefreshToken = (payload: string): string | undefined => {
   try {
     return jwt.sign({userId:payload}, process?.env?.JWT_REFRESH_SECRET as string, {
-      expiresIn:process.env.REFRESH_TOKEN_EXPIRY as string,
+      expiresIn:"14d",
     });
   } catch (error: unknown) {
     console.log(

@@ -1,10 +1,4 @@
-import otpGen from "otp-generator";
 
-export default function genOtp(): string {
-  return otpGen.generate(6, {
-    upperCaseAlphabets: false,
-    lowerCaseAlphabets: false,
-    digits: true,
-    specialChars: false,
-  });
+export default  function genOtp():string{
+  return Math.floor(100000 + Math.random() * 900000).toString();
 }

@@ -173,4 +173,14 @@ export class baseRepository<T extends Document> implements IbaseRepository<T> {
       );
     }
   }
+
+
+  async countDocument(filter:object):Promise<number>{
+    try {
+      return await this.model.countDocuments(filter);
+    } catch (error:unknown) {
+      console.error("Error while counting documents:", error instanceof Error?error.message:String(error));
+      throw new Error("Failed to count documents");
+    }
+  }
 }

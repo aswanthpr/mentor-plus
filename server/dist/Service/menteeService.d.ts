@@ -43,13 +43,22 @@ export declare class menteeService implements ImenteeService {
         accessToken?: string;
         refreshToken?: string;
     }>;
-    exploreData(): Promise<{
+    exploreData(params: {
+        search: string | undefined;
+        categories: string[] | [];
+        skill: string[] | [];
+        page: string;
+        limit: string;
+        sort: string;
+    }): Promise<{
         success: boolean;
         message: string;
         status: number;
         mentor?: Imentor[] | null;
         category?: Icategory[] | null;
         skills: Imentor[] | undefined;
+        currentPage?: number;
+        totalPage?: number;
     }>;
     homeData(filter: string): Promise<{
         success: boolean;

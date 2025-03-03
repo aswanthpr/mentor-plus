@@ -13,7 +13,7 @@ interface SelectFieldProps {
 
 const SelectField: React.FC<SelectFieldProps> = ({classNames, label, value, onChange, options, placeholder }) => {
   return (
-    <FormControl fullWidth variant="outlined">
+    <FormControl fullWidth variant="outlined"  >
       <InputLabel>{label}</InputLabel>
       <Select
         label={label}

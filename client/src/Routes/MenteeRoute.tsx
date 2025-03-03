@@ -41,7 +41,7 @@ const MenteeRoute: React.FC = () => (
         ;
         <Route path="explore">
           <Route index element={<MenteeLogin element={<Explore />} />} />
-          {/* <Route path='mentor/:mentorId' element={<MentorProfile />} /> */}
+          <Route path='mentor/:mentorId' element={<MentorProfile />} />
           <Route
             path=":name"
             element={<MenteeLogin element={<MentorProfile />} />}

@@ -2,6 +2,7 @@ import { toast } from "react-toastify";
 import { Outlet } from "react-router-dom";
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { Home, MessageSquare, Calendar, Wallet, Video } from "lucide-react";
 
 import { RootState } from "../../Redux/store";
@@ -22,14 +23,14 @@ const navItems: INavItem[] = [
   { name: "Session", path: "/mentor/session", icon: Video },
   { name: "Messages", path: "/mentor/messages", icon: MessageSquare },
   { name: "Schedule", path: "/mentor/Schedule", icon: Calendar },
-  { name: "Wallet", path: "/mentor/wallet", icon: Wallet },
+  // { name: "Wallet", path: "/mentor/wallet", icon: Wallet },
   // { name: 'Q&A', path: '/mentor/qa', icon: HelpCircle },
 ];
 
 const Mentor_Page: React.FC = () => {
   const dispatch = useDispatch();
   const notification = useSelector(
-    (state: RootState) => state.notificationSlice.mentorNotification
+    (state: RootState) => state?.notificationSlice.mentor
   );
   const [isSideBarOpen, setIsSideBarOpen] = useState<boolean>(false);
   const [searchValue, setSearchValue] = useState<string>("");
@@ -39,17 +40,17 @@ const Mentor_Page: React.FC = () => {
 
     const fetchData = async () => {
       try {
-        const { data, status } = await axiosInstance.get(
+        const response = await axiosInstance.get(
           `/mentor/notification`
         );
-        console.log(data, status);
-        if (flag && status == 200 && data.success) {
-          const user_Id = data.result[0]["userId"] as string;
+
+        if (flag && response.status == 200 && response.data.success) {
+          const user_Id = response.data.result[0]["userId"] as string;
           setUserId(user_Id);
           dispatch(
             setNotification({
               userType: "mentor",
-              notification: data["result"],
+              notification: response.data["result"],
             })
           );
           if (user_Id) {
@@ -68,15 +69,15 @@ const Mentor_Page: React.FC = () => {
       flag = false;
        disconnectNotificationSocket();
     };
-  }, [dispatch]);
+  }, [dispatch, userId]);
 
   const handleReadNotification = async (id: string) => {
     try {
-      const { status, data } = await axiosInstance.patch(
+      const response = await axiosInstance.patch(
         `/mentor/notification-read/${id}`
       );
 
-      if (status == 200 && data.success) {
+      if (response.status == 200 && response.data.success) {
         dispatch(markAsRead({ userType: "mentor", id }));
       }
     } catch (error: unknown) {
@@ -136,6 +137,6 @@ const Mentor_Page: React.FC = () => {
       </main>
     </div>
   );
-};
+}; 
 
 export default Mentor_Page;

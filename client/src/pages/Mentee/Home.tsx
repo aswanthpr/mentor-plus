@@ -260,7 +260,7 @@ const Home: React.FC = () => {
 
   return (
     <div>
-      <div className="mb-8 mt-16 ">
+      <div className="mb-6 mt-16 ">
         {loading && <Spinner />}
         <div className="flex items-center gap-3 mb-4 ">
           <h1 className="text-3xl font-bold text-gray-900 ml-8  xs:text-xl sm:ml-0 ">

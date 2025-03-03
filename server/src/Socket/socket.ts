@@ -16,7 +16,7 @@ export class SocketManager {
     this.io = io;
   }
   public initialize() {
-    this.setupChat();
+    this.setupChat(); 
     this.setupNotifications();
     // this.setupWebRTC();
   }
@@ -46,7 +46,7 @@ export class SocketManager {
       .to(userId)
       .emit("receive-notification", message);
   };
-
+  
   //chat=====================================================================
 
   private setupChat() {
@@ -173,6 +173,7 @@ export class SocketManager {
     });
   }
 }
+//============================================================================
 //=============================================================================
 // private setupWebRTC() {
 //   const webrtcNamespace = this.io.of("/webrtc");

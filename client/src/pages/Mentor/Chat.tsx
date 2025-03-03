@@ -2,80 +2,13 @@ import React, { useState, useRef, useEffect } from "react";
 import { Search, Send, Paperclip, Mic, X } from "lucide-react";
 import { errorHandler } from "../../Utils/Reusable/Reusable";
 import { axiosInstance } from "../../Config/mentorAxios";
-// import {
-//   checkOnline,
-//   disconnect,
-//   joinRoom,
-//   listenOnline,
-//   registerUser,
-//   sendMessage,
-// } from "../../Socket/socketService";
-// import { connectToChat } from "../../Socket/connect";
 
-// interface User {
-//   id: string;
-//   name: string;
-//   avatar: string;
-//   lastMessage: string;
-//   lastMessageTime: string;
-//   unreadCount: number;
-//   online: boolean;
-// }
-
-// interface Message {
-//   id: string;
-//   senderId: string;
-//   content: string;
-//   timestamp: string;
-//   type: "text" | "image" | "document" | "audio";
-//   fileUrl?: string;
-//   fileName?: string;
-// }
-
-// Mock data
-// const mockUsers: User[] = [
-//   {
-//     id: '1',
-//     name: 'John Doe',
-//     avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e',
-//     lastMessage: 'Thanks for the session!',
-//     lastMessageTime: '10:30 AM',
-//     unreadCount: 2,
-//     online: true,
-//   },
-//   {
-//     id: '2',
-//     name: 'Jane Smith',
-//     avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330',
-//     lastMessage: 'See you tomorrow',
-//     lastMessageTime: 'Yesterday',
-//     unreadCount: 0,
-//     online: false,
-//   },
-// ];
-
-// const mockMessages: Message[] = [
-//   {
-//     id: "1",
-//     senderId: "1",
-//     content: "Hi, how are you?",
-//     timestamp: "10:30 AM",
-//     type: "text",
-//   },
-//   {
-//     id: "2",
-//     senderId: "me",
-//     content: "I'm good, thanks! How about you?",
-//     timestamp: "10:31 AM",
-//     type: "text",
-//   },
-// ];
 
 const Chat: React.FC = () => {
-  // const chatSocket = connectToChat();
+
   const [selectedUser, setSelectedUser] = useState<Ichat | null>(null);
   const [users, setUsers] = useState<Ichat[] | []>([]);
-  const [userId, setUserId] = useState<string>("");
+  // const [userId, setUserId] = useState<string>("");
   const [messages, setMessages] = useState<Imessage[]|[]>([]);
   const [messageInput, setMessageInput] = useState("");
   const [isRecording, setIsRecording] = useState(false);
@@ -105,7 +38,7 @@ const Chat: React.FC = () => {
         });
         if (flag && status == 200 && data) {
           setUsers(data.result);
-          setUserId(data?.userId);
+          // setUserId(data?.userId);
         }
       } catch (error: unknown) {
         errorHandler(error);
@@ -114,38 +47,20 @@ const Chat: React.FC = () => {
     if (flag) {
       fetchChat();
     }
-    // if (userId) {
-    //   registerUser(userId);
-    // }
+
 
     return () => {
       flag = false;
 
-      // disconnect("register");
     };
   }, []);
 
   const handleSelectedUser = (user: Ichat) => {
     setSelectedUser(user);
-    // checkOnline(user?.menteeId as string);
-    // joinRoom(user?._id, userId);
+ 
   };
 
-  // useEffect(() => {
-  //   listenOnline((data) => {
-  //     console.log(data.online, "this is data");
-  //     setSelectedUser((prev) => {
-  //       if (prev && prev.users?._id === data?.userId) {
-  //         return { ...prev, online: data.online };
-  //       }
-  //       return prev;
-  //     });
-  //   });
-  
-  //   return () => {
-  //     disconnect("userOnline");
-  //   };
-  // }, [chatSocket]);
+
   const filteredUsers = users.filter((user) =>
     user.users?.name.toLowerCase().includes(searchQuery.toLowerCase())
   );

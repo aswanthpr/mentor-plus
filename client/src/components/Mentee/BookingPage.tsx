@@ -36,9 +36,10 @@ export const BookingPage: React.FC = () => {
   const [errors, setErrors] = useState<IBookingError>(initialState);
   const [timeDifference, setTimeDifference] = useState<number | null>(null);
   const [platformFee, setPlatformFee] = useState<number | null>(null);
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [mentorName] = useState<string>(pathname.split("/")[2]);
-
+  const [sessionPrice,setSessionPrice]=useState<number>(0)
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -57,7 +58,7 @@ export const BookingPage: React.FC = () => {
     fetchData();
   }, [mentorId]);
 
-  const sessionPrice = 100;
+
   const platformFees = sessionPrice * Number(platformFee);
   const totalPrice = sessionPrice + platformFees;
 
@@ -112,6 +113,7 @@ export const BookingPage: React.FC = () => {
  
     // if (slotStartTime.isAfter(currentTime)) {
     setSelectedSlot(slot);
+    setSessionPrice(Number(slot?.price))
   };
 
   return (

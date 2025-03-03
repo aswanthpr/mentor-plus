@@ -72,3 +72,9 @@ interface ISession {
     createdAt?:string;
     updatedAt?:string;
 }
+
+interface Ifilter{
+  sort:string,
+  domain:string[],
+  skill:string[],
+}

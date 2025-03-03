@@ -1,3 +1,4 @@
+/* eslint-disable prefer-const */
 import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
 
@@ -250,25 +251,69 @@ export class menteeService implements ImenteeService {
   }
 
   //metnor data fetching for explore
-  async exploreData(): Promise<{
+  async exploreData(params:{search:string|undefined,categories:string[]|[],skill:string[]|[],page:string,limit:string,sort:string}): Promise<{
     success: boolean;
     message: string;
     status: number;
     mentor?: Imentor[] | null;
     category?: Icategory[] | null;
     skills: Imentor[] | undefined;
+    currentPage?:number,
+    totalPage?:number
   }> {
     try {
-      const mentorData = await this._mentorRepository.findVerifiedMentor(); 
+      const {search,categories,skill,page,limit,sort} = params;
+
+      const pageNo = parseInt(page,10)||1;
+      const limitNo = parseInt(limit,10)||1;
+      const skip = (pageNo-1)* limitNo;
+
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const matchStage:any = { verified: true};
+
+      if(search){
+        matchStage.$or =[
+          { name: { $regex: search, $options: "i" } },
+          { bio: { $regex: search, $options: "i" } }, 
+          { jobTitle: { $regex: search, $options: "i" } }, 
+          { category: { $regex: search, $options: "i" } },
+          { skills: { $in: [new RegExp(search, "i")] } },
+        ]
+      }
+      if(categories && categories.length>0){
+        matchStage.category = {$in:categories}
+      };
+      if(skill && skill.length>0){
+        matchStage.skills = {$in:skill}
+      }
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const sortStage: any = {};
+      if (sort === "A-Z") {
+        sortStage["name"] = 1; // Sort by name (ascending)
+      } else if (sort === "Z-A") {
+        sortStage["name"] = -1; // Sort by name (descending)
+      } else {
+        sortStage["createdAt"] = -1; // Default sorting: latest first
+      }
+      const aggregationPipeline = [
+        { $match: matchStage }, 
+        { $sort: sortStage }, 
+        { $skip: skip }, 
+        { $limit: limitNo },
+      ];
+      const mentorData = await this._mentorRepository.findVerifiedMentor(aggregationPipeline ); 
       if (!mentorData) {
         return {
           success: false,
           message: "Data not found",
           status: Status.NotFound,
           skills: undefined,
+
         };
       }
-
+      //calculating total pages 
+      const totalPage = Math.ceil(mentorData?.count / limitNo);
+      //finding categoryData
       const categoryData = await this._categoryRepository.categoryData();
       if (!categoryData) {
         return {
@@ -278,6 +323,7 @@ export class menteeService implements ImenteeService {
           skills: undefined,
         };
       }
+     // finding skills  
       const categoryWithSkill =
         await this._mentorRepository.categoryWithSkills();
 
@@ -285,9 +331,11 @@ export class menteeService implements ImenteeService {
         success: false,
         message: "Data fetch successfully ",
         status: Status.Ok,
-        mentor: mentorData,
+        mentor: mentorData?.mentor,
         category: categoryData,
         skills: categoryWithSkill,
+        totalPage,
+        currentPage:pageNo,
       };
     } catch (error: unknown) {
       console.error(

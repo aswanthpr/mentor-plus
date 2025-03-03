@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Check, AlertCircle } from "lucide-react";
+import { Check } from "lucide-react";
 import Button from "../../Auth/Button";
 
 const features = [

@@ -3,7 +3,7 @@ import { Outlet } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 
 
-import {
+import { 
   Home,
   Compass,
   MessageSquare,
@@ -38,7 +38,7 @@ const navItems: INavItem[] = [
 const Mentee_Page: React.FC = () => {
   const dispatch = useDispatch();
   const notification = useSelector(
-    (state: RootState) => state?.notificationSlice.menteeNotification
+    (state: RootState) => state?.notificationSlice.mentee
   );
 
   const [isSideBarOpen, setIsSideBarOpen] = useState<boolean>(false);
@@ -75,8 +75,8 @@ const Mentee_Page: React.FC = () => {
       flag = false;
       disconnectNotificationSocket();
     };
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [dispatch]);
+
+  }, [dispatch, userId]);
 
   const ToggleSideBar = () => {
     setIsSideBarOpen(!isSideBarOpen);
@@ -108,7 +108,7 @@ const Mentee_Page: React.FC = () => {
     }
   };
   return (
-    <div className="h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50">
       <Header
         onChange={handleSearchChange}
         value={searchValue}
@@ -118,7 +118,7 @@ const Mentee_Page: React.FC = () => {
         userType="mentee"
         logout={logoutMentee}
         onRead={handleReadNotification}
-        notifData={notification}
+        notifData={notification} 
       />
 
       {/* Overlay for Small Screens */}

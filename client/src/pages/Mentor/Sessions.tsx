@@ -59,15 +59,16 @@ const Sessions = () => {
     return (activeTab === "upcoming" ? isUpcoming : isHistory) && matchesSearch;
   });
 
-  const handleReclaimRequest = (sessionId: string, value: string) => {
-    const val = value==="APPROVE"?"CANCELLED":"CANCEL_REJECTED"
+  const handleReclaimRequest = (sessionId: string, val: string) => {
+    
+    const value = val==="APPROVE"?"CANCELLED":"CANCEL_REJECTED"
     try {
       const handleRequest = async (sessionId: string, value: string) => {
   
         const { data, status } = await axiosInstance.patch(
           `/mentor/sessions/cancel_request/${sessionId}`,
           {
-            val,
+            value,
           }
         );
       toast.dismiss();

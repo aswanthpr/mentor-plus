@@ -8,13 +8,16 @@ import { MentorFilters } from "../../components/Mentee/Filters";
 import { protectedAPI } from "../../Config/Axios";
 // import Spinner from "../../components/Common/common4All/Spinner";
 import { errorHandler } from "../../Utils/Reusable/Reusable";
-// import { useNavigate } from "react-router-dom";
 
 
 const ExplorePage: React.FC = () => {
+  const limit = 3;
   // const navigate = useNavigate()
   // const [loading, setLoading] = useState<boolean>(false);
+    const [filterVal, setFilterVal] = useState<Ifilter>({sort:"",domain:[],skill:[]});
   const [searchQuery, setSearchQuery] = useState("");
+  const [currentPage, setCurrentPage] = useState<number>(1);
+  const [totalPages, setTotalPages] = useState<number>(1);
   const [showFilters, setShowFilters] = useState(false);
   const [filters, setFilters] = useState<MentorFilters>({
     categories: [],
@@ -37,33 +40,42 @@ const ExplorePage: React.FC = () => {
       category: "",
       skills: [],
     },
-  ]);
-
+  ]); 
 
   useEffect(() => {
-    
+    console.log(filterVal)
     const fetchMentor = async () => {
       try {
-        const { data } = await protectedAPI.get(`/mentee/explore/`);
-        console.log(data.skills, "data ");
-        setMentors(data?.mentor);
-
-        setFilters((prev) => ({
-          ...prev,
-          categories: data?.category,
-          skills: data?.skills[0].skills,
-        }));
+        const { data, status } = await protectedAPI.get(`/mentee/explore/`,{
+          params:{
+            search:searchQuery??"",
+            categories:filterVal?.domain??[],
+            skill:filterVal?.skill??[],
+            sort:filterVal?.sort??'',
+            page:currentPage,
+            limit
+          }
+        });
+        if (status == 200 && data) {
+          console.log(data?.currentPage,data?.totalPage)
+          setMentors(data?.mentor);
+          setCurrentPage(data?.currentPage);
+          setTotalPages(data?.totalPage)
+          setFilters((prev) => ({
+            ...prev,
+            categories: data?.category,
+            skills: data?.skills[0]?.skills,
+          }));
+        }
       } catch (error: unknown) {
         errorHandler(error);
-      } 
+      }
     };
     fetchMentor();
-    
-  ;
-  }, []);
+  }, [currentPage, filterVal, searchQuery]);
 
   return (
-    <div className="relative mx-4 mt-20 ">
+    <div className="relative mx-4 mt-10  ">
       {/* {loading && <Spinner />} */}
       {/* Mobile Filters Modal */}
       {showFilters && (
@@ -78,25 +90,26 @@ const ExplorePage: React.FC = () => {
                 <X className="h-6 w-6" />
               </button>
             </div>
-            <Filters filters={filters} onFilterChange={setFilters} />
+            <Filters  filters={filters} onFilterChange={setFilterVal} />
           </div>
         </div>
       )}
 
       <div className="flex flex-col lg:flex-row gap-8">
         {/* Filters Sidebar - Desktop */}
-        <div className="hidden lg:block w-64 ml-8 flex-shrink-0">
+        <div className="hidden lg:block w-64 ml-8 flex-shrink-0 ">
           <div className="bg-white p-4 rounded-lg shadow-sm border border-gray-200 sticky top-24">
-            <h2 className="text-lg font-semibold text-gray-900 mb-6">
-              Filters
+
+            <h2 className="text-lg font-semibold text-gray-900 mt-3 mb-6">
+              {/* Filters */}
             </h2>
-            <Filters filters={filters} onFilterChange={setFilters} />
+            <Filters  filters={filters} onFilterChange={setFilterVal} />
           </div>
         </div>
 
         {/* Main Content */}
         <div className="flex-1 ">
-          <div className="flex flex-col sm:flex-row gap-2 mb-6 mr-1">
+          <div className="flex flex-col sm:flex-row gap-2 mb-4 mr-1">
             <div className="flex-1 z-0 xss:mx-1">
               <SearchBar value={searchQuery} onChange={setSearchQuery} />
             </div>
@@ -119,9 +132,30 @@ const ExplorePage: React.FC = () => {
               />
             ))}
           </div>
+          {mentors.length>3&&
+          
+          <div className="flex justify-center space-x-2 mt-6">
+            <button
+              disabled={currentPage === 1}
+              onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+              className={`px-4 py-2 border rounded ${currentPage === 1 ? "opacity-50 cursor-not-allowed" : "hover:bg-gray-100"}`}
+            >
+              Previous
+            </button>
+
+            <span className="px-4 py-2 border rounded">{currentPage} / {totalPages}</span>
+
+            <button
+              disabled={currentPage === totalPages}
+              onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
+              className={`px-4 py-2 border rounded ${currentPage === totalPages ? "opacity-50 cursor-not-allowed" : "hover:bg-gray-100"}`}
+            >
+              Next
+            </button>
+          </div>
+          }
         </div>
       </div>
-
     </div>
   );
 };

@@ -38,13 +38,22 @@ export interface ImenteeService {
         accessToken?: string;
         refreshToken?: string;
     }>;
-    exploreData(): Promise<{
+    exploreData(params: {
+        search: string | undefined;
+        categories: string[] | [];
+        skill: string[] | [];
+        page: string;
+        limit: string;
+        sort: string;
+    }): Promise<{
         success: boolean;
         message: string;
         status: number;
         mentor?: Imentor[] | null;
         category?: Icategory[] | null;
         skills: Imentor[] | undefined;
+        totalPage?: number;
+        currentPage?: number;
     }>;
     getMentorDetailes(category: string, mentorId: string): Promise<{
         success: boolean;
