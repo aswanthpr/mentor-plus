@@ -51,8 +51,12 @@ mentor_Router.get(`/schedule/get-time-slots`, mentorAuthorization_1.default, __m
 mentor_Router.delete(`/schedule/remove-time-slot`, mentorAuthorization_1.default, __mentorController.removeTimeSlot.bind(__mentorController));
 mentor_Router.get(`/sessions`, mentorAuthorization_1.default, __bookingController.getBookedSession.bind(__bookingController));
 mentor_Router.patch(`/sessions/cancel_request/:sessionId`, mentorAuthorization_1.default, __bookingController.mentorSlotCancel.bind(__bookingController));
-mentor_Router.get(`/notification`, mentorAuthorization_1.default, __notificationController.getNotification.bind(__notificationController));
+mentor_Router.patch(`/sessions/create-session-code`, mentorAuthorization_1.default, __bookingController === null || __bookingController === void 0 ? void 0 : __bookingController.createSessionCode.bind(__bookingController));
+mentor_Router.patch(`/sessions/mark-as-session-completed`, mentorAuthorization_1.default, __bookingController.sessionCompleted.bind(__bookingController));
+//notification
+mentor_Router.get(`/notification`, mentorAuthorization_1.default, __notificationController === null || __notificationController === void 0 ? void 0 : __notificationController.getNotification.bind(__notificationController));
 mentor_Router.patch(`/notification-read/:notificationId`, mentorAuthorization_1.default, __notificationController.markAsReadNotif.bind(__notificationController));
+//chat 
 mentor_Router.get(`/chats`, mentorAuthorization_1.default, __chatController.getChats.bind(__chatController));
 mentor_Router.get("/messages", mentorAuthorization_1.default, __chatController.getUserMessage.bind(__chatController));
 exports.default = mentor_Router;

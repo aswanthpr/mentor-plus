@@ -43,7 +43,7 @@ const Mentee_Page: React.FC = () => {
 
   const [isSideBarOpen, setIsSideBarOpen] = useState<boolean>(false);
   const [searchValue, setSearchValue] = useState<string>("");
-  const [userId,setUserId] = useState<string>("")
+
 
   useEffect(() => {
     let flag = true;
@@ -53,14 +53,14 @@ const Mentee_Page: React.FC = () => {
         const { data, status } = await protectedAPI.get(`/mentee/notification`);
       
         if (flag && status == 200 && data.success) {
-          const user_Id = data.result[0]['userId'] as string;
-          setUserId(user_Id);
+          const user_Id = data.result?.[0]?.['userId'] as string;
+
           dispatch(
-            setNotification({ userType: "mentee", notification: data['result'] })
+            setNotification({ userType: "mentee", notification: data?.['result'] })
           );
           if(user_Id){
 
-            connectToNotifications(userId,'mentee')
+            connectToNotifications(user_Id,'mentee')
           }
         }
       } catch (error: unknown) {
@@ -76,7 +76,7 @@ const Mentee_Page: React.FC = () => {
       disconnectNotificationSocket();
     };
 
-  }, [dispatch, userId]);
+  }, [dispatch]);
 
   const ToggleSideBar = () => {
     setIsSideBarOpen(!isSideBarOpen);

@@ -18,7 +18,6 @@ axiosInstance.interceptors.request.use(
   async (config:InternalAxiosRequestConfig) => {
     const state = store.getState();
     const accessToken = state.menter?.mentorToken
-    console.log(accessToken, "this is from axios,in redux accesstoken");
 
     if (accessToken) {
       config.headers["Authorization"] = `Bearer ${accessToken}`;

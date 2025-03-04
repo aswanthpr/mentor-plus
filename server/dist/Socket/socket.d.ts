@@ -7,5 +7,6 @@ export declare class SocketManager {
     private setupNotifications;
     sendNotification: (userId: string, message: Inotification) => void;
     private setupChat;
+    private setupWebRTC;
 }
 //# sourceMappingURL=socket.d.ts.map

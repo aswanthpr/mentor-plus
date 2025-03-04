@@ -42,5 +42,17 @@ export interface IbookingService {
         status: number;
         result: IslotSchedule | null;
     }>;
+    createSessionCode(bookingId: string): Promise<{
+        success: boolean;
+        message: string;
+        status: number;
+        sessionCode: string | null;
+    }>;
+    sessionCompleted(bookingId: string): Promise<{
+        success: boolean;
+        message: string;
+        status: number;
+        sessionStatus: string | null;
+    }>;
 }
 //# sourceMappingURL=iBookingService.d.ts.map

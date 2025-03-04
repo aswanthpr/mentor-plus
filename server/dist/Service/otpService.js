@@ -8,12 +8,9 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
 Object.defineProperty(exports, "__esModule", { value: true });
 const nodeMailer_util_1 = require("../Utils/nodeMailer.util");
-const otpGen_util_1 = __importDefault(require("../Utils/otpGen.util"));
+const otpGen_util_1 = require("../Utils/otpGen.util");
 class otpService {
     constructor(_otpRespository, _menteeRepository) {
         this._otpRespository = _otpRespository;
@@ -22,7 +19,7 @@ class otpService {
     sentOtptoMail(email) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const otp = (0, otpGen_util_1.default)();
+                const otp = (0, otpGen_util_1.genOtp)();
                 console.log(otp);
                 yield this._otpRespository.createOtp(email, otp);
                 yield (0, nodeMailer_util_1.nodeMailer)(email, otp);

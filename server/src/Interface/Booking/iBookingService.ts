@@ -24,4 +24,6 @@ export interface IbookingService{
       cancelSlot(sessionId:string,reason:string,customReason:string):Promise<{success:boolean;message:string;status:number;result:IslotSchedule|null}>;
 
       mentorSlotCancel(sessionId:string,statusValue:string):Promise<{success:boolean;message:string;status:number;result:IslotSchedule|null}>;
+      createSessionCode(bookingId:string):Promise<{success:boolean;message:string;status:number;sessionCode:string|null}>;
+      sessionCompleted(bookingId:string):Promise<{success:boolean;message:string;status:number;sessionStatus:string|null}>
 }

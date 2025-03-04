@@ -1,6 +1,6 @@
 import { ObjectId } from "mongoose";
-import { IslotSchedule } from "src/Model/slotSchedule";
-import { InewSlotSchedule } from "src/Types";
+import { IslotSchedule } from "../../Model/slotSchedule";
+import { InewSlotSchedule } from "../../Types";
 
 export interface IslotScheduleRepository {
   newSlotBooking(
@@ -19,4 +19,6 @@ export interface IslotScheduleRepository {
     sessionId: string,
     slotValule: string
   ): Promise<IslotSchedule | null>;
+  createSessionCode(bookingId:string,sessionCode:string):Promise<string>;
+  sessionCompleted(bookingId:string):Promise<IslotSchedule|null>;
 }

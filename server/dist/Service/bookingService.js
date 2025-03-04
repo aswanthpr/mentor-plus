@@ -18,6 +18,7 @@ const mongoose_1 = __importDefault(require("mongoose"));
 const httpStatusCode_1 = require("../Utils/httpStatusCode");
 const moment_1 = __importDefault(require("moment"));
 const index_1 = require("../index");
+const otpGen_util_1 = require("../Utils/otpGen.util");
 class bookingService {
     constructor(_timeSlotRepository, _slotScheduleRepository, _notificationRepository, _chatRepository, stripe = new stripe_1.Stripe(process.env.STRIPE_SECRET_KEY, {
         apiVersion: "2025-02-24.acacia",
@@ -373,6 +374,76 @@ class bookingService {
             }
             catch (error) {
                 throw new Error(`${error instanceof Error ? error.message : String(error)} error while metnor slot cancel  handle in  service`);
+            }
+        });
+    }
+    //create session code 
+    createSessionCode(bookingId) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                if (!bookingId) {
+                    return {
+                        success: false,
+                        message: "credential not found",
+                        status: httpStatusCode_1.Status.BadRequest,
+                        sessionCode: null,
+                    };
+                }
+                //generate sessionCode
+                const session_Code = (0, otpGen_util_1.generateSessionCode)();
+                console.log(session_Code, 'sessionCode');
+                const response = yield this._slotScheduleRepository.createSessionCode(bookingId, session_Code);
+                if (!response) {
+                    return {
+                        success: false,
+                        message: "result not found ",
+                        status: httpStatusCode_1.Status.NotFound,
+                        sessionCode: null,
+                    };
+                }
+                return {
+                    success: true,
+                    message: "session Code  created successfully",
+                    status: httpStatusCode_1.Status.Ok,
+                    sessionCode: response,
+                };
+            }
+            catch (error) {
+                throw new Error(`${error instanceof Error ? error.message : String(error)} error while metnor create session code  in  service`);
+            }
+        });
+    }
+    ;
+    //session completed marking 
+    sessionCompleted(bookingId) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                if (!bookingId) {
+                    return {
+                        success: false,
+                        message: "credential not found",
+                        status: httpStatusCode_1.Status.BadRequest,
+                        sessionStatus: null,
+                    };
+                }
+                const response = yield this._slotScheduleRepository.sessionCompleted(bookingId);
+                if (!response) {
+                    return {
+                        success: false,
+                        message: "result not found ",
+                        status: httpStatusCode_1.Status.NotFound,
+                        sessionStatus: null,
+                    };
+                }
+                return {
+                    success: true,
+                    message: "marked as completed!",
+                    status: httpStatusCode_1.Status.Ok,
+                    sessionStatus: response === null || response === void 0 ? void 0 : response.status,
+                };
+            }
+            catch (error) {
+                throw new Error(`${error instanceof Error ? error.message : String(error)} error while chnage the session status as completed  in  service`);
             }
         });
     }

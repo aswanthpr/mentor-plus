@@ -1,4 +1,4 @@
-import  { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import TabNavigation from "../../components/Common/Bookings/TabNavigation";
 import { Search, User } from "lucide-react";
 import { axiosInstance } from "../../Config/mentorAxios";
@@ -9,6 +9,7 @@ import { useSelector } from "react-redux";
 import { RootState } from "../../Redux/store";
 import ConfirmToast from "../../components/Common/common4All/ConfirmToast";
 import { toast } from "react-toastify";
+import { createSessionCodeApi, markAsSessionCompleted } from "../../service/bookingApi";
 
 const Sessions = () => {
   const [loading, setLoading] = useState(false);
@@ -27,11 +28,11 @@ const Sessions = () => {
       try {
         setLoading(true);
 
-        const { status, data } = await axiosInstance.get(`/mentor/sessions`, {
+        const response = await axiosInstance.get(`/mentor/sessions`, {
           params: { activeTab },
         });
-        if (status == 200 && data?.success) {
-          setSessions(data?.slots);
+        if (response?.status == 200 && response?.data?.success) {
+          setSessions(response?.data?.slots);
         }
       } catch (error: unknown) {
         errorHandler(error);
@@ -42,13 +43,12 @@ const Sessions = () => {
     fetchData();
   }, [activeTab]);
 
-
   const filteredSessions = sessions.filter((session) => {
     const isUpcoming =
       session?.status === "PENDING" ||
       session?.status === "CONFIRMED" ||
-      session?.status === "CANCEL_REQUESTED"||
-      session?.status === "CANCEL_REJECTED"
+      session?.status === "CANCEL_REQUESTED" ||
+      session?.status === "CANCEL_REJECTED";
     const isHistory =
       session?.status === "COMPLETED" || session?.status === "CANCELLED";
     const matchesSearch =
@@ -60,40 +60,36 @@ const Sessions = () => {
   });
 
   const handleReclaimRequest = (sessionId: string, val: string) => {
-    
-    const value = val==="APPROVE"?"CANCELLED":"CANCEL_REJECTED"
+    const value = val === "APPROVE" ? "CANCELLED" : "CANCEL_REJECTED";
     try {
       const handleRequest = async (sessionId: string, value: string) => {
-  
         const { data, status } = await axiosInstance.patch(
           `/mentor/sessions/cancel_request/${sessionId}`,
           {
             value,
           }
         );
-      toast.dismiss();
+        toast.dismiss();
         if (status == 200 && data.success) {
           toast.success(data?.message);
           setSessions(
-            sessions.map((session) =>
-              session?._id === sessionId
-                ? { ...session, status: value }
-                : session
-
-              
-            )
-            .filter((session) => (value !== "CANCEL_REJECTED" ? true : session?._id !== sessionId))
-          )
-          
+            sessions
+              .map((session) =>
+                session?._id === sessionId
+                  ? { ...session, status: value }
+                  : session
+              )
+              .filter((session) =>
+                value !== "CANCEL_REJECTED" ? true : session?._id !== sessionId
+              )
+          );
         }
       };
       toast(
         <ConfirmToast
           message="change Request Status"
           description="This is final confirmation to change?"
-          onReply={() =>
-            handleRequest(sessionId as string, value as string)
-          }
+          onReply={() => handleRequest(sessionId as string, value as string)}
           onIgnore={() => toast.dismiss()}
           ariaLabel=" status confirmation"
         />,
@@ -106,20 +102,59 @@ const Sessions = () => {
 
       console.log(sessionId, value);
     } catch (error: unknown) {
-      console.log(error)
+      console.log(error);
       errorHandler(error);
     }
   };
+
   const totalPages = Math.ceil(filteredSessions.length / sessionsPerPage);
   const paginatedSessions = filteredSessions.slice(
     (currentPage - 1) * sessionsPerPage,
     currentPage * sessionsPerPage
   );
+  const crerateSessionCode = useCallback(async (_id: string) => {
+    const resp = await createSessionCodeApi(_id);
+
+    if (resp?.status == 200 && resp.data) {
+      setSessions((pre) =>
+        pre?.map((session) =>
+          session?._id === _id
+            ? { ...session, sessionCode: resp?.data?.sessionCode }
+            : session
+        )
+      );
+      toast.success("successfully created SessionCode ✔️");
+    }
+  }, []);
+  const handleCompletedSession = useCallback(async(bookingId:string)=>{
+    toast(
+      <ConfirmToast
+        message="make as session completed"
+        description="This is final confirmation to change?"
+        onReply={() => {handleRequest(bookingId);toast.dismiss()}}
+        onIgnore={() => toast.dismiss()}
+        ariaLabel=" status confirmation"
+      />,
+      {
+        closeButton: false,
+        className: "p-0  border border-purple-600/40 ml-0",
+        autoClose: false,
+      }
+    );
+   const  handleRequest= async (bookingId:string)=>{
+     const response = await markAsSessionCompleted(bookingId);
+     if(response?.status ==200 && response?.data.success){
+       toast.success(response?.data?.message);
+       setSessions((pre)=>pre.map((sess)=>sess._id===bookingId?{...sess,status:"COMPLETED"}:sess))
+     }
+
+    }
+  },[])
   return (
     <div>
-      <div className="bg- p-6 mt-10 ">
+      <div className=" mt-12 ">
         {loading && <Spinner />}
-        <h1 className="text-2xl font-bold mb-6">Sessions</h1>
+        <h1 className="text-2xl font-bold mb-4">Sessions</h1>
 
         <TabNavigation
           activeTab={activeTab}
@@ -128,8 +163,8 @@ const Sessions = () => {
           onTabChange={(tab) => setActiveTab(tab as "upcoming" | "history")}
         />
       </div>
-      <div className="bg-white p-6 rounded-lg shadow-sm">
-        <div className="mb-6 flex">
+      <div className="bg-white mt-2 p-4 rounded-lg shadow-sm">
+        <div className=" flex">
           <div className="relative ">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5 " />
             <input
@@ -145,12 +180,14 @@ const Sessions = () => {
       <div className="space-y-4">
         {paginatedSessions.map((session) => (
           <SessionCard
+            handleCreateSessionCode={crerateSessionCode}
             // handleRating={handleRating}
             key={session?._id}
             session={session}
             role={role}
+            handleCompletedSession={handleCompletedSession}
             handleReclaimRequest={handleReclaimRequest}
-
+          
           />
         ))}
       </div>

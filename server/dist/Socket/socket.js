@@ -19,6 +19,7 @@ const mongoose_1 = __importDefault(require("mongoose"));
 const chatRepository_1 = __importDefault(require("../Repository/chatRepository"));
 const chatSchema_1 = __importDefault(require("../Model/chatSchema"));
 const chatMap = new Map();
+const rooms = new Map(); //webrtc
 class SocketManager {
     constructor(io) {
         // for emitting new notification 
@@ -33,7 +34,7 @@ class SocketManager {
     initialize() {
         this.setupChat();
         this.setupNotifications();
-        // this.setupWebRTC();
+        this.setupWebRTC();
     }
     //Notification============================================================
     setupNotifications() {
@@ -140,27 +141,50 @@ class SocketManager {
             });
         });
     }
+    //============================================================================
+    setupWebRTC() {
+        const webrtcNamespace = this.io.of("/webrtc");
+        webrtcNamespace.on("connection", (socket) => {
+            console.log(`WebRTC user connected: ${socket.id}`);
+            socket.on("join-call", (roomId) => {
+                socket.join(roomId);
+                console.log(`User ${socket.id} joined room: ${roomId}`);
+                if (!rooms.has(roomId)) {
+                    rooms.set(roomId, new Set());
+                }
+                rooms.get(roomId).add(socket.id);
+                socket.to(roomId).emit("user-joined", socket.id);
+            });
+            socket.on("offer", (offer, roomId) => {
+                console.log(`Offer received in room ${roomId}`);
+                socket.to(roomId).emit("offer", offer, socket.id);
+            });
+            socket.on("answer", (answer, roomId) => {
+                console.log(`Answer received in room ${roomId}`);
+                socket.to(roomId).emit("answer", answer);
+            });
+            socket.on("ice-candidate", (candidate, roomId) => {
+                console.log(`ICE Candidate received in room ${roomId}`);
+                socket.to(roomId).emit("ice-candidate", candidate);
+            });
+            socket.on("video:toggle", ({ isMuted, roomId }) => {
+                console.log(`Video toggle received from ${socket.id} in room ${roomId}`);
+                // Notify all other users in the room
+                socket.to(roomId).emit("video:toggle", { userId: socket.id, isMuted });
+            });
+            socket.on("disconnect", () => {
+                console.log(`User disconnected: ${socket.id}`);
+                rooms.forEach((users, roomId) => {
+                    if (users.has(socket.id)) {
+                        users.delete(socket.id);
+                        if (users.size === 0) {
+                            rooms.delete(roomId);
+                        }
+                        webrtcNamespace.to(roomId).emit("user-disconnected", socket.id);
+                    }
+                });
+            });
+        });
+    }
 }
 exports.SocketManager = SocketManager;
-//============================================================================
-//=============================================================================
-// private setupWebRTC() {
-//   const webrtcNamespace = this.io.of("/webrtc");
-//   webrtcNamespace.on("connection", (socket: Socket) => {
-//     console.log(`WebRTC user connected: ${socket.id}`);
-//     socket.on("offer", (data) => {
-//       socket
-//         .to(data.target)
-//         .emit("offer", { sdp: data.sdp, from: socket.id });
-//     });
-//     socket.on("answer", (data) => {
-//       socket.to(data.target).emit("answer", { sdp: data.sdp });
-//     });
-//     socket.on("ice-candidate", (data) => {
-//       socket.to(data.target).emit("ice-candidate", data.candidate);
-//     });
-//     socket.on("disconnect", () => {
-//       console.log(`WebRTC user disconnected: ${socket.id}`);
-//     });
-//   });
-// }

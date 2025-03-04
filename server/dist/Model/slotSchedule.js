@@ -69,11 +69,6 @@ const slotScheduleSchema = new mongoose_1.Schema({
         enum: ["Pending", "Paid", "Failed", "Refunded"],
         required: true,
     },
-    isAttended: {
-        type: Boolean,
-        default: false,
-        required: true,
-    },
     isExpired: {
         type: Boolean,
         default: false,
@@ -96,7 +91,7 @@ const slotScheduleSchema = new mongoose_1.Schema({
         type: String,
         required: true,
     },
-    meetingLink: {
+    sessionCode: {
         type: String,
         default: null,
     },

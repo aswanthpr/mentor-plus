@@ -3,14 +3,13 @@ export interface IslotSchedule extends Document {
     menteeId: mongoose.Schema.Types.ObjectId;
     status: string;
     slotId: mongoose.Schema.Types.ObjectId;
-    isAttended?: boolean;
     isExpired?: boolean;
     paymentStatus: string;
     paymentMethod: string;
     paymentAmount: string;
     paymentTime: string;
     duration: string;
-    meetingLink?: string | null;
+    sessionCode?: string | null;
     description: string;
     cancelReason: string | null;
 }

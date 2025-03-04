@@ -1,7 +1,7 @@
 import { IotpRepository } from "../Interface/Otp/iOtpRepository";
 import IotpService from "../Interface/Otp/iOtpService";
 import { nodeMailer } from "../Utils/nodeMailer.util";
-import genOtp from "../Utils/otpGen.util";
+import {genOtp} from "../Utils/otpGen.util";
 import { ImenteeRepository } from "../Interface/Mentee/iMenteeRepository";  
 
 class otpService implements IotpService {

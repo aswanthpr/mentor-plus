@@ -5,12 +5,16 @@ const Home = lazy(() => import("../pages/Mentee/Home"));
 import Spinner from "../components/Common/common4All/Spinner";
 import InternalServer from "../pages/Error/InternalServer";
 import NotFound from "../pages/Error/NotFound";
-import { MentorProfile } from "../pages/Mentee/MentorProfile";
-import { BookingPage } from "../components/Mentee/BookingPage";
+import MentorProfile from "../pages/Mentee/MentorProfile";
+import BookingPage from "../components/Mentee/BookingPage";
 import StripeCheckoutCancel from "../components/Common/Stripe/StripeCheckoutCancel";
-import { StripeComplete } from "../components/Common/Stripe/StripeComplete";
-import Message from "../pages/Mentee/Message";
+import VideoPage from "../components/Common/Bookings/VideoPage";
+import SessionLobby from "../components/Common/Bookings/SessionLobby";
 
+const Message = lazy(() => import("../pages/Mentee/Message"));
+const StripeComplete = lazy(
+  () => import("../components/Common/Stripe/StripeComplete")
+);
 const Bookings = lazy(() => import("../pages/Mentee/Bookings"));
 const Wallet = lazy(() => import("../pages/Mentee/Wallet"));
 const Explore = lazy(() => import("../pages/Mentee/Explore"));
@@ -18,7 +22,6 @@ const QnA_page = lazy(() => import("../pages/Mentee/QnA_page"));
 const Mentee_Page = lazy(() => import("../pages/Mentee/Mentee_Page"));
 const MenteeProfile = lazy(() => import("../pages/Mentee/MenteeProfile"));
 const GoogleSuccess = lazy(() => import("../components/Mentee/GoogleSuccess"));
-// const QuestionsList = lazy(() => import('../components/Common/Qa/QuestionsList'));
 const GoogleFailure = lazy(() => import("../components/Mentee/GoogleFailure"));
 const MenteeLogin = lazy(
   () => import("../Utils/ProtectedRoute/MenteeProtectLogin")
@@ -41,7 +44,7 @@ const MenteeRoute: React.FC = () => (
         ;
         <Route path="explore">
           <Route index element={<MenteeLogin element={<Explore />} />} />
-          <Route path='mentor/:mentorId' element={<MentorProfile />} />
+          <Route path="mentor/:mentorId" element={<MentorProfile />} />
           <Route
             path=":name"
             element={<MenteeLogin element={<MentorProfile />} />}
@@ -53,10 +56,11 @@ const MenteeRoute: React.FC = () => (
           path="/bookings"
           element={<MenteeLogin element={<Bookings />} />}
         />
-        ;
+        <Route path="/bookings/lobby" element={<SessionLobby />} />;
+        <Route path="/bookings/:roomId" element={<VideoPage />} />
         <Route
           path="/messages"
-          element={<MenteeLogin element={<Message/>} />}
+          element={<MenteeLogin element={<Message />} />}
         />
         <Route path="/wallet" element={<MenteeLogin element={<Wallet />} />} />;
         <Route path="/qa" element={<MenteeLogin element={<QnA_page />} />} />;

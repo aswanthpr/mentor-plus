@@ -11,7 +11,7 @@ import { protectedAPI } from "../../Config/Axios";
 import Spinner from "../../components/Common/common4All/Spinner";
 import { errorHandler } from "../../Utils/Reusable/Reusable";
 
-export const MentorProfile = () => {
+ const MentorProfile = () => {
   const { state } = useLocation();
   const navigate = useNavigate();
 
@@ -20,11 +20,6 @@ export const MentorProfile = () => {
 
   const [loading, setLoading] = useState(true);
   // const [error, setError] = useState('')
-
-  // const breadcrumbPath = [
-  //   { label: 'Explore', href: '/mentee/explore' },
-  //   { label:  `${mentorData?.name}`, href: `/mentee/explore/${mentorData?.name}` },
-  // ];
 
   useEffect(() => {
     const fetchMentorData = async () => {
@@ -110,3 +105,4 @@ export const MentorProfile = () => {
     </div>
   );
 };
+export default MentorProfile

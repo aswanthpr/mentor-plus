@@ -1,7 +1,7 @@
 
 import { Link } from 'react-router-dom';
 
-export const StripeComplete=() =>{
+ const StripeComplete=() =>{
   return (
     <div className="h-screen flex justify-center items-center bg-gray-100">
       <div className="bg-white p-6 rounded-lg shadow-md text-center max-w-md">
@@ -22,3 +22,4 @@ export const StripeComplete=() =>{
     </div>
   )
 }
+export default StripeComplete
