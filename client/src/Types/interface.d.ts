@@ -25,14 +25,13 @@ interface ISession {
   menteeId: string;
   status: string;
   slotId: string;
-  isAttended: boolean;
   isExpired: boolean;
   paymentStatus: string;
   paymentMethod: string;
   paymentAmount: string;
   paymentTime:string;
   duration: string;
-  meetingLink: string|null;
+  sessionCode: string|null;
   description:string;
   slotDetails:Itime;
   user:IMentor|IMentee

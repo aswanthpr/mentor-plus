@@ -158,4 +158,34 @@ console.log( req.params.sessionId,req.body?.value)
     }
   }
 
+   //create sessionCode in MentorSide
+   async createSessionCode(req: Request, res: Response): Promise<void> {
+     try {
+    const {bookingId} = req.body;
+    const{message,status,sessionCode,success} = await this._bookingService.createSessionCode(bookingId);
+    res.status(status).json({message,success,sessionCode});
+   
+     } catch (error:unknown) {
+      throw new Error(
+        `Error when mentor handle cancel  booked sessions in controller ${
+          error instanceof Error ? error.message : String(error)
+        }`
+      );
+     }
+   }
+
+   //mentor marking session completed
+   async sessionCompleted(req: Request, res: Response): Promise<void> {
+     try {
+      const {bookingId} =req.body;
+     const {message,sessionStatus,status,success} = await this._bookingService.sessionCompleted(bookingId);
+     res.status(status).json({message,sessionStatus,success});
+     } catch (error:unknown) {
+      throw new Error(
+        `Error when mentor marking session completed in controller ${
+          error instanceof Error ? error.message : String(error)
+        }`
+      );
+     }
+   }
 }

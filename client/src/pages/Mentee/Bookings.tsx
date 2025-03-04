@@ -11,8 +11,7 @@ import Spinner from "../../components/Common/common4All/Spinner";
 import { toast } from "react-toastify";
 import { useSelector } from "react-redux";
 import { RootState } from "../../Redux/store";
-import VideoCallModal from "../../components/Common/Bookings/VideoPage";
-import VideoContainer from "../../components/Common/Bookings/VideoContainer";
+
 
 const Boooking: React.FC = () => {
   const [loading, setLoading] = useState(false);
@@ -24,27 +23,6 @@ const Boooking: React.FC = () => {
   // const [showRatingModal, setShowRatingModal] = useState(false);
   // const [selectedSession, setSelectedSession] = useState<string>('');
   const [sessions, setSessions] = useState<ISession[] | []>([]);
-  const [showVideoCallModal, setShowVideoCallModal] = useState(false);
-  const [showVideoCallInterface, setShowVideoCallInterface] = useState(false);
-  const [mockParticipants] = useState([
-    {
-      id: '1',
-      name: 'John Doe',
-      avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e',
-      isMuted: false,
-      isVideoOff: false,
-    },
-    {
-      id: '2',
-      name: 'Jane Smith',
-      avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330',
-      isMuted: true,
-      isVideoOff: false,
-    },
-
-
-   
-  ]);
   const sessionsPerPage = 5;
   
   const role = useSelector((state: RootState) => state?.mentee.role);
@@ -73,15 +51,7 @@ const Boooking: React.FC = () => {
     fetchData();
   }, [activeTab]);
   
-  
-    const handleJoinClick = (id:string,description:string,duration:string) => {
-      setShowVideoCallModal(true);
-    };
-  
-    const handleJoinCall = () => {
-      setShowVideoCallModal(false);
-      setShowVideoCallInterface(true);
-    };
+
   const handleCancelSession = async (
     sessionId: string,
     reason: string,
@@ -225,7 +195,7 @@ const Boooking: React.FC = () => {
           </div>
         </div>
 
-        <div className="space-y-4">
+        <div className="space-y-4"> 
           {paginatedSessions.map((session) => {
             console.log(session, "from sessin card");
             return (
@@ -235,8 +205,6 @@ const Boooking: React.FC = () => {
                 key={session?._id}
                 session={session}
                 role={role}
-                handleJoin={handleJoinClick}
-               
               />
             );
           })}
@@ -289,30 +257,8 @@ const Boooking: React.FC = () => {
             currentPage={1}
             onPageChange={}
             totalPages={10}/> */}
-            {
-    showVideoCallModal && (
-        <VideoCallModal
-          isOpen={showVideoCallModal}
-          onClose={() => setShowVideoCallModal(false)}
-          onJoinCall={handleJoinCall}
-          sessionDetails={{
-            mentor: "John Doe",
-            topic: "React Development",
-            duration: "1 hour",
-          }}
-        />
+    
 
-    )
-}
-{showVideoCallInterface &&(
-    <VideoContainer
-      isOpen={showVideoCallInterface}
-      onClose={() => setShowVideoCallInterface(false)}
-      participants={mockParticipants}
-
-    />
-
-)}
     </div>
   );
 };

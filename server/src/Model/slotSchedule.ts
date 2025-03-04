@@ -4,14 +4,13 @@ export interface IslotSchedule extends Document {
   menteeId: mongoose.Schema.Types.ObjectId;
   status: string;
   slotId: mongoose.Schema.Types.ObjectId;
-  isAttended?: boolean;
   isExpired?: boolean;
   paymentStatus: string;
   paymentMethod: string;
   paymentAmount: string;
   paymentTime: string;
   duration: string;
-  meetingLink?: string | null;
+  sessionCode?: string | null;
   description: string;
   cancelReason:string|null
 }
@@ -52,11 +51,6 @@ const slotScheduleSchema: Schema<IslotSchedule> = new Schema(
       enum: ["Pending", "Paid", "Failed", "Refunded"],
       required: true,
     },
-    isAttended: {
-      type: Boolean,
-      default: false,
-      required: true,
-    },
     isExpired: {
       type: Boolean,
       default: false,
@@ -79,7 +73,7 @@ const slotScheduleSchema: Schema<IslotSchedule> = new Schema(
       type: String,
       required: true,
     },
-    meetingLink: {
+    sessionCode: {
       type: String,
       default: null,
     },

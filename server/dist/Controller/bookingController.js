@@ -120,5 +120,31 @@ class bookingControlelr {
             }
         });
     }
+    //create sessionCode in MentorSide
+    createSessionCode(req, res) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const { bookingId } = req.body;
+                const { message, status, sessionCode, success } = yield this._bookingService.createSessionCode(bookingId);
+                res.status(status).json({ message, success, sessionCode });
+            }
+            catch (error) {
+                throw new Error(`Error when mentor handle cancel  booked sessions in controller ${error instanceof Error ? error.message : String(error)}`);
+            }
+        });
+    }
+    //mentor marking session completed
+    sessionCompleted(req, res) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const { bookingId } = req.body;
+                const { message, sessionStatus, status, success } = yield this._bookingService.sessionCompleted(bookingId);
+                res.status(status).json({ message, sessionStatus, success });
+            }
+            catch (error) {
+                throw new Error(`Error when mentor marking session completed in controller ${error instanceof Error ? error.message : String(error)}`);
+            }
+        });
+    }
 }
 exports.bookingControlelr = bookingControlelr;

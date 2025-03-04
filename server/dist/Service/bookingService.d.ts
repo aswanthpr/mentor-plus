@@ -7,7 +7,7 @@ import { Itimes } from "../Types";
 import { IslotSchedule } from "../Model/slotSchedule";
 import { Itime } from "../Model/timeModel";
 import { InotificationRepository } from "../Interface/Notification/InotificationRepository";
-import { IchatRepository } from "src/Interface/chat/IchatRepository";
+import { IchatRepository } from "../Interface/chat/IchatRepository";
 export declare class bookingService implements IbookingService {
     private readonly _timeSlotRepository;
     private readonly _slotScheduleRepository;
@@ -67,6 +67,18 @@ export declare class bookingService implements IbookingService {
         message: string;
         status: number;
         result: IslotSchedule | null;
+    }>;
+    createSessionCode(bookingId: string): Promise<{
+        success: boolean;
+        message: string;
+        status: number;
+        sessionCode: string | null;
+    }>;
+    sessionCompleted(bookingId: string): Promise<{
+        success: boolean;
+        message: string;
+        status: number;
+        sessionStatus: string | null;
     }>;
 }
 //# sourceMappingURL=bookingService.d.ts.map

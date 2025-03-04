@@ -89,17 +89,22 @@ mentor_Router.patch(`/qa/edit-answer`,mentorAuthorize,__qaController.editAnswer.
 //schedule
 mentor_Router.post(`/schedule/create-slots`,mentorAuthorize,__mentorController.createTimeSlots.bind(__mentorController));
 mentor_Router.get(`/schedule/get-time-slots`,mentorAuthorize,__mentorController.getTimeSlots.bind(__mentorController));
-mentor_Router.delete(`/schedule/remove-time-slot`,mentorAuthorize,__mentorController.removeTimeSlot.bind(__mentorController))
+mentor_Router.delete(`/schedule/remove-time-slot`,mentorAuthorize,__mentorController.removeTimeSlot.bind(__mentorController));
 
 mentor_Router.get(`/sessions`,mentorAuthorize,__bookingController.getBookedSession.bind(__bookingController));
 
-mentor_Router.patch(`/sessions/cancel_request/:sessionId`,mentorAuthorize,__bookingController.mentorSlotCancel.bind(__bookingController))
-
-mentor_Router.get(`/notification`,mentorAuthorize,__notificationController.getNotification.bind(__notificationController));
+mentor_Router.patch(`/sessions/cancel_request/:sessionId`,mentorAuthorize,__bookingController.mentorSlotCancel.bind(__bookingController));
+mentor_Router.patch(`/sessions/create-session-code`,mentorAuthorize,__bookingController?.createSessionCode.bind(__bookingController));
+mentor_Router.patch(`/sessions/mark-as-session-completed`,mentorAuthorize,__bookingController.sessionCompleted.bind(__bookingController));
+//notification
+mentor_Router.get(`/notification`,mentorAuthorize,__notificationController?.getNotification.bind(__notificationController));
 
 mentor_Router.patch(`/notification-read/:notificationId`,mentorAuthorize,__notificationController.markAsReadNotif.bind(__notificationController));
 
+//chat 
 mentor_Router.get(`/chats`,mentorAuthorize,__chatController.getChats.bind(__chatController));
 mentor_Router.get("/messages",mentorAuthorize,__chatController.getUserMessage.bind(__chatController));
+
+
 export default mentor_Router;
 

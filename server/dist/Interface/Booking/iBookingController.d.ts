@@ -6,5 +6,7 @@ export interface IbookingController {
     getBookedSlot(req: Request, res: Response): Promise<void>;
     getBookedSession(req: Request, res: Response): Promise<void>;
     cancelSlot(req: Request, res: Response): Promise<void>;
+    createSessionCode(req: Request, res: Response): Promise<void>;
+    sessionCompleted(req: Request, res: Response): Promise<void>;
 }
 //# sourceMappingURL=iBookingController.d.ts.map

@@ -27,22 +27,22 @@ class slotScheduleRepository extends baseRepo_1.baseRepository {
                 const result = yield this.aggregateData(slotSchedule_2.default, [
                     {
                         $match: {
-                            slotId: res === null || res === void 0 ? void 0 : res.slotId
-                        }
+                            slotId: res === null || res === void 0 ? void 0 : res.slotId,
+                        },
                     },
                     {
                         $lookup: {
-                            from: 'times',
-                            localField: 'slotId',
+                            from: "times",
+                            localField: "slotId",
                             foreignField: "_id",
-                            as: "times"
-                        }
+                            as: "times",
+                        },
                     },
                     {
                         $unwind: {
                             path: "$times",
-                            preserveNullAndEmptyArrays: true
-                        }
+                            preserveNullAndEmptyArrays: true,
+                        },
                     },
                     // {
                     //   $project:{
@@ -50,7 +50,7 @@ class slotScheduleRepository extends baseRepo_1.baseRepository {
                     //   }
                     // }
                 ]);
-                console.log(result, 'result');
+                console.log(result, "result");
                 return result[0];
             }
             catch (error) {
@@ -83,7 +83,13 @@ class slotScheduleRepository extends baseRepo_1.baseRepository {
                 }
                 else {
                     matchFilter["status"] = {
-                        $in: ["RESCHEDULED", "CONFIRMED", "PENDING", "CANCEL_REQUESTED", "CANCEL_REJECTED"],
+                        $in: [
+                            "RESCHEDULED",
+                            "CONFIRMED",
+                            "PENDING",
+                            "CANCEL_REQUESTED",
+                            "CANCEL_REJECTED",
+                        ],
                     };
                     matchFilter["isAttended"] = false;
                 }
@@ -139,7 +145,7 @@ class slotScheduleRepository extends baseRepo_1.baseRepository {
                     // "slotDetails.mentorId": mentorId,
                     paymentStatus: "Paid",
                 };
-                console.log('\x1b[32m%s\x1b[0m', mentorId);
+                console.log("\x1b[32m%s\x1b[0m", mentorId);
                 if (tabCond) {
                     //based on the tab
                     matchFilter["status"] = { $in: ["CANCELLED", "COMPLETED"] };
@@ -147,11 +153,17 @@ class slotScheduleRepository extends baseRepo_1.baseRepository {
                 }
                 else {
                     matchFilter["status"] = {
-                        $in: ["RESCHEDULED", "CONFIRMED", "PENDING", "CANCEL_REQUESTED", "CANCEL_REJECTED"],
+                        $in: [
+                            "RESCHEDULED",
+                            "CONFIRMED",
+                            "PENDING",
+                            "CANCEL_REQUESTED",
+                            "CANCEL_REJECTED",
+                        ],
                     };
                     matchFilter["isAttended"] = false;
                 }
-                console.log(matchFilter, 'filter');
+                console.log(matchFilter, "filter");
                 return yield this.aggregateData(slotSchedule_2.default, [
                     {
                         $match: matchFilter,
@@ -200,7 +212,7 @@ class slotScheduleRepository extends baseRepo_1.baseRepository {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 console.log(sessionId, issue);
-                return yield this.find_By_Id_And_Update(slotSchedule_2.default, new mongoose_1.default.Types.ObjectId(sessionId), { $set: { status: 'CANCEL_REQUESTED', cancelReason: issue } });
+                return yield this.find_By_Id_And_Update(slotSchedule_2.default, new mongoose_1.default.Types.ObjectId(sessionId), { $set: { status: "CANCEL_REQUESTED", cancelReason: issue } });
             }
             catch (error) {
                 throw new Error(`error while cancel the slot in slot schedule repositry${error instanceof Error ? error.message : String(error)}`);
@@ -214,6 +226,28 @@ class slotScheduleRepository extends baseRepo_1.baseRepository {
             }
             catch (error) {
                 throw new Error(`error while mentor handle  cancel  slot request  in slot schedule repositry${error instanceof Error ? error.message : String(error)}`);
+            }
+        });
+    }
+    createSessionCode(bookingId, sessionCode) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const response = yield this.find_By_Id_And_Update(slotSchedule_1.default, bookingId, { $set: { sessionCode } });
+                return response === null || response === void 0 ? void 0 : response.sessionCode;
+            }
+            catch (error) {
+                throw new Error(`error while mentor handle  cancel  slot request  in slot schedule repositry${error instanceof Error ? error.message : String(error)}`);
+            }
+        });
+    }
+    //marking session completed
+    sessionCompleted(bookingId) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                return this.find_By_Id_And_Update(slotSchedule_1.default, bookingId, { $set: { status: "COMPLETED" } });
+            }
+            catch (error) {
+                throw new Error(`error while mentor handle  session completed  in slot schedule repositry${error instanceof Error ? error.message : String(error)}`);
             }
         });
     }

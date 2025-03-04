@@ -3,8 +3,7 @@ import { baseRepository } from "./baseRepo";
 import { IslotScheduleRepository } from "../Interface/Booking/iSlotScheduleRepository";
 import mongoose, { ObjectId } from "mongoose";
 import slotSchedule from "../Model/slotSchedule";
-import { InewSlotSchedule } from "src/Types";
-
+import { InewSlotSchedule } from "../Types";
 
 class slotScheduleRepository
   extends baseRepository<IslotSchedule>
@@ -18,38 +17,35 @@ class slotScheduleRepository
     newSlotSchedule: IslotSchedule
   ): Promise<InewSlotSchedule | null> {
     try {
-      const res =  await this.createDocument(newSlotSchedule); 
-     const result=  await this.aggregateData(slotSchedule,
-        [
-          {
-            $match:{
-              slotId:res?.slotId
-             
-            }
+      const res = await this.createDocument(newSlotSchedule);
+      const result = await this.aggregateData(slotSchedule, [
+        {
+          $match: {
+            slotId: res?.slotId,
           },
-          {
-            $lookup:{
-              from:'times',
-              localField:'slotId',
-              foreignField:"_id",
-              as:"times"
-            }
+        },
+        {
+          $lookup: {
+            from: "times",
+            localField: "slotId",
+            foreignField: "_id",
+            as: "times",
           },
-          {
-            $unwind:{
-              path:"$times",
-              preserveNullAndEmptyArrays:true
-            }
+        },
+        {
+          $unwind: {
+            path: "$times",
+            preserveNullAndEmptyArrays: true,
           },
-          // {
-          //   $project:{
-          //     mentorId:"$times.mentorId",
+        },
+        // {
+        //   $project:{
+        //     mentorId:"$times.mentorId",
 
-          //   }
-          // }
-        ]
-      ) ;
-      console.log(result,'result')
+        //   }
+        // }
+      ]);
+      console.log(result, "result");
       return result[0];
     } catch (error: unknown) {
       throw new Error(
@@ -87,7 +83,13 @@ class slotScheduleRepository
         matchFilter["isAttended"] = true;
       } else {
         matchFilter["status"] = {
-          $in: ["RESCHEDULED", "CONFIRMED", "PENDING","CANCEL_REQUESTED","CANCEL_REJECTED"],
+          $in: [
+            "RESCHEDULED",
+            "CONFIRMED",
+            "PENDING",
+            "CANCEL_REQUESTED",
+            "CANCEL_REJECTED",
+          ],
         };
         matchFilter["isAttended"] = false;
       }
@@ -145,19 +147,25 @@ class slotScheduleRepository
         // "slotDetails.mentorId": mentorId,
         paymentStatus: "Paid",
       };
-console.log('\x1b[32m%s\x1b[0m',mentorId)
+      console.log("\x1b[32m%s\x1b[0m", mentorId);
       if (tabCond) {
         //based on the tab
 
-        matchFilter["status"] = { $in: [ "CANCELLED", "COMPLETED"] };
+        matchFilter["status"] = { $in: ["CANCELLED", "COMPLETED"] };
         matchFilter["isAttended"] = true;
       } else {
         matchFilter["status"] = {
-          $in: ["RESCHEDULED", "CONFIRMED", "PENDING","CANCEL_REQUESTED","CANCEL_REJECTED"],
+          $in: [
+            "RESCHEDULED",
+            "CONFIRMED",
+            "PENDING",
+            "CANCEL_REQUESTED",
+            "CANCEL_REJECTED",
+          ],
         };
         matchFilter["isAttended"] = false;
       }
-console.log(matchFilter,'filter')
+      console.log(matchFilter, "filter");
       return await this.aggregateData(slotSchedule, [
         {
           $match: matchFilter,
@@ -205,26 +213,75 @@ console.log(matchFilter,'filter')
     }
   }
 
-  async cancelSlot(sessionId: string, issue: string): Promise<IslotSchedule | null> {
+  async cancelSlot(
+    sessionId: string,
+    issue: string
+  ): Promise<IslotSchedule | null> {
     try {
-      console.log(sessionId,issue);
-      return await this.find_By_Id_And_Update(slotSchedule,new mongoose.Types.ObjectId(sessionId),{$set:{status:'CANCEL_REQUESTED',cancelReason:issue}}) ;
-   
-    } catch (error:unknown) {
+      console.log(sessionId, issue);
+      return await this.find_By_Id_And_Update(
+        slotSchedule,
+        new mongoose.Types.ObjectId(sessionId),
+        { $set: { status: "CANCEL_REQUESTED", cancelReason: issue } }
+      );
+    } catch (error: unknown) {
       throw new Error(
-        `error while cancel the slot in slot schedule repositry${error instanceof Error ? error.message : String(error)}`
+        `error while cancel the slot in slot schedule repositry${
+          error instanceof Error ? error.message : String(error)
+        }`
       );
     }
   }
 
-  async mentorSlotCancel(sessionId: string, slotValule: string): Promise<IslotSchedule | null> {
+  async mentorSlotCancel(
+    sessionId: string,
+    slotValule: string
+  ): Promise<IslotSchedule | null> {
     try {
+      return await this.find_By_Id_And_Update(
+        slotSchedule,
+        new mongoose.Types.ObjectId(sessionId),
+        { $set: { status: slotValule } }
+      );
+    } catch (error: unknown) {
+      throw new Error(
+        `error while mentor handle  cancel  slot request  in slot schedule repositry${
+          error instanceof Error ? error.message : String(error)
+        }`
+      );
+    }
+  }
+  async createSessionCode(
+    bookingId: string,
+    sessionCode: string
+  ): Promise<string> {
+    try {
+      const response = await this.find_By_Id_And_Update(
+        slotScheduleSchema,
+        bookingId,
+        { $set: { sessionCode } }
+      );
 
-      return await this.find_By_Id_And_Update(slotSchedule,new mongoose.Types.ObjectId(sessionId),{$set:{status:slotValule}}) ;
-   
+      return response?.sessionCode as string;
+    } catch (error: unknown) {
+      throw new Error(
+        `error while mentor handle  cancel  slot request  in slot schedule repositry${
+          error instanceof Error ? error.message : String(error)
+        }`
+      );
+    }
+  }
+
+  //marking session completed
+  async sessionCompleted(bookingId: string): Promise<IslotSchedule|null> {
+    try {
+      return this.find_By_Id_And_Update(slotScheduleSchema,bookingId,{$set:{status:"COMPLETED"}});
+      
     } catch (error:unknown) {
       throw new Error(
-        `error while mentor handle  cancel  slot request  in slot schedule repositry${error instanceof Error ? error.message : String(error)}`
+        `error while mentor handle  session completed  in slot schedule repositry${
+          error instanceof Error ? error.message : String(error)
+        }`
       );
     }
   }

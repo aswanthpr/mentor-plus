@@ -23,7 +23,7 @@ const initialState: IBookingError = {
   stripe: "",
 };
 
-export const BookingPage: React.FC = () => {
+ const BookingPage: React.FC = () => {
   const { state, pathname } = useLocation();
 
   const [selectedSlot, setSelectedSlot] = useState<Itime | null>(null);
@@ -275,3 +275,4 @@ export const BookingPage: React.FC = () => {
     </div>
   );
 };
+export default BookingPage

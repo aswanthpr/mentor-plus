@@ -11,7 +11,8 @@ import { InotificationRepository } from "../Interface/Notification/Inotification
 import moment from "moment";
 import { socketManager } from "../index";
 import { Inotification } from "../Model/notificationModel";
-import { IchatRepository } from "src/Interface/chat/IchatRepository";
+import { IchatRepository } from "../Interface/chat/IchatRepository";
+import { generateSessionCode } from "../Utils/otpGen.util";
 
 export class bookingService implements IbookingService {
   constructor(
@@ -502,6 +503,86 @@ export class bookingService implements IbookingService {
         `${
           error instanceof Error ? error.message : String(error)
         } error while metnor slot cancel  handle in  service`
+      );
+    }
+  }
+  //create session code 
+  async createSessionCode(bookingId: string): Promise<{ success: boolean; message: string; status: number; sessionCode: string|null; }> {
+    try {
+      if (!bookingId ) {
+        return {
+          success: false,
+          message: "credential not found",
+          status: Status.BadRequest,
+          sessionCode:null,
+        };
+      }
+      //generate sessionCode
+      const session_Code = generateSessionCode();
+
+      console.log(session_Code,'sessionCode')
+      const response = await this._slotScheduleRepository.createSessionCode(
+        bookingId,session_Code
+        
+      );
+      if (!response) {
+        return {
+          success: false,
+          message: "result not found ",
+          status: Status.NotFound,
+          sessionCode: null,
+        };
+      }
+      return {
+        success: true,
+        message: "session Code  created successfully",
+        status: Status.Ok,
+        sessionCode: response,
+      };
+    } catch (error: unknown) {
+      throw new Error(
+        `${
+          error instanceof Error ? error.message : String(error)
+        } error while metnor create session code  in  service`
+      );
+    }
+  };
+  //session completed marking 
+  async sessionCompleted(bookingId: string): Promise<{ success: boolean; message: string; status: number; sessionStatus: string|null; }> {
+    try {
+      if (!bookingId ) {
+        return {
+          success: false,
+          message: "credential not found",
+          status: Status.BadRequest,
+          sessionStatus:null,
+        };
+      }
+
+      const response = await this._slotScheduleRepository.sessionCompleted(
+        bookingId
+        
+      );
+      if (!response) {
+        return {
+          success: false,
+          message: "result not found ",
+          status: Status.NotFound,
+          sessionStatus:null,
+
+        };
+      }
+      return {
+        success: true,
+        message: "marked as completed!",
+        status: Status.Ok,
+        sessionStatus:response?.status,
+      };
+    } catch (error:unknown) {
+      throw new Error(
+        `${
+          error instanceof Error ? error.message : String(error)
+        } error while chnage the session status as completed  in  service`
       );
     }
   }

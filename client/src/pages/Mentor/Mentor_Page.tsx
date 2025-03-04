@@ -24,7 +24,7 @@ const navItems: INavItem[] = [
   { name: "Messages", path: "/mentor/messages", icon: MessageSquare },
   { name: "Schedule", path: "/mentor/Schedule", icon: Calendar },
   // { name: "Wallet", path: "/mentor/wallet", icon: Wallet },
-  // { name: 'Q&A', path: '/mentor/qa', icon: HelpCircle },
+
 ];
 
 const Mentor_Page: React.FC = () => {
@@ -34,7 +34,6 @@ const Mentor_Page: React.FC = () => {
   );
   const [isSideBarOpen, setIsSideBarOpen] = useState<boolean>(false);
   const [searchValue, setSearchValue] = useState<string>("");
-  const [userId, setUserId] = useState<string>("");
   useEffect(() => {
     let flag = true;
 
@@ -45,8 +44,8 @@ const Mentor_Page: React.FC = () => {
         );
 
         if (flag && response.status == 200 && response.data.success) {
-          const user_Id = response.data.result[0]["userId"] as string;
-          setUserId(user_Id);
+          const user_Id = response.data?.result?.[0]?.["userId"] as string;
+
           dispatch(
             setNotification({
               userType: "mentor",
@@ -54,9 +53,10 @@ const Mentor_Page: React.FC = () => {
             })
           );
           if (user_Id) {
-            connectToNotifications(userId, "mentor");
+            connectToNotifications(user_Id, "mentor");
           }
         }
+
       } catch (error: unknown) {
         console.log(
           `${error instanceof Error ? error.message : String(error)}`
@@ -69,7 +69,7 @@ const Mentor_Page: React.FC = () => {
       flag = false;
        disconnectNotificationSocket();
     };
-  }, [dispatch, userId]);
+  }, [dispatch]);
 
   const handleReadNotification = async (id: string) => {
     try {
@@ -88,7 +88,7 @@ const Mentor_Page: React.FC = () => {
     setIsSideBarOpen(!isSideBarOpen);
   };
 
-  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleSearchChange = (e: React. ChangeEvent<HTMLInputElement>) => {
     setSearchValue(e.target.value);
   };
   const mentorLogout = async () => {

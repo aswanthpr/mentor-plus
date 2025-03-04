@@ -5,7 +5,7 @@ import { Tuser } from "../Types/type";
 
 let notificationSocket: Socket | null = null;
 let chatSocket: Socket | null = null;
-// export let webrtcSocket: Socket | null = null;
+// let webrtcSocket: Socket | null = null;
 
 // connect to Notifications namespace
 export const connectToNotifications = (userId: string, userType: Tuser) => {
@@ -77,9 +77,4 @@ export const disconnectChat = () => {
 //   return webrtcSocket;
 // }
 
-// // Optional: Disconnect all socket instances
-// export const disconnectinueAll = () => {
-//   // if (webrtcSocket) webrtcSocket.disconnect();
-//   if (chatSocket) chatSocket.disconnect();
-//   if (notificationSocket) notificationSocket.disconnect();
-// };
+

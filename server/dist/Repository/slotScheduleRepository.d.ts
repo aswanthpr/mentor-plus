@@ -2,7 +2,7 @@ import { IslotSchedule } from "../Model/slotSchedule";
 import { baseRepository } from "./baseRepo";
 import { IslotScheduleRepository } from "../Interface/Booking/iSlotScheduleRepository";
 import { ObjectId } from "mongoose";
-import { InewSlotSchedule } from "src/Types";
+import { InewSlotSchedule } from "../Types";
 declare class slotScheduleRepository extends baseRepository<IslotSchedule> implements IslotScheduleRepository {
     constructor();
     newSlotBooking(newSlotSchedule: IslotSchedule): Promise<InewSlotSchedule | null>;
@@ -20,6 +20,8 @@ declare class slotScheduleRepository extends baseRepository<IslotSchedule> imple
     getBookedSession(mentorId: ObjectId, tabCond: boolean): Promise<IslotSchedule[] | []>;
     cancelSlot(sessionId: string, issue: string): Promise<IslotSchedule | null>;
     mentorSlotCancel(sessionId: string, slotValule: string): Promise<IslotSchedule | null>;
+    createSessionCode(bookingId: string, sessionCode: string): Promise<string>;
+    sessionCompleted(bookingId: string): Promise<IslotSchedule | null>;
 }
 declare const _default: slotScheduleRepository;
 export default _default;

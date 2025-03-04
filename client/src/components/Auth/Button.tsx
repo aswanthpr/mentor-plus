@@ -6,17 +6,18 @@ interface IButton extends ButtonHTMLAttributes<HTMLButtonElement> {
     children?:JSX.Element|ReactNode;
     className?:string;
     disabled?:boolean;
-    onChange?:()=>void
+    onClick?:()=>void
 
 
 
 }
 
 
-export const Button: React.FC<IButton> = ({ children, className, variant = 'primary', disabled, ...props }) => {
+export const Button: React.FC<IButton> = ({ children,onClick, className, variant = 'primary', disabled, ...props }) => {
   return (
     <div>
       <button
+      onClick={onClick}
         className={clsx(
           `px-4 py-2 rounded-md font-medium transition-colors`, // Default styles
           className, // <-- This line was added to include the passed className prop (e.g., mt-4 ml-4)

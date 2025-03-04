@@ -1,61 +1,222 @@
-import { X } from "lucide-react";
-
-interface VideoCallModalProps {
-    isOpen: boolean;
-    onClose: () => void;
-    onJoinCall: () => void;
-    sessionDetails: {
-      mentor: string;
-      topic: string;
-      duration: string;
-    };
-  }
 
 
-const VideoCallModal: React.FC<VideoCallModalProps> = ({ isOpen, onClose, onJoinCall, sessionDetails }) => {
-    if (!isOpen) return null;
-  
-    return (
-      <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-        <div className="bg-white rounded-lg max-w-md w-full p-6">
-          <div className="flex justify-between items-center mb-6">
-            <h3 className="text-xl font-bold text-gray-900">Join Video Session</h3>
-            <button onClick={onClose} className="text-gray-400 hover:text-gray-600">
-              <X className="h-6 w-6" />
-            </button>
-          </div>
-  
-          <div className="space-y-4 mb-6">
-            <div>
-              <label className="block text-sm font-medium text-gray-700">Mentor</label>
-              <p className="mt-1 text-lg">{sessionDetails.mentor}</p>
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700">Topic</label>
-              <p className="mt-1 text-lg">{sessionDetails.topic}</p>
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700">Duration</label>
-              <p className="mt-1 text-lg">{sessionDetails.duration}</p>
-            </div>
-          </div>
-  
-          <div className="flex justify-end gap-4">
-            <button
-              onClick={onClose}
-              className="px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 rounded-lg transition-colors"
-            >
-              Cancel
-            </button>
-            <button
-              onClick={onJoinCall}
-              className="px-4 py-2 text-sm font-medium text-white bg-[#ff8800] hover:bg-[#ff9900] rounded-lg transition-colors"
-            >
-              Join Session
-            </button>
-          </div>
-        </div>
-      </div>
-    );
+import React, { useEffect, useRef, useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
+import { Mic, MicOff, Video, VideoOff, PhoneOff } from "lucide-react";
+import { io, Socket } from "socket.io-client";
+
+const ICE_SERVERS = {
+  iceServers: [{ urls: "stun:stun.l.google.com:19302" }],
+
+};
+
+const SIGNALING_SERVER_URL = `${import.meta.env?.VITE_SERVER_URL}/webrtc`
+
+const VideoPage: React.FC = () => {
+  const navigate = useNavigate();
+  const role = location.pathname.split('/')?.[1]
+  const { roomId } = useParams<{ roomId: string }>();
+  const localVideoRef = useRef<HTMLVideoElement>(null);
+  const remoteVideoRef = useRef<HTMLVideoElement>(null);
+  const peerConnection = useRef<RTCPeerConnection | null>(null);
+  const signalingSocket = useRef<Socket | null>(null);
+  const [localStream, setLocalStream] = useState<MediaStream | null>(null);
+  const [isVideoOn, setIsVideoOn] = useState(true);
+  const [isAudioOn, setIsAudioOn] = useState(true);
+  const constraints = {
+    video: {
+      width: { ideal: 1920 }, // Full HD
+      height: { ideal: 720 },
+      frameRate: { ideal: 30, max: 60 }, // Smooth motion
+      facingMode: "user",
+      noiseSuppression: true, // Ensure front camera is used
+    },
+    audio: {
+      echoCancellation: true, // Removes echo
+      noiseSuppression: true, // Removes background noise
+      autoGainControl: true, // Balances volume
+      sampleRate: 48000, // Studio-quality audio
+      sampleSize: 24, // Higher bit depth for clearer sound
+      channelCount: 2, // Stereo audio
+      latency: 0, // Reduce delay
+    },
   };
-  export default VideoCallModal
+  useEffect(() => {
+    const initCall = async () => {
+      try {
+        if (peerConnection.current || signalingSocket.current) {
+          return; // Prevent duplicate connections
+        }
+
+        // Get local stream only once
+        const stream = await navigator.mediaDevices.getUserMedia(constraints);
+        setLocalStream(stream); // Update state but DO NOT add localStream to dependencies
+        if (localVideoRef.current) localVideoRef.current.srcObject = stream;
+
+        // Set up peer connection
+        peerConnection.current = new RTCPeerConnection(ICE_SERVERS);
+        stream
+          .getTracks()
+          .forEach((track) => peerConnection.current?.addTrack(track, stream));
+
+        peerConnection.current.ontrack = (event) => {
+          if (remoteVideoRef.current && event.streams.length > 0) {
+            remoteVideoRef.current.srcObject = event.streams[0];
+          }
+        };
+
+        peerConnection.current.onicecandidate = (event) => {
+          if (event.candidate) {
+            signalingSocket.current?.emit(
+              "ice-candidate",
+              event.candidate,
+              roomId
+            );
+          }
+        };
+
+        //  Initialize signaling socket
+        signalingSocket.current = io(SIGNALING_SERVER_URL);
+
+        signalingSocket.current.on("connect", () => {
+          signalingSocket.current?.emit("join-call", roomId);
+        });
+
+        signalingSocket.current.on("offer", async (offer, senderId) => {
+          if (peerConnection.current) {
+            await peerConnection.current.setRemoteDescription(
+              new RTCSessionDescription(offer)
+            );
+            const answer = await peerConnection.current.createAnswer();
+            await peerConnection.current.setLocalDescription(answer);
+            signalingSocket.current?.emit("answer", answer, roomId, senderId);
+          }
+        });
+
+        signalingSocket.current.on("answer", async (answer) => {
+          if (peerConnection.current) {
+            await peerConnection.current.setRemoteDescription(
+              new RTCSessionDescription(answer)
+            );
+          }
+        });
+
+        signalingSocket.current.on("ice-candidate", async (candidate) => {
+          if (peerConnection.current) {
+            await peerConnection.current.addIceCandidate(
+              new RTCIceCandidate(candidate)
+            );
+          }
+        });
+
+        signalingSocket.current.on("user-joined", async (senderId) => {
+          if (peerConnection.current) {
+            const offer = await peerConnection.current.createOffer();
+            await peerConnection.current.setLocalDescription(offer);
+            signalingSocket.current?.emit("offer", offer, roomId, senderId);
+          }
+        });
+      } catch (error) {
+        console.error("Error accessing media devices:", error);
+      }
+    };
+   
+
+    initCall();
+
+    return () => {
+      if (peerConnection.current) {
+        peerConnection.current.close();
+        peerConnection.current = null;
+      }
+      if (signalingSocket.current) {
+        signalingSocket.current.disconnect();
+        signalingSocket.current = null;
+      }
+      if (localStream) {
+        localStream.getTracks().forEach((track) => track.stop());
+      }
+    };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [roomId]);
+
+  const toggleVideo = () => {
+    if (localStream) {
+      const videoTrack = localStream.getVideoTracks()[0];
+      if (videoTrack) {
+        videoTrack.enabled = !videoTrack.enabled;
+        setIsVideoOn(videoTrack.enabled);
+      }
+    }
+  };
+
+  const toggleAudio = () => {
+    if (localStream) {
+      const audioTrack = localStream.getAudioTracks()[0];
+      if (audioTrack) {
+        audioTrack.enabled = !audioTrack.enabled;
+        setIsAudioOn(audioTrack.enabled);
+      }
+    }
+  };
+  const endCall = () => {
+    // Close Peer Connection
+    if (peerConnection.current) {
+      peerConnection.current.close();
+      peerConnection.current = null;
+    }
+
+    // Stop Local Stream Tracks
+    if (localStream) {
+      localStream.getTracks().forEach((track) => track.stop());
+      setLocalStream(null);
+    }
+    navigator.mediaDevices.getUserMedia({ video: false, audio: false });
+    // Disconnect from Signaling Server
+    if (signalingSocket.current) {
+      signalingSocket.current.disconnect();
+      signalingSocket.current = null;
+    }
+
+    // Redirect to Home Page
+    navigate(`/${role}/${role=="mentor"?"session":"bookings"}`);
+  };
+  return (
+    <div className="fixed  lg:ml-64  mt-32   mb-2  inset-0 flex items-center justify-center">
+      <video
+        ref={remoteVideoRef}
+        style={{ transform: "scaleX(-1)" }}
+        autoPlay
+        className=" w-[calc(100vw-0px)] h-[calc(100vh-1px)] object-cover bg-[#000000] p-3 border-black rounded-3xl rounded-b-sm"
+      />
+      <video
+        style={{ transform: "scaleX(-1)" }}
+        ref={localVideoRef}
+        autoPlay
+        muted
+        className="absolute bottom-5 right-5 w-96 h-64 object-cover bg-gray-900 rounded-lg"
+      />
+      <div className="absolute bottom-5 flex space-x-4 bg-gray-900 p-3 rounded-full">
+        <button onClick={toggleAudio}>
+          {isAudioOn ? (
+            <Mic className="text-green-200" />
+          ) : (
+            <MicOff className="text-red-200" />
+          )}
+        </button>
+        <button onClick={toggleVideo}>
+          {isVideoOn ? (
+            <Video className="text-green-200" />
+          ) : (
+            <VideoOff className="text-red-200" />
+          )}
+        </button>
+        <button onClick={endCall}>
+          <PhoneOff className="text-red-500" />
+        </button>
+      </div>
+    </div>
+  );
+};
+
+export default VideoPage;
