@@ -5,6 +5,8 @@ import { ObjectId } from "mongoose";
 import { InewSlotSchedule } from "../Types";
 declare class slotScheduleRepository extends baseRepository<IslotSchedule> implements IslotScheduleRepository {
     constructor();
+    createSessionCode(bookingId: string, sessionCode: string): Promise<string>;
+    sessionCompleted(bookingId: string): Promise<IslotSchedule | null>;
     newSlotBooking(newSlotSchedule: IslotSchedule): Promise<InewSlotSchedule | null>;
     /**
      * Retrieves the booked slots for a specified mentee.

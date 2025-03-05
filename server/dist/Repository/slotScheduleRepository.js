@@ -22,6 +22,12 @@ class slotScheduleRepository extends baseRepo_1.baseRepository {
     constructor() {
         super(slotSchedule_1.default);
     }
+    createSessionCode(bookingId, sessionCode) {
+        throw new Error("Method not implemented.");
+    }
+    sessionCompleted(bookingId) {
+        throw new Error("Method not implemented.");
+    }
     newSlotBooking(newSlotSchedule) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
@@ -74,7 +80,6 @@ class slotScheduleRepository extends baseRepo_1.baseRepository {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 const todayStart = (0, reusable_util_1.getTodayStartTime)();
-                console.log(todayStart, "today start");
                 const matchFilter = {
                     menteeId,
                     paymentStatus: "Paid",
@@ -138,7 +143,7 @@ class slotScheduleRepository extends baseRepo_1.baseRepository {
                     // },
                     {
                         $sort: {
-                            "slotDetails.startTime": tabCond ? -1 : 1,
+                            "slotDetails.startDate": -1,
                         },
                     },
                 ]);
@@ -156,9 +161,7 @@ class slotScheduleRepository extends baseRepo_1.baseRepository {
                     "slotDetails.mentorId": mentorId,
                     paymentStatus: "Paid",
                 };
-                console.log("\x1b[32m%s\x1b[0m", mentorId, todayStart);
                 if (tabCond) {
-                    //based on the tab
                     matchFilter["status"] = { $in: ["CANCELLED", "COMPLETED"] };
                 }
                 else {
@@ -172,11 +175,10 @@ class slotScheduleRepository extends baseRepo_1.baseRepository {
                         ],
                     };
                 }
-                console.log(matchFilter, "filter");
                 const dateFilter = tabCond
                     ? { "slotDetails.startDate": { $lt: todayStart } }
                     : { "slotDetails.startTime": { $gte: todayStart } };
-                return yield this.aggregateData(slotSchedule_2.default, [
+                const resp = yield this.aggregateData(slotSchedule_2.default, [
                     {
                         $lookup: {
                             from: "times",
@@ -190,6 +192,9 @@ class slotScheduleRepository extends baseRepo_1.baseRepository {
                             path: "$slotDetails",
                             preserveNullAndEmptyArrays: true,
                         },
+                    },
+                    {
+                        $match: matchFilter,
                     },
                     {
                         $lookup: {
@@ -206,17 +211,13 @@ class slotScheduleRepository extends baseRepo_1.baseRepository {
                         },
                     },
                     {
-                        $match: matchFilter,
-                    },
-                    // {
-                    //   $match: dateFilter,
-                    // },
-                    {
                         $sort: {
-                            "slotDetails.startTime": tabCond ? -1 : 1,
+                            "slotDetails.startDate": -1,
                         },
                     },
                 ]);
+                console.log(resp, "this is respaa");
+                return resp;
             }
             catch (error) {
                 throw new Error(`${error instanceof Error ? error.message : String(error)}`);

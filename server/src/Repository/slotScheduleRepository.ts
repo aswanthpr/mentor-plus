@@ -14,6 +14,12 @@ class slotScheduleRepository
   constructor() {
     super(slotScheduleSchema);
   }
+  createSessionCode(bookingId: string, sessionCode: string): Promise<string> {
+    throw new Error("Method not implemented.");
+  }
+  sessionCompleted(bookingId: string): Promise<IslotSchedule | null> {
+    throw new Error("Method not implemented.");
+  }
 
   async newSlotBooking(
     newSlotSchedule: IslotSchedule
@@ -75,7 +81,6 @@ class slotScheduleRepository
     try {
       const todayStart = getTodayStartTime();
 
-      console.log(todayStart, "today start");
       const matchFilter: Record<string, unknown> = {
         menteeId,
         paymentStatus: "Paid",
@@ -141,7 +146,7 @@ class slotScheduleRepository
         // },
         {
           $sort: {
-            "slotDetails.startTime": tabCond ? -1 : 1,
+            "slotDetails.startDate": -1,
           },
         },
       ]);
@@ -162,11 +167,10 @@ class slotScheduleRepository
         "slotDetails.mentorId": mentorId,
         paymentStatus: "Paid",
       };
-      console.log("\x1b[32m%s\x1b[0m", mentorId,todayStart);
-      if (tabCond) {
-        //based on the tab
 
+      if (tabCond) {
         matchFilter["status"] = { $in: ["CANCELLED", "COMPLETED"] };
+      
       } else {
         matchFilter["status"] = {
           $in: [
@@ -177,13 +181,14 @@ class slotScheduleRepository
             "CANCEL_REJECTED",
           ],
         };
+        
       }
 
-      console.log(matchFilter, "filter");
       const dateFilter = tabCond
-      ? { "slotDetails.startDate": { $lt: todayStart } }
-      : { "slotDetails.startTime": { $gte: todayStart } }
-      return await this.aggregateData(slotSchedule, [
+        ? { "slotDetails.startDate": { $lt: todayStart } }
+        : { "slotDetails.startTime": { $gte: todayStart } };
+
+      const resp = await this.aggregateData(slotSchedule, [
         {
           $lookup: {
             from: "times",
@@ -198,7 +203,9 @@ class slotScheduleRepository
             preserveNullAndEmptyArrays: true,
           },
         },
-        
+        {
+          $match: matchFilter,
+        },
         {
           $lookup: {
             from: "mentees",
@@ -213,24 +220,21 @@ class slotScheduleRepository
             preserveNullAndEmptyArrays: true,
           },
         },
-        {
-          $match: matchFilter,
-        },
-        // {
-        //   $match: dateFilter,
-        // },
+       
         {
           $sort: {
-            "slotDetails.startTime": tabCond ? -1 : 1,
+            "slotDetails.startDate": -1,
           },
         },
       ]);
+      console.log(resp, "this is respaa");
+      return resp;
     } catch (error: unknown) {
       throw new Error(
         `${error instanceof Error ? error.message : String(error)}`
       );
     }
-  }
+  } 
 
   async cancelSlot(
     sessionId: string,

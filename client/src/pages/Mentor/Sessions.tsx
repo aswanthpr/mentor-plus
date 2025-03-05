@@ -112,7 +112,7 @@ const Sessions = () => {
     (currentPage - 1) * sessionsPerPage,
     currentPage * sessionsPerPage
   );
-  console.log(paginatedSessions,'paginated sessinos',sessions)
+  console.log (paginatedSessions,'paginated sessinos',sessions)
   const crerateSessionCode = useCallback(async (_id: string) => {
     const resp = await createSessionCodeApi(_id);
 
