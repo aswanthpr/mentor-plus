@@ -48,7 +48,7 @@ const Sessions = () => {
       session?.status === "PENDING" ||
       session?.status === "CONFIRMED" ||
       session?.status === "CANCEL_REQUESTED" ||
-      session?.status === "CANCEL_REJECTED";
+      session?.status === "REJECTED";
     const isHistory =
       session?.status === "COMPLETED" || session?.status === "CANCELLED";
     const matchesSearch =
@@ -112,6 +112,7 @@ const Sessions = () => {
     (currentPage - 1) * sessionsPerPage,
     currentPage * sessionsPerPage
   );
+  console.log(paginatedSessions,'paginated sessinos',sessions)
   const crerateSessionCode = useCallback(async (_id: string) => {
     const resp = await createSessionCodeApi(_id);
 

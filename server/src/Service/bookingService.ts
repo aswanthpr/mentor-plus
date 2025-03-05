@@ -12,7 +12,7 @@ import moment from "moment";
 import { socketManager } from "../index";
 import { Inotification } from "../Model/notificationModel";
 import { IchatRepository } from "../Interface/chat/IchatRepository";
-import { generateSessionCode } from "../Utils/otpGen.util";
+import { generateSessionCode } from "../Utils/reusable.util";
 
 export class bookingService implements IbookingService {
   constructor(
@@ -379,7 +379,7 @@ export class bookingService implements IbookingService {
         };
       }
       const tabCond = currentTab == "upcoming" ? false : true;
-      console.log(tabCond, currentTab, "this si tab");
+
 
       const response = await this._slotScheduleRepository.getBookedSession(
         mentorId,
@@ -525,6 +525,7 @@ export class bookingService implements IbookingService {
         bookingId,session_Code
         
       );
+      
       if (!response) {
         return {
           success: false,
@@ -533,6 +534,7 @@ export class bookingService implements IbookingService {
           sessionCode: null,
         };
       }
+      console.log('response')
       return {
         success: true,
         message: "session Code  created successfully",

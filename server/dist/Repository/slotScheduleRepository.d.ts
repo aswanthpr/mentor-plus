@@ -20,8 +20,6 @@ declare class slotScheduleRepository extends baseRepository<IslotSchedule> imple
     getBookedSession(mentorId: ObjectId, tabCond: boolean): Promise<IslotSchedule[] | []>;
     cancelSlot(sessionId: string, issue: string): Promise<IslotSchedule | null>;
     mentorSlotCancel(sessionId: string, slotValule: string): Promise<IslotSchedule | null>;
-    createSessionCode(bookingId: string, sessionCode: string): Promise<string>;
-    sessionCompleted(bookingId: string): Promise<IslotSchedule | null>;
 }
 declare const _default: slotScheduleRepository;
 export default _default;

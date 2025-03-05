@@ -48,10 +48,13 @@ const SessionCard: React.FC<SessionCardProps> = ({
   const [customReason, setCustomReason] = useState<string>("");
   const [isOtherSelected, setIsOtherSelected] = useState<boolean>(false);
   const [mentorStatusChange, setMentorStatusChange] = useState<string>("");
+  const [desptnOpn,setDesptnOpn] = useState<boolean>(false)
+
   const formatTime = moment(session.slotDetails?.slots![0]?.startTime);
 
   const startTime = moment(formatTime).format("hh:mm A");
-
+  const startDate =moment(session?.slotDetails?.slots?.[0]?.startTime).format("DD-MM-YYYY");
+ 
   const handleModalClose = () => {
     setModalToggle(false);
     setReason("");
@@ -71,8 +74,7 @@ const SessionCard: React.FC<SessionCardProps> = ({
   useEffect(() => {}, [session]);
 
   const handleSubmit = () => {
-    console.log("Reason:", reason);
-    console.log("Custom Reason:", customReason);
+
 
     if (reason == "") {
       toast.error("select a reason");
@@ -95,6 +97,7 @@ const SessionCard: React.FC<SessionCardProps> = ({
 
   return (
     <div className="bg-white p-4 rounded-lg shadow-sm border border-gray-200 hover:shadow-md transition-shadow mt-2">
+      
       <div className="flex items-start justify-between">
         <div className="flex items-center gap-4">
           <img
@@ -104,7 +107,7 @@ const SessionCard: React.FC<SessionCardProps> = ({
           />
           <div>
             <h3 className="font-medium text-gray-900">{session?.user?.name}</h3>
-            <p className="text-sm text-gray-500">{session?.description}</p>
+            <span onClick={()=>setDesptnOpn(true)} className="text-sm text-gray-500 cursor-pointer hover:underline">{session?.description.length>20?session.description.slice(0,10)+".....":session?.description}</span>
           </div>
         </div>
         <div className="flex space-x-3 flex-row">
@@ -123,7 +126,7 @@ const SessionCard: React.FC<SessionCardProps> = ({
           {role === "mentor" &&
           session?.status === "CONFIRMED"  &&
           moment().diff(moment(session?.slotDetails?.startDate), "minutes") <=
-            30 &&
+            1440 &&
           !session?.sessionCode ? (
             <Button
               onClick={() => handleCreateSessionCode!(session?._id)}
@@ -132,6 +135,8 @@ const SessionCard: React.FC<SessionCardProps> = ({
               variant="secondary"
             />
           ) : (
+            session?.status === "CONFIRMED" ?(
+
             <Tooltip title="copy session code">
               <span
                 className=" mr-3 text-sm cursor-pointer text-blue-600 hover:underline"
@@ -143,6 +148,7 @@ const SessionCard: React.FC<SessionCardProps> = ({
                 {session?.sessionCode}
               </span>
             </Tooltip>
+            ):("")
           )}
 
           <span
@@ -169,7 +175,7 @@ const SessionCard: React.FC<SessionCardProps> = ({
         <div className="flex items-center gap-2">
           <Calendar className="w-4 h-4 text-gray-400" />
           <span className="text-sm text-gray-600">
-            {session?.slotDetails?.startDate.split("T")[0]}
+            {startDate}
           </span>
         </div>
         <div className="flex items-center gap-2">
@@ -293,6 +299,16 @@ const SessionCard: React.FC<SessionCardProps> = ({
           </>
         }
       />
+      {desptnOpn &&(
+        <Modal
+        isOpen={desptnOpn}
+        onClose={ ()=>setDesptnOpn(false)}
+        children={
+          session?.description
+        }
+
+        />
+      )}
     </div>
   );
 };

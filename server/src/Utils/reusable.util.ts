@@ -7,3 +7,9 @@ export const generateSessionCode = () => {
   const randomString = Math.random().toString(36).substring(2, 11).toUpperCase();
   return randomString.match(/.{1,3}/g)?.join("-") || "";
 };
+
+export const getTodayStartTime = () => {
+  const now = new Date();
+  now.setUTCHours(0, 0, 0, 0); // Set time to 12:00 AM UTC
+  return now.toISOString();
+};
