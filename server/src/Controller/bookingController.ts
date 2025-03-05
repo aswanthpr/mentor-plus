@@ -89,7 +89,7 @@ export class bookingControlelr implements IbookingController {
           req.user as Express.User as ObjectId,
           activeTab as string
         );
-      console.log(slots, "result");
+     
       res.status(status).json({ success, message, slots });
     } catch (error: unknown) {
       throw new Error(
@@ -110,7 +110,7 @@ export class bookingControlelr implements IbookingController {
           activeTab as string
         );
 
-      console.log(slots, "result");
+    
       res.status(status).json({ success, message, slots });
     } catch (error: unknown) {
       throw new Error(

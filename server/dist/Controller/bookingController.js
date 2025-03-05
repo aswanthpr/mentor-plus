@@ -71,7 +71,6 @@ class bookingControlelr {
             try {
                 const { activeTab } = req.query;
                 const { status, message, success, slots } = yield this._bookingService.getBookedSlots(req.user, activeTab);
-                console.log(slots, "result");
                 res.status(status).json({ success, message, slots });
             }
             catch (error) {
@@ -86,7 +85,6 @@ class bookingControlelr {
                 const { activeTab } = req.query;
                 console.log(activeTab, "activeTab aane");
                 const { status, message, success, slots } = yield this._bookingService.getBookedSessions(req.user, activeTab);
-                console.log(slots, "result");
                 res.status(status).json({ success, message, slots });
             }
             catch (error) {

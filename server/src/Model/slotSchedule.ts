@@ -15,7 +15,7 @@ export interface IslotSchedule extends Document {
   cancelReason:string|null
 }
 
-const slotScheduleSchema: Schema<IslotSchedule> = new Schema(
+const slotScheduleSchema: Schema<IslotSchedule> = new Schema( 
   {
     menteeId: {
       type: mongoose.Types.ObjectId,

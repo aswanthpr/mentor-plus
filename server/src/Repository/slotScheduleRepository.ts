@@ -1,9 +1,11 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import slotScheduleSchema, { IslotSchedule } from "../Model/slotSchedule";
 import { baseRepository } from "./baseRepo";
 import { IslotScheduleRepository } from "../Interface/Booking/iSlotScheduleRepository";
 import mongoose, { ObjectId } from "mongoose";
 import slotSchedule from "../Model/slotSchedule";
 import { InewSlotSchedule } from "../Types";
+import { getTodayStartTime } from "../Utils/reusable.util";
 
 class slotScheduleRepository
   extends baseRepository<IslotSchedule>
@@ -11,6 +13,12 @@ class slotScheduleRepository
 {
   constructor() {
     super(slotScheduleSchema);
+  }
+  createSessionCode(bookingId: string, sessionCode: string): Promise<string> {
+    throw new Error("Method not implemented.");
+  }
+  sessionCompleted(bookingId: string): Promise<IslotSchedule | null> {
+    throw new Error("Method not implemented.");
   }
 
   async newSlotBooking(
@@ -71,16 +79,15 @@ class slotScheduleRepository
     tabCond: boolean
   ): Promise<IslotSchedule[] | []> {
     try {
-      // const pipeline
+      const todayStart = getTodayStartTime();
+
       const matchFilter: Record<string, unknown> = {
         menteeId,
         paymentStatus: "Paid",
       };
-      if (tabCond) {
-        //based on the tab
 
+      if (tabCond) {
         matchFilter["status"] = { $in: ["CANCELLED", "COMPLETED"] };
-        matchFilter["isAttended"] = true;
       } else {
         matchFilter["status"] = {
           $in: [
@@ -88,12 +95,20 @@ class slotScheduleRepository
             "CONFIRMED",
             "PENDING",
             "CANCEL_REQUESTED",
-            "CANCEL_REJECTED",
+            "REJECTED",
           ],
         };
-        matchFilter["isAttended"] = false;
       }
-      console.log(matchFilter, "matchFilter");
+
+      const dateFilter = tabCond
+        ? { "slotDetails.startTime": { $lt: todayStart } }
+        : {
+            $or: [
+              { "slotDetails.startTime": { $gte: todayStart } }, // Future sessions
+              { status: "CONFIRMED" }, // Include past confirmed sessions
+            ],
+          };
+
       return await this.aggregateData(slotSchedule, [
         {
           $match: matchFilter,
@@ -126,9 +141,12 @@ class slotScheduleRepository
             preserveNullAndEmptyArrays: true,
           },
         },
+        // {
+        //   $match: dateFilter,
+        // },
         {
           $sort: {
-            createdAt: -1,
+            "slotDetails.startDate": -1,
           },
         },
       ]);
@@ -143,16 +161,16 @@ class slotScheduleRepository
     tabCond: boolean
   ): Promise<IslotSchedule[] | []> {
     try {
+      const todayStart = getTodayStartTime();
+
       const matchFilter: Record<string, unknown> = {
-        // "slotDetails.mentorId": mentorId,
+        "slotDetails.mentorId": mentorId,
         paymentStatus: "Paid",
       };
-      console.log("\x1b[32m%s\x1b[0m", mentorId);
-      if (tabCond) {
-        //based on the tab
 
+      if (tabCond) {
         matchFilter["status"] = { $in: ["CANCELLED", "COMPLETED"] };
-        matchFilter["isAttended"] = true;
+      
       } else {
         matchFilter["status"] = {
           $in: [
@@ -163,28 +181,14 @@ class slotScheduleRepository
             "CANCEL_REJECTED",
           ],
         };
-        matchFilter["isAttended"] = false;
+        
       }
-      console.log(matchFilter, "filter");
-      return await this.aggregateData(slotSchedule, [
-        {
-          $match: matchFilter,
-        },
-        {
-          $lookup: {
-            from: "mentees",
-            localField: "menteeId",
-            foreignField: "_id",
 
-            as: "user",
-          },
-        },
-        {
-          $unwind: {
-            path: "$user",
-            preserveNullAndEmptyArrays: true,
-          },
-        },
+      const dateFilter = tabCond
+        ? { "slotDetails.startDate": { $lt: todayStart } }
+        : { "slotDetails.startTime": { $gte: todayStart } };
+
+      const resp = await this.aggregateData(slotSchedule, [
         {
           $lookup: {
             from: "times",
@@ -199,19 +203,38 @@ class slotScheduleRepository
             preserveNullAndEmptyArrays: true,
           },
         },
-
+        {
+          $match: matchFilter,
+        },
+        {
+          $lookup: {
+            from: "mentees",
+            localField: "menteeId",
+            foreignField: "_id",
+            as: "user",
+          },
+        },
+        {
+          $unwind: {
+            path: "$user",
+            preserveNullAndEmptyArrays: true,
+          },
+        },
+       
         {
           $sort: {
-            createdAt: -1,
+            "slotDetails.startDate": -1,
           },
         },
       ]);
+      console.log(resp, "this is respaa");
+      return resp;
     } catch (error: unknown) {
       throw new Error(
         `${error instanceof Error ? error.message : String(error)}`
       );
     }
-  }
+  } 
 
   async cancelSlot(
     sessionId: string,
@@ -246,40 +269,6 @@ class slotScheduleRepository
     } catch (error: unknown) {
       throw new Error(
         `error while mentor handle  cancel  slot request  in slot schedule repositry${
-          error instanceof Error ? error.message : String(error)
-        }`
-      );
-    }
-  }
-  async createSessionCode(
-    bookingId: string,
-    sessionCode: string
-  ): Promise<string> {
-    try {
-      const response = await this.find_By_Id_And_Update(
-        slotScheduleSchema,
-        bookingId,
-        { $set: { sessionCode } }
-      );
-
-      return response?.sessionCode as string;
-    } catch (error: unknown) {
-      throw new Error(
-        `error while mentor handle  cancel  slot request  in slot schedule repositry${
-          error instanceof Error ? error.message : String(error)
-        }`
-      );
-    }
-  }
-
-  //marking session completed
-  async sessionCompleted(bookingId: string): Promise<IslotSchedule|null> {
-    try {
-      return this.find_By_Id_And_Update(slotScheduleSchema,bookingId,{$set:{status:"COMPLETED"}});
-      
-    } catch (error:unknown) {
-      throw new Error(
-        `error while mentor handle  session completed  in slot schedule repositry${
           error instanceof Error ? error.message : String(error)
         }`
       );

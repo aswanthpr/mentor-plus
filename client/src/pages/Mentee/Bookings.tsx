@@ -98,7 +98,7 @@ const Boooking: React.FC = () => {
     const isUpcoming =
       session?.status === "PENDING" ||
       session?.status === "CONFIRMED" ||
-      session?.status === "CANCEL_REJECTED" ||
+      session?.status === "REJECTED" ||
       session?.status === "CANCEL_REQUESTED";
     const isHistory =
       session?.status === "COMPLETED" || session?.status === "CANCELLED";

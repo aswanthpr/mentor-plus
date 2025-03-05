@@ -12,13 +12,21 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+/* eslint-disable @typescript-eslint/no-unused-vars */
 const slotSchedule_1 = __importDefault(require("../Model/slotSchedule"));
 const baseRepo_1 = require("./baseRepo");
 const mongoose_1 = __importDefault(require("mongoose"));
 const slotSchedule_2 = __importDefault(require("../Model/slotSchedule"));
+const reusable_util_1 = require("../Utils/reusable.util");
 class slotScheduleRepository extends baseRepo_1.baseRepository {
     constructor() {
         super(slotSchedule_1.default);
+    }
+    createSessionCode(bookingId, sessionCode) {
+        throw new Error("Method not implemented.");
+    }
+    sessionCompleted(bookingId) {
+        throw new Error("Method not implemented.");
     }
     newSlotBooking(newSlotSchedule) {
         return __awaiter(this, void 0, void 0, function* () {
@@ -71,15 +79,13 @@ class slotScheduleRepository extends baseRepo_1.baseRepository {
     getBookedSlot(menteeId, tabCond) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                // const pipeline
+                const todayStart = (0, reusable_util_1.getTodayStartTime)();
                 const matchFilter = {
                     menteeId,
                     paymentStatus: "Paid",
                 };
                 if (tabCond) {
-                    //based on the tab
                     matchFilter["status"] = { $in: ["CANCELLED", "COMPLETED"] };
-                    matchFilter["isAttended"] = true;
                 }
                 else {
                     matchFilter["status"] = {
@@ -88,12 +94,18 @@ class slotScheduleRepository extends baseRepo_1.baseRepository {
                             "CONFIRMED",
                             "PENDING",
                             "CANCEL_REQUESTED",
-                            "CANCEL_REJECTED",
+                            "REJECTED",
                         ],
                     };
-                    matchFilter["isAttended"] = false;
                 }
-                console.log(matchFilter, "matchFilter");
+                const dateFilter = tabCond
+                    ? { "slotDetails.startTime": { $lt: todayStart } }
+                    : {
+                        $or: [
+                            { "slotDetails.startTime": { $gte: todayStart } }, // Future sessions
+                            { status: "CONFIRMED" }, // Include past confirmed sessions
+                        ],
+                    };
                 return yield this.aggregateData(slotSchedule_2.default, [
                     {
                         $match: matchFilter,
@@ -126,9 +138,12 @@ class slotScheduleRepository extends baseRepo_1.baseRepository {
                             preserveNullAndEmptyArrays: true,
                         },
                     },
+                    // {
+                    //   $match: dateFilter,
+                    // },
                     {
                         $sort: {
-                            createdAt: -1,
+                            "slotDetails.startDate": -1,
                         },
                     },
                 ]);
@@ -141,15 +156,13 @@ class slotScheduleRepository extends baseRepo_1.baseRepository {
     getBookedSession(mentorId, tabCond) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
+                const todayStart = (0, reusable_util_1.getTodayStartTime)();
                 const matchFilter = {
-                    // "slotDetails.mentorId": mentorId,
+                    "slotDetails.mentorId": mentorId,
                     paymentStatus: "Paid",
                 };
-                console.log("\x1b[32m%s\x1b[0m", mentorId);
                 if (tabCond) {
-                    //based on the tab
                     matchFilter["status"] = { $in: ["CANCELLED", "COMPLETED"] };
-                    matchFilter["isAttended"] = true;
                 }
                 else {
                     matchFilter["status"] = {
@@ -161,10 +174,25 @@ class slotScheduleRepository extends baseRepo_1.baseRepository {
                             "CANCEL_REJECTED",
                         ],
                     };
-                    matchFilter["isAttended"] = false;
                 }
-                console.log(matchFilter, "filter");
-                return yield this.aggregateData(slotSchedule_2.default, [
+                const dateFilter = tabCond
+                    ? { "slotDetails.startDate": { $lt: todayStart } }
+                    : { "slotDetails.startTime": { $gte: todayStart } };
+                const resp = yield this.aggregateData(slotSchedule_2.default, [
+                    {
+                        $lookup: {
+                            from: "times",
+                            localField: "slotId",
+                            foreignField: "_id",
+                            as: "slotDetails",
+                        },
+                    },
+                    {
+                        $unwind: {
+                            path: "$slotDetails",
+                            preserveNullAndEmptyArrays: true,
+                        },
+                    },
                     {
                         $match: matchFilter,
                     },
@@ -183,25 +211,13 @@ class slotScheduleRepository extends baseRepo_1.baseRepository {
                         },
                     },
                     {
-                        $lookup: {
-                            from: "times",
-                            localField: "slotId",
-                            foreignField: "_id",
-                            as: "slotDetails",
-                        },
-                    },
-                    {
-                        $unwind: {
-                            path: "$slotDetails",
-                            preserveNullAndEmptyArrays: true,
-                        },
-                    },
-                    {
                         $sort: {
-                            createdAt: -1,
+                            "slotDetails.startDate": -1,
                         },
                     },
                 ]);
+                console.log(resp, "this is respaa");
+                return resp;
             }
             catch (error) {
                 throw new Error(`${error instanceof Error ? error.message : String(error)}`);
@@ -226,28 +242,6 @@ class slotScheduleRepository extends baseRepo_1.baseRepository {
             }
             catch (error) {
                 throw new Error(`error while mentor handle  cancel  slot request  in slot schedule repositry${error instanceof Error ? error.message : String(error)}`);
-            }
-        });
-    }
-    createSessionCode(bookingId, sessionCode) {
-        return __awaiter(this, void 0, void 0, function* () {
-            try {
-                const response = yield this.find_By_Id_And_Update(slotSchedule_1.default, bookingId, { $set: { sessionCode } });
-                return response === null || response === void 0 ? void 0 : response.sessionCode;
-            }
-            catch (error) {
-                throw new Error(`error while mentor handle  cancel  slot request  in slot schedule repositry${error instanceof Error ? error.message : String(error)}`);
-            }
-        });
-    }
-    //marking session completed
-    sessionCompleted(bookingId) {
-        return __awaiter(this, void 0, void 0, function* () {
-            try {
-                return this.find_By_Id_And_Update(slotSchedule_1.default, bookingId, { $set: { status: "COMPLETED" } });
-            }
-            catch (error) {
-                throw new Error(`error while mentor handle  session completed  in slot schedule repositry${error instanceof Error ? error.message : String(error)}`);
             }
         });
     }
