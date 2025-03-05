@@ -9,6 +9,7 @@ declare class chatRepository extends baseRepository<Ichat> implements IchatRepos
     getMentorchats(userId: ObjectId): Promise<Ichat[] | []>;
     createChatDocs(mentorId: ObjectId, menteeId: ObjectId): Promise<Ichat | null>;
     getUserMessage(chatId: string): Promise<Imessage[] | []>;
+    findChatRoom(mentorId: ObjectId, menteeId: ObjectId): Promise<Ichat | null>;
 }
 declare const _default: chatRepository;
 export default _default;

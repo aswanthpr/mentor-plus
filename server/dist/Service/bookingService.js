@@ -204,7 +204,10 @@ class bookingService {
                             index_1.socketManager.sendNotification(mentorID, notif);
                         }
                         //creating chat document
-                        yield this._chatRepository.createChatDocs(mentorId, menteeObjectId);
+                        const resp = yield this._chatRepository.findChatRoom(mentorId, menteeObjectId);
+                        if (!resp) {
+                            yield this._chatRepository.createChatDocs(mentorId, menteeObjectId);
+                        }
                         if (response) {
                             return;
                         }

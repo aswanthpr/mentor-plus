@@ -151,5 +151,15 @@ class chatRepository extends baseRepo_1.baseRepository {
             }
         });
     }
+    findChatRoom(mentorId, menteeId) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                return yield this.find_One({ menteeId, mentorId });
+            }
+            catch (error) {
+                throw new Error(`error while finding chat Room  in slot schedule repositry${error instanceof Error ? error.message : String(error)}`);
+            }
+        });
+    }
 }
 exports.default = new chatRepository();

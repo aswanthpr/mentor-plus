@@ -6,5 +6,6 @@ export interface IchatRepository {
     getMentorchats(userId: ObjectId): Promise<Ichat[] | []>;
     createChatDocs(mentorId: ObjectId, menteeId: ObjectId): Promise<Ichat | null>;
     getUserMessage(chatId: string): Promise<Imessage[] | []>;
+    findChatRoom(mentorId: ObjectId, menteeId: ObjectId): Promise<Ichat | null>;
 }
 //# sourceMappingURL=IchatRepository.d.ts.map

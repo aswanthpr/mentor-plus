@@ -149,5 +149,17 @@ class chatRepository extends baseRepository<Ichat> implements IchatRepository {
       );
     }
   }
+
+  async findChatRoom(mentorId:ObjectId,menteeId:ObjectId):Promise<Ichat|null>{
+    try {
+
+      return await this.find_One({menteeId,mentorId});
+   
+    } catch (error:unknown) {
+      throw new Error(
+        `error while finding chat Room  in slot schedule repositry${error instanceof Error ? error.message : String(error)}`
+      );
+    }
+  }
 }
 export default new chatRepository();

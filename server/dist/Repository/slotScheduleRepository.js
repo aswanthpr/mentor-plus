@@ -22,12 +22,6 @@ class slotScheduleRepository extends baseRepo_1.baseRepository {
     constructor() {
         super(slotSchedule_1.default);
     }
-    createSessionCode(bookingId, sessionCode) {
-        throw new Error("Method not implemented.");
-    }
-    sessionCompleted(bookingId) {
-        throw new Error("Method not implemented.");
-    }
     newSlotBooking(newSlotSchedule) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
@@ -239,6 +233,27 @@ class slotScheduleRepository extends baseRepo_1.baseRepository {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 return yield this.find_By_Id_And_Update(slotSchedule_2.default, new mongoose_1.default.Types.ObjectId(sessionId), { $set: { status: slotValule } });
+            }
+            catch (error) {
+                throw new Error(`error while mentor handle  cancel  slot request  in slot schedule repositry${error instanceof Error ? error.message : String(error)}`);
+            }
+        });
+    }
+    createSessionCode(bookingId, sessionCode) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const response = yield this.find_By_Id_And_Update(slotSchedule_1.default, bookingId, { $set: { sessionCode } });
+                return response === null || response === void 0 ? void 0 : response.sessionCode;
+            }
+            catch (error) {
+                throw new Error(`error while mentor handle  cancel  slot request  in slot schedule repositry${error instanceof Error ? error.message : String(error)}`);
+            }
+        });
+    }
+    sessionCompleted(bookingId) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                return this.find_By_Id_And_Update(slotSchedule_1.default, bookingId, { $set: { status: "COMPLETED" } });
             }
             catch (error) {
                 throw new Error(`error while mentor handle  cancel  slot request  in slot schedule repositry${error instanceof Error ? error.message : String(error)}`);

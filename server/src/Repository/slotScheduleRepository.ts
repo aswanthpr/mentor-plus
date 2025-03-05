@@ -14,12 +14,7 @@ class slotScheduleRepository
   constructor() {
     super(slotScheduleSchema);
   }
-  createSessionCode(bookingId: string, sessionCode: string): Promise<string> {
-    throw new Error("Method not implemented.");
-  }
-  sessionCompleted(bookingId: string): Promise<IslotSchedule | null> {
-    throw new Error("Method not implemented.");
-  }
+
 
   async newSlotBooking(
     newSlotSchedule: IslotSchedule
@@ -271,6 +266,36 @@ class slotScheduleRepository
         `error while mentor handle  cancel  slot request  in slot schedule repositry${
           error instanceof Error ? error.message : String(error)
         }`
+      );
+    }
+  }
+  async createSessionCode(
+    bookingId: string,
+    sessionCode: string
+  ): Promise<string> {
+    try {
+      const response = await this.find_By_Id_And_Update(
+        slotScheduleSchema,
+        bookingId,
+        { $set: { sessionCode } }
+      );
+
+      return response?.sessionCode as string;
+    } catch (error: unknown) {
+      throw new Error(
+        `error while mentor handle  cancel  slot request  in slot schedule repositry${
+          error instanceof Error ? error.message : String(error)
+        }`
+      );
+    }
+  }
+  async sessionCompleted(bookingId: string): Promise<IslotSchedule|null> {
+    try {
+      return this.find_By_Id_And_Update(slotScheduleSchema,bookingId,{$set:{status:"COMPLETED"}});
+
+    } catch (error:unknown) {
+      throw new Error(
+        `error while mentor handle  cancel  slot request  in slot schedule repositry${error instanceof Error ? error.message : String(error)}`
       );
     }
   }

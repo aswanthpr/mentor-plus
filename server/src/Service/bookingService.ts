@@ -270,7 +270,11 @@ export class bookingService implements IbookingService {
             );
           }
           //creating chat document
-          await this._chatRepository.createChatDocs(mentorId, menteeObjectId);
+          const resp = await this._chatRepository.findChatRoom(mentorId,menteeObjectId);
+          if(!resp){
+
+            await this._chatRepository.createChatDocs(mentorId, menteeObjectId);
+          }
           if (response) {
             return;
           } else {
