@@ -103,8 +103,10 @@ mentor_Router.patch(`/notification-read/:notificationId`,mentorAuthorize,__notif
 
 //chat 
 mentor_Router.get(`/chats`,mentorAuthorize,__chatController.getChats.bind(__chatController));
+
 mentor_Router.get("/messages",mentorAuthorize,__chatController.getUserMessage.bind(__chatController));
 
+mentor_Router.post("/session/validate-session-join",mentorAuthorize,__bookingController.validateSessionJoin.bind(__bookingController));
 
 export default mentor_Router;
 

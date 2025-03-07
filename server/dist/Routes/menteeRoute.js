@@ -66,4 +66,5 @@ mentee_Router.get(`/notification`, menteeAuthorization_1.default, __notification
 mentee_Router.patch(`/notification-read/:notificationId`, menteeAuthorization_1.default, __notificationController.markAsReadNotif.bind(__notificationController));
 mentee_Router.get("/chats", menteeAuthorization_1.default, __chatController.getChats.bind(__chatController));
 mentee_Router.get("/messages", menteeAuthorization_1.default, __chatController.getUserMessage.bind(__chatController));
+mentee_Router.post(`/session/validate-session-join`, menteeAuthorization_1.default, __bookingController.validateSessionJoin.bind(__bookingController));
 exports.default = mentee_Router;

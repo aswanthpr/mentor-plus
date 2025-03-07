@@ -9,9 +9,11 @@ import { useSelector } from "react-redux";
 import { RootState } from "../../Redux/store";
 import ConfirmToast from "../../components/Common/common4All/ConfirmToast";
 import { toast } from "react-toastify";
-import { createSessionCodeApi, markAsSessionCompleted } from "../../service/bookingApi";
+import { createSessionCodeApi, joinSessionHandler, markAsSessionCompleted } from "../../service/bookingApi";
+import { useNavigate } from "react-router-dom";
 
-const Sessions = () => {
+const Sessions:React.FC = () => {
+  const navigate = useNavigate()
   const [loading, setLoading] = useState(false);
   const [activeTab, setActiveTab] = useState<"upcoming" | "history">(
     "upcoming"
@@ -151,6 +153,19 @@ const Sessions = () => {
 
     }
   },[])
+    const handleSessionJoin = useCallback(
+      async (sessionId: string, sessionCode: string, role: string) => {
+        console.log(sessionId,sessionCode,role)
+        const response = await joinSessionHandler(sessionId, sessionCode, role);
+        if (response?.status == 200 && response?.data?.success) {
+
+          navigate(
+            `/${role}/${role == "mentor" ? "session" : "bookings"}/${response?.session_Code}`
+          );
+        }
+      },
+      [navigate]
+    );
   return (
     <div>
       <div className=" mt-12 ">
@@ -181,6 +196,7 @@ const Sessions = () => {
       <div className="space-y-4">
         {paginatedSessions.map((session) => (
           <SessionCard
+          handleSessionJoin={handleSessionJoin}
             handleCreateSessionCode={crerateSessionCode}
             // handleRating={handleRating}
             key={session?._id}

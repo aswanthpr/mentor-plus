@@ -250,13 +250,31 @@ class slotScheduleRepository extends baseRepo_1.baseRepository {
             }
         });
     }
+    //mentor  make as session completed
     sessionCompleted(bookingId) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                return this.find_By_Id_And_Update(slotSchedule_1.default, bookingId, { $set: { status: "COMPLETED" } });
+                return this.find_By_Id_And_Update(slotSchedule_1.default, bookingId, {
+                    $set: { status: "COMPLETED" },
+                });
             }
             catch (error) {
                 throw new Error(`error while mentor handle  cancel  slot request  in slot schedule repositry${error instanceof Error ? error.message : String(error)}`);
+            }
+        });
+    }
+    //checking user is alllowed to join session
+    validateSessionJoin(sessionId, sessionCode) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                return yield this.find_One({
+                    _id: sessionId,
+                    sessionCode,
+                    status: "CONFIRMED",
+                });
+            }
+            catch (error) {
+                throw new Error(` error while validate user is allowed to join session ${error instanceof Error ? error.message : String(error)}`);
             }
         });
     }

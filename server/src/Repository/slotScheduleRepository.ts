@@ -15,7 +15,6 @@ class slotScheduleRepository
     super(slotScheduleSchema);
   }
 
-
   async newSlotBooking(
     newSlotSchedule: IslotSchedule
   ): Promise<InewSlotSchedule | null> {
@@ -165,7 +164,6 @@ class slotScheduleRepository
 
       if (tabCond) {
         matchFilter["status"] = { $in: ["CANCELLED", "COMPLETED"] };
-      
       } else {
         matchFilter["status"] = {
           $in: [
@@ -176,7 +174,6 @@ class slotScheduleRepository
             "CANCEL_REJECTED",
           ],
         };
-        
       }
 
       const dateFilter = tabCond
@@ -215,7 +212,7 @@ class slotScheduleRepository
             preserveNullAndEmptyArrays: true,
           },
         },
-       
+
         {
           $sort: {
             "slotDetails.startDate": -1,
@@ -229,7 +226,7 @@ class slotScheduleRepository
         `${error instanceof Error ? error.message : String(error)}`
       );
     }
-  } 
+  }
 
   async cancelSlot(
     sessionId: string,
@@ -289,13 +286,37 @@ class slotScheduleRepository
       );
     }
   }
-  async sessionCompleted(bookingId: string): Promise<IslotSchedule|null> {
+  //mentor  make as session completed
+  async sessionCompleted(bookingId: string): Promise<IslotSchedule | null> {
     try {
-      return this.find_By_Id_And_Update(slotScheduleSchema,bookingId,{$set:{status:"COMPLETED"}});
-
-    } catch (error:unknown) {
+      return this.find_By_Id_And_Update(slotScheduleSchema, bookingId, {
+        $set: { status: "COMPLETED" },
+      });
+    } catch (error: unknown) {
       throw new Error(
-        `error while mentor handle  cancel  slot request  in slot schedule repositry${error instanceof Error ? error.message : String(error)}`
+        `error while mentor handle  cancel  slot request  in slot schedule repositry${
+          error instanceof Error ? error.message : String(error)
+        }`
+      );
+    }
+  }
+  //checking user is alllowed to join session
+
+  async validateSessionJoin(
+    sessionId: string,
+    sessionCode: string
+  ): Promise<IslotSchedule | null> {
+    try {
+      return await this.find_One({
+        _id: sessionId,
+        sessionCode,
+        status: "CONFIRMED",
+      });
+    } catch (error: unknown) {
+      throw new Error(
+        ` error while validate user is allowed to join session ${
+          error instanceof Error ? error.message : String(error)
+        }`
       );
     }
   }

@@ -59,4 +59,5 @@ mentor_Router.patch(`/notification-read/:notificationId`, mentorAuthorization_1.
 //chat 
 mentor_Router.get(`/chats`, mentorAuthorization_1.default, __chatController.getChats.bind(__chatController));
 mentor_Router.get("/messages", mentorAuthorization_1.default, __chatController.getUserMessage.bind(__chatController));
+mentor_Router.post("/session/validate-session-join", mentorAuthorization_1.default, __bookingController.validateSessionJoin.bind(__bookingController));
 exports.default = mentor_Router;

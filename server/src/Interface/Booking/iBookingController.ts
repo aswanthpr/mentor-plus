@@ -8,4 +8,5 @@ export interface IbookingController{
     cancelSlot(req: Request, res: Response): Promise<void>;
     createSessionCode(req:Request,res:Response):Promise<void>;
     sessionCompleted(req:Request,res:Response):Promise<void>;
+    validateSessionJoin(req:Request,res:Response):Promise<void>;
 }

@@ -179,4 +179,7 @@ mentee_Router.get("/chats",authorize,__chatController.getChats.bind(__chatContro
 
 mentee_Router.get("/messages",authorize,__chatController.getUserMessage.bind(__chatController));
 
+mentee_Router.post(`/session/validate-session-join`,authorize,__bookingController.validateSessionJoin.bind(__bookingController));
+
+
 export default mentee_Router;

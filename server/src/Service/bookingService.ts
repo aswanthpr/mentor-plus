@@ -592,4 +592,43 @@ export class bookingService implements IbookingService {
       );
     }
   }
+  //validating user alloweded to join to the session
+  async validateSessionJoin(sessionId: string, sessionCode: string): Promise<{ message: string; status: number; success: boolean;session_Code:string }> {
+    try {
+    
+      if (!sessionId||!sessionCode ) {
+        return {
+          success: false,
+          message: "credential not found",
+          status: Status.BadRequest,
+          session_Code:""
+        };
+      }
+
+      const response = await this._slotScheduleRepository.validateSessionJoin(
+        sessionId,
+        sessionCode
+      );
+      if (!response) {
+        return {
+          success: false,
+          message: "result not found ",
+          status: Status.NotFound,
+          session_Code:""
+        };
+      }
+      return {
+        success: true,
+        message: "user Valid!",
+        status: Status.Ok,
+        session_Code:response?.sessionCode as string
+      };
+    } catch (error:unknown) {
+      throw new Error(
+        `${
+          error instanceof Error ? error.message : String(error)
+        } error while validating user is alloweded to join the session`
+      );
+    }
+  }
 }

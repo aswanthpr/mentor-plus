@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 // import RatingModal from '../../components/Common/Bookings/RatingModal'
 import { Search, User } from "lucide-react";
 import SessionCard from "../../components/Common/Bookings/SessionCard";
@@ -11,9 +11,11 @@ import Spinner from "../../components/Common/common4All/Spinner";
 import { toast } from "react-toastify";
 import { useSelector } from "react-redux";
 import { RootState } from "../../Redux/store";
-
+import { joinSessionHandler } from "../../service/bookingApi";
+import { useNavigate } from "react-router-dom";
 
 const Boooking: React.FC = () => {
+  const navigate = useNavigate()
   const [loading, setLoading] = useState(false);
   const [activeTab, setActiveTab] = useState<"upcoming" | "history">(
     "upcoming"
@@ -24,9 +26,9 @@ const Boooking: React.FC = () => {
   // const [selectedSession, setSelectedSession] = useState<string>('');
   const [sessions, setSessions] = useState<ISession[] | []>([]);
   const sessionsPerPage = 5;
-  
+
   const role = useSelector((state: RootState) => state?.mentee.role);
-  
+
   // const [sortField, setSortField] = useState<TSort>("createdAt");
   //   const [sortOrder, setSortOrder] = useState<TSortOrder>("desc");
   //   const [statusFilter, setStatusFilter] = useState<TFilter>("all");
@@ -34,11 +36,11 @@ const Boooking: React.FC = () => {
     const fetchData = async () => {
       try {
         setLoading(true);
-        
+
         const { status, data } = await protectedAPI.get(`/mentee/sessions`, {
           params: { activeTab },
         });
-        
+
         if (status == 200 && data?.success) {
           setSessions(data?.slots);
         }
@@ -50,7 +52,6 @@ const Boooking: React.FC = () => {
     };
     fetchData();
   }, [activeTab]);
-  
 
   const handleCancelSession = async (
     sessionId: string,
@@ -115,7 +116,19 @@ const Boooking: React.FC = () => {
     (currentPage - 1) * sessionsPerPage,
     currentPage * sessionsPerPage
   );
+  const handleSessionJoin = useCallback(
+    async (sessionId: string, sessionCode: string, role: string) => {
+      console.log(sessionCode,sessionId,role)
+      const response = await joinSessionHandler(sessionId, sessionCode, role);
+      if (response?.status == 200 && response?.data?.success) {
 
+        navigate(
+          `/${role}/${role == "mentor" ? "session" : "bookings"}/${response?.session_Code}`
+        );
+      }
+    },
+    [navigate]
+  );
   return (
     <div className="space-y-6 mt-10">
       <div className="bg- p-6 round ">
@@ -195,11 +208,12 @@ const Boooking: React.FC = () => {
           </div>
         </div>
 
-        <div className="space-y-4"> 
+        <div className="space-y-4">
           {paginatedSessions.map((session) => {
             console.log(session, "from sessin card");
             return (
               <SessionCard
+                handleSessionJoin={handleSessionJoin}
                 handleCancelSession={handleCancelSession}
                 // handleRating={handleRating}
                 key={session?._id}
@@ -257,8 +271,6 @@ const Boooking: React.FC = () => {
             currentPage={1}
             onPageChange={}
             totalPages={10}/> */}
-    
-
     </div>
   );
 };

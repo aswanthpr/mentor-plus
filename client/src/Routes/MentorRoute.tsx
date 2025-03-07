@@ -9,7 +9,6 @@ const NotFound = lazy(() => import("../pages/Error/NotFound"));
 const Sessions = lazy(() => import("../pages/Mentor/Sessions"));
 const Schedule = lazy(() => import("../pages/Mentor/Schedule"));
 // const WalletPage = lazy(() => import("../pages/Mentor/WalletPage"));
-const SessionLobby = lazy(() => import("../components/Common/Bookings/SessionLobby"));
 const MentorHome = lazy(() => import("../pages/Mentor/MentorHome"));
 const Mentor_Page = lazy(() => import("../pages/Mentor/Mentor_Page"));
 const MentorProfile = lazy(() => import("../pages/Mentor/MentorProfile"));
@@ -43,7 +42,6 @@ const MentorRoute: React.FC = () => (
           path="/session"
           element={<MentorProtectLogin element={<Sessions />} />} 
         />
-         <Route path="/session/lobby" element={<MentorProtectLogin element={<SessionLobby />} />} />; 
          <Route path="/session/:roomId" element={<MentorProtectLogin element={<VideoPage/>} />} /> 
         {/* <Route
           path="/wallet"

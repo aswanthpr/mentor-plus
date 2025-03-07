@@ -6,7 +6,6 @@ import { toast } from "react-toastify";
 import SelectField from "../Schedule/SelectField";
 import moment from "moment";
 import Button from "../../Auth/Button";
-import { useNavigate } from "react-router-dom";
 
 interface SessionCardProps {
   session: ISession;
@@ -20,6 +19,7 @@ interface SessionCardProps {
   ) => void;
   handleCompletedSession?(sessionId: string): void;
   handleRating?: (sessionId: string) => void;
+  handleSessionJoin(sessionId:string,sessionCode:string,role:string):void
 }
 const issues = [
   "health Issues",
@@ -40,8 +40,9 @@ const SessionCard: React.FC<SessionCardProps> = ({
   handleReclaimRequest,
   role,
   handleCompletedSession,
+  handleSessionJoin
 }) => {
-  const navigate = useNavigate();
+
 
   const [modalToggle, setModalToggle] = useState<boolean>(false);
   const [reason, setReason] = useState<string>("");
@@ -145,7 +146,6 @@ const SessionCard: React.FC<SessionCardProps> = ({
                   toast.success("Session code copied to clipboard!");
                 }}
               >
-                {session?.sessionCode}
               </span>
             </Tooltip>
             ):("")
@@ -185,7 +185,7 @@ const SessionCard: React.FC<SessionCardProps> = ({
           </span>
         </div>
         <div className="flex justify-end">
-          {session?.sessionCode && session?.status === "CONFIRMED" && (
+          { session?.status === "CONFIRMED" && (
             <div className="flex gap-2">
               {role == "mentee" && !session?.sessionCode && (
                  <Tooltip title="cancel session">
@@ -198,20 +198,18 @@ const SessionCard: React.FC<SessionCardProps> = ({
                 </button>
                 </Tooltip>
               )}
-              <Tooltip title="join session">
-              <button
-                onClick={() =>
-                  navigate(
-                    `/${role}/${
-                      role == "mentor" ? "session" : "bookings"
-                    }/lobby`
-                  )
-                }
-                className="text-[#ff8800] hover:text-[#ff9900] text-lg font-medium"
-              >
-                Join
-              </button>
-              </Tooltip>
+              {session?.sessionCode?(
+                 <Tooltip title="join session">
+                 <button
+                   onClick={() => handleSessionJoin(session?._id,session?.sessionCode as string, role)                
+                   }
+                   className="text-[#ff8800] hover:text-[#ff9900] text-lg font-medium"
+                 >
+                   Join
+                 </button>
+                 </Tooltip>
+              ):("")}
+             
             </div>
           )}
           {role == "mentor" && session?.status === "CANCEL_REQUESTED" && (
@@ -222,7 +220,6 @@ const SessionCard: React.FC<SessionCardProps> = ({
                   setMentorStatusChange(e.target?.value);
                   if (handleReclaimRequest) {
                     handleReclaimRequest(session?._id, e.target?.value);
-                    setMentorStatusChange("");
                   }
                 }}
                 options={["APPROVE", "REJECTED"]}

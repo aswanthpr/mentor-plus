@@ -24,5 +24,6 @@ export declare class bookingControlelr implements IbookingController {
     mentorSlotCancel(req: Request, res: Response): Promise<void>;
     createSessionCode(req: Request, res: Response): Promise<void>;
     sessionCompleted(req: Request, res: Response): Promise<void>;
+    validateSessionJoin(req: Request, res: Response): Promise<void>;
 }
 //# sourceMappingURL=bookingController.d.ts.map

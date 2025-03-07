@@ -80,5 +80,11 @@ export declare class bookingService implements IbookingService {
         status: number;
         sessionStatus: string | null;
     }>;
+    validateSessionJoin(sessionId: string, sessionCode: string): Promise<{
+        message: string;
+        status: number;
+        success: boolean;
+        session_Code: string;
+    }>;
 }
 //# sourceMappingURL=bookingService.d.ts.map

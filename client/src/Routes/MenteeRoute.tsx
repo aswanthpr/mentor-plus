@@ -9,7 +9,6 @@ import MentorProfile from "../pages/Mentee/MentorProfile";
 import BookingPage from "../components/Mentee/BookingPage";
 import StripeCheckoutCancel from "../components/Common/Stripe/StripeCheckoutCancel";
 import VideoPage from "../components/Common/Bookings/VideoPage";
-import SessionLobby from "../components/Common/Bookings/SessionLobby";
 
 const Message = lazy(() => import("../pages/Mentee/Message"));
 const StripeComplete = lazy(
@@ -56,7 +55,6 @@ const MenteeRoute: React.FC = () => (
           path="/bookings"
           element={<MenteeLogin element={<Bookings />} />}
         />
-        <Route path="/bookings/lobby" element={ <MenteeLogin element={<SessionLobby />} />} />; 
         <Route path="/bookings/:roomId" element={ <MenteeLogin element={<VideoPage />} />} /> 
         <Route
           path="/messages"

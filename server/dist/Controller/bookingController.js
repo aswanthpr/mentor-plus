@@ -144,5 +144,18 @@ class bookingControlelr {
             }
         });
     }
+    //check user is alloweded to join the sessin
+    validateSessionJoin(req, res) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const { sessionId, sessionCode } = req.body;
+                const { message, status, success, session_Code } = yield this._bookingService.validateSessionJoin(sessionId, sessionCode);
+                res.status(status).json({ message, success, session_Code });
+            }
+            catch (error) {
+                throw new Error(`Error when user is alloweded to join this session ${error instanceof Error ? error.message : String(error)}`);
+            }
+        });
+    }
 }
 exports.bookingControlelr = bookingControlelr;

@@ -450,5 +450,38 @@ class bookingService {
             }
         });
     }
+    //validating user alloweded to join to the session
+    validateSessionJoin(sessionId, sessionCode) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                if (!sessionId || !sessionCode) {
+                    return {
+                        success: false,
+                        message: "credential not found",
+                        status: httpStatusCode_1.Status.BadRequest,
+                        session_Code: ""
+                    };
+                }
+                const response = yield this._slotScheduleRepository.validateSessionJoin(sessionId, sessionCode);
+                if (!response) {
+                    return {
+                        success: false,
+                        message: "result not found ",
+                        status: httpStatusCode_1.Status.NotFound,
+                        session_Code: ""
+                    };
+                }
+                return {
+                    success: true,
+                    message: "user Valid!",
+                    status: httpStatusCode_1.Status.Ok,
+                    session_Code: response === null || response === void 0 ? void 0 : response.sessionCode
+                };
+            }
+            catch (error) {
+                throw new Error(`${error instanceof Error ? error.message : String(error)} error while validating user is alloweded to join the session`);
+            }
+        });
+    }
 }
 exports.bookingService = bookingService;

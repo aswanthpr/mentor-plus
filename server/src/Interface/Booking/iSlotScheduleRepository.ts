@@ -21,4 +21,5 @@ export interface IslotScheduleRepository {
   ): Promise<IslotSchedule | null>;
   createSessionCode(bookingId:string,sessionCode:string):Promise<string>;
   sessionCompleted(bookingId:string):Promise<IslotSchedule|null>;
+  validateSessionJoin(sessionId:string,sessionCode:string):Promise<IslotSchedule|null>;
 }

@@ -188,4 +188,20 @@ console.log( req.params.sessionId,req.body?.value)
       );
      }
    }
+   //check user is alloweded to join the sessin
+   async validateSessionJoin(req: Request, res: Response): Promise<void> {
+    try {
+
+      const {sessionId,sessionCode} =req.body;
+
+     const {message,status,success,session_Code} = await this._bookingService.validateSessionJoin(sessionId,sessionCode);
+     res.status(status).json({message,success,session_Code});
+     } catch (error:unknown) {
+      throw new Error(
+        `Error when user is alloweded to join this session ${
+          error instanceof Error ? error.message : String(error)
+        }`
+      );
+     }
+   }
 }
