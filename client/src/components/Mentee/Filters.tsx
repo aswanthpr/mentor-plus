@@ -3,7 +3,8 @@
 
 import React, { useRef, useState } from "react";
 import SelectField from "../Common/Schedule/SelectField";
-import { SelectChangeEvent } from "@mui/material";
+import { SelectChangeEvent, Tooltip } from "@mui/material";
+import { XCircleIcon } from "lucide-react";
 
 interface Category {
   _id: string;
@@ -44,7 +45,11 @@ const Filters: React.FC<FiltersProps> = ({ filters, onFilterChange }) => {
     const value = e.target.value;
     setFilterVal((pre) => ({ ...pre, sort: value }));
   };
-
+const handleClearFilters = ()=>{
+setFilterVal({ domain: [], skill: [], sort: "" });
+setCheckedCategories([]);
+setCheckedSkills([]);
+}
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     const updatedFilters = {
@@ -56,9 +61,7 @@ const Filters: React.FC<FiltersProps> = ({ filters, onFilterChange }) => {
     setFilterVal(updatedFilters)
    
     onFilterChange(updatedFilters)
-    setFilterVal({domain:[],skill:[],sort:""})
-    setCheckedCategories([]);
-    setCheckedSkills([]);
+    
   };
   return (
     <form className="space-y-6 ml-2" onSubmit={handleSubmit}>
@@ -89,9 +92,9 @@ const Filters: React.FC<FiltersProps> = ({ filters, onFilterChange }) => {
       </div>
       
       <div>
-        <h3 className="text-lg text-gray-900 mb-3 font-semibold">Skills</h3>
-        <div className="space-y-2 max-h-56 overflow-y-auto no-scrollbar">
-          {(filters??filterRef.current)?.skills?.map((skill) => (
+        <h3 className="text-lg text-gray-900 mb-2 font-semibold">Skills</h3>
+        <div className="space-y-1 max-h-56 overflow-y-auto no-scrollbar">
+          {(filters??filterRef?.current)?.skills?.map((skill) => (
             <label key={skill} className="flex items-center">
               <input
                 type="checkbox"
@@ -104,10 +107,28 @@ const Filters: React.FC<FiltersProps> = ({ filters, onFilterChange }) => {
           ))}
         </div>
       </div>
-      
-      <button type="submit" className="w-full bg-[#ff8800] text-white py-2 rounded-lg hover:bg-[#e67e00]">
+      <div className="flex flex-col">
+          <Tooltip
+        
+          title={'clear filters'}
+          arrow
+        placement="top-end"
+          children={
+      <button
+          type="button"
+          onClick={handleClearFilters}
+          className="flex items-center text-red-600 font-light hover:text-red-800 mb-1 justify-end mr-2 "
+        >
+          clear
+        </button>
+
+          }
+          />
+
+      <button type="submit" className="w-full bg-[#ff8800] text-white py-1 rounded-lg hover:bg-[#e67e00]">
         Apply Filters
       </button>
+      </div>
     </form>
   );
 };
