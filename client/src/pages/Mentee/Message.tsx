@@ -82,7 +82,7 @@ const Message: React.FC = () => {
     });
 
     chatSocket.current.on("userOnline", (data) => {
-      console.log(userId.current, data.userId, "User Online:", data.userId);
+      console.log(userId.current, data.userId, "User Online:", data);
       setUsers((pre) =>
         pre.map((usr) =>
           data.includes(usr.users?._id)
@@ -93,6 +93,7 @@ const Message: React.FC = () => {
     });
 
     chatSocket.current.on("userOffline", (data) => {
+    console.log(data,'this ios data')
       setUsers((pre) =>
         pre.map((usr) =>
           data.includes(usr.users?._id)

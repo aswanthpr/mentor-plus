@@ -90,7 +90,7 @@ const SignupForm:React.FC = () => {
         if (response.status == 200) {
           setLoading(false)
           setShowOtpModal(true);
-
+          setFormData({confirmPassword:"",email:"",name:"",password:""})
           toast.success(response.data.message);
         
         } else {
@@ -113,7 +113,7 @@ const SignupForm:React.FC = () => {
     console.log("Verifying OTP:", otp,email);;
     const response = await unProtectedAPI.post('/auth/verify-otp',{email,otp,type:'signup'});
 
-    console.log(response,'this is the response',response.data);
+  
     if(response.status==200&&response.data.success){
       toast.success(response.data.message);
       setShowOtpModal(false);

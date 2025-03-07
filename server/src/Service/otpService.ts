@@ -15,10 +15,11 @@ class otpService implements IotpService {
       const otp: string = genOtp();
       console.log(otp);
       await this._otpRespository.createOtp(email, otp);
-      await nodeMailer(email, otp);
+     await nodeMailer(email, otp);
+    
     } catch (error: unknown) {
       throw new Error(
-        `Failed to send otp to mail1${
+        `Failed to send otp to mail ${
           error instanceof Error ? error.message : String(error)
         }`
       );

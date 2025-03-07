@@ -16,7 +16,7 @@ exports.nodeMailer = nodeMailer;
 const nodemailer_1 = __importDefault(require("nodemailer"));
 function nodeMailer(email, otp) {
     return __awaiter(this, void 0, void 0, function* () {
-        const transporter = nodemailer_1.default.createTransport({
+        const transporter = nodemailer_1.default === null || nodemailer_1.default === void 0 ? void 0 : nodemailer_1.default.createTransport({
             service: "Gmail",
             host: "smtp.ethereal.email",
             port: 587,
@@ -50,6 +50,6 @@ function nodeMailer(email, otp) {
   </div>
 </div>`,
         };
-        yield transporter.sendMail(mailOptions);
+        yield (transporter === null || transporter === void 0 ? void 0 : transporter.sendMail(mailOptions));
     });
 }

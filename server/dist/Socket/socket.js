@@ -67,10 +67,11 @@ class SocketManager {
             //verify connection and inserting online user to the map
             if (socket.connected) {
                 console.log(`ChatSocket with ID ${socket.id} is connected`);
-                chatMap.set(userId, socket === null || socket === void 0 ? void 0 : socket.id);
             }
-            // user broadcast online status
-            socket.broadcast.emit("userOnline", [...chatMap.keys()]);
+            chatMap.set(userId, socket === null || socket === void 0 ? void 0 : socket.id);
+            // user emit online status
+            chatNsp.emit("userOnline", [...chatMap.keys()]);
+            console.log([...chatMap.keys()]);
             //join the user to a specific room
             socket.on("join-room", (data) => __awaiter(this, void 0, void 0, function* () {
                 if (!(data === null || data === void 0 ? void 0 : data.roomId))
@@ -125,7 +126,7 @@ class SocketManager {
                 }
                 catch (error) {
                     console.error("Error in sendMessageToRoom:", error instanceof Error ? error.message : String(error));
-                    // ✅ Send error message to the client
+                    // Send error message to the client
                     chatNsp.emit("errorMessage", { error: error });
                 }
             }));
@@ -136,8 +137,9 @@ class SocketManager {
                 if (!chatMap.has(userId)) {
                     console.log(`User ${userId} removed from chatMap`);
                 }
-                //broadcast if user is goes to offline
-                socket.broadcast.emit("userOffline", [...chatMap.keys()]);
+                //emit if user is goes to offline
+                chatNsp.emit("userOffline", userId); // Notify  user went offline
+                chatNsp.emit("userOnline", [...chatMap.keys()]);
             });
         });
     }

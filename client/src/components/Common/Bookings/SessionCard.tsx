@@ -107,7 +107,7 @@ const SessionCard: React.FC<SessionCardProps> = ({
           />
           <div>
             <h3 className="font-medium text-gray-900">{session?.user?.name}</h3>
-            <span onClick={()=>setDesptnOpn(true)} className="text-sm text-gray-500 cursor-pointer hover:underline">{session?.description.length>20?session.description.slice(0,10)+".....":session?.description}</span>
+            <span onClick={()=>setDesptnOpn(true)} className="text-sm text-gray-500 cursor-pointer hover:underline">{session?.description.length>20?session.description.slice(0,20)+".....":session?.description}</span>
           </div>
         </div>
         <div className="flex space-x-3 flex-row">

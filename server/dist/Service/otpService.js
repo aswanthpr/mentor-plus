@@ -25,7 +25,7 @@ class otpService {
                 yield (0, nodeMailer_util_1.nodeMailer)(email, otp);
             }
             catch (error) {
-                throw new Error(`Failed to send otp to mail1${error instanceof Error ? error.message : String(error)}`);
+                throw new Error(`Failed to send otp to mail ${error instanceof Error ? error.message : String(error)}`);
             }
         });
     }

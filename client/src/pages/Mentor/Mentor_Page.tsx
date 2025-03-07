@@ -43,7 +43,7 @@ const Mentor_Page: React.FC = () => {
           `/mentor/notification`
         );
 
-        if (flag && response.status == 200 && response.data.success) {
+        if (flag && response?.status == 200 && response.data?.success) {
           const user_Id = response.data?.result?.[0]?.["userId"] as string;
 
           dispatch(
@@ -77,7 +77,7 @@ const Mentor_Page: React.FC = () => {
         `/mentor/notification-read/${id}`
       );
 
-      if (response.status == 200 && response.data.success) {
+      if (response?.status == 200 && response.data?.success) {
         dispatch(markAsRead({ userType: "mentor", id }));
       }
     } catch (error: unknown) {
@@ -93,7 +93,7 @@ const Mentor_Page: React.FC = () => {
   };
   const mentorLogout = async () => {
     const response = await axiosInstance.post(`/mentor/logout`);
-    if (response.data.success && response.status == 200) {
+    if (response.data?.success && response?.status == 200) {
       dispatch(clearMentorToken());
       localStorage.removeItem("mentorToken");
       localStorage.removeItem("mentor");

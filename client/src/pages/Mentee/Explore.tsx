@@ -132,7 +132,7 @@ const ExplorePage: React.FC = () => {
               />
             ))}
           </div>
-          {mentors.length>3&&
+          {
           
           <div className="flex justify-center space-x-2 mt-6">
             <button

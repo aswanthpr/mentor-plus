@@ -1,10 +1,10 @@
 import React, { lazy, Suspense } from "react";
 import { Routes, Route, Navigate } from "react-router-dom";
 import Spinner from "../components/Common/common4All/Spinner";
-import Message from "../pages/Mentee/Message";
 import VideoPage from "../components/Common/Bookings/VideoPage";
 
-// const Chat  = lazy(() => import("../pages/Mentor/Chat"));
+
+const Chat  = lazy(() => import("../pages/Mentor/Chat"));
 const NotFound = lazy(() => import("../pages/Error/NotFound"));
 const Sessions = lazy(() => import("../pages/Mentor/Sessions"));
 const Schedule = lazy(() => import("../pages/Mentor/Schedule"));
@@ -43,15 +43,15 @@ const MentorRoute: React.FC = () => (
           path="/session"
           element={<MentorProtectLogin element={<Sessions />} />} 
         />
-         <Route path="/session/lobby" element={<SessionLobby />} />;
-         <Route path="/session/:roomId" element={<VideoPage/>} />
+         <Route path="/session/lobby" element={<MentorProtectLogin element={<SessionLobby />} />} />; 
+         <Route path="/session/:roomId" element={<MentorProtectLogin element={<VideoPage/>} />} /> 
         {/* <Route
           path="/wallet"
           element={<MentorProtectLogin element={<WalletPage />} />}
         /> */}
         <Route
           path="/messages"
-          element={<MentorProtectLogin element={<Message />} />}
+          element={<MentorProtectLogin element={<Chat />} />}
         />
       </Route>
     </Routes>

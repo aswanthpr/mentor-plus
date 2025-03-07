@@ -30,6 +30,7 @@ const authorize = async (
     const menteeData = await menteeModel.findById(decode?.userId);
 
     if (!menteeData || menteeData?.isBlocked) {
+      
       res
         .status(403)
         .json({ message: "Mentee Not Found", success: false});

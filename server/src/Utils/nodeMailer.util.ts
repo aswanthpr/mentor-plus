@@ -1,24 +1,22 @@
-import nodemailer from 'nodemailer';
+import nodemailer from "nodemailer";
 
-
-export async function nodeMailer(email:string,otp:string){
-
-    const transporter = nodemailer.createTransport({
-        service: "Gmail",
-        host: "smtp.ethereal.email",
-        port: 587,
-        secure: false, // true for port 465, false for other ports
-        auth: {
-            user: process.env.NODE_MAILER_EMAIL,
-            pass:process.env.NODE_MAILER_PASS,
-        },
+export async function nodeMailer(email: string, otp: string) {
+  const transporter = nodemailer?.createTransport({
+    service: "Gmail",
+    host: "smtp.ethereal.email",
+    port: 587,
+    secure: false, // true for port 465, false for other ports
+    auth: {
+      user: process.env.NODE_MAILER_EMAIL,
+      pass: process.env.NODE_MAILER_PASS,
+    },
   });
- 
+
   const mailOptions = {
-    from: process.env.NODE_MAILER_EMAIL, 
-    to:email,
+    from: process.env.NODE_MAILER_EMAIL,
+    to: email,
     subject: "Your OTP Verification Code-MentorPlus",
-    text: `Your OTP code is ${otp}. It is valid for the next 5 minutes.`, 
+    text: `Your OTP code is ${otp}. It is valid for the next 5 minutes.`,
     html: `
     <div style="font-family: Helvetica,Arial,sans-serif;min-width:1000px;overflow:auto;line-height:2">
   <div style="margin:50px auto;width:70%;padding:20px 0">
@@ -37,9 +35,7 @@ export async function nodeMailer(email:string,otp:string){
     </div>
   </div>
 </div>`,
+  };
 
-};
-
-await transporter.sendMail(mailOptions)
+  await transporter?.sendMail(mailOptions);
 }
-

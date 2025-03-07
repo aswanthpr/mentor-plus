@@ -16,7 +16,7 @@ const StripeComplete = lazy(
   () => import("../components/Common/Stripe/StripeComplete")
 );
 const Bookings = lazy(() => import("../pages/Mentee/Bookings"));
-const Wallet = lazy(() => import("../pages/Mentee/Wallet"));
+// const Wallet = lazy(() => import("../pages/Mentee/Wallet"));
 const Explore = lazy(() => import("../pages/Mentee/Explore"));
 const QnA_page = lazy(() => import("../pages/Mentee/QnA_page"));
 const Mentee_Page = lazy(() => import("../pages/Mentee/Mentee_Page"));
@@ -44,31 +44,31 @@ const MenteeRoute: React.FC = () => (
         ;
         <Route path="explore">
           <Route index element={<MenteeLogin element={<Explore />} />} />
-          <Route path="mentor/:mentorId" element={<MentorProfile />} />
+          <Route path="mentor/:mentorId" element={<MenteeLogin element={<MentorProfile />} />} /> 
           <Route
             path=":name"
             element={<MenteeLogin element={<MentorProfile />} />}
           />
           ;
         </Route>
-        <Route path="/:name/slot-booking" element={<BookingPage />} />;
+        <Route path="/:name/slot-booking" element={<MenteeLogin element={<BookingPage />} /> } />;  
         <Route
           path="/bookings"
           element={<MenteeLogin element={<Bookings />} />}
         />
-        <Route path="/bookings/lobby" element={<SessionLobby />} />;
-        <Route path="/bookings/:roomId" element={<VideoPage />} />
+        <Route path="/bookings/lobby" element={ <MenteeLogin element={<SessionLobby />} />} />; 
+        <Route path="/bookings/:roomId" element={ <MenteeLogin element={<VideoPage />} />} /> 
         <Route
           path="/messages"
           element={<MenteeLogin element={<Message />} />}
         />
-        <Route path="/wallet" element={<MenteeLogin element={<Wallet />} />} />;
+        {/* <Route path="/wallet" element={<MenteeLogin element={<Wallet />} />} />; */}
         <Route path="/qa" element={<MenteeLogin element={<QnA_page />} />} />;
-        <Route path="/google/success" element={<GoogleSuccess />} />;
-        <Route path="/google/failure" element={<GoogleFailure />} />;
+        <Route path="/google/success" element={<MenteeLogin element={<GoogleSuccess />} />} />;  
+        <Route path="/google/failure" element={ <MenteeLogin element={<GoogleFailure />} />} />; 
       </Route>
-      <Route path="/stripe-cancel" element={<StripeCheckoutCancel />} />
-      <Route path="/stripe-success" element={<StripeComplete />} />
+      <Route path="/stripe-cancel" element={ <MenteeLogin element={<StripeCheckoutCancel />} />} /> 
+      <Route path="/stripe-success" element={<MenteeLogin element={<StripeComplete />} />} />  
     </Routes>
   </Suspense>
 );

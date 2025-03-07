@@ -64,12 +64,12 @@ export class SocketManager {
     //verify connection and inserting online user to the map
       if (socket.connected) {
         console.log(`ChatSocket with ID ${socket.id} is connected`);
-        chatMap.set(userId, socket?.id);
       }
+      chatMap.set(userId, socket?.id);
 
-      // user broadcast online status
-      socket.broadcast.emit("userOnline", [...chatMap.keys()]);
-
+      // user emit online status
+      chatNsp.emit("userOnline", [...chatMap.keys()]);
+      console.log([...chatMap.keys()])
       //join the user to a specific room
       socket.on("join-room", async (data) => {
         if (!data?.roomId) return;
@@ -151,7 +151,7 @@ export class SocketManager {
             error instanceof Error ? error.message : String(error)
           );
 
-          // ✅ Send error message to the client
+          // Send error message to the client
           chatNsp.emit("errorMessage", { error: error });
         }
       });
@@ -166,9 +166,9 @@ export class SocketManager {
           console.log(`User ${userId} removed from chatMap`);
         }
 
-        //broadcast if user is goes to offline
-        socket.broadcast.emit("userOffline", [...chatMap.keys()]);
-
+        //emit if user is goes to offline
+        chatNsp.emit("userOffline", userId); // Notify  user went offline
+         chatNsp.emit("userOnline", [...chatMap.keys()]); 
       });
     });
   }
