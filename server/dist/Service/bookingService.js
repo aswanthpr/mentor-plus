@@ -20,7 +20,7 @@ const moment_1 = __importDefault(require("moment"));
 const index_1 = require("../index");
 const reusable_util_1 = require("../Utils/reusable.util");
 class bookingService {
-    constructor(_timeSlotRepository, _slotScheduleRepository, _notificationRepository, _chatRepository, stripe = new stripe_1.Stripe(process.env.STRIPE_SECRET_KEY, {
+    constructor(_timeSlotRepository, _slotScheduleRepository, _notificationRepository, _chatRepository, __walletRepository, __transactionRepository, stripe = new stripe_1.Stripe(process.env.STRIPE_SECRET_KEY, {
         apiVersion: "2025-02-24.acacia",
         maxNetworkRetries: 4,
     })) {
@@ -28,6 +28,8 @@ class bookingService {
         this._slotScheduleRepository = _slotScheduleRepository;
         this._notificationRepository = _notificationRepository;
         this._chatRepository = _chatRepository;
+        this.__walletRepository = __walletRepository;
+        this.__transactionRepository = __transactionRepository;
         this.stripe = stripe;
     }
     getTimeSlots(mentorId) {
@@ -68,12 +70,12 @@ class bookingService {
         });
     }
     //place slot booking
-    slotBooking(timeSlot, message, paymentMethod, totalAmount, mentorName, menteeId, protocol, host) {
+    slotBooking(timeSlot, messages, paymentMethod, totalAmount, mentorName, menteeId, protocol, host) {
         return __awaiter(this, void 0, void 0, function* () {
-            var _a;
+            var _a, _b;
             try {
-                console.log(timeSlot, message, paymentMethod, totalAmount);
-                if (!timeSlot || !message || !paymentMethod || !totalAmount) {
+                console.log(timeSlot, messages, paymentMethod, totalAmount);
+                if (!timeSlot || !messages || !paymentMethod || !totalAmount) {
                     return {
                         status: httpStatusCode_1.Status.BadRequest,
                         message: "credential not found",
@@ -93,28 +95,86 @@ class bookingService {
                                     currency: "usd",
                                     unit_amount: parseInt(totalAmount) * 100,
                                     product_data: {
-                                        name: `Your mentor is  ${mentorName.toLocaleUpperCase()}`,
-                                        description: `YOUR SLOT DATE IS :${String(timeSlot === null || timeSlot === void 0 ? void 0 : timeSlot.startDate).split("T")[0]}
-                TIME IS IN BETWEEN ${startStr}-${endStr}`,
+                                        name: `Mentor is ${mentorName.toLocaleUpperCase()}`,
+                                        description: `Slot date is: ${String(timeSlot === null || timeSlot === void 0 ? void 0 : timeSlot.startDate).split("T")[0]}
+                time is ${startStr}-${endStr}`,
                                     },
                                 },
                                 quantity: 1,
                             },
                         ],
-                        success_url: `${(_a = process.env) === null || _a === void 0 ? void 0 : _a.CLIENT_ORIGIN_URL}/mentee/stripe-success?session_id={CHECKOUT_SESSION_ID}`,
-                        cancel_url: `${protocol}://${host}/mentee/stripe-cancel`,
+                        success_url: `${(_a = process.env) === null || _a === void 0 ? void 0 : _a.CLIENT_ORIGIN_URL}/mentee/stripe-success?session_id={CHECKOUT_SESSION_ID}?success=true`,
+                        cancel_url: `${protocol}://${host}/mentee/stripe-cancel?cancelled=true`,
                         metadata: {
                             timeSlot: JSON.stringify(timeSlot),
-                            message,
+                            messages,
                             paymentMethod,
                             menteeId: String(menteeId),
                         },
                     });
                     return {
                         success: true,
-                        message: "successfully send the respne",
+                        message: "stripe payment initiated successfully",
                         status: httpStatusCode_1.Status.Ok,
                         session,
+                    };
+                }
+                else if (paymentMethod == "wallet") {
+                    const deductAmountFromWallet = yield this.__walletRepository.deductAmountFromWallet(Number(totalAmount), menteeId);
+                    if (!deductAmountFromWallet) {
+                        return {
+                            message: "Insufficient balance in wallet",
+                            status: httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.BadRequest,
+                            success: false,
+                        };
+                    }
+                    console.log(deductAmountFromWallet, "deductamojuntform wallet ");
+                    const time = Date.now().toLocaleString();
+                    console.log(time, "times ");
+                    //create  new transaction
+                    const newTranasaction = {
+                        amount: Number(totalAmount),
+                        walletId: deductAmountFromWallet === null || deductAmountFromWallet === void 0 ? void 0 : deductAmountFromWallet._id,
+                        transactionType: "payment",
+                        status: "completed",
+                        note: "slot booked successfully",
+                    };
+                    yield this.__transactionRepository.createTransaction(newTranasaction);
+                    // Insert data into newSlotSchedule
+                    const newSlotSchedule = {
+                        menteeId,
+                        slotId: timeSlot === null || timeSlot === void 0 ? void 0 : timeSlot._id,
+                        paymentStatus: "Paid",
+                        paymentTime: time,
+                        paymentMethod: "wallet",
+                        paymentAmount: String(totalAmount),
+                        duration: String(timeSlot === null || timeSlot === void 0 ? void 0 : timeSlot.duration),
+                        description: messages,
+                        status: "CONFIRMED",
+                    };
+                    const response = yield this._slotScheduleRepository.newSlotBooking(newSlotSchedule);
+                    const mentorId = (_b = response === null || response === void 0 ? void 0 : response.times) === null || _b === void 0 ? void 0 : _b.mentorId;
+                    yield this._timeSlotRepository.makeTimeSlotBooked(String(timeSlot === null || timeSlot === void 0 ? void 0 : timeSlot._id));
+                    //notification for mentee
+                    const notific = yield this._notificationRepository.createNotification(menteeId, `Slot booked successfully`, `Congratulations! You've been successfully booked your slot.`, `mentee`, `${process.env.CLIENT_ORIGIN_URL}/mentee/bookings`);
+                    if (menteeId && notific) {
+                        index_1.socketManager.sendNotification(String(menteeId), notific);
+                    }
+                    if (mentorId) {
+                        //notification for mentor
+                        const notif = yield this._notificationRepository.createNotification(mentorId, `Your new slot were Scheduled`, `new slot were scheduled . checkout now`, `mentor`, `${process.env.CLIENT_ORIGIN_URL}/mentor/session`);
+                        //make it realtime using socket
+                        index_1.socketManager.sendNotification(String(mentorId), notif);
+                    }
+                    //creating chat document
+                    const resp = yield this._chatRepository.findChatRoom(mentorId, menteeId);
+                    if (!resp) {
+                        yield this._chatRepository.createChatDocs(mentorId, menteeId);
+                    }
+                    return {
+                        message: "slot booked successfully",
+                        status: httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.Ok,
+                        success: true,
                     };
                 }
                 return {
@@ -173,6 +233,27 @@ class bookingService {
                         const status = session.payment_status == "paid" ? "Paid" : "Failed";
                         const totalAmount = (session.amount_total || 0) / 100;
                         const time = new Date(session.created * 1000).toLocaleString();
+                        //checking wallet exist or not
+                        const walletResponse = (yield this.__walletRepository.findWallet(menteeObjectId));
+                        let newWallet;
+                        // if wallet not exist create new one
+                        if (!walletResponse) {
+                            newWallet = yield this.__walletRepository.createWallet({
+                                userId: menteeObjectId,
+                                balance: 0,
+                            });
+                        }
+                        //create  new transaction
+                        const newTranasaction = {
+                            amount: totalAmount,
+                            walletId: (walletResponse
+                                ? walletResponse === null || walletResponse === void 0 ? void 0 : walletResponse["_id"]
+                                : newWallet._id),
+                            transactionType: "payment",
+                            status: "completed",
+                            note: "slot booked successfully",
+                        };
+                        yield this.__transactionRepository.createTransaction(newTranasaction);
                         // Insert data into newSlotSchedule
                         const newSlotSchedule = {
                             menteeId: menteeObjectId,
@@ -185,7 +266,6 @@ class bookingService {
                             description: message,
                             status: "CONFIRMED",
                         };
-                        console.log(newSlotSchedule, "Updated newSlotSchedule Object");
                         const response = yield this._slotScheduleRepository.newSlotBooking(newSlotSchedule);
                         if (!response) {
                             return;
@@ -201,6 +281,7 @@ class bookingService {
                         if (mentorId) {
                             //notification for mentor
                             const notif = yield this._notificationRepository.createNotification(mentorId, `Your new slot were Scheduled`, `new slot were scheduled . checkout now`, `mentor`, `${process.env.CLIENT_ORIGIN_URL}/mentor/session`);
+                            //make it realtime using socket
                             index_1.socketManager.sendNotification(mentorID, notif);
                         }
                         //creating chat document
@@ -359,6 +440,7 @@ class bookingService {
                     };
                 }
                 const response = yield this._slotScheduleRepository.mentorSlotCancel(sessionId, statusValue);
+                console.log(response);
                 if (!response) {
                     return {
                         success: false,
@@ -367,9 +449,34 @@ class bookingService {
                         result: null,
                     };
                 }
+                if (statusValue === "CANCELLED") {
+                    const addToWallet = yield this.__walletRepository.updateWalletAmount(response === null || response === void 0 ? void 0 : response.menteeId, Number(response === null || response === void 0 ? void 0 : response.paymentAmount));
+                    let createWallet = null;
+                    if (!addToWallet) {
+                        createWallet = yield this.__walletRepository.createWallet({
+                            userId: response === null || response === void 0 ? void 0 : response.menteeId,
+                            balance: Number(response === null || response === void 0 ? void 0 : response.paymentAmount),
+                        });
+                    }
+                    const newTranasaction = {
+                        amount: Number(response === null || response === void 0 ? void 0 : response.paymentAmount),
+                        walletId: (addToWallet
+                            ? addToWallet === null || addToWallet === void 0 ? void 0 : addToWallet._id
+                            : createWallet === null || createWallet === void 0 ? void 0 : createWallet["_id"]),
+                        transactionType: "refund",
+                        status: "completed",
+                        note: "slot cancelled amount refunded",
+                    };
+                    yield this.__transactionRepository.createTransaction(newTranasaction);
+                    const notif = yield this._notificationRepository.createNotification(response === null || response === void 0 ? void 0 : response.menteeId, `cancel amount $${response === null || response === void 0 ? void 0 : response.paymentAmount} refunded`, "amount credited to your wallet successfully", "mentee", `${process.env.CLIENT_ORIGIN_URL}/mentee/wallet`);
+                    if (notif) {
+                        index_1.socketManager.sendNotification(String(response === null || response === void 0 ? void 0 : response.menteeId), notif);
+                    }
+                    ;
+                }
                 return {
                     success: true,
-                    message: "cancel requested successfully",
+                    message: `${statusValue == "CANCELLED" ? "cancel approved" : "cancel rejected"} successfully`,
                     status: httpStatusCode_1.Status.Ok,
                     result: response,
                 };
@@ -379,7 +486,7 @@ class bookingService {
             }
         });
     }
-    //create session code 
+    //create session code
     createSessionCode(bookingId) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
@@ -393,7 +500,7 @@ class bookingService {
                 }
                 //generate sessionCode
                 const session_Code = (0, reusable_util_1.generateSessionCode)();
-                console.log(session_Code, 'sessionCode');
+                console.log(session_Code, "sessionCode");
                 const response = yield this._slotScheduleRepository.createSessionCode(bookingId, session_Code);
                 if (!response) {
                     return {
@@ -403,7 +510,7 @@ class bookingService {
                         sessionCode: null,
                     };
                 }
-                console.log('response');
+                console.log("response");
                 return {
                     success: true,
                     message: "session Code  created successfully",
@@ -416,8 +523,7 @@ class bookingService {
             }
         });
     }
-    ;
-    //session completed marking 
+    //session completed marking
     sessionCompleted(bookingId) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
@@ -459,7 +565,7 @@ class bookingService {
                         success: false,
                         message: "credential not found",
                         status: httpStatusCode_1.Status.BadRequest,
-                        session_Code: ""
+                        session_Code: "",
                     };
                 }
                 const response = yield this._slotScheduleRepository.validateSessionJoin(sessionId, sessionCode);
@@ -468,14 +574,14 @@ class bookingService {
                         success: false,
                         message: "result not found ",
                         status: httpStatusCode_1.Status.NotFound,
-                        session_Code: ""
+                        session_Code: "",
                     };
                 }
                 return {
                     success: true,
                     message: "user Valid!",
                     status: httpStatusCode_1.Status.Ok,
-                    session_Code: response === null || response === void 0 ? void 0 : response.sessionCode
+                    session_Code: response === null || response === void 0 ? void 0 : response.sessionCode,
                 };
             }
             catch (error) {

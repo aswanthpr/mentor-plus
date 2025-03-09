@@ -1,14 +1,17 @@
 import * as Yup from "yup";
 import moment from "moment";
 import { useEffect, useState } from "react";
-import { useLocation } from "react-router-dom";
-import { Calendar, Clock10Icon, PlayCircle } from "lucide-react";
+import { useLocation, useNavigate } from "react-router-dom";
+import { Calendar, Clock10Icon, PlayCircle, Wallet } from "lucide-react";
 import Button from "../Auth/Button";
-// import papalIcon from "../../Asset/icons8-paypal.svg";
 import stripeLogo from "../../Asset/stripe-icon.svg";
-import { protectedAPI } from "../../Config/Axios";
 import { errorHandler } from "../../Utils/Reusable/Reusable";
 import { bookingInputValidation } from "../../Validation/yupValidation";
+import {
+  confirmSlotBooking,
+  fetchSlotBookingPageData,
+} from "../../service/api";
+import { toast } from "react-toastify";
 
 interface IBookingError {
   message: string;
@@ -23,14 +26,14 @@ const initialState: IBookingError = {
   stripe: "",
 };
 
- const BookingPage: React.FC = () => {
+const BookingPage: React.FC = () => {
+  const navigate = useNavigate();
   const { state, pathname } = useLocation();
-
   const [selectedSlot, setSelectedSlot] = useState<Itime | null>(null);
   const [message, setMessage] = useState("");
   const [mentorId] = useState<string>(state);
   const [selectedPayment, setSelectedPayment] = useState<
-    "stripe" | "wallet" | "paypal" | "upi"
+    "stripe" | "wallet" 
   >("stripe");
   const [timeSlot, setTimeSlot] = useState<Itime[] | []>([]);
   const [errors, setErrors] = useState<IBookingError>(initialState);
@@ -39,15 +42,13 @@ const initialState: IBookingError = {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [mentorName] = useState<string>(pathname.split("/")[2]);
-  const [sessionPrice,setSessionPrice]=useState<number>(0)
+  const [sessionPrice, setSessionPrice] = useState<number>(0);
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await protectedAPI.get(`/mentee/slot-booking`, {
-          params: mentorId,
-        });
-        if (response.status == 200 && response.data?.success) {
-          console.log(response.data.timeSlots, "this si rep;osne");
+        const response = await fetchSlotBookingPageData(mentorId);
+
+        if (response?.status == 200 && response?.data?.success) {
           setTimeSlot(response.data?.timeSlots);
           setPlatformFee(response.data?.platformFee);
         }
@@ -57,7 +58,6 @@ const initialState: IBookingError = {
     };
     fetchData();
   }, [mentorId]);
-
 
   const platformFees = sessionPrice * Number(platformFee);
   const totalPrice = sessionPrice + platformFees;
@@ -79,18 +79,24 @@ const initialState: IBookingError = {
         totalPrice,
         timeDifference
       );
-      const { data, status } = await protectedAPI.post(`/mentee/slot-booking`, {
-        timeSlot: selectedSlot,
+
+      const response = await confirmSlotBooking(
+        selectedSlot,
         message,
-        paymentMethod: selectedPayment,
-        totalAmount: totalPrice,
-        mentorName,
-      });
-      console.log(status, data, "this is response");
-      if (status == 200 && data.success) {
-        console.log(data.session, "this si seesion", data.session.url);
-        if (data.session?.url) {
-          window.location.href = data.session?.url;
+        selectedPayment,
+        totalPrice,
+        mentorName
+      );
+
+      if (response?.status == 200 && response?.data.success) {
+        if(selectedPayment=="stripe"){
+          if (response?.data.session?.url) {
+            window.location.href = response?.data.session?.url;
+          }
+
+        }else if(selectedPayment =="wallet"){
+          toast.success(response?.data?.message)
+          navigate("/mentee/bookings")
         }
       }
 
@@ -110,10 +116,9 @@ const initialState: IBookingError = {
 
   // Function to handle time slot selection and check for future time
   const handleSlotClick = (slot: Itime) => {
- 
     // if (slotStartTime.isAfter(currentTime)) {
     setSelectedSlot(slot);
-    setSessionPrice(Number(slot?.price))
+    setSessionPrice(Number(slot?.price));
   };
 
   return (
@@ -123,44 +128,43 @@ const initialState: IBookingError = {
 
         {/* Time Slots */}
         <div className="bg-white rounded-lg shadow-md p-6 mb-8">
-  <h2 className="text-xl font-semibold mb-4">Select Time Slot</h2>
-  <div className="relative">
-    {timeSlot.length > 0 ? (
-      <div className="flex overflow-x-auto gap-4 pb-4 scrollbar-hide">
-        {timeSlot.map((slot) => (
-          <button
-            key={slot?._id}
-            onClick={() => handleSlotClick(slot)}
-            className={`flex-shrink-0 p-4 rounded-lg border-2 transition-colors ${
-              selectedSlot?._id === slot?._id
-                ? "border-orange-500 bg-orange-50"
-                : "border-gray-200 hover:border-orange-200"
-            }`}
-          >
-            <p className="text-gray-600 text-sm flex">
-              <Calendar className="w-3 mr-1" />
-              {moment(slot?.startDate).format('DD-MM-YYYY')}
-            </p>
-            <p className="text-gray-600 font-light text-sm flex">
-              <PlayCircle className="w-3 mr-1" />{" "}
-              {moment(slot?.startTime).format("hh:mm a")}
-            </p>
-            <p className="text-gray-600 text-sm flex">
-              <Clock10Icon className="w-3 mr-1" />{" "}
-              {slot?.duration} min
-            </p>
-            <p className="text-gray-600 text-sm">${slot?.price}</p>
-          </button>
-        ))}
-      </div>
-    ) : (
-      <div className="flex flex-col items-center justify-center text-gray-500 p-6">
-        <Calendar className="w-8 h-8 mb-2 text-gray-400" />
-        <p className="text-sm">No slots available</p>
-      </div>
-    )}
-  </div>
-</div>
+          <h2 className="text-xl font-semibold mb-4">Select Time Slot</h2>
+          <div className="relative">
+            {timeSlot.length > 0 ? (
+              <div className="flex overflow-x-auto gap-4 pb-4 scrollbar-hide">
+                {timeSlot.map((slot) => (
+                  <button
+                    key={slot?._id}
+                    onClick={() => handleSlotClick(slot)}
+                    className={`flex-shrink-0 p-4 rounded-lg border-2 transition-colors ${
+                      selectedSlot?._id === slot?._id
+                        ? "border-orange-500 bg-orange-50"
+                        : "border-gray-200 hover:border-orange-200"
+                    }`}
+                  >
+                    <p className="text-gray-600 text-sm flex">
+                      <Calendar className="w-3 mr-1" />
+                      {moment(slot?.startDate).format("DD-MM-YYYY")}
+                    </p>
+                    <p className="text-gray-600 font-light text-sm flex">
+                      <PlayCircle className="w-3 mr-1" />{" "}
+                      {moment(slot?.startTime).format("hh:mm a")}
+                    </p>
+                    <p className="text-gray-600 text-sm flex">
+                      <Clock10Icon className="w-3 mr-1" /> {slot?.duration} min
+                    </p>
+                    <p className="text-gray-600 text-sm">${slot?.price}</p>
+                  </button>
+                ))}
+              </div>
+            ) : (
+              <div className="flex flex-col items-center justify-center text-gray-500 p-6">
+                <Calendar className="w-8 h-8 mb-2 text-gray-400" />
+                <p className="text-sm">No slots available</p>
+              </div>
+            )}
+          </div>
+        </div>
         {/* Message */}
         <div className="bg-white rounded-lg shadow-md p-6 mb-8">
           <h2 className="text-xl font-semibold mb-4">
@@ -213,7 +217,7 @@ const initialState: IBookingError = {
               <span>Stripe</span>
             </label>
 
-            {/* <label className="flex items-center p-4 border rounded-lg cursor-pointer hover:bg-gray-50">
+            <label className="flex items-center p-4 border rounded-lg cursor-pointer hover:bg-gray-50">
               <input
                 type="radio"
                 name="payment"
@@ -223,46 +227,9 @@ const initialState: IBookingError = {
               />
               <Wallet className="w-6 h-6 mr-2" />
               <span>Wallet</span>
-            </label> */}
-
-            {/* <label className="flex items-center p-4 border rounded-lg cursor-pointer hover:bg-gray-50">
-              <input
-                type="radio"
-                name="payment"
-                checked={selectedPayment === "paypal"}
-                onChange={() => setSelectedPayment("paypal")}
-                className="mr-3"
-              />
-              <img src={papalIcon} alt="" className="w-6" />
-              <span>PayPal</span>
-            </label> */}
-
-            {/* <label className="flex items-center p-4 border rounded-lg cursor-pointer hover:bg-gray-50">
-              <input
-                type="radio"
-                name="payment"
-                checked={selectedPayment === "upi"}
-                onChange={() => setSelectedPayment("upi")}
-                className="mr-3"
-              />
-              <img
-                src="https://upload.wikimedia.org/wikipedia/commons/thumb/e/e1/UPI-Logo-vector.svg/200px-UPI-Logo-vector.svg.png"
-                alt="UPI"
-                className="w-6 h-6 mr-2"
-              />
-              <span>UPI</span>
-            </label> */}
+            </label>
           </div>
         </div>
-
-        {/* {clientSecret ? (
-          <div className={"stripeElem"}>
-            <Elements stripe={stripePromise} options={{ clientSecret,loader }}>
-           <StripeCheckout/>
-
-            </Elements>
-          </div>
-        ) : ( */}
         <Button
           onClick={handleBook}
           className="w-full font-bold py-4 "
@@ -270,9 +237,8 @@ const initialState: IBookingError = {
         >
           Book Session
         </Button>
-        {/* // )} */}
       </div>
     </div>
   );
 };
-export default BookingPage
+export default BookingPage;

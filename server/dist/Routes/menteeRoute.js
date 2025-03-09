@@ -3,7 +3,6 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const stripe_1 = __importDefault(require("stripe"));
 const express_1 = __importDefault(require("express"));
 const multer_util_1 = __importDefault(require("../Config/multer.util"));
 const qaService_1 = __importDefault(require("../Service/qaService"));
@@ -26,19 +25,22 @@ const notificationController_1 = require("../Controller/notificationController")
 const chatService_1 = __importDefault(require("../Service/chatService"));
 const chatRepository_1 = __importDefault(require("../Repository/chatRepository"));
 const chatController_1 = require("../Controller/chatController");
+const walletService_1 = require("../Service/walletService");
+const transactionRepository_1 = __importDefault(require("../Repository/transactionRepository"));
+const walletController_1 = require("../Controller/walletController");
+const walletRepository_1 = __importDefault(require("../Repository/walletRepository"));
 const __menteeService = new menteeService_1.menteeService(menteeRepository_1.default, mentorRepository_1.default, categoryRepository_1.default, questionRepository_1.default);
 const __qaService = new qaService_1.default(questionRepository_1.default, answerRepository_1.default, notificationRepository_1.default);
-const __bookingService = new bookingService_1.bookingService(timeSlotRepository_1.default, slotScheduleRepository_1.default, notificationRepository_1.default, chatRepository_1.default, new stripe_1.default(process.env.STRIPE_SECRET_KEY, {
-    apiVersion: "2025-02-24.acacia",
-    maxNetworkRetries: 4,
-}));
+const __bookingService = new bookingService_1.bookingService(timeSlotRepository_1.default, slotScheduleRepository_1.default, notificationRepository_1.default, chatRepository_1.default, walletRepository_1.default, transactionRepository_1.default);
 const __notificationService = new notificationService_1.notificationService(notificationRepository_1.default);
 const __chatService = new chatService_1.default(chatRepository_1.default);
+const __walletService = new walletService_1.walletService(walletRepository_1.default, transactionRepository_1.default, notificationRepository_1.default);
 const __menteeController = new menteeController_1.menteeController(__menteeService);
 const __qaController = new qaController_1.default(__qaService);
 const __bookingController = new bookingController_1.bookingControlelr(__bookingService);
 const __notificationController = new notificationController_1.notificationController(__notificationService);
 const __chatController = new chatController_1.chatController(__chatService);
+const __walletController = new walletController_1.walletController(__walletService);
 const mentee_Router = express_1.default.Router();
 mentee_Router.post(`/refresh-token`, __menteeController.refreshToken.bind(__menteeController));
 mentee_Router.post(`/logout`, __menteeController.menteeLogout.bind(__menteeController));
@@ -67,4 +69,8 @@ mentee_Router.patch(`/notification-read/:notificationId`, menteeAuthorization_1.
 mentee_Router.get("/chats", menteeAuthorization_1.default, __chatController.getChats.bind(__chatController));
 mentee_Router.get("/messages", menteeAuthorization_1.default, __chatController.getUserMessage.bind(__chatController));
 mentee_Router.post(`/session/validate-session-join`, menteeAuthorization_1.default, __bookingController.validateSessionJoin.bind(__bookingController));
+//wallet'
+mentee_Router.get(`/wallet`, menteeAuthorization_1.default, __walletController.getWalletData.bind(__walletController));
+mentee_Router.post("/wallet/add-money-wallet", menteeAuthorization_1.default, __walletController.addMoneyToWallet.bind(__walletController));
+mentee_Router.post("/wallet/webhook", express_1.default.raw({ type: "application/json" }), __walletController.walletStripeWebHook.bind(__walletController));
 exports.default = mentee_Router;

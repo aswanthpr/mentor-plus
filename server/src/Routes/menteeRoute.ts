@@ -1,4 +1,3 @@
-import Stripe from "stripe";
 import express, { Router } from "express";
 import upload from "../Config/multer.util";
 import qaService from "../Service/qaService";
@@ -21,43 +20,48 @@ import { notificationController } from "../Controller/notificationController";
 import chatService from "../Service/chatService";
 import chatRepository from "../Repository/chatRepository";
 import { chatController } from "../Controller/chatController";
+import { walletService } from "../Service/walletService";
+import transactionRepository from "../Repository/transactionRepository";
+import { walletController } from "../Controller/walletController";
+import walletRepository from "../Repository/walletRepository";
 
-const __menteeService = new menteeService( 
+const __menteeService = new menteeService(
   menteeRepository,
   mentorRepository,
   categoryRepository,
-  questionRepository,
+  questionRepository
 );
 const __qaService = new qaService(
   questionRepository,
   answerRespository,
-  notificationRepository,
-  
+  notificationRepository
 );
 const __bookingService = new bookingService(
   timeSlotRepository,
   slotScheduleRepository,
   notificationRepository,
   chatRepository,
-  new Stripe(process.env.STRIPE_SECRET_KEY as string, {
-    apiVersion:"2025-02-24.acacia",
-    maxNetworkRetries: 4,
-  })
+  walletRepository,
+  transactionRepository
 );
 
-const __notificationService = new notificationService(
-  notificationRepository,
-)
+const __notificationService = new notificationService(notificationRepository);
 
-const __chatService = new chatService(
-  chatRepository,
+const __chatService = new chatService(chatRepository);
+const __walletService = new walletService(
+  walletRepository,
+  transactionRepository,
+  notificationRepository
 );
-
 const __menteeController = new menteeController(__menteeService);
 const __qaController = new qaController(__qaService);
 const __bookingController = new bookingControlelr(__bookingService);
-const __notificationController = new notificationController(__notificationService);
+const __notificationController = new notificationController(
+  __notificationService
+);
 const __chatController = new chatController(__chatService);
+const __walletController = new walletController(__walletService);
+
 const mentee_Router: Router = express.Router();
 
 mentee_Router.post(
@@ -71,7 +75,8 @@ mentee_Router.post(
 );
 
 mentee_Router.get(
-  `/explore`,authorize,
+  `/explore`,
+  authorize,
   __menteeController.exploreData.bind(__menteeController)
 );
 
@@ -144,7 +149,8 @@ mentee_Router.get(
 );
 
 mentee_Router.get(
-  `/slot-booking`,authorize,
+  `/slot-booking`,
+  authorize,
   __bookingController.getTimeSlots.bind(__bookingController)
 );
 
@@ -168,18 +174,49 @@ mentee_Router.get(
   __bookingController.getBookedSlot.bind(__bookingController)
 );
 mentee_Router.patch(
-  `/sessions/cancel_request/:sessionId`,authorize,
+  `/sessions/cancel_request/:sessionId`,
+  authorize,
   __bookingController.cancelSlot.bind(__bookingController)
 );
-mentee_Router.get(`/notification`,authorize,__notificationController.getNotification.bind(__notificationController));
+mentee_Router.get(
+  `/notification`,
+  authorize,
+  __notificationController.getNotification.bind(__notificationController)
+);
 
-mentee_Router.patch(`/notification-read/:notificationId`,authorize,__notificationController.markAsReadNotif.bind(__notificationController));
+mentee_Router.patch(
+  `/notification-read/:notificationId`,
+  authorize,
+  __notificationController.markAsReadNotif.bind(__notificationController)
+);
 
-mentee_Router.get("/chats",authorize,__chatController.getChats.bind(__chatController));
+mentee_Router.get(
+  "/chats",
+  authorize,
+  __chatController.getChats.bind(__chatController)
+);
 
-mentee_Router.get("/messages",authorize,__chatController.getUserMessage.bind(__chatController));
+mentee_Router.get(
+  "/messages",
+  authorize,
+  __chatController.getUserMessage.bind(__chatController)
+);
 
-mentee_Router.post(`/session/validate-session-join`,authorize,__bookingController.validateSessionJoin.bind(__bookingController));
+mentee_Router.post(
+  `/session/validate-session-join`,
+  authorize,
+  __bookingController.validateSessionJoin.bind(__bookingController)
+);
 
+//wallet'
+mentee_Router.get(`/wallet`,authorize,
+  __walletController.getWalletData.bind(__walletController));
+  
+mentee_Router.post(
+  "/wallet/add-money-wallet",
+  authorize,
+  __walletController.addMoneyToWallet.bind(__walletController)
+);
 
+mentee_Router.post("/wallet/webhook", express.raw({ type: "application/json" }),__walletController.walletStripeWebHook.bind(__walletController));
 export default mentee_Router;

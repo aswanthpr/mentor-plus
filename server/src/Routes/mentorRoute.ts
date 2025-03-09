@@ -22,6 +22,8 @@ import categoryRepository from "../Repository/categoryRepository";
 import timeSlotRepository from "../Repository/timeSlotRepository";
 import slotScheduleRepository from "../Repository/slotScheduleRepository";
 import notificationRepository from "../Repository/notificationRepository";
+import walletRepository from "../Repository/walletRepository";
+import transactionRepository from "../Repository/transactionRepository";
 
 const __mentorService = new mentorService(
   mentorRepository, 
@@ -39,6 +41,8 @@ const __bookingService = new bookingService(
     slotScheduleRepository,
     notificationRepository,
     chatRepository,
+    walletRepository,
+    transactionRepository,
   );
 const __bookingController = new bookingControlelr(__bookingService)
 const __notificationService = new notificationService(notificationRepository);

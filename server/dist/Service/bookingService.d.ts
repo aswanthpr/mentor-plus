@@ -8,13 +8,17 @@ import { IslotSchedule } from "../Model/slotSchedule";
 import { Itime } from "../Model/timeModel";
 import { InotificationRepository } from "../Interface/Notification/InotificationRepository";
 import { IchatRepository } from "../Interface/chat/IchatRepository";
+import { IwalletRepository } from "../Interface/wallet/IwalletRepository";
+import { ItransactionRepository } from "../Interface/wallet/ItransactionRepository";
 export declare class bookingService implements IbookingService {
     private readonly _timeSlotRepository;
     private readonly _slotScheduleRepository;
     private readonly _notificationRepository;
     private readonly _chatRepository;
+    private readonly __walletRepository;
+    private readonly __transactionRepository;
     private readonly stripe;
-    constructor(_timeSlotRepository: ItimeSlotRepository, _slotScheduleRepository: IslotScheduleRepository, _notificationRepository: InotificationRepository, _chatRepository: IchatRepository, stripe?: Stripe);
+    constructor(_timeSlotRepository: ItimeSlotRepository, _slotScheduleRepository: IslotScheduleRepository, _notificationRepository: InotificationRepository, _chatRepository: IchatRepository, __walletRepository: IwalletRepository, __transactionRepository: ItransactionRepository, stripe?: Stripe);
     getTimeSlots(mentorId: string): Promise<{
         success: boolean;
         message: string;
@@ -22,7 +26,7 @@ export declare class bookingService implements IbookingService {
         timeSlots: Itime[] | [];
         platformFee: string | undefined;
     }>;
-    slotBooking(timeSlot: Itimes, message: string, paymentMethod: string, totalAmount: string, mentorName: string, menteeId: ObjectId, protocol: string, host: string): Promise<{
+    slotBooking(timeSlot: Itimes, messages: string, paymentMethod: string, totalAmount: string, mentorName: string, menteeId: ObjectId, protocol: string, host: string): Promise<{
         success: boolean;
         message: string;
         status: number;

@@ -23,13 +23,13 @@ const SidePanel: React.FC<ISideBar> = ({ SideBarItems }) => {
             <NavLink
               key={item?.name}
               to={item?.path}
-              className={`w-full flex items-center px-2 py-6 justify-start rounded-lg transition-colors  ${
+              className={`w-full flex items-center px-2 py-8 justify-start rounded-lg transition-colors  ${
                 isActive
                   ? "bg-[#fff3e6] text-[#ff8800]"
                   : "text-gray-600 hover:bg-gray-50"
               }`}
             >
-              <item.icon className="h-5 w-5 mr-3 " />
+              <item.icon className="h-7 w-7 mr-3" />
               <span className="font-medium">{item?.name}</span>
             </NavLink>
           );

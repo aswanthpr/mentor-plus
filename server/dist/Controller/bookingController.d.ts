@@ -4,16 +4,6 @@ import { IbookingService } from "../Interface/Booking/iBookingService";
 export declare class bookingControlelr implements IbookingController {
     private _bookingService;
     constructor(_bookingService: IbookingService);
-    /**
-     * Retrieves available time slots for a given mentor.
-     *
-     * @param req - Express request object, expects `mentorId` in the query.
-     * @param res - Express response object, returns a JSON with success status, message, available time slots, and platform fee.
-     *
-     * @returns void - Responds with the status and details of the time slots retrieval operation.
-     *
-     * @throws Error - Throws an error if there is an issue while fetching the time slots.
-     */
     getTimeSlots(req: Request, res: Response): Promise<void>;
     slotBooking(req: Request, res: Response): Promise<void>;
     stripeWebHook(req: Request, res: Response): Promise<void>;

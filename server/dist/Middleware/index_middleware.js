@@ -25,7 +25,7 @@ exports.corsOptions = {
     ],
     preflightContinue: false,
     optionsSuccessStatus: 204,
-    credentials: true
+    credentials: true,
 };
 //socket cors config
 exports.corsConfig = {
@@ -64,7 +64,8 @@ exports.sessionConfig = (0, express_session_1.default)({
 });
 // determine request body parse to json or raw state
 const jsonParseOrRaw = (req, res, next) => {
-    if (req.originalUrl === "/mentee/webhook") {
+    if (req.originalUrl === "/mentee/webhook" ||
+        req.originalUrl == "/mentee/wallet/webhook") {
         next(); // Do nothing with the body because  need it in a raw state.
     }
     else {

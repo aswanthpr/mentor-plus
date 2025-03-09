@@ -52,7 +52,7 @@ const ExplorePage: React.FC = () => {
             categories:filterVal?.domain??[],
             skill:filterVal?.skill??[],
             sort:filterVal?.sort??'',
-            page:currentPage,
+            page:currentPage,  
             limit
           }
         });
@@ -109,7 +109,7 @@ const ExplorePage: React.FC = () => {
 
         {/* Main Content */}
         <div className="flex-1 ">
-          <div className="flex flex-col sm:flex-row gap-2 mb-4 mr-1">
+          <div className="flex flex-col sm:flex-row gap-2 mb-2">
             <div className="flex-1 z-0 xss:mx-1">
               <SearchBar value={searchQuery} onChange={setSearchQuery} />
             </div>

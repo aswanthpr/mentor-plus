@@ -11,11 +11,11 @@ import Spinner from "../../components/Common/common4All/Spinner";
 import { toast } from "react-toastify";
 import { useSelector } from "react-redux";
 import { RootState } from "../../Redux/store";
-import { joinSessionHandler } from "../../service/bookingApi";
+import { fetchCanceSession, joinSessionHandler } from "../../service/api";
 import { useNavigate } from "react-router-dom";
 
 const Boooking: React.FC = () => {
-  const navigate = useNavigate()
+  const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [activeTab, setActiveTab] = useState<"upcoming" | "history">(
     "upcoming"
@@ -59,15 +59,9 @@ const Boooking: React.FC = () => {
     customReason: string
   ) => {
     try {
-      const { status, data } = await protectedAPI.patch(
-        `/mentee/sessions/cancel_request/${sessionId}`,
-        {
-          customReason,
-          reason,
-        }
-      );
+      const response = await fetchCanceSession(sessionId, customReason, reason);
 
-      if (status === 200 && data.success) {
+      if (response?.status === 200 && response?.data.success) {
         setSessions(
           sessions.map((session) =>
             session?._id === sessionId
@@ -75,7 +69,7 @@ const Boooking: React.FC = () => {
               : session
           )
         );
-        toast.success(data?.message);
+        toast.success(response?.data?.message);
       }
     } catch (error: unknown) {
       errorHandler(error);
@@ -118,12 +112,13 @@ const Boooking: React.FC = () => {
   );
   const handleSessionJoin = useCallback(
     async (sessionId: string, sessionCode: string, role: string) => {
-      console.log(sessionCode,sessionId,role)
+      console.log(sessionCode, sessionId, role);
       const response = await joinSessionHandler(sessionId, sessionCode, role);
       if (response?.status == 200 && response?.data?.success) {
-
         navigate(
-          `/${role}/${role == "mentor" ? "session" : "bookings"}/${response?.session_Code}`
+          `/${role}/${role == "mentor" ? "session" : "bookings"}/${
+            response?.session_Code
+          }`
         );
       }
     },

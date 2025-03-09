@@ -7,7 +7,7 @@ import { NextFunction } from "connect";
 import helmet from "helmet";
 
 //default cors config
-export const corsOptions:CorsOptions = {
+export const corsOptions: CorsOptions = {
   origin: process.env.CLIENT_ORIGIN_URL,
   methods: ["GET,HEAD,OPTIONS,PUT,PATCH,POST,DELETE"],
   allowedHeaders: [
@@ -21,7 +21,7 @@ export const corsOptions:CorsOptions = {
   ],
   preflightContinue: false,
   optionsSuccessStatus: 204,
-  credentials:true
+  credentials: true,
 };
 
 //socket cors config
@@ -29,8 +29,8 @@ export const corsConfig: CorsOptions = {
   origin: process.env.CLIENT_ORIGIN_URL as string,
   methods: ["GET", "POST"],
   allowedHeaders: ["Content-Type", "Authorization"],
-  credentials:true ,
-  preflightContinue: false ,
+  credentials: true,
+  preflightContinue: false,
   optionsSuccessStatus: 204,
 };
 
@@ -68,7 +68,10 @@ export const jsonParseOrRaw = (
   res: Response,
   next: NextFunction
 ) => {
-  if (req.originalUrl === "/mentee/webhook") {
+  if (
+    req.originalUrl === "/mentee/webhook" ||
+    req.originalUrl == "/mentee/wallet/webhook"
+  ) {
     next(); // Do nothing with the body because  need it in a raw state.
   } else {
     express.json()(req, res, next);
@@ -82,7 +85,7 @@ export const helmetConfig = helmet({
     directives: {
       defaultSrc: ["'self'"],
       scriptSrc: ["'self'", "'unsafe-inline'", "'unsafe-eval'"],
-      connectSrc: ["'self'", process.env.CLIENT_ORIGIN_URL as string, "wss:"],//Allow WebSockets
+      connectSrc: ["'self'", process.env.CLIENT_ORIGIN_URL as string, "wss:"], //Allow WebSockets
     },
   },
-})
+});

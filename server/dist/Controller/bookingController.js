@@ -16,16 +16,6 @@ class bookingControlelr {
     }
     //mentee slot booking
     //get timeslots for booking page
-    /**
-     * Retrieves available time slots for a given mentor.
-     *
-     * @param req - Express request object, expects `mentorId` in the query.
-     * @param res - Express response object, returns a JSON with success status, message, available time slots, and platform fee.
-     *
-     * @returns void - Responds with the status and details of the time slots retrieval operation.
-     *
-     * @throws Error - Throws an error if there is an issue while fetching the time slots.
-     */
     getTimeSlots(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
             try {

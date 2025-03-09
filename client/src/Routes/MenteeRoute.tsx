@@ -15,7 +15,7 @@ const StripeComplete = lazy(
   () => import("../components/Common/Stripe/StripeComplete")
 );
 const Bookings = lazy(() => import("../pages/Mentee/Bookings"));
-// const Wallet = lazy(() => import("../pages/Mentee/Wallet"));
+const Wallet = lazy(() => import("../pages/Mentee/Wallet"));
 const Explore = lazy(() => import("../pages/Mentee/Explore"));
 const QnA_page = lazy(() => import("../pages/Mentee/QnA_page"));
 const Mentee_Page = lazy(() => import("../pages/Mentee/Mentee_Page"));
@@ -60,7 +60,7 @@ const MenteeRoute: React.FC = () => (
           path="/messages"
           element={<MenteeLogin element={<Message />} />}
         />
-        {/* <Route path="/wallet" element={<MenteeLogin element={<Wallet />} />} />; */}
+        <Route path="/wallet" element={<MenteeLogin element={<Wallet />} />} />;
         <Route path="/qa" element={<MenteeLogin element={<QnA_page />} />} />;
         <Route path="/google/success" element={<MenteeLogin element={<GoogleSuccess />} />} />;  
         <Route path="/google/failure" element={ <MenteeLogin element={<GoogleFailure />} />} />; 

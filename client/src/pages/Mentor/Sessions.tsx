@@ -9,7 +9,7 @@ import { useSelector } from "react-redux";
 import { RootState } from "../../Redux/store";
 import ConfirmToast from "../../components/Common/common4All/ConfirmToast";
 import { toast } from "react-toastify";
-import { createSessionCodeApi, joinSessionHandler, markAsSessionCompleted } from "../../service/bookingApi";
+import { createSessionCodeApi, fetchCanceSessionResponse, joinSessionHandler, markAsSessionCompleted } from "../../service/api";
 import { useNavigate } from "react-router-dom";
 
 const Sessions:React.FC = () => {
@@ -65,15 +65,10 @@ const Sessions:React.FC = () => {
     const value = val === "APPROVE" ? "CANCELLED" : "CANCEL_REJECTED";
     try {
       const handleRequest = async (sessionId: string, value: string) => {
-        const { data, status } = await axiosInstance.patch(
-          `/mentor/sessions/cancel_request/${sessionId}`,
-          {
-            value,
-          }
-        );
+        const response = await fetchCanceSessionResponse(sessionId,value)
         toast.dismiss();
-        if (status == 200 && data.success) {
-          toast.success(data?.message);
+        if (response?.status == 200 && response?.data?.success) {
+          toast.success(response?.data?.message);
           setSessions(
             sessions
               .map((session) =>
