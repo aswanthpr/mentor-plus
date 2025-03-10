@@ -1,7 +1,8 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { AxiosResponse } from "axios";
+import axios, { AxiosResponse } from "axios";
 import { axiosInstance } from "../Config/mentorAxios";
 import { protectedAPI } from "../Config/Axios";
+import { toast } from "react-toastify";
 
 //COMMON_FETCH====================================================================
 export const joinSessionHandler = async (
@@ -91,6 +92,25 @@ export const fetchCanceSession = async (
     console.log(error instanceof Error ? error.message : String(error));
   }
 };
+export const fetchSubmitRating = async (review:string,selectedSession:ISession,role:string,rating?:number)=>{
+  try {
+    if(!rating&&role=="mentee"){
+      toast.error('rating field required')
+    }
+    const apiInstance = role=="mentee"?protectedAPI:axiosInstance;
+
+    return await apiInstance.post(`/${role}/review-and-rating`,{
+      rating,
+      review,
+      sessionId:selectedSession?._id,
+      role,
+      menteeId:selectedSession?.menteeId,
+      mentorId:selectedSession?.slotDetails?.mentorId,
+    }) ;
+  } catch (error:unknown) {
+    console.log(error instanceof Error ? error.message : String(error))
+  }
+}
 //MENTOR-ONLY//============================================================
 
 export const fetchCanceSessionResponse = async (

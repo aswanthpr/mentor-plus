@@ -7,7 +7,7 @@ declare class walletRepository extends baseRepository<Iwallet> implements Iwalle
     createWallet(walletData: Partial<Iwallet>): Promise<Iwallet | null>;
     findWallet(userId: ObjectId): Promise<Iwallet | null>;
     updateWalletAmount(userId: ObjectId, amount: number): Promise<Iwallet | null>;
-    findWalletWithTransaction(userId: ObjectId, role: string): Promise<Iwallet | null>;
+    findWalletWithTransaction(userId: ObjectId): Promise<Iwallet | null>;
     deductAmountFromWallet(amount: number, userId: ObjectId): Promise<Iwallet | null>;
 }
 declare const _default: walletRepository;

@@ -449,6 +449,9 @@ class bookingService {
                         result: null,
                     };
                 }
+                let title = "";
+                let message = "";
+                let url = "";
                 if (statusValue === "CANCELLED") {
                     const addToWallet = yield this.__walletRepository.updateWalletAmount(response === null || response === void 0 ? void 0 : response.menteeId, Number(response === null || response === void 0 ? void 0 : response.paymentAmount));
                     let createWallet = null;
@@ -468,12 +471,20 @@ class bookingService {
                         note: "slot cancelled amount refunded",
                     };
                     yield this.__transactionRepository.createTransaction(newTranasaction);
-                    const notif = yield this._notificationRepository.createNotification(response === null || response === void 0 ? void 0 : response.menteeId, `cancel amount $${response === null || response === void 0 ? void 0 : response.paymentAmount} refunded`, "amount credited to your wallet successfully", "mentee", `${process.env.CLIENT_ORIGIN_URL}/mentee/wallet`);
-                    if (notif) {
-                        index_1.socketManager.sendNotification(String(response === null || response === void 0 ? void 0 : response.menteeId), notif);
-                    }
-                    ;
+                    title = `cancel amount $${response === null || response === void 0 ? void 0 : response.paymentAmount} refunded`;
+                    message = "session cancel approved,amount credited to your wallet";
+                    url = `${process.env.CLIENT_ORIGIN_URL}/mentee/wallet`;
                 }
+                else {
+                    title = `cancel request rejected`;
+                    message = "session cancel rejected,attend the session on time";
+                    url = `${process.env.CLIENT_ORIGIN_URL}/mentee/bookings`;
+                }
+                const notif = yield this._notificationRepository.createNotification(response === null || response === void 0 ? void 0 : response.menteeId, title, message, "mentee", url);
+                if (notif) {
+                    index_1.socketManager.sendNotification(String(response === null || response === void 0 ? void 0 : response.menteeId), notif);
+                }
+                ;
                 return {
                     success: true,
                     message: `${statusValue == "CANCELLED" ? "cancel approved" : "cancel rejected"} successfully`,

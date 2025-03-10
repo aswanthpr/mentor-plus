@@ -1,0 +1,1 @@
+{"version":3,"file":"IreviewRepository.d.ts","sourceRoot":"","sources":["../../../src/Interface/Review/IreviewRepository.ts"],"names":[],"mappings":"AAAA,OAAO,EAAE,OAAO,EAAE,MAAM,uBAAuB,CAAC;AAEhD,MAAM,WAAW,iBAAiB;IAC9B,kBAAkB,CAAC,SAAS,EAAC,OAAO,CAAC,OAAO,CAAC,GAAE,OAAO,CAAC,OAAO,GAAC,IAAI,CAAC,CAAA;CACvE"}

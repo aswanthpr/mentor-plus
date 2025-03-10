@@ -171,7 +171,7 @@ class slotScheduleRepository
             "CONFIRMED",
             "PENDING",
             "CANCEL_REQUESTED",
-            "CANCEL_REJECTED",
+            "REJECTED",
           ],
         };
       }

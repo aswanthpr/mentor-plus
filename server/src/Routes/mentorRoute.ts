@@ -24,6 +24,9 @@ import slotScheduleRepository from "../Repository/slotScheduleRepository";
 import notificationRepository from "../Repository/notificationRepository";
 import walletRepository from "../Repository/walletRepository";
 import transactionRepository from "../Repository/transactionRepository";
+import { reviewController } from "../Controller/reviewController";
+import reviewRepository from "../Repository/reviewRepository";
+import { reviewService } from "../Service/reviewService";
 
 const __mentorService = new mentorService(
   mentorRepository, 
@@ -33,23 +36,30 @@ const __mentorService = new mentorService(
 
 );
 
-const __mentorController = new mentorController(__mentorService);
-const __qaService = new qaService(questionRepository, answerRepository,notificationRepository);
-const __qaController = new qaController(__qaService);
-const __bookingService = new bookingService(  
-  timeSlotRepository,
-    slotScheduleRepository,
-    notificationRepository,
-    chatRepository,
-    walletRepository,
-    transactionRepository,
-  );
-const __bookingController = new bookingControlelr(__bookingService)
-const __notificationService = new notificationService(notificationRepository);
-const __notificationController = new notificationController(__notificationService);
 const __chatService = new chatService(chatRepository);
-const __chatController = new chatController(__chatService);
+const __qaService = new qaService(
+  questionRepository,
+  answerRepository,
+  notificationRepository);
+  const __bookingService = new bookingService(  
+    timeSlotRepository,
+      slotScheduleRepository,
+      notificationRepository,
+      chatRepository,
+      walletRepository,
+      transactionRepository,
+    );
+    const __notificationService = new notificationService(notificationRepository);
+const __reviewService = new reviewService(reviewRepository,
+  notificationRepository
+)
+  const __mentorController = new mentorController(__mentorService);
+const __qaController = new qaController(__qaService);
+const __bookingController = new bookingControlelr(__bookingService)
+const __notificationController = new notificationController(__notificationService);
 
+const __chatController = new chatController(__chatService);
+const __reviewController = new reviewController(__reviewService)
 const mentor_Router: Router = express.Router();
 
 mentor_Router.post(
@@ -111,6 +121,7 @@ mentor_Router.get(`/chats`,mentorAuthorize,__chatController.getChats.bind(__chat
 mentor_Router.get("/messages",mentorAuthorize,__chatController.getUserMessage.bind(__chatController));
 
 mentor_Router.post("/session/validate-session-join",mentorAuthorize,__bookingController.validateSessionJoin.bind(__bookingController));
+mentor_Router.post("/review-and-rating",mentorAuthorize,__reviewController.reviewNdRateMentor.bind(__reviewController))
 
 export default mentor_Router;
 

@@ -9,10 +9,11 @@ import { useSelector } from "react-redux";
 import { RootState } from "../../Redux/store";
 import ConfirmToast from "../../components/Common/common4All/ConfirmToast";
 import { toast } from "react-toastify";
-import { createSessionCodeApi, fetchCanceSessionResponse, joinSessionHandler, markAsSessionCompleted } from "../../service/api";
+import { createSessionCodeApi, fetchCanceSessionResponse, fetchSubmitRating, joinSessionHandler, markAsSessionCompleted } from "../../service/api";
 import { useNavigate } from "react-router-dom";
+import RatingModal from "../../components/Common/Bookings/RatingModal";
 
-const Sessions:React.FC = () => {
+const Sessions: React.FC = () => {
   const navigate = useNavigate()
   const [loading, setLoading] = useState(false);
   const [activeTab, setActiveTab] = useState<"upcoming" | "history">(
@@ -20,7 +21,8 @@ const Sessions:React.FC = () => {
   );
   const [searchQuery, setSearchQuery] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
-
+  const [showRatingModal, setShowRatingModal] = useState(false);
+  const [selectedSession, setSelectedSession] = useState<ISession | null>(null);
   const [sessions, setSessions] = useState<ISession[] | []>([]);
   const sessionsPerPage = 5;
   const role = useSelector((state: RootState) => state.menter.mentorRole);
@@ -61,11 +63,11 @@ const Sessions:React.FC = () => {
     return (activeTab === "upcoming" ? isUpcoming : isHistory) && matchesSearch;
   });
 
-  const handleReclaimRequest = (sessionId: string, val: string) => {
-    const value = val === "APPROVE" ? "CANCELLED" : "CANCEL_REJECTED";
+  const handleReclaimRequest = useCallback((sessionId: string, val: string) => {
+    const value = val === "APPROVE" ? "CANCELLED" : "REJECTED";
     try {
       const handleRequest = async (sessionId: string, value: string) => {
-        const response = await fetchCanceSessionResponse(sessionId,value)
+        const response = await fetchCanceSessionResponse(sessionId, value)
         toast.dismiss();
         if (response?.status == 200 && response?.data?.success) {
           toast.success(response?.data?.message);
@@ -77,7 +79,7 @@ const Sessions:React.FC = () => {
                   : session
               )
               .filter((session) =>
-                value !== "CANCEL_REJECTED" ? true : session?._id !== sessionId
+                value !== "REJECTED" ? true : session?._id !== sessionId
               )
           );
         }
@@ -102,14 +104,14 @@ const Sessions:React.FC = () => {
       console.log(error);
       errorHandler(error);
     }
-  };
+  }, [sessions]);
 
   const totalPages = Math.ceil(filteredSessions.length / sessionsPerPage);
   const paginatedSessions = filteredSessions.slice(
     (currentPage - 1) * sessionsPerPage,
     currentPage * sessionsPerPage
   );
-  console.log (paginatedSessions,'paginated sessinos',sessions)
+  
   const crerateSessionCode = useCallback(async (_id: string) => {
     const resp = await createSessionCodeApi(_id);
 
@@ -124,12 +126,13 @@ const Sessions:React.FC = () => {
       toast.success("successfully created SessionCode ✔️");
     }
   }, []);
-  const handleCompletedSession = useCallback(async(bookingId:string)=>{
+
+  const handleCompletedSession = useCallback(async (bookingId: string) => {
     toast(
       <ConfirmToast
         message="make as session completed"
         description="This is final confirmation to change?"
-        onReply={() => {handleRequest(bookingId);toast.dismiss()}}
+        onReply={() => { handleRequest(bookingId); toast.dismiss() }}
         onIgnore={() => toast.dismiss()}
         ariaLabel=" status confirmation"
       />,
@@ -139,28 +142,50 @@ const Sessions:React.FC = () => {
         autoClose: false,
       }
     );
-   const  handleRequest= async (bookingId:string)=>{
-     const response = await markAsSessionCompleted(bookingId);
-     if(response?.status ==200 && response?.data.success){
-       toast.success(response?.data?.message);
-       setSessions((pre)=>pre.map((sess)=>sess._id===bookingId?{...sess,status:"COMPLETED"}:sess))
-     }
+
+    const handleRequest = async (bookingId: string) => {
+      const response = await markAsSessionCompleted(bookingId);
+      if (response?.status == 200 && response?.data.success) {
+        toast.success(response?.data?.message);
+        setSessions((pre) => pre.map((sess) => sess._id === bookingId ? { ...sess, status: "COMPLETED" } : sess))
+      }
 
     }
-  },[])
-    const handleSessionJoin = useCallback(
-      async (sessionId: string, sessionCode: string, role: string) => {
-        console.log(sessionId,sessionCode,role)
-        const response = await joinSessionHandler(sessionId, sessionCode, role);
-        if (response?.status == 200 && response?.data?.success) {
+  }, []);
 
-          navigate(
-            `/${role}/${role == "mentor" ? "session" : "bookings"}/${response?.session_Code}`
-          );
-        }
-      },
-      [navigate]
-    );
+  const handleSessionJoin = useCallback(
+    async (sessionId: string, session_Code: string, role: string) => {
+      console.log(sessionId, session_Code, role)
+      const response = await joinSessionHandler(sessionId, session_Code, role);
+      if (response?.status == 200 && response?.data?.success) {
+        console.log(response?.session_Code, 'sessionCode')
+        navigate(
+          `/${role}/${role == "mentor" ? "session" : "bookings"}/${response?.data?.session_Code}`
+        );
+      }
+    },
+    [navigate]
+  );
+
+  const handleRating = useCallback((session: ISession) => {
+    setSelectedSession(session);
+    setShowRatingModal(true);
+  }, []);
+
+  const handleSubmitRating = useCallback(async (rating: number, review: string,) => {
+    const resposne = await fetchSubmitRating( review, selectedSession!, role,rating,);
+    if (resposne?.data.success && resposne?.status == 200) {
+      setSessions(
+        sessions.map((session) =>
+          session?._id === selectedSession?._id
+            ? { ...session, rating, review }
+            : session
+        )
+      );
+
+    }
+  }, [role, selectedSession, sessions]);
+
   return (
     <div>
       <div className=" mt-12 ">
@@ -191,15 +216,15 @@ const Sessions:React.FC = () => {
       <div className="space-y-4">
         {paginatedSessions.map((session) => (
           <SessionCard
-          handleSessionJoin={handleSessionJoin}
+            handleSessionJoin={handleSessionJoin}
             handleCreateSessionCode={crerateSessionCode}
-            // handleRating={handleRating}
+            handleRating={handleRating}
             key={session?._id}
             session={session}
             role={role}
             handleCompletedSession={handleCompletedSession}
             handleReclaimRequest={handleReclaimRequest}
-          
+
           />
         ))}
       </div>
@@ -212,11 +237,10 @@ const Sessions:React.FC = () => {
               <button
                 key={page}
                 onClick={() => setCurrentPage(page)}
-                className={`w-10 h-10 rounded-lg font-medium ${
-                  currentPage === page
+                className={`w-10 h-10 rounded-lg font-medium ${currentPage === page
                     ? "bg-[#ff8800] text-white"
                     : "text-gray-600 hover:bg-gray-100"
-                }`}
+                  }`}
               >
                 {page}
               </button>
@@ -237,6 +261,13 @@ const Sessions:React.FC = () => {
           </p>
         </div>
       )}
+      <RatingModal
+        isOpen={showRatingModal}
+        onClose={() => setShowRatingModal(false)}
+        onSubmit={handleSubmitRating}
+        session={selectedSession!}
+        role={role}
+      />
     </div>
   );
 };

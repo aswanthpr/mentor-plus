@@ -26,16 +26,21 @@ const slotScheduleRepository_1 = __importDefault(require("../Repository/slotSche
 const notificationRepository_1 = __importDefault(require("../Repository/notificationRepository"));
 const walletRepository_1 = __importDefault(require("../Repository/walletRepository"));
 const transactionRepository_1 = __importDefault(require("../Repository/transactionRepository"));
+const reviewController_1 = require("../Controller/reviewController");
+const reviewRepository_1 = __importDefault(require("../Repository/reviewRepository"));
+const reviewService_1 = require("../Service/reviewService");
 const __mentorService = new mentorService_1.mentorService(mentorRepository_1.default, categoryRepository_1.default, questionRepository_1.default, timeSlotRepository_1.default);
-const __mentorController = new mentorController_1.mentorController(__mentorService);
-const __qaService = new qaService_1.default(questionRepository_1.default, answerRepository_1.default, notificationRepository_1.default);
-const __qaController = new qaController_1.default(__qaService);
-const __bookingService = new bookingService_1.bookingService(timeSlotRepository_1.default, slotScheduleRepository_1.default, notificationRepository_1.default, chatRepository_1.default, walletRepository_1.default, transactionRepository_1.default);
-const __bookingController = new bookingController_1.bookingControlelr(__bookingService);
-const __notificationService = new notificationService_1.notificationService(notificationRepository_1.default);
-const __notificationController = new notificationController_1.notificationController(__notificationService);
 const __chatService = new chatService_1.default(chatRepository_1.default);
+const __qaService = new qaService_1.default(questionRepository_1.default, answerRepository_1.default, notificationRepository_1.default);
+const __bookingService = new bookingService_1.bookingService(timeSlotRepository_1.default, slotScheduleRepository_1.default, notificationRepository_1.default, chatRepository_1.default, walletRepository_1.default, transactionRepository_1.default);
+const __notificationService = new notificationService_1.notificationService(notificationRepository_1.default);
+const __reviewService = new reviewService_1.reviewService(reviewRepository_1.default, notificationRepository_1.default);
+const __mentorController = new mentorController_1.mentorController(__mentorService);
+const __qaController = new qaController_1.default(__qaService);
+const __bookingController = new bookingController_1.bookingControlelr(__bookingService);
+const __notificationController = new notificationController_1.notificationController(__notificationService);
 const __chatController = new chatController_1.chatController(__chatService);
+const __reviewController = new reviewController_1.reviewController(__reviewService);
 const mentor_Router = express_1.default.Router();
 mentor_Router.post(`/logout`, __mentorController.mentorLogout.bind(__mentorController));
 //profile
@@ -62,4 +67,5 @@ mentor_Router.patch(`/notification-read/:notificationId`, mentorAuthorization_1.
 mentor_Router.get(`/chats`, mentorAuthorization_1.default, __chatController.getChats.bind(__chatController));
 mentor_Router.get("/messages", mentorAuthorization_1.default, __chatController.getUserMessage.bind(__chatController));
 mentor_Router.post("/session/validate-session-join", mentorAuthorization_1.default, __bookingController.validateSessionJoin.bind(__bookingController));
+mentor_Router.post("/review-and-rating", mentorAuthorization_1.default, __reviewController.reviewNdRateMentor.bind(__reviewController));
 exports.default = mentor_Router;

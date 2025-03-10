@@ -81,7 +81,7 @@ class walletService {
                 if (!signature || !bodyData) {
                     throw new Error("Missing signature or body data in webhook request.");
                 }
-                console.log(signature, bodyData, 'singature and bodydata');
+                console.log(signature, bodyData, "singature and bodydata");
                 // eslint-disable-next-line @typescript-eslint/no-explicit-any
                 let event;
                 try {
@@ -142,23 +142,23 @@ class walletService {
         });
     }
     //fetch wallet data ;
-    getWalletData(role, userId) {
+    getWalletData(userId) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                if (!role || !userId) {
+                if (!userId) {
                     return {
                         message: "credential not found",
                         status: httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.BadRequest,
                         success: false,
-                        walletData: null
+                        walletData: null,
                     };
                 }
-                const result = yield this.__walletRepository.findWalletWithTransaction(userId, role);
+                const result = yield this.__walletRepository.findWalletWithTransaction(userId);
                 return {
                     message: "successfully receive data",
                     status: httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.Ok,
                     success: true,
-                    walletData: result
+                    walletData: result,
                 };
             }
             catch (error) {

@@ -24,6 +24,9 @@ import { walletService } from "../Service/walletService";
 import transactionRepository from "../Repository/transactionRepository";
 import { walletController } from "../Controller/walletController";
 import walletRepository from "../Repository/walletRepository";
+import { reviewController } from "../Controller/reviewController";
+import reviewRepository from "../Repository/reviewRepository";
+import { reviewService } from "../Service/reviewService";
 
 const __menteeService = new menteeService(
   menteeRepository,
@@ -44,15 +47,19 @@ const __bookingService = new bookingService(
   walletRepository,
   transactionRepository
 );
-
 const __notificationService = new notificationService(notificationRepository);
-
 const __chatService = new chatService(chatRepository);
 const __walletService = new walletService(
   walletRepository,
   transactionRepository,
   notificationRepository
 );
+const __reviewService = new reviewService(
+  reviewRepository,
+  notificationRepository,
+)
+
+
 const __menteeController = new menteeController(__menteeService);
 const __qaController = new qaController(__qaService);
 const __bookingController = new bookingControlelr(__bookingService);
@@ -61,6 +68,8 @@ const __notificationController = new notificationController(
 );
 const __chatController = new chatController(__chatService);
 const __walletController = new walletController(__walletService);
+const __reviewController = new reviewController(__reviewService);
+
 
 const mentee_Router: Router = express.Router();
 
@@ -218,5 +227,6 @@ mentee_Router.post(
   __walletController.addMoneyToWallet.bind(__walletController)
 );
 
-mentee_Router.post("/wallet/webhook", express.raw({ type: "application/json" }),__walletController.walletStripeWebHook.bind(__walletController));
+mentee_Router.post("/wallet/webhook", express.raw({ type: "application/json" }),authorize,__walletController.walletStripeWebHook.bind(__walletController));
+mentee_Router.post("/review-and-rating", authorize,__reviewController.reviewNdRateMentor.bind(__reviewController));
 export default mentee_Router;

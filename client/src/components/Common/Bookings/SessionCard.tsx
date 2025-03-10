@@ -18,9 +18,10 @@ interface SessionCardProps {
     customReason: string
   ) => void;
   handleCompletedSession?(sessionId: string): void;
-  handleRating?: (sessionId: string) => void;
+  handleRating: (session:ISession) => void;
   handleSessionJoin(sessionId:string,sessionCode:string,role:string):void
 }
+
 const issues = [
   "health Issues",
   "personal Issue",
@@ -40,7 +41,8 @@ const SessionCard: React.FC<SessionCardProps> = ({
   handleReclaimRequest,
   role,
   handleCompletedSession,
-  handleSessionJoin
+  handleSessionJoin,
+  handleRating
 }) => {
 
 
@@ -100,17 +102,20 @@ const SessionCard: React.FC<SessionCardProps> = ({
     <div className="bg-white p-4 rounded-lg shadow-sm border border-gray-200 hover:shadow-md transition-shadow mt-2">
       
       <div className="flex items-start justify-between">
+        {/* image */}
         <div className="flex items-center gap-4">
           <img
             src={session?.user?.profileUrl}
             alt={session.user?.name}
             className="w-12 h-12 rounded-full"
           />
+          {/* description */}
           <div>
             <h3 className="font-medium text-gray-900">{session?.user?.name}</h3>
             <span onClick={()=>setDesptnOpn(true)} className="text-sm text-gray-500 cursor-pointer hover:underline">{session?.description.length>20?session.description.slice(0,20)+".....":session?.description}</span>
           </div>
         </div>
+        {/* mark session complete */}
         <div className="flex space-x-3 flex-row">
           {role == "mentor" && session?.sessionCode && session?.status!=="COMPLETED" && (
             <Tooltip title="Mark session as completed">
@@ -124,32 +129,20 @@ const SessionCard: React.FC<SessionCardProps> = ({
               </span>
             </Tooltip>
           )}
+          {/* sessionCode generate */}
           {role === "mentor" &&
-          session?.status === "CONFIRMED"  &&
+          (session?.status === "CONFIRMED" ||session?.status === "REJECTED") &&
           moment().diff(moment(session?.slotDetails?.startDate), "minutes") <=
             1440 &&
-          !session?.sessionCode ? (
+          !session?.sessionCode && (
             <Button
               onClick={() => handleCreateSessionCode!(session?._id)}
               children={"session code"}
               className="bg-[#afaba6] text-white text-sm font-normal rounded-full p-1"
               variant="secondary"
             />
-          ) : (
-            session?.status === "CONFIRMED" ?(
-
-            <Tooltip title="copy session code">
-              <span
-                className=" mr-3 text-sm cursor-pointer text-blue-600 hover:underline"
-                onClick={() => {
-                  navigator.clipboard.writeText(session?.sessionCode as string);
-                  toast.success("Session code copied to clipboard!");
-                }}
-              >
-              </span>
-            </Tooltip>
-            ):("")
-          )}
+          ) 
+          }
 
           <span
             className={`px-3 py-1 pt-2 rounded-full text-sm font-medium  items-center ${
@@ -229,24 +222,19 @@ const SessionCard: React.FC<SessionCardProps> = ({
               />
             </div>
           )}
-          {/* {session.status === 'completed' && !session?.rating && (
+          {session.status === 'COMPLETED' && (
           <button
-            onClick={() => handleRating(session?._id)}
+            onClick={()=>handleRating(session)}
             className="text-[#ff8800] hover:text-[#ff9900] text-sm font-medium"
           >
-            Rate Session
+            {role=="mentee"?"Rate session":"Feedback"}
           </button>
-        )} */}
-          {/* {session.rating && (
-          <div className="flex items-center gap-1">
-            <Star className="h-4 w-4 text-yellow-400 fill-current" />
-            <span className="text-sm text-gray-600">{session.rating}/5</span>
-          </div>
-        )} */}
+        )}
+          
         </div>
       </div>
 
-      {/* {session.review && (
+      {/* {session && (
       <div className="mt-4 text-sm text-gray-600 border-t pt-4">
         <p className="italic">"{session.review}"</p>
       </div>

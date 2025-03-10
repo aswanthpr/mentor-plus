@@ -44,8 +44,7 @@ class walletController {
     getWalletData(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const { role } = req.query;
-                const { status, message, walletData, success } = yield this.__walletService.getWalletData(role, req.user);
+                const { status, message, walletData, success } = yield this.__walletService.getWalletData(req.user);
                 res.status(status).json({ message, success, walletData });
             }
             catch (error) {

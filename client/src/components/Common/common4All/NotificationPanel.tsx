@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useRef } from "react";
 import { Bell, X } from "lucide-react";
 // import Button from "../../auth/Button";
 import NotificationItems from "./NotificationItem";
@@ -7,21 +7,43 @@ interface INotificationPanel {
   isOpen: boolean;
   onClose: () => void;
   onReadNotification: (id: string) => void;
-  notification:Inotification[]
+  notification: Inotification[];
 }
 
 const NotificationPanel: React.FC<INotificationPanel> = ({
   isOpen,
   onClose,
   onReadNotification,
-  notification
+  notification,
 }) => {
- 
+  const panelRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        panelRef.current &&
+        !panelRef.current.contains(event.target as Node)
+      ) {
+        onClose();
+      }
+    };
+
+    if (isOpen) {
+      document.addEventListener("mousedown", handleClickOutside);
+    }
+
+    // Cleanup the event listener
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [isOpen, onClose]);
   if (!isOpen) return null;
   const unreadCount = notification?.filter((n) => !n.isRead).length;
 
   return (
-    <div className="absolute right-0 mt-2 w-80 sm:w-96 bg-white rounded-lg shadow-lg border border-gray-200 z-50">
+    <div
+      ref={panelRef}
+      className="absolute right-0 mt-2 w-80 sm:w-96 bg-white rounded-lg shadow-lg border border-gray-200 z-50  max-h-96 flex flex-col"
+    >
       <div className="p-4 border-b border-gray-200">
         <div className="flex items-center justify-between ">
           <div className="flex items-center gap-2 ">
@@ -39,7 +61,6 @@ const NotificationPanel: React.FC<INotificationPanel> = ({
             aria-label="Close notifications panel"
           >
             <X className="h-5 w-5" />
-           
           </button>
         </div>
       </div>
@@ -60,9 +81,12 @@ const NotificationPanel: React.FC<INotificationPanel> = ({
       </div>
       {notification.length > 0 && (
         <div className="p-4 border-t border-gray-200">
-          <button disabled className=" w-full text-center text-sm text-[#ff8800] hover:text-[#ff9900] font-bold">
-          View all Notification
-             </button>
+          <button
+            disabled
+            className=" w-full text-center text-sm text-[#ff8800] hover:text-[#ff9900] font-bold"
+          >
+            View all Notification
+          </button>
         </div>
       )}
     </div>

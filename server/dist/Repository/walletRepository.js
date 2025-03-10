@@ -51,7 +51,7 @@ class walletRepository extends baseRepo_1.baseRepository {
             }
         });
     }
-    findWalletWithTransaction(userId, role) {
+    findWalletWithTransaction(userId) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 const resp = yield this.aggregateData(walletModel_1.default, [

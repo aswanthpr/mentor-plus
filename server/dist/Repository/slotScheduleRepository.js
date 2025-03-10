@@ -165,7 +165,7 @@ class slotScheduleRepository extends baseRepo_1.baseRepository {
                             "CONFIRMED",
                             "PENDING",
                             "CANCEL_REQUESTED",
-                            "CANCEL_REJECTED",
+                            "REJECTED",
                         ],
                     };
                 }

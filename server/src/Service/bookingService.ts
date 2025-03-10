@@ -627,6 +627,9 @@ export class bookingService implements IbookingService {
           result: null,
         };
       }
+      let title:string = "";
+      let message:string = "";
+      let url:string =""
       if(statusValue==="CANCELLED"){
 
         const addToWallet = await this.__walletRepository.updateWalletAmount(
@@ -652,19 +655,26 @@ export class bookingService implements IbookingService {
         };
   
         await this.__transactionRepository.createTransaction(newTranasaction);
-        const notif = await this._notificationRepository.createNotification(
-          response?.menteeId,
-          `cancel amount $${response?.paymentAmount} refunded`,
-          "amount credited to your wallet successfully",
-          "mentee",
-          `${process.env.CLIENT_ORIGIN_URL}/mentee/wallet`
-        );
-  
-        if (notif) {
-          socketManager.sendNotification(String(response?.menteeId), notif);
-        };
+        title = `cancel amount $${response?.paymentAmount} refunded`;
+        message = "session cancel approved,amount credited to your wallet";
+        url =`${process.env.CLIENT_ORIGIN_URL}/mentee/wallet`;
+      }else{
+        title = `cancel request rejected`;
+        message ="session cancel rejected,attend the session on time";
+        url =`${process.env.CLIENT_ORIGIN_URL}/mentee/bookings`;
       }
+      
+      const notif = await this._notificationRepository.createNotification(
+        response?.menteeId,
+        title,
+        message,
+        "mentee",
+        url
+      );
 
+      if (notif) {
+        socketManager.sendNotification(String(response?.menteeId), notif);
+      };
       return {
         success: true,
         message: `${statusValue=="CANCELLED"?"cancel approved":"cancel rejected"} successfully`,

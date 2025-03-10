@@ -18,7 +18,7 @@ export declare class walletService implements IwalletService {
         session?: Stripe.Response<Stripe.Checkout.Session>;
     } | undefined>;
     walletStripeWebHook(signature: string | Buffer, bodyData: Buffer): Promise<void>;
-    getWalletData(role: string, userId: ObjectId): Promise<{
+    getWalletData(userId: ObjectId): Promise<{
         message: string;
         status: number;
         success: boolean;

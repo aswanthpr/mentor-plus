@@ -38,9 +38,8 @@ async walletStripeWebHook(req: Request, res: Response): Promise<void> {
 //fetch wallet data
 async getWalletData(req: Request, res: Response): Promise<void> {
   try {
-    const {role} = req.query;
     
-    const {status,message,walletData,success} = await this.__walletService.getWalletData(role as string,req.user as Express.User as ObjectId);
+    const {status,message,walletData,success} = await this.__walletService.getWalletData(req.user as Express.User as ObjectId);
     res.status(status).json({message,success,walletData});
   } catch (error:unknown){
     throw new Error(

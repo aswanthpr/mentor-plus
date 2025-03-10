@@ -1,1 +1,1 @@
-{"version":3,"file":"menteeRoute.d.ts","sourceRoot":"","sources":["../../src/Routes/menteeRoute.ts"],"names":[],"mappings":"AAAA,OAAgB,EAAE,MAAM,EAAE,MAAM,SAAS,CAAC;AAgE1C,QAAA,MAAM,aAAa,EAAE,MAAyB,CAAC;AA6J/C,eAAe,aAAa,CAAC"}
+{"version":3,"file":"menteeRoute.d.ts","sourceRoot":"","sources":["../../src/Routes/menteeRoute.ts"],"names":[],"mappings":"AAAA,OAAgB,EAAE,MAAM,EAAE,MAAM,SAAS,CAAC;AAyE1C,QAAA,MAAM,aAAa,EAAE,MAAyB,CAAC;AA8J/C,eAAe,aAAa,CAAC"}

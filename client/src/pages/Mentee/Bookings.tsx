@@ -1,8 +1,6 @@
 import React, { useCallback, useEffect, useState } from "react";
-// import RatingModal from '../../components/Common/Bookings/RatingModal'
-import { Search, User } from "lucide-react";
+import { ArrowUpDown, Filter, Search, User } from "lucide-react";
 import SessionCard from "../../components/Common/Bookings/SessionCard";
-// import { Pagination } from '../../components/Common/common4All/Pagination';
 import TabNavigation from "../../components/Common/Bookings/TabNavigation";
 import InputField from "../../components/Auth/InputField";
 import { errorHandler } from "../../Utils/Reusable/Reusable";
@@ -11,8 +9,10 @@ import Spinner from "../../components/Common/common4All/Spinner";
 import { toast } from "react-toastify";
 import { useSelector } from "react-redux";
 import { RootState } from "../../Redux/store";
-import { fetchCanceSession, joinSessionHandler } from "../../service/api";
+import { fetchCanceSession, fetchSubmitRating, joinSessionHandler } from "../../service/api";
 import { useNavigate } from "react-router-dom";
+import { TFilter, TSort, TSortOrder } from "../../Types/type";
+import RatingModal from "../../components/Common/Bookings/RatingModal";
 
 const Boooking: React.FC = () => {
   const navigate = useNavigate();
@@ -22,16 +22,17 @@ const Boooking: React.FC = () => {
   );
   const [searchQuery, setSearchQuery] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
-  // const [showRatingModal, setShowRatingModal] = useState(false);
-  // const [selectedSession, setSelectedSession] = useState<string>('');
+  const [showRatingModal, setShowRatingModal] = useState(false);
+  const [selectedSession, setSelectedSession] = useState<ISession|null>(null);
   const [sessions, setSessions] = useState<ISession[] | []>([]);
   const sessionsPerPage = 5;
 
   const role = useSelector((state: RootState) => state?.mentee.role);
 
-  // const [sortField, setSortField] = useState<TSort>("createdAt");
-  //   const [sortOrder, setSortOrder] = useState<TSortOrder>("desc");
-  //   const [statusFilter, setStatusFilter] = useState<TFilter>("all");
+  const [sortField, setSortField] = useState<TSort>("createdAt");
+  const [sortOrder, setSortOrder] = useState<TSortOrder>("desc");
+  const [statusFilter, setStatusFilter] = useState<TFilter>("all");
+
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -53,7 +54,7 @@ const Boooking: React.FC = () => {
     fetchData();
   }, [activeTab]);
 
-  const handleCancelSession = async (
+  const handleCancelSession = useCallback(async (
     sessionId: string,
     reason: string,
     customReason: string
@@ -74,20 +75,26 @@ const Boooking: React.FC = () => {
     } catch (error: unknown) {
       errorHandler(error);
     }
-  };
+  },[sessions]);
 
-  // const handleRating = (sessionId: string) => {
-  //     setSelectedSession(sessionId);
-  //     setShowRatingModal(true);
-  // };
+  const handleRating = useCallback((session: ISession) => {
+    setSelectedSession(session);
+    setShowRatingModal(true);
+  },[]);
 
-  // const handleSubmitRating = (rating: number, review: string) => {
-  //     setSessions(sessions.map(session =>
-  //         session?._id === selectedSession
-  //             ? { ...session, rating, review }
-  //             : session
-  //     ));
-  // };
+  const handleSubmitRating = useCallback(async (rating: number, review: string) => {
+const resposne = await fetchSubmitRating(review,selectedSession!,role,rating=0,);
+if(resposne?.data.success && resposne?.status == 200){
+  toast.success(resposne?.data?.message);
+  setSessions(
+    sessions.map((session) =>
+      session?._id === selectedSession?._id
+        ? { ...session, rating, review }
+        : session
+    )
+  );
+}
+  },[role, selectedSession, sessions]);
 
   const filteredSessions = sessions.filter((session) => {
     const isUpcoming =
@@ -117,7 +124,7 @@ const Boooking: React.FC = () => {
       if (response?.status == 200 && response?.data?.success) {
         navigate(
           `/${role}/${role == "mentor" ? "session" : "bookings"}/${
-            response?.session_Code
+            response?.data?.session_Code
           }`
         );
       }
@@ -140,16 +147,6 @@ const Boooking: React.FC = () => {
       <div className="bg-white p-6 rounded-lg shadow-sm">
         {loading && <Spinner />}
         <div className="mb-6 flex">
-          {/* <div className="relative ">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5 " />
-            <input
-              type="search"
-              placeholder="Search by mentor or topic..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#ff8800] focus:border-transparent "
-            />
-          </div> */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
             {/* Search */}
             <div className="relative">
@@ -167,39 +164,39 @@ const Boooking: React.FC = () => {
             </div>
 
             {/* Filter */}
-            {/* <div className="flex items-center gap-2">
-            <Filter size={20} className="text-gray-400" />
-            <select
-              value={statusFilter}
-              onChange={(e: React.ChangeEvent<HTMLSelectElement>) =>
-                setStatusFilter(e.target.value as TFilter)
-              }
-              className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-orange-200 border-orange-500"
-            >
-              <option value="all">All Status</option>
-              <option value="active">Active</option>
-              <option value="blocked">Blocked</option>
-            </select>
-          </div>
+            <div className="flex items-center gap-2">
+              <Filter size={20} className="text-gray-400" />
+              <select
+                value={statusFilter}
+                onChange={(e: React.ChangeEvent<HTMLSelectElement>) =>
+                  setStatusFilter(e.target.value as TFilter)
+                }
+                className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-orange-200 border-orange-500"
+              >
+                <option value="all">All Status</option>
+                <option value="active">Active</option>
+                <option value="blocked">Blocked</option>
+              </select>
+            </div>
 
-          {/* Sort */}
-            {/* <div className="flex items-center gap-2">
-            <ArrowUpDown size={20} className="text-gray-400" />
-            <select
-              value={`${sortField}-${sortOrder}`}
-              onChange={(e) => {
-                const [field, order] = e.target.value.split("-");
-                setSortField(field as TSort);
-                setSortOrder(order as TSortOrder);
-              }}
-              className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-orange-200 border-orange-500"
-            >
-              <option value="createdAt-desc">Newest First</option>
-              <option value="createdAt-asc">Oldest First</option>
-              <option value="answers-1">Answered</option>
-              <option value="answers-0">UnAnswered</option>
-            </select>
-          </div>  */}
+            {/* Sort */}
+            <div className="flex items-center gap-2">
+              <ArrowUpDown size={20} className="text-gray-400" />
+              <select
+                value={`${sortField}-${sortOrder}`}
+                onChange={(e) => {
+                  const [field, order] = e.target.value.split("-");
+                  setSortField(field as TSort);
+                  setSortOrder(order as TSortOrder);
+                }}
+                className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-orange-200 border-orange-500"
+              >
+                <option value="createdAt-desc">Newest First</option>
+                <option value="createdAt-asc">Oldest First</option>
+                <option value="answers-1">Answered</option>
+                <option value="answers-0">UnAnswered</option>
+              </select>
+            </div>
           </div>
         </div>
 
@@ -210,7 +207,7 @@ const Boooking: React.FC = () => {
               <SessionCard
                 handleSessionJoin={handleSessionJoin}
                 handleCancelSession={handleCancelSession}
-                // handleRating={handleRating}
+                handleRating={handleRating}
                 key={session?._id}
                 session={session}
                 role={role}
@@ -256,16 +253,13 @@ const Boooking: React.FC = () => {
           </div>
         )}
       </div>
-      {/* <RatingModal
-                isOpen={showRatingModal}
-                onClose={() => setShowRatingModal(false)}
-                // onSubmit={handleSubmitRating}
-                sessionId={selectedSession}
-            /> */}
-      {/* <Pagination
-            currentPage={1}
-            onPageChange={}
-            totalPages={10}/> */}
+
+      <RatingModal
+        isOpen={showRatingModal}
+        onClose={() => setShowRatingModal(false)}
+        onSubmit={handleSubmitRating}
+        session={selectedSession as ISession}
+      />
     </div>
   );
 };

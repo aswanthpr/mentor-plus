@@ -48,7 +48,7 @@ class walletRepository
 
   async findWalletWithTransaction(
     userId: ObjectId,
-    role: string
+    
   ): Promise<Iwallet | null> {
     try {
       const resp = await this.aggregateData(walletSchema, [

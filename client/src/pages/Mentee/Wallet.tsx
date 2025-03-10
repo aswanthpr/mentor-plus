@@ -1,28 +1,24 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { Wallet } from "lucide-react";
+
 import WalletCard from "../../components/Common/wallet/WalletCard";
 import AddMoneyModal from "../../components/Common/wallet/AddMoneyModal";
-
 import TransactionList from "../../components/Common/wallet/TransactionList";
 import TransactionFilters from "../../components/Common/wallet/TransactionFilter";
 import { Pagination } from "../../components/Common/common4All/Pagination";
-
 import { fetchAddMoney, fetchWalletData } from "../../service/api";
-
 
 const WalletPage: React.FC = () => {
   const itemsPerPage = 8;
   const [walletData, setWalletData] = useState<Iwallet>({
-    _id:"",
-    userId:"",
-    balance:"",
-    transaction:[]
+    _id: "",
+    userId: "",
+    balance: "",
+    transaction: [],
   });
   const [showAddMoney, setShowAddMoney] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
-  // const [transactions, setTransactions] =
-  //   useState<Itransaction[]|[]>(walletData?.transactions??[]);
   const [typeFilter, setTypeFilter] = useState<
     "all" | "deposit" | "withdrawal" | "earning"
   >("all");
@@ -35,25 +31,26 @@ const WalletPage: React.FC = () => {
         setWalletData(response?.data?.walletData);
       }
     };
+
     if (flag) {
       wallet_Data();
     }
+
     return () => {
       flag = false;
     };
   }, []);
 
-  const handleAddMoney = async (amount: number) => {
+  const handleAddMoney = useCallback(async (amount: number) => {
     const response = await fetchAddMoney(amount);
     if (response?.status && response?.data?.success) {
       if (response?.data.session?.url) {
         window.location.href = response?.data.session?.url;
       }
-//set socket io here
+      //set socket io here
       // setTransactions([newTransaction, ...transactions]);
     }
-  };
-
+  }, []);
 
   // const filteredTransactions = walletData?.transactions.filter((transaction) => {
   //   const matchesSearch =

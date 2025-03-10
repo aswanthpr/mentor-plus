@@ -19,6 +19,7 @@ export class SocketManager {
     this.setupChat(); 
     this.setupNotifications();
     this.setupWebRTC();
+ 
   }
 //Notification============================================================
 
@@ -227,4 +228,6 @@ export class SocketManager {
       });
     });
   }
+
+
 }

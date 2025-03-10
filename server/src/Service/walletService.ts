@@ -8,7 +8,6 @@ import { Iwallet } from "../Model/walletModel";
 import { InotificationRepository } from "../Interface/Notification/InotificationRepository";
 import { socketManager } from "../index";
 
-
 export class walletService implements IwalletService {
   constructor(
     private readonly __walletRepository: IwalletRepository,
@@ -90,7 +89,7 @@ export class walletService implements IwalletService {
       if (!signature || !bodyData) {
         throw new Error("Missing signature or body data in webhook request.");
       }
-      console.log(signature,bodyData,'singature and bodydata')
+      console.log(signature, bodyData, "singature and bodydata");
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       let event: any;
       try {
@@ -117,7 +116,6 @@ export class walletService implements IwalletService {
             return;
           }
           const { amount, userId } = metaData;
-          
 
           if (!mongoose.Types.ObjectId.isValid(userId)) {
             console.error("Invalid menteeId format:", userId);
@@ -130,46 +128,46 @@ export class walletService implements IwalletService {
           const response = (await this.__walletRepository.findWallet(
             menteeId as ObjectId
           )) as Iwallet;
-          
-          let newWallet:Iwallet | null=null;
+
+          let newWallet: Iwallet | null = null;
           if (!response) {
             newWallet = await this.__walletRepository.createWallet({
               userId: menteeId,
               balance: 0,
             } as Iwallet);
-          }else{
-            await this.__walletRepository.updateWalletAmount(menteeId,Number(amount));
-          }
-         
-            const newTranasaction = {
-              amount: Number(amount),
-              walletId: (response
-                ? response?.["_id"]
-                : newWallet?._id) as ObjectId,
-              transactionType: "deposit",
-              status: "completed",
-              note: "wallet top-up",
-            };
-             await this.__transactionRepository.createTransaction(
-              newTranasaction
+          } else {
+            await this.__walletRepository.updateWalletAmount(
+              menteeId,
+              Number(amount)
             );
+          }
 
-            const notification =
-              await this.__notificationRepository.createNotification(
-                menteeId,
-                "money added to wallet",
-                "wallet balance added successfully!",
-                "mentee",
-                `${process.env.CLIENT_ORIGIN_URL}/mentee/wallet`
-              );
-              //real time notification
-            if (menteeId && notification) {
-              socketManager.sendNotification(userId as string, notification);
-            }
-        
+          const newTranasaction = {
+            amount: Number(amount),
+            walletId: (response
+              ? response?.["_id"]
+              : newWallet?._id) as ObjectId,
+            transactionType: "deposit",
+            status: "completed",
+            note: "wallet top-up",
+          };
+          await this.__transactionRepository.createTransaction(newTranasaction);
+
+          const notification =
+            await this.__notificationRepository.createNotification(
+              menteeId,
+              "money added to wallet",
+              "wallet balance added successfully!",
+              "mentee",
+              `${process.env.CLIENT_ORIGIN_URL}/mentee/wallet`
+            );
+          //real time notification
+          if (menteeId && notification) {
+            socketManager.sendNotification(userId as string, notification);
+          }
         }
       }
-      return ;
+      return;
     } catch (error: unknown) {
       throw new Error(
         `${
@@ -179,25 +177,34 @@ export class walletService implements IwalletService {
     }
   }
   //fetch wallet data ;
-  async getWalletData(role: string, userId: ObjectId): Promise<{ message: string; status: number; success: boolean; walletData: Iwallet | null; }> {
+  async getWalletData(
+    userId: ObjectId
+  ): Promise<{
+    message: string;
+    status: number;
+    success: boolean;
+    walletData: Iwallet | null;
+  }> {
     try {
-      if(!role||!userId){
-        return{
-          message:"credential not found",
-          status:Status?.BadRequest,
-          success:false,
-          walletData:null
-        }
+      if (!userId) {
+        return {
+          message: "credential not found",
+          status: Status?.BadRequest,
+          success: false,
+          walletData: null,
+        };
       }
 
-      const result = await this.__walletRepository.findWalletWithTransaction(userId,role);
+      const result = await this.__walletRepository.findWalletWithTransaction(
+        userId
+      );
       return {
-        message:"successfully receive data",
-        status:Status?.Ok,
-          success:true,
-          walletData:result
-      }
-    } catch (error:unknown) {
+        message: "successfully receive data",
+        status: Status?.Ok,
+        success: true,
+        walletData: result,
+      };
+    } catch (error: unknown) {
       throw new Error(
         `${
           error instanceof Error ? error.message : String(error)

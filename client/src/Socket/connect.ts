@@ -1,6 +1,6 @@
+import { addNewNotification } from "../Redux/notificationSlice";
 import { io, Socket } from "socket.io-client";
 import { store } from "../Redux/store";
-import { addNewNotification } from "../Redux/notificationSlice";
 import { Tuser } from "../Types/type";
 
 let notificationSocket: Socket | null = null;
@@ -9,8 +9,8 @@ let chatSocket: Socket | null = null;
 
 // connect to Notifications namespace
 export const connectToNotifications = (userId: string, userType: Tuser) => {
-  if (!userId)return;
-  
+  if (!userId) return;
+
   if (!notificationSocket) {
     notificationSocket = io(
       `${import.meta.env?.VITE_SERVER_URL}/notifications`,
@@ -24,7 +24,7 @@ export const connectToNotifications = (userId: string, userType: Tuser) => {
 
     notificationSocket.on("connect", () => {
       console.log("socket connected  ", notificationSocket?.id);
-      //joining room
+      //joining roomreceive-notification
       notificationSocket!.emit("join-room", userId);
     });
     //handle incoming notification
@@ -38,7 +38,7 @@ export const connectToNotifications = (userId: string, userType: Tuser) => {
       console.log("Socket disconnected");
     });
   }
-  return notificationSocket
+  return notificationSocket;
 };
 export const disconnectNotificationSocket = () => {
   if (notificationSocket) {
@@ -57,7 +57,7 @@ export const connectToChat = (userId: string) => {
       reconnection: true,
       reconnectionDelay: 2000,
       autoConnect: true,
-      reconnectionAttempts:10,
+      reconnectionAttempts: 10,
     });
   }
   return chatSocket;
@@ -76,5 +76,3 @@ export const disconnectChat = () => {
 //   }
 //   return webrtcSocket;
 // }
-
-

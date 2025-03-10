@@ -8,7 +8,6 @@ import { connectToChat } from "../../Socket/connect";
 import { axiosInstance } from "../../Config/mentorAxios";
 import { uploadFile } from "../../Utils/Reusable/cloudinary";
 import { Link } from "react-router-dom";
-import Spinner from "../../components/Common/common4All/Spinner";
 import moment from "moment";
 
 const Message: React.FC = () => {
@@ -189,7 +188,6 @@ const Message: React.FC = () => {
 
     if (!selectedFile && !messageInput.trim()) {
       //|| audioBlob
-
       return;
     }
     let senderId: string;
@@ -212,7 +210,6 @@ const Message: React.FC = () => {
     };
 
     if (selectedFile) {
-      console.log("selectedFile");
 
       newMessage.messageType = selectedFile.type.startsWith("image/")
         ? "image"
@@ -338,7 +335,8 @@ const Message: React.FC = () => {
                   </span>
                 </div>
                 <p className="text-sm text-gray-500 truncate  ">
-                  {user?.lastMessage}
+                 
+                  {user?.lastMessage.slice(0,20)}
                 </p>
               </div>
               {/* {user.unreadCount > 0 && (
@@ -523,6 +521,7 @@ const Message: React.FC = () => {
               )} */}
 
               <div className="flex items-center gap-4">
+           
                 <input
                   type="text"
                   value={messageInput}
@@ -530,6 +529,12 @@ const Message: React.FC = () => {
                   onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
                     setMessageInput(e.target.value)
                   }
+                  onKeyDown={(e: React.KeyboardEvent) => {
+                    if (e.key === "Enter" && !e.shiftKey) {
+                      e.preventDefault();
+                      handleSendMessage()
+                    }
+                  }}
                   placeholder="Type a message..."
                   className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#ff8800] focus:border-transparent"
                 />
@@ -564,10 +569,14 @@ const Message: React.FC = () => {
 
                 <button
                   onClick={handleSendMessage}
+                  
                   disabled={(!messageInput && !selectedFile) || btnDisable} //&& !audioBlob
                   className="p-2 text-white bg-[#ff8800] rounded-lg hover:bg-[#ff9900] disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  {btnDisable ? <Spinner /> : <Send className="h-5 w-5" />}
+                  {
+                    btnDisable?<div className="h-5 w-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>:  <Send className="h-5 w-5" />
+                  }
+               
                 </button>
               </div>
             </div>
