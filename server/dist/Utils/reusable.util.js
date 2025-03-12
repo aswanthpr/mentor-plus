@@ -12,8 +12,6 @@ const generateSessionCode = () => {
 };
 exports.generateSessionCode = generateSessionCode;
 const getTodayStartTime = () => {
-    const now = new Date();
-    now.setUTCHours(0, 0, 0, 0); // Set time to 12:00 AM UTC
-    return now.toISOString();
+    return new Date(new Date().setUTCHours(0, 0, 0, 0));
 };
 exports.getTodayStartTime = getTodayStartTime;

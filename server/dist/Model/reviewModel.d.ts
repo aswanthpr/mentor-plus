@@ -5,7 +5,6 @@ export interface Ireview extends Document {
     sessionId: mongoose.Schema.Types.ObjectId;
     rating: number;
     feedback: string;
-    role: string;
     createdAt?: Date;
     updatedAt?: Date;
 }

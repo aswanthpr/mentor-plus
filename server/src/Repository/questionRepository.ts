@@ -93,7 +93,6 @@ class questionRepository
             from: "answers",
             localField: "_id",
             foreignField: "questionId",
-
             as: "answerData",
           },
         },

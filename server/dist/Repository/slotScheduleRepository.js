@@ -75,7 +75,6 @@ class slotScheduleRepository extends baseRepo_1.baseRepository {
             try {
                 const todayStart = (0, reusable_util_1.getTodayStartTime)();
                 const matchFilter = {
-                    menteeId,
                     paymentStatus: "Paid",
                 };
                 if (tabCond) {
@@ -93,17 +92,13 @@ class slotScheduleRepository extends baseRepo_1.baseRepository {
                     };
                 }
                 const dateFilter = tabCond
-                    ? { "slotDetails.startTime": { $lt: todayStart } }
+                    ? { "slotDetails.startDate": { $lt: new Date() } }
                     : {
-                        $or: [
-                            { "slotDetails.startTime": { $gte: todayStart } }, // Future sessions
-                            { status: "CONFIRMED" }, // Include past confirmed sessions
-                        ],
+                        "slotDetails.startDate": {
+                            $gte: todayStart,
+                        },
                     };
-                return yield this.aggregateData(slotSchedule_2.default, [
-                    {
-                        $match: matchFilter,
-                    },
+                const pipeLine = [
                     {
                         $lookup: {
                             from: "times",
@@ -119,6 +114,9 @@ class slotScheduleRepository extends baseRepo_1.baseRepository {
                         },
                     },
                     {
+                        $match: matchFilter,
+                    },
+                    {
                         $lookup: {
                             from: "mentors",
                             localField: "slotDetails.mentorId",
@@ -132,15 +130,33 @@ class slotScheduleRepository extends baseRepo_1.baseRepository {
                             preserveNullAndEmptyArrays: true,
                         },
                     },
-                    // {
-                    //   $match: dateFilter,
-                    // },
+                    {
+                        $match: dateFilter,
+                    },
                     {
                         $sort: {
                             "slotDetails.startDate": -1,
                         },
                     },
-                ]);
+                ];
+                if (tabCond) {
+                    pipeLine.push({
+                        $lookup: {
+                            from: "reviews",
+                            localField: "_id",
+                            foreignField: "sessionId",
+                            as: "review",
+                        },
+                    }, {
+                        $unwind: {
+                            path: "$review",
+                            preserveNullAndEmptyArrays: true,
+                        },
+                    });
+                }
+                const resp = yield this.aggregateData(slotSchedule_2.default, pipeLine);
+                console.log(resp, "resp", pipeLine);
+                return resp;
             }
             catch (error) {
                 throw new Error(`${error instanceof Error ? error.message : String(error)}`);
@@ -170,9 +186,9 @@ class slotScheduleRepository extends baseRepo_1.baseRepository {
                     };
                 }
                 const dateFilter = tabCond
-                    ? { "slotDetails.startDate": { $lt: todayStart } }
-                    : { "slotDetails.startTime": { $gte: todayStart } };
-                const resp = yield this.aggregateData(slotSchedule_2.default, [
+                    ? { "slotDetails.startDate": { $lt: new Date() } }
+                    : { "slotDetails.startDate": { $gte: todayStart } };
+                const pipeLine = [
                     {
                         $lookup: {
                             from: "times",
@@ -186,6 +202,9 @@ class slotScheduleRepository extends baseRepo_1.baseRepository {
                             path: "$slotDetails",
                             preserveNullAndEmptyArrays: true,
                         },
+                    },
+                    {
+                        $match: dateFilter,
                     },
                     {
                         $match: matchFilter,
@@ -204,14 +223,13 @@ class slotScheduleRepository extends baseRepo_1.baseRepository {
                             preserveNullAndEmptyArrays: true,
                         },
                     },
-                    {
-                        $sort: {
-                            "slotDetails.startDate": -1,
-                        },
+                ];
+                pipeLine.push({
+                    $sort: {
+                        "slotDetails.startDate": -1,
                     },
-                ]);
-                console.log(resp, "this is respaa");
-                return resp;
+                });
+                return yield this.aggregateData(slotSchedule_2.default, pipeLine);
             }
             catch (error) {
                 throw new Error(`${error instanceof Error ? error.message : String(error)}`);

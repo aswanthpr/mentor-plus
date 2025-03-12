@@ -79,7 +79,7 @@ class mentorRepository
         aggregateData?.find((stage) => "$match" in stage)?.["$match"] || {};
 
       const [mentor, count] = await Promise.all([
-        this.aggregateData(mentorModel, aggregateData),
+        this.aggregateData(mentorModel, aggregateData), 
         this.countDocument(matchStage),
       ]);
       return { mentor, count };

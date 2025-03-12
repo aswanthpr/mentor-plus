@@ -152,14 +152,25 @@ class menteeController {
                     : typeof skill === "string"
                         ? [skill]
                         : [];
-                const { status, message, success, category, mentor, skills, currentPage, totalPage } = yield this._menteeService.exploreData({ search: searchStr,
+                const { status, message, success, category, mentor, skills, currentPage, totalPage, } = yield this._menteeService.exploreData({
+                    search: searchStr,
                     categories: categoriesArray,
                     skill: skillArray,
                     page: pageStr,
                     limit: limitStr,
-                    sort: sortStr
+                    sort: sortStr,
                 });
-                res.status(status).json({ message, success, category, mentor, skills, currentPage, totalPage });
+                res
+                    .status(status)
+                    .json({
+                    message,
+                    success,
+                    category,
+                    mentor,
+                    skills,
+                    currentPage,
+                    totalPage,
+                });
             }
             catch (error) {
                 res

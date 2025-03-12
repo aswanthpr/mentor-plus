@@ -52,7 +52,7 @@ const BookingPage: React.FC = () => {
           setTimeSlot(response.data?.timeSlots);
           setPlatformFee(response.data?.platformFee);
         }
-      } catch (error: unknown) {
+      } catch (error: unknown) { 
         errorHandler(error);
       }
     };

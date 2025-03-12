@@ -4,12 +4,12 @@ import { Star, X } from 'lucide-react';
 interface RatingModalProps { 
   isOpen: boolean;
   onClose: () => void;
-  onSubmit: (rating: number, review: string) => void;
-  session: ISession;
-  role?:string;
+  onSubmit?: (rating: number, review: string) => void;
+  session?: ISession;
+
 }
 
-const RatingModal: React.FC<RatingModalProps> = ({role, isOpen, onClose, onSubmit }) => {
+const RatingModal: React.FC<RatingModalProps> = ({ isOpen, onClose, onSubmit }) => {
   const [rating, setRating] = useState(0);
   const [review, setReview] = useState('');
   const [hoveredRating, setHoveredRating] = useState(0);
@@ -17,7 +17,7 @@ const RatingModal: React.FC<RatingModalProps> = ({role, isOpen, onClose, onSubmi
   
   const handleSubmit = useCallback((e: React.FormEvent) => {
     e.preventDefault();
-    onSubmit(rating, review);
+    onSubmit!(rating, review);
     onClose();
     setRating(0);
     setReview("");
@@ -28,14 +28,14 @@ const RatingModal: React.FC<RatingModalProps> = ({role, isOpen, onClose, onSubmi
     <div className="fixed inset-0 bg-black bg-opacity-15 flex items-center justify-center p-4 z-50">
       <div className="bg-white rounded-lg max-w-md w-full p-6">
         <div className="flex justify-between items-center mb-6">
-          <h3 className="text-xl font-bold text-gray-900">{role=="mentee"?"Rate Your Session":"Feedback"}</h3>
+          <h3 className="text-xl font-bold text-gray-900">Rate Your Session</h3>
           <button onClick={onClose} className="text-gray-400 hover:text-gray-600">
             <X className="h-6 w-6" />
           </button>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-6">
-         { role==="mentee"&&<div>
+        <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">Rating</label>
             <div className="flex gap-2">
               {[1, 2, 3, 4, 5].map((value) => (
@@ -55,10 +55,10 @@ const RatingModal: React.FC<RatingModalProps> = ({role, isOpen, onClose, onSubmi
                 </button>
               ))}
             </div>
-          </div>}
+          </div>
 
           <div>
-            {role=="mentee"&&<label className="block text-sm font-medium text-gray-700 mb-2">Review</label>}
+           <label className="block text-sm font-medium text-gray-700 mb-2">Review</label>
             <textarea
               value={review}
               required
@@ -80,10 +80,10 @@ const RatingModal: React.FC<RatingModalProps> = ({role, isOpen, onClose, onSubmi
             </button>
             <button
               type="submit"
-              disabled={(role=="mentee")?!rating:!review}
+              disabled={!rating}
               className="px-4 py-2 text-sm font-medium text-white bg-[#ff8800] hover:bg-[#ff9900] rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
-             {role==="mentee"? "Submit Review":"Submit"}
+            Submit Review
             </button>
           </div>
         </form>

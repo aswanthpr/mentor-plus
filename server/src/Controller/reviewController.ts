@@ -7,18 +7,18 @@ export class reviewController implements IreviewController {
 
   async reviewNdRateMentor(req: Request, res: Response): Promise<void> {
     try {
-      const { rating, review, sessionId, role, menteeId, mentorId } = req.body;
+      const { rating, review, sessionId, menteeId, mentorId } = req.body;
      
-      const { status, message, success, feedback } =
+      const { status, message, success, feedback,oldReview } =
         await this.__reviewService.reviewNdRateMentor(
          rating,
           review,
           sessionId,
-          role,
           menteeId,
           mentorId
+
         );
-      res.status(status).json({ message, success, feedback });
+      res.status(status).json({ message, success, feedback,oldReview });
     } catch (error: unknown) {
       throw new Error(
         `Error while  webhook config ${

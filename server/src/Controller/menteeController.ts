@@ -146,14 +146,13 @@ export class menteeController implements ImenteeController {
   //get mentor data in explore
   async exploreData(req: Request, res: Response): Promise<void> {
     try {
-      const { search, categories, skill, page = "1", limit,sort } = req.query;
+      const { search, categories, skill, page = "1", limit, sort } = req.query;
 
-     
       // Convert query params into correct types
       const searchStr = typeof search === "string" ? search : undefined;
       const pageStr = typeof page === "string" ? page : "1";
       const limitStr = typeof limit === "string" ? limit : "3";
-      const sortStr = typeof sort ==="string"?sort:"A-Z";
+      const sortStr = typeof sort === "string" ? sort : "A-Z";
       // Convert categories and skill into arrays
       const categoriesArray: string[] = Array.isArray(categories)
         ? categories.map(String)
@@ -167,18 +166,35 @@ export class menteeController implements ImenteeController {
         ? [skill]
         : [];
 
-      const { status, message, success, category, mentor, skills,currentPage,totalPage} =
-        await this._menteeService.exploreData(
-         { search:searchStr, 
-          categories:categoriesArray,
-          skill:skillArray,
-          page:pageStr,
-          limit:limitStr,
-          sort:sortStr
-        }
-        );
+      const {
+        status,
+        message,
+        success,
+        category,
+        mentor,
+        skills,
+        currentPage,
+        totalPage,
+      } = await this._menteeService.exploreData({
+        search: searchStr,
+        categories: categoriesArray,
+        skill: skillArray,
+        page: pageStr,
+        limit: limitStr,
+        sort: sortStr,
+      });
 
-      res.status(status).json({ message, success, category, mentor, skills,currentPage,totalPage });
+      res
+        .status(status)
+        .json({
+          message,
+          success,
+          category,
+          mentor,
+          skills,
+          currentPage,
+          totalPage,
+        });
     } catch (error: unknown) {
       res
         .status(500)
@@ -196,7 +212,7 @@ export class menteeController implements ImenteeController {
       const { status, success, message, homeData } =
         await this._menteeService.homeData(filter as string);
       const userId = req.user as Express.User;
-    
+
       res.status(status).json({ success, message, homeData, userId });
     } catch (error: unknown) {
       res
@@ -214,7 +230,7 @@ export class menteeController implements ImenteeController {
   async getSimilarMentors(req: Request, res: Response): Promise<void> {
     try {
       const { category, mentorId } = req.query;
-     
+
       const { status, message, success, mentor } =
         await this._menteeService.getMentorDetailes(
           category as string,

@@ -13,7 +13,6 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.menteeService = void 0;
-/* eslint-disable prefer-const */
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const bcrypt_1 = __importDefault(require("bcrypt"));
 const jwt_utils_1 = require("../Utils/jwt.utils");
@@ -209,7 +208,6 @@ class menteeService {
                 if (categories && categories.length > 0) {
                     matchStage.category = { $in: categories };
                 }
-                ;
                 if (skill && skill.length > 0) {
                     matchStage.skills = { $in: skill };
                 }
@@ -226,11 +224,74 @@ class menteeService {
                 }
                 const aggregationPipeline = [
                     { $match: matchStage },
+                    // Lookup reviews for each mentor
+                    {
+                        $lookup: {
+                            from: "reviews",
+                            localField: "_id",
+                            foreignField: "mentorId",
+                            as: "reviews",
+                        },
+                    },
+                    // Lookup mentee details for each review
+                    {
+                        $lookup: {
+                            from: "mentees",
+                            localField: "reviews.menteeId",
+                            foreignField: "_id",
+                            as: "mentees",
+                        },
+                    },
+                    // Process each review to attach the corresponding mentee
+                    {
+                        $addFields: {
+                            reviews: {
+                                $map: {
+                                    input: "$reviews",
+                                    as: "review",
+                                    in: {
+                                        $mergeObjects: [
+                                            "$$review",
+                                            {
+                                                mentee: {
+                                                    $arrayElemAt: [
+                                                        {
+                                                            $filter: {
+                                                                input: "$mentees",
+                                                                as: "mentee",
+                                                                cond: {
+                                                                    $eq: ["$$mentee._id", "$$review.menteeId"],
+                                                                },
+                                                            },
+                                                        },
+                                                        0,
+                                                    ],
+                                                },
+                                            },
+                                        ],
+                                    },
+                                },
+                            },
+                        },
+                    },
+                    // Compute the average rating
+                    {
+                        $addFields: {
+                            averageRating: { $avg: "$reviews.rating" },
+                        },
+                    },
+                    // Remove extra mentees array
+                    {
+                        $project: {
+                            mentees: 0,
+                        },
+                    },
                     { $sort: sortStage },
                     { $skip: skip },
                     { $limit: limitNo },
                 ];
                 const mentorData = yield this._mentorRepository.findVerifiedMentor(aggregationPipeline);
+                console.log(mentorData, "mentordata");
                 if (!mentorData) {
                     return {
                         success: false,
@@ -239,7 +300,7 @@ class menteeService {
                         skills: undefined,
                     };
                 }
-                //calculating total pages 
+                //calculating total pages
                 const totalPage = Math.ceil((mentorData === null || mentorData === void 0 ? void 0 : mentorData.count) / limitNo);
                 //finding categoryData
                 const categoryData = yield this._categoryRepository.categoryData();
@@ -251,7 +312,7 @@ class menteeService {
                         skills: undefined,
                     };
                 }
-                // finding skills  
+                // finding skills
                 const categoryWithSkill = yield this._mentorRepository.categoryWithSkills();
                 return {
                     success: false,

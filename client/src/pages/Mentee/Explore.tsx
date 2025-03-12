@@ -6,7 +6,7 @@ import MentorCard from "../../components/Mentee/MentorCard";
 
 import { MentorFilters } from "../../components/Mentee/Filters";
 import { protectedAPI } from "../../Config/Axios";
-// import Spinner from "../../components/Common/common4All/Spinner";
+
 import { errorHandler } from "../../Utils/Reusable/Reusable";
 
 
@@ -39,6 +39,7 @@ const ExplorePage: React.FC = () => {
       jobTitle: "",
       category: "",
       skills: [],
+      averageRating:0
     },
   ]); 
 
@@ -46,7 +47,7 @@ const ExplorePage: React.FC = () => {
     console.log(filterVal)
     const fetchMentor = async () => {
       try {
-        const { data, status } = await protectedAPI.get(`/mentee/explore/`,{
+        const response = await protectedAPI.get(`/mentee/explore/`,{
           params:{
             search:searchQuery??"",
             categories:filterVal?.domain??[],
@@ -56,15 +57,15 @@ const ExplorePage: React.FC = () => {
             limit
           }
         });
-        if (status == 200 && data) {
-          console.log(data?.currentPage,data?.totalPage)
-          setMentors(data?.mentor);
-          setCurrentPage(data?.currentPage);
-          setTotalPages(data?.totalPage)
+        if (response?.status == 200 && response?.data) {
+          console.log(response?.data?.mentor,response?.data?.totalPage)
+          setMentors(response?.data?.mentor);
+          setCurrentPage(response?.data?.currentPage);
+          setTotalPages(response?.data?.totalPage)
           setFilters((prev) => ({
             ...prev,
-            categories: data?.category,
-            skills: data?.skills[0]?.skills,
+            categories: response?.data?.category,
+            skills: response?.data?.skills[0]?.skills,
           }));
         }
       } catch (error: unknown) {
@@ -76,7 +77,7 @@ const ExplorePage: React.FC = () => {
 
   return (
     <div className="relative mx-4 mt-10  ">
-      {/* {loading && <Spinner />} */}
+
       {/* Mobile Filters Modal */}
       {showFilters && (
         <div className=" fixed inset-0 bg-black bg-opacity-50 z-50 lg:hidden ">
@@ -128,7 +129,7 @@ const ExplorePage: React.FC = () => {
               <MentorCard
                 key={mentor._id}
                 mentor={mentor}
-                // onBook={handleBook}
+            
               />
             ))}
           </div>

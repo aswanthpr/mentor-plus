@@ -17,7 +17,6 @@ import { Iwallet } from "../Model/walletModel";
 import { IwalletRepository } from "../Interface/wallet/IwalletRepository";
 import { ItransactionRepository } from "../Interface/wallet/ItransactionRepository";
 
-
 export class bookingService implements IbookingService {
   constructor(
     private readonly _timeSlotRepository: ItimeSlotRepository,
@@ -119,7 +118,9 @@ export class bookingService implements IbookingService {
                 currency: "usd",
                 unit_amount: parseInt(totalAmount) * 100,
                 product_data: {
-                  name: `Mentor is ${mentorName.toLocaleUpperCase()}`,
+                  name: `Mentor is ${decodeURIComponent(
+                    mentorName.toLocaleUpperCase()
+                  )}`,
                   description: `Slot date is: ${
                     String(timeSlot?.startDate).split("T")[0]
                   }
@@ -129,7 +130,7 @@ export class bookingService implements IbookingService {
               quantity: 1,
             },
           ],
-          success_url: `${process.env?.CLIENT_ORIGIN_URL}/mentee/stripe-success?session_id={CHECKOUT_SESSION_ID}?success=true`,
+          success_url: `${process.env?.CLIENT_ORIGIN_URL}/mentee/stripe-success?session_id={CHECKOUT_SESSION_ID}&success=true`,
           cancel_url: `${protocol}://${host}/mentee/stripe-cancel?cancelled=true`,
           metadata: {
             timeSlot: JSON.stringify(timeSlot),
@@ -161,7 +162,7 @@ export class bookingService implements IbookingService {
         }
         console.log(deductAmountFromWallet, "deductamojuntform wallet ");
 
-        const time = Date.now().toLocaleString();
+        const time = new Date().toLocaleString();
         console.log(time, "times ");
 
         //create  new transaction
@@ -244,7 +245,7 @@ export class bookingService implements IbookingService {
       return {
         success: false,
         message: "error while payment",
-        status: Status.NotFound,
+        status: Status.BadRequest,
       };
     } catch (error: unknown) {
       throw new Error(
@@ -294,17 +295,41 @@ export class bookingService implements IbookingService {
           const session = event.data.object as Stripe.Checkout.Session;
           const metadata = session.metadata || {};
 
-          if (!session.metadata) {
-            console.error("Missing metadata in Stripe session");
+          //if the data not exist send notification to mentee
+          if (
+            !metadata ||
+            !metadata.menteeId ||
+            !metadata.timeSlot ||
+            !metadata.messages ||
+            !metadata.paymentMethod
+          ) {
+            console.log(
+              metadata ,
+            metadata.menteeId ,
+            metadata.timeSlot ,
+            metadata.message ,
+            metadata.paymentMethod
+            )
+            console.error("❌ Invalid or missing metadata in Stripe webhook");
+
+            // Redirect to error page when metadata is missing
+            const noti = await this._notificationRepository.createNotification(
+              metadata.menteeId as unknown as ObjectId,
+              `Payment Failed`,
+              `Your payment could not be processed. Please try again.`,
+              `mentee`,
+              ""
+            );
+            if (metadata?.menteeId && noti) {
+              socketManager.sendNotification(
+                metadata?.menteeId as string,
+                noti
+              );
+            }
             return;
           }
 
-          const { timeSlot, message, paymentMethod, menteeId } = metadata;
-
-          if (!timeSlot || !message || !paymentMethod || !menteeId) {
-            console.error("Invalid or missing metadata in Stripe webhook");
-            return;
-          }
+          const { timeSlot, messages, menteeId } = metadata;
 
           if (!mongoose.Types.ObjectId.isValid(menteeId)) {
             console.error("Invalid menteeId format:", menteeId);
@@ -318,15 +343,31 @@ export class bookingService implements IbookingService {
           ) as unknown as mongoose.Schema.Types.ObjectId;
           const status = session.payment_status == "paid" ? "Paid" : "Failed";
 
+          if (status === "Failed") {
+            console.error("❌ Payment failed. Redirecting to error page.");
+
+            const notification =
+              await this._notificationRepository.createNotification(
+                menteeObjectId,
+                `Payment Failed`,
+                `Your payment could not be processed. Please try again.`,
+                `mentee`,
+                ""
+              );
+            if (menteeId && notification) {
+              socketManager.sendNotification(menteeId as string, notification);
+            }
+            return;
+          }
           const totalAmount = (session.amount_total || 0) / 100;
-          const time = new Date(session.created * 1000).toLocaleString();
+          const time = new Date(session.created * 1000).toISOString();
 
           //checking wallet exist or not
           const walletResponse = (await this.__walletRepository.findWallet(
             menteeObjectId
           )) as Iwallet;
 
-          let newWallet: Iwallet | null;
+          let newWallet: Iwallet | null = null;
           // if wallet not exist create new one
           if (!walletResponse) {
             newWallet = await this.__walletRepository.createWallet({
@@ -356,7 +397,7 @@ export class bookingService implements IbookingService {
             paymentMethod: "stripe",
             paymentAmount: String(totalAmount),
             duration: JSON.parse(timeSlot)?.duration,
-            description: message,
+            description: messages,
             status: "CONFIRMED",
           };
 
@@ -405,14 +446,41 @@ export class bookingService implements IbookingService {
           if (!resp) {
             await this._chatRepository.createChatDocs(mentorId, menteeObjectId);
           }
-
-          if (response) {
-            return;
-          } else {
-            throw new Error("Failed to create appointment");
-          }
+          return;
         }
+        case "checkout.session.expired":
+        case "checkout.session.failed": {
+          const session = event.data.object as Stripe.Checkout.Session;
+          console.error("❌ Payment Failed or Expired:", session.id);
 
+          if (session.metadata && session.metadata.menteeId) {
+            await this._notificationRepository.createNotification(
+              session.metadata.menteeId as unknown as ObjectId,
+              `Payment Failed`,
+              `Your payment attempt failed. Please try again.`,
+              `mentee`,
+              ""
+            );
+          }
+          return;
+        }
+        case "payment_intent.payment_failed": {
+          const session = event.data.object as Stripe.Checkout.Session;
+          console.error("❌ Payment Failed:", session.id);
+        
+          if (session.metadata && session.metadata.menteeId) {
+           const notific = await this._notificationRepository.createNotification(
+              session.metadata.menteeId as unknown as ObjectId,
+              `Payment Failed`,
+              `Your payment attempt failed. Please try again.`,
+              `mentee`,
+              ""
+            );
+        
+          socketManager.sendNotification(session.metadata.menteeId,notific as Inotification);
+          }
+          return
+        }
         default:
           console.log(`Unhandled event type ${event.type}`);
       }
@@ -464,7 +532,8 @@ export class bookingService implements IbookingService {
 
       const response = await this._slotScheduleRepository.getBookedSlot(
         menteeId,
-        tabCond
+        tabCond,
+        "mentee"
       );
       if (!response || response.length === 0) {
         return {
@@ -517,7 +586,8 @@ export class bookingService implements IbookingService {
 
       const response = await this._slotScheduleRepository.getBookedSession(
         mentorId,
-        tabCond
+        tabCond,
+
       );
       if (!response || response.length === 0) {
         return {
@@ -618,7 +688,7 @@ export class bookingService implements IbookingService {
         sessionId,
         statusValue
       );
-      console.log(response)
+      console.log(response);
       if (!response) {
         return {
           success: false,
@@ -627,11 +697,10 @@ export class bookingService implements IbookingService {
           result: null,
         };
       }
-      let title:string = "";
-      let message:string = "";
-      let url:string =""
-      if(statusValue==="CANCELLED"){
-
+      let title: string = "";
+      let message: string = "";
+      let url: string = "";
+      if (statusValue === "CANCELLED") {
         const addToWallet = await this.__walletRepository.updateWalletAmount(
           response?.menteeId,
           Number(response?.paymentAmount)
@@ -643,9 +712,9 @@ export class bookingService implements IbookingService {
             balance: Number(response?.paymentAmount),
           });
         }
-  
+
         const newTranasaction = {
-          amount:Number(response?.paymentAmount),
+          amount: Number(response?.paymentAmount),
           walletId: (addToWallet
             ? addToWallet?._id
             : createWallet?.["_id"]) as ObjectId,
@@ -653,17 +722,17 @@ export class bookingService implements IbookingService {
           status: "completed",
           note: "slot cancelled amount refunded",
         };
-  
+
         await this.__transactionRepository.createTransaction(newTranasaction);
         title = `cancel amount $${response?.paymentAmount} refunded`;
         message = "session cancel approved,amount credited to your wallet";
-        url =`${process.env.CLIENT_ORIGIN_URL}/mentee/wallet`;
-      }else{
+        url = `${process.env.CLIENT_ORIGIN_URL}/mentee/wallet`;
+      } else {
         title = `cancel request rejected`;
-        message ="session cancel rejected,attend the session on time";
-        url =`${process.env.CLIENT_ORIGIN_URL}/mentee/bookings`;
+        message = "session cancel rejected,attend the session on time";
+        url = `${process.env.CLIENT_ORIGIN_URL}/mentee/bookings`;
       }
-      
+
       const notif = await this._notificationRepository.createNotification(
         response?.menteeId,
         title,
@@ -674,10 +743,12 @@ export class bookingService implements IbookingService {
 
       if (notif) {
         socketManager.sendNotification(String(response?.menteeId), notif);
-      };
+      }
       return {
         success: true,
-        message: `${statusValue=="CANCELLED"?"cancel approved":"cancel rejected"} successfully`,
+        message: `${
+          statusValue == "CANCELLED" ? "cancel approved" : "cancel rejected"
+        } successfully`,
         status: Status.Ok,
         result: response,
       };

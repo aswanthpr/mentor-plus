@@ -1,7 +1,5 @@
-/* eslint-disable prefer-const */
 import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
-
 
 import { Imentee } from "../Model/menteeModel";
 import {
@@ -21,11 +19,7 @@ import { IcategoryRepository } from "../Interface/Category/iCategoryRepository";
 import { ImentorRepository } from "../Interface/Mentor/iMentorRepository";
 import { IquestionRepository } from "../Interface/Qa/IquestionRepository";
 import { ImenteeRepository } from "../Interface/Mentee/iMenteeRepository";
-
-
-
-
-
+import { PipelineStage } from "mongoose";
 
 // const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string)
 
@@ -34,10 +28,8 @@ export class menteeService implements ImenteeService {
     private _menteeRepository: ImenteeRepository,
     private _mentorRepository: ImentorRepository,
     private _categoryRepository: IcategoryRepository,
-    private _questionRepository: IquestionRepository,
-
-
-  ) { }
+    private _questionRepository: IquestionRepository
+  ) {}
 
   async menteeProfile(refreshToken: string): Promise<{
     success: boolean;
@@ -73,7 +65,8 @@ export class menteeService implements ImenteeService {
       return { success: true, message: "success", result: result, status: 200 };
     } catch (error: unknown) {
       throw new Error(
-        `Error while bl metneeProfile in service: ${error instanceof Error ? error.message : String(error)
+        `Error while bl metneeProfile in service: ${
+          error instanceof Error ? error.message : String(error)
         }`
       );
     }
@@ -114,7 +107,8 @@ export class menteeService implements ImenteeService {
       };
     } catch (error: unknown) {
       throw new Error(
-        `Error while bl metneeProfile edit in service: ${error instanceof Error ? error.message : String(error)
+        `Error while bl metneeProfile edit in service: ${
+          error instanceof Error ? error.message : String(error)
         }`
       );
     }
@@ -168,7 +162,8 @@ export class menteeService implements ImenteeService {
       return { success: true, message: "updation successfull", status: 200 };
     } catch (error: unknown) {
       throw new Error(
-        `Error while bl metneeProfile password change in service: ${error instanceof Error ? error.message : String(error)
+        `Error while bl metneeProfile password change in service: ${
+          error instanceof Error ? error.message : String(error)
         }`
       );
     }
@@ -197,12 +192,13 @@ export class menteeService implements ImenteeService {
       return {
         success: true,
         message: "updation successfull",
-        status:  Status.Ok,
+        status: Status.Ok,
         profileUrl: result.profileUrl,
       };
     } catch (error: unknown) {
       throw new Error(
-        `Error while bl metnee Profile  change in service: ${error instanceof Error ? error.message : String(error)
+        `Error while bl metnee Profile  change in service: ${
+          error instanceof Error ? error.message : String(error)
         }`
       );
     }
@@ -242,7 +238,7 @@ export class menteeService implements ImenteeService {
         message: "Token refresh successfully",
         accessToken,
         refreshToken,
-        status:  Status.Ok,
+        status: Status.Ok,
       };
     } catch (error: unknown) {
       console.error("Error while generating access or refresh token:", error);
@@ -251,40 +247,47 @@ export class menteeService implements ImenteeService {
   }
 
   //metnor data fetching for explore
-  async exploreData(params:{search:string|undefined,categories:string[]|[],skill:string[]|[],page:string,limit:string,sort:string}): Promise<{
+  async exploreData(params: {
+    search: string | undefined;
+    categories: string[] | [];
+    skill: string[] | [];
+    page: string;
+    limit: string;
+    sort: string;
+  }): Promise<{
     success: boolean;
     message: string;
     status: number;
     mentor?: Imentor[] | null;
     category?: Icategory[] | null;
     skills: Imentor[] | undefined;
-    currentPage?:number,
-    totalPage?:number
+    currentPage?: number;
+    totalPage?: number;
   }> {
     try {
-      const {search,categories,skill,page,limit,sort} = params;
+      const { search, categories, skill, page, limit, sort } = params;
 
-      const pageNo = parseInt(page,10)||1;
-      const limitNo = parseInt(limit,10)||1;
-      const skip = (pageNo-1)* limitNo;
+      const pageNo = parseInt(page, 10) || 1;
+      const limitNo = parseInt(limit, 10) || 1;
+      const skip = (pageNo - 1) * limitNo;
 
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const matchStage:any = { verified: true};
+      const matchStage: any = { verified: true };
 
-      if(search){
-        matchStage.$or =[
+      if (search) {
+        matchStage.$or = [
           { name: { $regex: search, $options: "i" } },
-          { bio: { $regex: search, $options: "i" } }, 
-          { jobTitle: { $regex: search, $options: "i" } }, 
+          { bio: { $regex: search, $options: "i" } },
+          { jobTitle: { $regex: search, $options: "i" } },
           { category: { $regex: search, $options: "i" } },
           { skills: { $in: [new RegExp(search, "i")] } },
-        ]
+        ];
       }
-      if(categories && categories.length>0){
-        matchStage.category = {$in:categories}
-      };
-      if(skill && skill.length>0){
-        matchStage.skills = {$in:skill}
+      if (categories && categories.length > 0) {
+        matchStage.category = { $in: categories };
+      }
+      if (skill && skill.length > 0) {
+        matchStage.skills = { $in: skill };
       }
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const sortStage: any = {};
@@ -295,23 +298,94 @@ export class menteeService implements ImenteeService {
       } else {
         sortStage["createdAt"] = -1; // Default sorting: latest first
       }
-      const aggregationPipeline = [
-        { $match: matchStage }, 
-        { $sort: sortStage }, 
-        { $skip: skip }, 
+      const aggregationPipeline: PipelineStage[] = [
+        { $match: matchStage },
+
+        // Lookup reviews for each mentor
+        {
+          $lookup: {
+            from: "reviews",
+            localField: "_id",
+            foreignField: "mentorId",
+            as: "reviews",
+          },
+        },
+
+        // Lookup mentee details for each review
+        {
+          $lookup: {
+            from: "mentees",
+            localField: "reviews.menteeId",
+            foreignField: "_id",
+            as: "mentees",
+          },
+        },
+
+        // Process each review to attach the corresponding mentee
+        {
+          $addFields: {
+            reviews: {
+              $map: {
+                input: "$reviews",
+                as: "review",
+                in: {
+                  $mergeObjects: [
+                    "$$review",
+                    {
+                      mentee: {
+                        $arrayElemAt: [
+                          {
+                            $filter: {
+                              input: "$mentees",
+                              as: "mentee",
+                              cond: {
+                                $eq: ["$$mentee._id", "$$review.menteeId"],
+                              },
+                            },
+                          },
+                          0,
+                        ],
+                      },
+                    },
+                  ],
+                },
+              },
+            },
+          },
+        },
+
+        // Compute the average rating
+        {
+          $addFields: {
+            averageRating: { $avg: "$reviews.rating" },
+          },
+        },
+
+        // Remove extra mentees array
+        {
+          $project: {
+            mentees: 0,
+          },
+        },
+
+        { $sort: sortStage },
+        { $skip: skip },
         { $limit: limitNo },
       ];
-      const mentorData = await this._mentorRepository.findVerifiedMentor(aggregationPipeline ); 
+
+      const mentorData = await this._mentorRepository.findVerifiedMentor(
+        aggregationPipeline
+      );
+      console.log(mentorData, "mentordata");
       if (!mentorData) {
         return {
           success: false,
           message: "Data not found",
           status: Status.NotFound,
           skills: undefined,
-
         };
       }
-      //calculating total pages 
+      //calculating total pages
       const totalPage = Math.ceil(mentorData?.count / limitNo);
       //finding categoryData
       const categoryData = await this._categoryRepository.categoryData();
@@ -319,11 +393,12 @@ export class menteeService implements ImenteeService {
         return {
           success: false,
           message: "Data not found",
-          status:  Status.NotFound,
+          status: Status.NotFound,
           skills: undefined,
         };
       }
-     // finding skills  
+
+      // finding skills
       const categoryWithSkill =
         await this._mentorRepository.categoryWithSkills();
 
@@ -335,7 +410,7 @@ export class menteeService implements ImenteeService {
         category: categoryData,
         skills: categoryWithSkill,
         totalPage,
-        currentPage:pageNo,
+        currentPage: pageNo,
       };
     } catch (error: unknown) {
       console.error(
@@ -351,7 +426,7 @@ export class menteeService implements ImenteeService {
       };
     }
   }
-//this is for getting mentee home question data
+  //this is for getting mentee home question data
   async homeData(filter: string): Promise<{
     success: boolean;
     message: string;
@@ -411,7 +486,7 @@ export class menteeService implements ImenteeService {
       if (!mentorId) {
         return {
           status: Status.BadRequest,
-          message: "credential not found", 
+          message: "credential not found",
           success: false,
           mentor: [],
         };
@@ -436,11 +511,10 @@ export class menteeService implements ImenteeService {
       };
     } catch (error: unknown) {
       throw new Error(
-        `${error instanceof Error ? error.message : String(error)
+        `${
+          error instanceof Error ? error.message : String(error)
         } error while gettign mentor data in mentee service`
       );
     }
   }
-
-  
 }

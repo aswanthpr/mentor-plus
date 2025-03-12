@@ -1,11 +1,10 @@
-import { BadgeCheckIcon } from "lucide-react";
+import { BadgeCheckIcon, Star } from "lucide-react";
 import React from "react";
 import { Link } from "react-router-dom";
-// import { Star, Clock } from 'lucide-react';
+
 
 interface MentorCardProps {
   mentor: IMentor;
-  // onBook: (name: string,mentor:IMentor) => void;
 }
 
 const MentorCard: React.FC<MentorCardProps> = ({ mentor }) => {
@@ -41,18 +40,19 @@ const MentorCard: React.FC<MentorCardProps> = ({ mentor }) => {
           <p className="text-sm text-gray-600 mt-1 text-center sm:text-left">
             {mentor?.jobTitle} |{mentor?.category}
           </p>
-          {/* <div className="flex items-center justify-center sm:justify-start gap-2 mt-2">
+          <div className="flex items-center justify-center sm:justify-start gap-2 mt-2">
               <div className="flex items-center">
+                
+                <span className="ml-1 text-sm font-medium">{mentor?.averageRating?mentor?.averageRating?.toFixed(1):0}</span>
                 <Star className="w-4 h-4 text-yellow-400 fill-current" />
-                <span className="ml-1 text-sm font-medium">{mentor.rating}</span>
-                <span className="text-sm text-gray-500">({mentor.reviewCount})</span>
+                {/* <span className="text-sm text-gray-500">({mentor.reviewCount})</span> */}
               </div>
-              <span className="text-gray-300">•</span>
+              {/* <span className="text-gray-300">•</span>
               <div className="flex items-center">
                 <Clock className="w-4 h-4 text-gray-400" />
-                <span className="ml-1 text-sm text-gray-600">${mentor.hourlyRate}/hr</span>
-              </div>
-            </div> */}
+                <span className="ml-1 text-sm text-gray-600">${mentor.avarageRating}/hr</span>
+              </div> */}
+            </div>
           <div className="mt-3 flex flex-wrap justify-center sm:justify-start gap-2">
             {mentor.skills.map((skill) => (
               <span
@@ -68,12 +68,6 @@ const MentorCard: React.FC<MentorCardProps> = ({ mentor }) => {
       <p className="mt-4 text-sm text-gray-600 line-clamp-2 text-center sm:text-left">
         {/* {mentor.bio} */}
       </p>
-      {/* <button
-        onClick={() => onBook(mentor?.name as string,mentor as IMentor)}
-        className="mt-4 w-full px-4 py-2 bg-[#ff8800] text-white rounded-lg hover:bg-[#ff9900] transition-colors"
-      >
-        Book Session
-      </button> */}
       <div className=" flex space-x-2">
 
       <Link
@@ -84,7 +78,7 @@ const MentorCard: React.FC<MentorCardProps> = ({ mentor }) => {
         View Profile
       </Link>
       <Link
-        to={`/mentee/${mentor?.name}/slot-booking`}
+        to={`/mentee/${decodeURIComponent(mentor?.name)}/slot-booking`}
         state={{mentorId:mentor?._id}}
         className="mt-4 w-4/6 px-4 py-2 bg-[#ff8800]  text-white rounded-lg hover:bg-[#ff9900] font-semibold transition-colors block text-center "
       >

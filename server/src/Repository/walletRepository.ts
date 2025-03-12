@@ -31,14 +31,17 @@ class walletRepository
 
   //update wallet data
   async updateWalletAmount(
-    userId:ObjectId,
+    userId: ObjectId,
     amount: number
   ): Promise<Iwallet | null> {
     try {
-      return await this.find_One_And_Update(walletSchema, {userId}, {
-        $inc: { balance: amount },
-        
-      });
+      return await this.find_One_And_Update(
+        walletSchema,
+        { userId },
+        {
+          $inc: { balance: amount },
+        }
+      );
     } catch (error: unknown) {
       throw new Error(
         `${error instanceof Error ? error.message : String(error)}`
@@ -46,10 +49,7 @@ class walletRepository
     }
   }
 
-  async findWalletWithTransaction(
-    userId: ObjectId,
-    
-  ): Promise<Iwallet | null> {
+  async findWalletWithTransaction(userId: ObjectId): Promise<Iwallet | null> {
     try {
       const resp = await this.aggregateData(walletSchema, [
         {
@@ -66,10 +66,23 @@ class walletRepository
           },
         },
         {
-          $sort: { "transaction.createadAt": -1 },
+          $unwind: {
+            path: "$transaction",
+            preserveNullAndEmptyArrays: true,
+          },
+        },
+        { $sort: { "transaction.createdAt": -1 } }, 
+        {
+          $group: {
+            _id: "$_id",
+            userId: { $first: "$userId" },
+            balance: { $first: "$balance" },
+            createdAt: { $first: "$createdAt" },
+            updatedAt: { $first: "$updatedAt" },
+            transaction: { $push: "$transaction" }, 
+          },
         },
       ]);
-
       return resp?.[0];
     } catch (error: unknown) {
       throw new Error(
@@ -91,7 +104,7 @@ class walletRepository
         {
           $inc: { balance: -amount },
         },
-        {new:true}
+        { new: true }
       );
     } catch (error: unknown) {
       throw new Error(

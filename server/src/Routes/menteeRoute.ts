@@ -56,7 +56,6 @@ const __walletService = new walletService(
 );
 const __reviewService = new reviewService(
   reviewRepository,
-  notificationRepository,
 )
 
 
@@ -228,5 +227,7 @@ mentee_Router.post(
 );
 
 mentee_Router.post("/wallet/webhook", express.raw({ type: "application/json" }),authorize,__walletController.walletStripeWebHook.bind(__walletController));
+
 mentee_Router.post("/review-and-rating", authorize,__reviewController.reviewNdRateMentor.bind(__reviewController));
+
 export default mentee_Router;

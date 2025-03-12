@@ -9,9 +9,9 @@ import { useSelector } from "react-redux";
 import { RootState } from "../../Redux/store";
 import ConfirmToast from "../../components/Common/common4All/ConfirmToast";
 import { toast } from "react-toastify";
-import { createSessionCodeApi, fetchCanceSessionResponse, fetchSubmitRating, joinSessionHandler, markAsSessionCompleted } from "../../service/api";
+import { createSessionCodeApi, fetchCanceSessionResponse, joinSessionHandler, markAsSessionCompleted } from "../../service/api";
 import { useNavigate } from "react-router-dom";
-import RatingModal from "../../components/Common/Bookings/RatingModal";
+
 
 const Sessions: React.FC = () => {
   const navigate = useNavigate()
@@ -21,8 +21,6 @@ const Sessions: React.FC = () => {
   );
   const [searchQuery, setSearchQuery] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
-  const [showRatingModal, setShowRatingModal] = useState(false);
-  const [selectedSession, setSelectedSession] = useState<ISession | null>(null);
   const [sessions, setSessions] = useState<ISession[] | []>([]);
   const sessionsPerPage = 5;
   const role = useSelector((state: RootState) => state.menter.mentorRole);
@@ -167,24 +165,7 @@ const Sessions: React.FC = () => {
     [navigate]
   );
 
-  const handleRating = useCallback((session: ISession) => {
-    setSelectedSession(session);
-    setShowRatingModal(true);
-  }, []);
 
-  const handleSubmitRating = useCallback(async (rating: number, review: string,) => {
-    const resposne = await fetchSubmitRating( review, selectedSession!, role,rating,);
-    if (resposne?.data.success && resposne?.status == 200) {
-      setSessions(
-        sessions.map((session) =>
-          session?._id === selectedSession?._id
-            ? { ...session, rating, review }
-            : session
-        )
-      );
-
-    }
-  }, [role, selectedSession, sessions]);
 
   return (
     <div>
@@ -218,7 +199,6 @@ const Sessions: React.FC = () => {
           <SessionCard
             handleSessionJoin={handleSessionJoin}
             handleCreateSessionCode={crerateSessionCode}
-            handleRating={handleRating}
             key={session?._id}
             session={session}
             role={role}
@@ -261,13 +241,6 @@ const Sessions: React.FC = () => {
           </p>
         </div>
       )}
-      <RatingModal
-        isOpen={showRatingModal}
-        onClose={() => setShowRatingModal(false)}
-        onSubmit={handleSubmitRating}
-        session={selectedSession!}
-        role={role}
-      />
     </div>
   );
 };

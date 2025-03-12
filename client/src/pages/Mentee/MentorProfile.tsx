@@ -10,6 +10,7 @@ import { useEffect, useState } from "react";
 import { protectedAPI } from "../../Config/Axios";
 import Spinner from "../../components/Common/common4All/Spinner";
 import { errorHandler } from "../../Utils/Reusable/Reusable";
+import { ReviewSection } from "../../components/Mentee/ReviewSection";
 
  const MentorProfile = () => {
   const { state } = useLocation();
@@ -51,7 +52,7 @@ import { errorHandler } from "../../Utils/Reusable/Reusable";
   }, [mentorData?._id, mentorData?.category]);
 
   const handleBooking = () => {
-    navigate(`/mentee/${mentorData?.name}/slot-booking`,{state:{mentorId:mentorData?._id}});
+    navigate(`/mentee/${decodeURIComponent(mentorData?.name as string)}/slot-booking`,{state:{mentorId:mentorData?._id}});
   };
 
   return (
@@ -77,6 +78,10 @@ import { errorHandler } from "../../Utils/Reusable/Reusable";
                 <p>{mentorData?.bio}</p>
               </div>
             </div>
+            {
+            // mentorData?.review&& mentorData?.review?.length>0 &&
+            <ReviewSection  mentorData={mentorData as IMentor} />
+            }
           </div>
 
           <div className="space-y-6">

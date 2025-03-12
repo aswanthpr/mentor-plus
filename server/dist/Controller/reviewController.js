@@ -17,9 +17,9 @@ class reviewController {
     reviewNdRateMentor(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const { rating, review, sessionId, role, menteeId, mentorId } = req.body;
-                const { status, message, success, feedback } = yield this.__reviewService.reviewNdRateMentor(rating, review, sessionId, role, menteeId, mentorId);
-                res.status(status).json({ message, success, feedback });
+                const { rating, review, sessionId, menteeId, mentorId } = req.body;
+                const { status, message, success, feedback, oldReview } = yield this.__reviewService.reviewNdRateMentor(rating, review, sessionId, menteeId, mentorId);
+                res.status(status).json({ message, success, feedback, oldReview });
             }
             catch (error) {
                 throw new Error(`Error while  webhook config ${error instanceof Error ? error.message : String(error)}`);

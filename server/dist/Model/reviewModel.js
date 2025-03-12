@@ -60,11 +60,6 @@ const reviewSchema = new mongoose_1.Schema({
         type: String,
         default: null,
     },
-    role: {
-        type: String,
-        enum: ["mentee", 'mentor'],
-        required: true
-    }
 }, {
     timestamps: true,
 });

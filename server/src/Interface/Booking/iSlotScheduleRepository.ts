@@ -7,8 +7,9 @@ export interface IslotScheduleRepository {
     newSlotSchedule: InewSlotSchedule
   ): Promise<InewSlotSchedule | null>;
   getBookedSlot(
-    menteeId: ObjectId,
-    tabCond: boolean
+    userId: ObjectId,
+    tabCond: boolean,
+    userType:"mentee"|"mentor"
   ): Promise<IslotSchedule[] | []>;
   getBookedSession(
     menteeId: ObjectId,

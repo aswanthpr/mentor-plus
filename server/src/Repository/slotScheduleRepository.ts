@@ -2,10 +2,12 @@
 import slotScheduleSchema, { IslotSchedule } from "../Model/slotSchedule";
 import { baseRepository } from "./baseRepo";
 import { IslotScheduleRepository } from "../Interface/Booking/iSlotScheduleRepository";
-import mongoose, { ObjectId } from "mongoose";
+import mongoose, { ObjectId, PipelineStage } from "mongoose";
 import slotSchedule from "../Model/slotSchedule";
 import { InewSlotSchedule } from "../Types";
 import { getTodayStartTime } from "../Utils/reusable.util";
+import moment from "moment";
+import { Pipe } from "stream";
 
 class slotScheduleRepository
   extends baseRepository<IslotSchedule>
@@ -76,7 +78,6 @@ class slotScheduleRepository
       const todayStart = getTodayStartTime();
 
       const matchFilter: Record<string, unknown> = {
-        menteeId,
         paymentStatus: "Paid",
       };
 
@@ -95,18 +96,14 @@ class slotScheduleRepository
       }
 
       const dateFilter = tabCond
-        ? { "slotDetails.startTime": { $lt: todayStart } }
+        ? { "slotDetails.startDate": { $lt: new Date() } }
         : {
-            $or: [
-              { "slotDetails.startTime": { $gte: todayStart } }, // Future sessions
-              { status: "CONFIRMED" }, // Include past confirmed sessions
-            ],
+            "slotDetails.startDate": {
+              $gte: todayStart,
+            },
           };
 
-      return await this.aggregateData(slotSchedule, [
-        {
-          $match: matchFilter,
-        },
+      const pipeLine: PipelineStage[] = [
         {
           $lookup: {
             from: "times",
@@ -122,6 +119,9 @@ class slotScheduleRepository
           },
         },
         {
+          $match: matchFilter,
+        },
+        {
           $lookup: {
             from: "mentors",
             localField: "slotDetails.mentorId",
@@ -135,15 +135,37 @@ class slotScheduleRepository
             preserveNullAndEmptyArrays: true,
           },
         },
-        // {
-        //   $match: dateFilter,
-        // },
+
+        {
+          $match: dateFilter,
+        },
         {
           $sort: {
             "slotDetails.startDate": -1,
           },
         },
-      ]);
+      ];
+      if (tabCond) {
+        pipeLine.push(
+          {
+            $lookup: {
+              from:"reviews",
+              localField:"_id",
+              foreignField:"sessionId",
+              as:"review",
+            },
+          },
+          {
+            $unwind: {
+              path: "$review",
+              preserveNullAndEmptyArrays: true,
+            },
+          },
+        );
+      }
+      const resp = await this.aggregateData(slotSchedule, pipeLine);
+      console.log(resp, "resp", pipeLine);
+      return resp;
     } catch (error: unknown) {
       throw new Error(
         `${error instanceof Error ? error.message : String(error)}`
@@ -177,10 +199,9 @@ class slotScheduleRepository
       }
 
       const dateFilter = tabCond
-        ? { "slotDetails.startDate": { $lt: todayStart } }
-        : { "slotDetails.startTime": { $gte: todayStart } };
-
-      const resp = await this.aggregateData(slotSchedule, [
+        ? { "slotDetails.startDate": { $lt: new Date() } }
+        : { "slotDetails.startDate": { $gte: todayStart } };
+      const pipeLine: PipelineStage[] = [
         {
           $lookup: {
             from: "times",
@@ -194,6 +215,9 @@ class slotScheduleRepository
             path: "$slotDetails",
             preserveNullAndEmptyArrays: true,
           },
+        },
+        {
+          $match: dateFilter,
         },
         {
           $match: matchFilter,
@@ -212,15 +236,14 @@ class slotScheduleRepository
             preserveNullAndEmptyArrays: true,
           },
         },
+      ];
 
-        {
-          $sort: {
-            "slotDetails.startDate": -1,
-          },
+      pipeLine.push({
+        $sort: {
+          "slotDetails.startDate": -1,
         },
-      ]);
-      console.log(resp, "this is respaa");
-      return resp;
+      });
+      return await this.aggregateData(slotSchedule, pipeLine);
     } catch (error: unknown) {
       throw new Error(
         `${error instanceof Error ? error.message : String(error)}`

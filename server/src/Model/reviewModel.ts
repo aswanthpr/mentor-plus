@@ -6,7 +6,6 @@ export interface Ireview extends Document{
     sessionId:mongoose.Schema.Types.ObjectId;
     rating:number;
     feedback:string;
-    role:string;
     createdAt?:Date;
     updatedAt?:Date;
 }
@@ -38,11 +37,6 @@ const reviewSchema = new Schema<Ireview>({
         default:null,
         
     },
-    role:{
-        type:String,
-        enum:["mentee",'mentor'],
-        required:true
-    }
 },
 {
     timestamps:true,

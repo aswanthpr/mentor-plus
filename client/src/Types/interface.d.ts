@@ -35,6 +35,7 @@ interface ISession {
   description: string;
   slotDetails: Itime;
   user: IMentor | IMentee;
+  review?:Ireview|null
 }
 
 interface Ichat {
@@ -127,6 +128,8 @@ interface IMentor {
   skills: string[];
   resume?: File | null;
   profileImage?: Blob | null;
+  reviews?:Ireview[];
+  averageRating:number;
 }
 interface IFormData {
   name: string;
@@ -275,4 +278,16 @@ interface Iwallet {
   userId:string;
   balance:string;
   transaction:Itransaction[];
+}
+interface Ireview{
+_id:string;
+  menteeId:string;
+  menteeId:string;
+  sessionId:string;
+  rating:number;
+  feedback:string;
+  role:string;
+  mentee:IMentee
+  createdAt?:string;
+  updatedAt?:string;
 }

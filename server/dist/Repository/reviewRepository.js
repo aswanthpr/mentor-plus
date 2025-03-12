@@ -28,5 +28,25 @@ class reviewRepository extends baseRepo_1.baseRepository {
             }
         });
     }
+    findReivewAndUpdate(menteeId, mentorId, feedback, rating, sessionId) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                return this.find_One_And_Update(reviewModel_1.default, { menteeId, mentorId }, { $set: { feedback, rating, sessionId } });
+            }
+            catch (error) {
+                throw new Error(`Error while review and rating  ${error instanceof Error ? error.message : String(error)}`);
+            }
+        });
+    }
+    findReivew(menteeId, mentorId) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                return this.find_One({ menteeId, mentorId });
+            }
+            catch (error) {
+                throw new Error(`Error while review and rating  ${error instanceof Error ? error.message : String(error)}`);
+            }
+        });
+    }
 }
 exports.default = new reviewRepository();

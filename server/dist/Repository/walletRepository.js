@@ -69,7 +69,21 @@ class walletRepository extends baseRepo_1.baseRepository {
                         },
                     },
                     {
-                        $sort: { "transaction.createadAt": -1 },
+                        $unwind: {
+                            path: "$transaction",
+                            preserveNullAndEmptyArrays: true,
+                        },
+                    },
+                    { $sort: { "transaction.createdAt": -1 } },
+                    {
+                        $group: {
+                            _id: "$_id",
+                            userId: { $first: "$userId" },
+                            balance: { $first: "$balance" },
+                            createdAt: { $first: "$createdAt" },
+                            updatedAt: { $first: "$updatedAt" },
+                            transaction: { $push: "$transaction" },
+                        },
                     },
                 ]);
                 return resp === null || resp === void 0 ? void 0 : resp[0];

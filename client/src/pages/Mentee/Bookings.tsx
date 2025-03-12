@@ -9,7 +9,11 @@ import Spinner from "../../components/Common/common4All/Spinner";
 import { toast } from "react-toastify";
 import { useSelector } from "react-redux";
 import { RootState } from "../../Redux/store";
-import { fetchCanceSession, fetchSubmitRating, joinSessionHandler } from "../../service/api";
+import {
+  fetchCanceSession,
+  fetchSubmitRating,
+  joinSessionHandler,
+} from "../../service/api";
 import { useNavigate } from "react-router-dom";
 import { TFilter, TSort, TSortOrder } from "../../Types/type";
 import RatingModal from "../../components/Common/Bookings/RatingModal";
@@ -23,7 +27,7 @@ const Boooking: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [showRatingModal, setShowRatingModal] = useState(false);
-  const [selectedSession, setSelectedSession] = useState<ISession|null>(null);
+  const [selectedSession, setSelectedSession] = useState<ISession | null>(null);
   const [sessions, setSessions] = useState<ISession[] | []>([]);
   const sessionsPerPage = 5;
 
@@ -54,47 +58,80 @@ const Boooking: React.FC = () => {
     fetchData();
   }, [activeTab]);
 
-  const handleCancelSession = useCallback(async (
-    sessionId: string,
-    reason: string,
-    customReason: string
-  ) => {
-    try {
-      const response = await fetchCanceSession(sessionId, customReason, reason);
-
-      if (response?.status === 200 && response?.data.success) {
-        setSessions(
-          sessions.map((session) =>
-            session?._id === sessionId
-              ? { ...session, status: "CANCEL_REQUESTED" }
-              : session
-          )
+  const handleCancelSession = useCallback(
+    async (sessionId: string, reason: string, customReason: string) => {
+      try {
+        const response = await fetchCanceSession(
+          sessionId,
+          customReason,
+          reason
         );
-        toast.success(response?.data?.message);
+
+        if (response?.status === 200 && response?.data.success) {
+          setSessions(
+            sessions.map((session) =>
+              session?._id === sessionId
+                ? { ...session, status: "CANCEL_REQUESTED" }
+                : session
+            )
+          );
+          toast.success(response?.data?.message);
+        }
+      } catch (error: unknown) {
+        errorHandler(error);
       }
-    } catch (error: unknown) {
-      errorHandler(error);
-    }
-  },[sessions]);
+    },
+    [sessions]
+  );
 
   const handleRating = useCallback((session: ISession) => {
     setSelectedSession(session);
     setShowRatingModal(true);
-  },[]);
+  }, []);
 
-  const handleSubmitRating = useCallback(async (rating: number, review: string) => {
-const resposne = await fetchSubmitRating(review,selectedSession!,role,rating=0,);
-if(resposne?.data.success && resposne?.status == 200){
-  toast.success(resposne?.data?.message);
-  setSessions(
-    sessions.map((session) =>
-      session?._id === selectedSession?._id
-        ? { ...session, rating, review }
-        : session
-    )
+  const handleSubmitRating = useCallback(
+    async (rating: number, review: string) => {
+      const response = await fetchSubmitRating(
+        review,
+        selectedSession!,
+        rating
+      );
+      console.log(response?.data)
+      if (response?.data.success && response?.status == 200) {
+        toast.success(response?.data?.message);
+
+        setSessions((prev) =>
+          prev.map((session) =>
+            session._id === selectedSession?._id
+              ? {
+                  ...session,
+                  review: {
+                    ...session.review,
+                    rating: response?.data?.feedback?.rating,
+                    feedback: response?.data?.feedback?.feedback,
+                  } as Ireview,
+                }
+              : session
+          )
+        );
+        if(response?.data?.oldReview){
+          console.log(response?.data?.oldReview,'older one')
+          setSessions((prev) =>
+            prev.map((session) =>
+              session.review?._id === response?.data?.oldReview
+                ? {
+                    ...session,
+                    review:null,
+                   
+                  }
+                : session
+            )
+          );
+        }
+      }
+    },
+    [selectedSession]
   );
-}
-  },[role, selectedSession, sessions]);
 
   const filteredSessions = sessions.filter((session) => {
     const isUpcoming =
@@ -202,7 +239,6 @@ if(resposne?.data.success && resposne?.status == 200){
 
         <div className="space-y-4">
           {paginatedSessions.map((session) => {
-            console.log(session, "from sessin card");
             return (
               <SessionCard
                 handleSessionJoin={handleSessionJoin}

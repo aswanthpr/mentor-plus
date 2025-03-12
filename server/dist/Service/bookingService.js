@@ -95,7 +95,7 @@ class bookingService {
                                     currency: "usd",
                                     unit_amount: parseInt(totalAmount) * 100,
                                     product_data: {
-                                        name: `Mentor is ${mentorName.toLocaleUpperCase()}`,
+                                        name: `Mentor is ${decodeURIComponent(mentorName.toLocaleUpperCase())}`,
                                         description: `Slot date is: ${String(timeSlot === null || timeSlot === void 0 ? void 0 : timeSlot.startDate).split("T")[0]}
                 time is ${startStr}-${endStr}`,
                                     },
@@ -103,7 +103,7 @@ class bookingService {
                                 quantity: 1,
                             },
                         ],
-                        success_url: `${(_a = process.env) === null || _a === void 0 ? void 0 : _a.CLIENT_ORIGIN_URL}/mentee/stripe-success?session_id={CHECKOUT_SESSION_ID}?success=true`,
+                        success_url: `${(_a = process.env) === null || _a === void 0 ? void 0 : _a.CLIENT_ORIGIN_URL}/mentee/stripe-success?session_id={CHECKOUT_SESSION_ID}&success=true`,
                         cancel_url: `${protocol}://${host}/mentee/stripe-cancel?cancelled=true`,
                         metadata: {
                             timeSlot: JSON.stringify(timeSlot),
@@ -129,7 +129,7 @@ class bookingService {
                         };
                     }
                     console.log(deductAmountFromWallet, "deductamojuntform wallet ");
-                    const time = Date.now().toLocaleString();
+                    const time = new Date().toLocaleString();
                     console.log(time, "times ");
                     //create  new transaction
                     const newTranasaction = {
@@ -180,7 +180,7 @@ class bookingService {
                 return {
                     success: false,
                     message: "error while payment",
-                    status: httpStatusCode_1.Status.NotFound,
+                    status: httpStatusCode_1.Status.BadRequest,
                 };
             }
             catch (error) {
@@ -215,15 +215,22 @@ class bookingService {
                     case "checkout.session.completed": {
                         const session = event.data.object;
                         const metadata = session.metadata || {};
-                        if (!session.metadata) {
-                            console.error("Missing metadata in Stripe session");
+                        //if the data not exist send notification to mentee
+                        if (!metadata ||
+                            !metadata.menteeId ||
+                            !metadata.timeSlot ||
+                            !metadata.messages ||
+                            !metadata.paymentMethod) {
+                            console.log(metadata, metadata.menteeId, metadata.timeSlot, metadata.message, metadata.paymentMethod);
+                            console.error("❌ Invalid or missing metadata in Stripe webhook");
+                            // Redirect to error page when metadata is missing
+                            const noti = yield this._notificationRepository.createNotification(metadata.menteeId, `Payment Failed`, `Your payment could not be processed. Please try again.`, `mentee`, "");
+                            if ((metadata === null || metadata === void 0 ? void 0 : metadata.menteeId) && noti) {
+                                index_1.socketManager.sendNotification(metadata === null || metadata === void 0 ? void 0 : metadata.menteeId, noti);
+                            }
                             return;
                         }
-                        const { timeSlot, message, paymentMethod, menteeId } = metadata;
-                        if (!timeSlot || !message || !paymentMethod || !menteeId) {
-                            console.error("Invalid or missing metadata in Stripe webhook");
-                            return;
-                        }
+                        const { timeSlot, messages, menteeId } = metadata;
                         if (!mongoose_1.default.Types.ObjectId.isValid(menteeId)) {
                             console.error("Invalid menteeId format:", menteeId);
                             return;
@@ -231,11 +238,19 @@ class bookingService {
                         const menteeObjectId = new mongoose_1.default.Types.ObjectId(menteeId);
                         const slotId = new mongoose_1.default.Types.ObjectId(JSON.parse(timeSlot)._id);
                         const status = session.payment_status == "paid" ? "Paid" : "Failed";
+                        if (status === "Failed") {
+                            console.error("❌ Payment failed. Redirecting to error page.");
+                            const notification = yield this._notificationRepository.createNotification(menteeObjectId, `Payment Failed`, `Your payment could not be processed. Please try again.`, `mentee`, "");
+                            if (menteeId && notification) {
+                                index_1.socketManager.sendNotification(menteeId, notification);
+                            }
+                            return;
+                        }
                         const totalAmount = (session.amount_total || 0) / 100;
-                        const time = new Date(session.created * 1000).toLocaleString();
+                        const time = new Date(session.created * 1000).toISOString();
                         //checking wallet exist or not
                         const walletResponse = (yield this.__walletRepository.findWallet(menteeObjectId));
-                        let newWallet;
+                        let newWallet = null;
                         // if wallet not exist create new one
                         if (!walletResponse) {
                             newWallet = yield this.__walletRepository.createWallet({
@@ -263,7 +278,7 @@ class bookingService {
                             paymentMethod: "stripe",
                             paymentAmount: String(totalAmount),
                             duration: (_a = JSON.parse(timeSlot)) === null || _a === void 0 ? void 0 : _a.duration,
-                            description: message,
+                            description: messages,
                             status: "CONFIRMED",
                         };
                         const response = yield this._slotScheduleRepository.newSlotBooking(newSlotSchedule);
@@ -289,12 +304,25 @@ class bookingService {
                         if (!resp) {
                             yield this._chatRepository.createChatDocs(mentorId, menteeObjectId);
                         }
-                        if (response) {
-                            return;
+                        return;
+                    }
+                    case "checkout.session.expired":
+                    case "checkout.session.failed": {
+                        const session = event.data.object;
+                        console.error("❌ Payment Failed or Expired:", session.id);
+                        if (session.metadata && session.metadata.menteeId) {
+                            yield this._notificationRepository.createNotification(session.metadata.menteeId, `Payment Failed`, `Your payment attempt failed. Please try again.`, `mentee`, "");
                         }
-                        else {
-                            throw new Error("Failed to create appointment");
+                        return;
+                    }
+                    case "payment_intent.payment_failed": {
+                        const session = event.data.object;
+                        console.error("❌ Payment Failed:", session.id);
+                        if (session.metadata && session.metadata.menteeId) {
+                            const notific = yield this._notificationRepository.createNotification(session.metadata.menteeId, `Payment Failed`, `Your payment attempt failed. Please try again.`, `mentee`, "");
+                            index_1.socketManager.sendNotification(session.metadata.menteeId, notific);
                         }
+                        return;
                     }
                     default:
                         console.log(`Unhandled event type ${event.type}`);
@@ -331,7 +359,7 @@ class bookingService {
                 }
                 const tabCond = currentTab == "upcoming" ? false : true;
                 console.log(tabCond, currentTab, "this si tab");
-                const response = yield this._slotScheduleRepository.getBookedSlot(menteeId, tabCond);
+                const response = yield this._slotScheduleRepository.getBookedSlot(menteeId, tabCond, "mentee");
                 if (!response || response.length === 0) {
                     return {
                         success: false,
@@ -484,7 +512,6 @@ class bookingService {
                 if (notif) {
                     index_1.socketManager.sendNotification(String(response === null || response === void 0 ? void 0 : response.menteeId), notif);
                 }
-                ;
                 return {
                     success: true,
                     message: `${statusValue == "CANCELLED" ? "cancel approved" : "cancel rejected"} successfully`,

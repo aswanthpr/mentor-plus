@@ -6,6 +6,7 @@ import {
   // BookmarkPlus,
   Github,
   Linkedin,
+  Star,
 } from "lucide-react";
 // import Button from "../../Auth/Button";
 import { Link } from "react-router-dom";
@@ -42,10 +43,10 @@ export const ProfileHeader = ({ mentorData }: ProfileHeaderProps) => {
                 <MapPin size={16} />
                 <span>{location}</span>
               </div> */}
-              {/* <div className="flex items-center gap-1">
+              <div className="flex items-center gap-1">
                 <Star size={16} className="text-yellow-300" />
-                <span>{rating.toFixed(1)} ({reviews} reviews)</span>
-              </div> */}
+                <span>{mentorData?.averageRating?.toFixed(1)} (rating)</span>
+              </div>
               {/* <div className="flex items-center gap-1">
                 <div className="w-2 h-2 bg-green-400 rounded-full" />
                 <span>{status}</span>

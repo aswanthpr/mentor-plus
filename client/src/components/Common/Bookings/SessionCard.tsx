@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Calendar, Clock } from "lucide-react";
+import { Calendar, Clock, Star } from "lucide-react";
 import Modal from "../common4All/Modal";
 import { SelectChangeEvent, TextareaAutosize, Tooltip } from "@mui/material";
 import { toast } from "react-toastify";
@@ -12,14 +12,14 @@ interface SessionCardProps {
   role: string;
   handleReclaimRequest?: (sessionId: string, value: string) => void;
   handleCreateSessionCode?: (sessionId: string) => void;
-  handleCancelSession?:(
+  handleCancelSession?: (
     sessionId: string,
     reason: string,
     customReason: string
   ) => void;
   handleCompletedSession?(sessionId: string): void;
-  handleRating: (session:ISession) => void;
-  handleSessionJoin(sessionId:string,sessionCode:string,role:string):void
+  handleRating?: (session: ISession) => void;
+  handleSessionJoin(sessionId: string, sessionCode: string, role: string): void;
 }
 
 const issues = [
@@ -42,22 +42,22 @@ const SessionCard: React.FC<SessionCardProps> = ({
   role,
   handleCompletedSession,
   handleSessionJoin,
-  handleRating
+  handleRating,
 }) => {
-
-
   const [modalToggle, setModalToggle] = useState<boolean>(false);
   const [reason, setReason] = useState<string>("");
   const [customReason, setCustomReason] = useState<string>("");
   const [isOtherSelected, setIsOtherSelected] = useState<boolean>(false);
   const [mentorStatusChange, setMentorStatusChange] = useState<string>("");
-  const [desptnOpn,setDesptnOpn] = useState<boolean>(false)
+  const [desptnOpn, setDesptnOpn] = useState<boolean>(false);
 
   const formatTime = moment(session.slotDetails?.slots![0]?.startTime);
 
   const startTime = moment(formatTime).format("hh:mm A");
-  const startDate =moment(session?.slotDetails?.slots?.[0]?.startTime).format("DD-MM-YYYY");
- 
+  const startDate = moment(session?.slotDetails?.slots?.[0]?.startTime).format(
+    "DD-MM-YYYY"
+  );
+
   const handleModalClose = () => {
     setModalToggle(false);
     setReason("");
@@ -77,8 +77,6 @@ const SessionCard: React.FC<SessionCardProps> = ({
   useEffect(() => {}, [session]);
 
   const handleSubmit = () => {
-
-
     if (reason == "") {
       toast.error("select a reason");
       return;
@@ -100,7 +98,6 @@ const SessionCard: React.FC<SessionCardProps> = ({
 
   return (
     <div className="bg-white p-4 rounded-lg shadow-sm border border-gray-200 hover:shadow-md transition-shadow mt-2">
-      
       <div className="flex items-start justify-between">
         {/* image */}
         <div className="flex items-center gap-4">
@@ -112,37 +109,46 @@ const SessionCard: React.FC<SessionCardProps> = ({
           {/* description */}
           <div>
             <h3 className="font-medium text-gray-900">{session?.user?.name}</h3>
-            <span onClick={()=>setDesptnOpn(true)} className="text-sm text-gray-500 cursor-pointer hover:underline">{session?.description.length>20?session.description.slice(0,20)+".....":session?.description}</span>
+            <span
+              onClick={() => setDesptnOpn(true)}
+              className="text-sm text-gray-500 cursor-pointer hover:underline"
+            >
+              {session?.description.length > 20
+                ? session.description.slice(0, 20) + "....."
+                : session?.description}
+            </span>
           </div>
         </div>
         {/* mark session complete */}
         <div className="flex space-x-3 flex-row">
-          {role == "mentor" && session?.sessionCode && session?.status!=="COMPLETED" && (
-            <Tooltip title="Mark session as completed">
-              <span>
-                <button
-                  onClick={() => handleCompletedSession!(session?._id)}
-                  className="bg-[#afaba6] text-white text-sm font-normal rounded-full p-2 "
-                >
-                  mark as completed
-                </button>
-              </span>
-            </Tooltip>
-          )}
+          {role == "mentor" &&
+            session?.sessionCode &&
+            session?.status !== "COMPLETED" && (
+              <Tooltip title="Mark session as completed">
+                <span>
+                  <button
+                    onClick={() => handleCompletedSession!(session?._id)}
+                    className="bg-[#afaba6] text-white text-sm font-normal rounded-full p-2 "
+                  >
+                    mark as completed
+                  </button>
+                </span>
+              </Tooltip>
+            )}
           {/* sessionCode generate */}
           {role === "mentor" &&
-          (session?.status === "CONFIRMED" ||session?.status === "REJECTED") &&
-          moment().diff(moment(session?.slotDetails?.startDate), "minutes") <=
-            1440 &&
-          !session?.sessionCode && (
-            <Button
-              onClick={() => handleCreateSessionCode!(session?._id)}
-              children={"session code"}
-              className="bg-[#afaba6] text-white text-sm font-normal rounded-full p-1"
-              variant="secondary"
-            />
-          ) 
-          }
+            (session?.status === "CONFIRMED" ||
+              session?.status === "REJECTED") &&
+            moment().diff(moment(session?.slotDetails?.startDate), "minutes") <=
+              1440 &&
+            !session?.sessionCode && (
+              <Button
+                onClick={() => handleCreateSessionCode!(session?._id)}
+                children={"session code"}
+                className="bg-[#afaba6] text-white text-sm font-normal rounded-full p-1"
+                variant="secondary"
+              />
+            )}
 
           <span
             className={`px-3 py-1 pt-2 rounded-full text-sm font-medium  items-center ${
@@ -167,9 +173,7 @@ const SessionCard: React.FC<SessionCardProps> = ({
       <div className="mt-4 grid grid-cols-3 gap-4">
         <div className="flex items-center gap-2">
           <Calendar className="w-4 h-4 text-gray-400" />
-          <span className="text-sm text-gray-600">
-            {startDate}
-          </span>
+          <span className="text-sm text-gray-600">{startDate}</span>
         </div>
         <div className="flex items-center gap-2">
           <Clock className="w-4 h-4 text-gray-400" />
@@ -178,31 +182,36 @@ const SessionCard: React.FC<SessionCardProps> = ({
           </span>
         </div>
         <div className="flex justify-end">
-          { session?.status === "CONFIRMED" && (
+          {session?.status === "CONFIRMED" && (
             <div className="flex gap-2">
               {role == "mentee" && !session?.sessionCode && (
-                 <Tooltip title="cancel session">
-
-                <button
-                  onClick={() => setModalToggle(true)}
-                  className="text-red-600 hover:text-red-700 text-sm font-medium"
-                >
-                  Cancel
-                </button>
+                <Tooltip title="cancel session">
+                  <button
+                    onClick={() => setModalToggle(true)}
+                    className="text-red-600 hover:text-red-700 text-sm font-medium"
+                  >
+                    Cancel
+                  </button>
                 </Tooltip>
               )}
-              {session?.sessionCode?(
-                 <Tooltip title="join session">
-                 <button
-                   onClick={() => handleSessionJoin(session?._id,session?.sessionCode as string, role)                
-                   }
-                   className="text-[#ff8800] hover:text-[#ff9900] text-lg font-medium"
-                 >
-                   Join
-                 </button>
-                 </Tooltip>
-              ):("")}
-             
+              {session?.sessionCode ? (
+                <Tooltip title="join session">
+                  <button
+                    onClick={() =>
+                      handleSessionJoin(
+                        session?._id,
+                        session?.sessionCode as string,
+                        role
+                      )
+                    }
+                    className="text-[#ff8800] hover:text-[#ff9900] text-lg font-medium"
+                  >
+                    Join
+                  </button>
+                </Tooltip>
+              ) : (
+                ""
+              )}
             </div>
           )}
           {role == "mentor" && session?.status === "CANCEL_REQUESTED" && (
@@ -222,23 +231,34 @@ const SessionCard: React.FC<SessionCardProps> = ({
               />
             </div>
           )}
-          {session.status === 'COMPLETED' && (
-          <button
-            onClick={()=>handleRating(session)}
-            className="text-[#ff8800] hover:text-[#ff9900] text-sm font-medium"
-          >
-            {role=="mentee"?"Rate session":"Feedback"}
-          </button>
-        )}
-          
+          {session.status === "COMPLETED" &&
+          !session?.review?.rating &&
+          role === "mentee" ? (
+            <button
+              onClick={() => handleRating!(session)}
+              className="text-[#ff8800] hover:text-[#ff9900] text-sm font-medium"
+            >
+              Rate session
+            </button>
+          ) : (
+            session?.review?.rating && (
+              <div className="mt-4 text-sm text-gray-600 border-t pt-4 flex items-center gap-1">
+                {Array.from({ length: session?.review?.rating }).map(
+                  (_, index) => (
+                    <Star key={index} className="fill-amber-400 w-4" />
+                  )
+                )}
+              </div>
+            )
+          )}
         </div>
       </div>
 
-      {/* {session && (
-      <div className="mt-4 text-sm text-gray-600 border-t pt-4">
-        <p className="italic">"{session.review}"</p>
-      </div>
-    )} */}
+      {session?.review && role === "mentee" && (
+        <div className="mt-4 text-sm text-gray-600 border-t pt-4">
+          <p className="italic">"{session?.review?.feedback}"</p>
+        </div>
+      )}
       <Modal
         isOpen={modalToggle}
         onClose={handleModalClose}
@@ -284,14 +304,11 @@ const SessionCard: React.FC<SessionCardProps> = ({
           </>
         }
       />
-      {desptnOpn &&(
+      {desptnOpn && (
         <Modal
-        isOpen={desptnOpn}
-        onClose={ ()=>setDesptnOpn(false)}
-        children={
-          session?.description
-        }
-
+          isOpen={desptnOpn}
+          onClose={() => setDesptnOpn(false)}
+          children={session?.description}
         />
       )}
     </div>
