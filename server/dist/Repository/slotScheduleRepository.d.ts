@@ -23,6 +23,7 @@ declare class slotScheduleRepository extends baseRepository<IslotSchedule> imple
     createSessionCode(bookingId: string, sessionCode: string): Promise<string>;
     sessionCompleted(bookingId: string): Promise<IslotSchedule | null>;
     validateSessionJoin(sessionId: string, sessionCode: string): Promise<IslotSchedule | null>;
+    findTotalRevenue(): Promise<IslotSchedule[] | null>;
 }
 declare const _default: slotScheduleRepository;
 export default _default;

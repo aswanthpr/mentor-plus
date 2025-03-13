@@ -44,9 +44,9 @@ const WithdrawModal: React.FC<WithdrawModalProps> = ({ isOpen, onClose, onSubmit
                 type="number"
                 value={amount}
                 onChange={(e) => setAmount(e.target.value)}
-                min="0"
+                min="500"
                 max={maxAmount}
-                step="0.01"
+                step="10"
                 className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#ff8800] focus:border-transparent"
                 placeholder="0.00"
               />
@@ -63,7 +63,7 @@ const WithdrawModal: React.FC<WithdrawModalProps> = ({ isOpen, onClose, onSubmit
             </button>
             <button
               type="submit"
-              disabled={!amount || parseFloat(amount) <= 0 || parseFloat(amount) > maxAmount}
+              disabled={!amount || parseFloat(amount) <= 0 || parseFloat(amount) < 500}
               className="px-4 py-2 text-sm font-medium text-white bg-[#ff8800] hover:bg-[#ff9900] rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
               Withdraw

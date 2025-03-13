@@ -10,5 +10,6 @@ export interface IslotScheduleRepository {
     createSessionCode(bookingId: string, sessionCode: string): Promise<string>;
     sessionCompleted(bookingId: string): Promise<IslotSchedule | null>;
     validateSessionJoin(sessionId: string, sessionCode: string): Promise<IslotSchedule | null>;
+    findTotalRevenue(): Promise<IslotSchedule[] | null>;
 }
 //# sourceMappingURL=iSlotScheduleRepository.d.ts.map

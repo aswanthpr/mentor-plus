@@ -70,5 +70,10 @@ export interface IadminService {
         message: string;
         status: number;
     }>;
+    dashboardData(): Promise<{
+        message: string;
+        success: boolean;
+        status: number;
+    }>;
 }
 //# sourceMappingURL=iAdminService.d.ts.map

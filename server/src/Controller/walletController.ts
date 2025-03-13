@@ -49,4 +49,20 @@ async getWalletData(req: Request, res: Response): Promise<void> {
     );
   }
 }
+
+async withdrawMentorEarnings(req: Request, res: Response): Promise<void>{
+  try {
+    const {amount} = req.body;
+
+    const{message,status,result,success} = await this.__walletService.withdrawMentorEarnings(amount,req.user as Express.User as ObjectId);
+console.log(result,success)
+    res.status(status).json({message,success,result});
+  } catch (error:unknown) {
+    throw new Error(
+      `Error while fetch walletData ${
+        error instanceof Error ? error.message : String(error)
+      }`
+    );
+  }
+}
 }

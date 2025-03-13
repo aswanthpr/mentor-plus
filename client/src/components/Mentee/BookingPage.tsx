@@ -38,7 +38,6 @@ const BookingPage: React.FC = () => {
   const [timeSlot, setTimeSlot] = useState<Itime[] | []>([]);
   const [errors, setErrors] = useState<IBookingError>(initialState);
   const [timeDifference, setTimeDifference] = useState<number | null>(null);
-  const [platformFee, setPlatformFee] = useState<number | null>(null);
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [mentorName] = useState<string>(pathname.split("/")[2]);
@@ -50,7 +49,6 @@ const BookingPage: React.FC = () => {
 
         if (response?.status == 200 && response?.data?.success) {
           setTimeSlot(response.data?.timeSlots);
-          setPlatformFee(response.data?.platformFee);
         }
       } catch (error: unknown) { 
         errorHandler(error);
@@ -59,8 +57,6 @@ const BookingPage: React.FC = () => {
     fetchData();
   }, [mentorId]);
 
-  const platformFees = sessionPrice * Number(platformFee);
-  const totalPrice = sessionPrice + platformFees;
 
   const handleBook = async () => {
     setErrorMessage(null);
@@ -76,7 +72,7 @@ const BookingPage: React.FC = () => {
         selectedSlot,
         message,
         selectedPayment,
-        totalPrice,
+        sessionPrice,
         timeDifference
       );
 
@@ -84,7 +80,7 @@ const BookingPage: React.FC = () => {
         selectedSlot,
         message,
         selectedPayment,
-        totalPrice,
+        sessionPrice,
         mentorName
       );
 
@@ -191,12 +187,12 @@ const BookingPage: React.FC = () => {
               <span>${sessionPrice}</span>
             </div>
             <div className="flex justify-between">
-              <span className="text-gray-600">Platform Fee</span>
-              <span>${platformFees}</span>
+              <span className="text-gray-600">session</span>
+              <span>x 1</span>
             </div>
             <div className="flex justify-between pt-3 border-t font-semibold">
               <span>Total</span>
-              <span>${totalPrice}</span>
+              <span>${sessionPrice}</span>
             </div>
           </div>
         </div>

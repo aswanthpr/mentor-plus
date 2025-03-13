@@ -22,4 +22,7 @@ export interface IadminService {
     mentorVerify(id: string): Promise<{ success: boolean, message: string, status: number, result: Imentor | null }>;
     mentorStatusChange(id: string): Promise<{ success: boolean, message: string, status: number }>;
 
+    //admin;
+    dashboardData():Promise<{message:string,success:boolean,status:number}>;
+    
 }

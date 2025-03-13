@@ -9,6 +9,7 @@ import { axiosInstance } from "../../Config/mentorAxios";
 import { uploadFile } from "../../Utils/Reusable/cloudinary";
 import { Link } from "react-router-dom";
 import moment from "moment";
+import chatBg from "../../Asset/background.jpg";
 
 const Message: React.FC = () => {
   const [selectedUser, setSelectedUser] = useState<Ichat | null>(null);
@@ -32,8 +33,8 @@ const Message: React.FC = () => {
   const userId = useRef<string>("");
   const chatSocket = useRef<Socket | null>(null);
 
+  const usr = location.pathname.split("/")![1];
   useEffect(() => {
-    const usr = location.pathname.split("/")![1];
     setCurrentUser(usr);
     let flag = true;
     const fetchChat = async () => {
@@ -60,7 +61,7 @@ const Message: React.FC = () => {
     return () => {
       flag = false;
     };
-  }, []);
+  }, [usr]);
 
   useEffect(() => {
     if (userId.current && !chatSocket.current) {
@@ -92,7 +93,7 @@ const Message: React.FC = () => {
     });
 
     chatSocket.current.on("userOffline", (data) => {
-    console.log(data,'this ios data')
+      console.log(data, "this ios data");
       setUsers((pre) =>
         pre.map((usr) =>
           data.includes(usr.users?._id)
@@ -147,7 +148,7 @@ const Message: React.FC = () => {
 
   useEffect(() => {
     if (messagesEndRef.current) {
-      messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
+      messagesEndRef.current.scrollIntoView({ behavior: "instant" });
     }
   }, [messages]);
 
@@ -210,7 +211,6 @@ const Message: React.FC = () => {
     };
 
     if (selectedFile) {
-
       newMessage.messageType = selectedFile.type.startsWith("image/")
         ? "image"
         : "document";
@@ -287,7 +287,7 @@ const Message: React.FC = () => {
   // };
 
   return (
-    <div className="h-[calc(100vh-3rem)] pt-12 flex">
+    <div className="h-[calc(100vh-3rem)] pt-14 flex">
       {/* Users List */}
       <div className="w-80 border-r border-gray-200 bg-white">
         <div className="p-4">
@@ -302,14 +302,18 @@ const Message: React.FC = () => {
             />
           </div>
         </div>
-
+        <div className="h-0.5 bg-gray-100 w-full " />
         <div className="overflow-y-auto h-[calc(100%-5rem)]">
           {filteredUsers.map((user) => (
             <button
               key={user?.users?._id}
               onClick={() => handleSelectedUser(user as Ichat)}
               className={`w-full p-4 flex items-center gap-4 hover:bg-gray-100 ${
-                selectedUser?._id === user?.users?._id ? "bg-gray-50" : ""
+                (usr == "mentee"
+                  ? selectedUser?.mentorId
+                  : selectedUser?.menteeId) == user?.users?._id
+                  ? "bg-gray-100"
+                  : ""
               }`}
             >
               <div className="relative">
@@ -335,8 +339,7 @@ const Message: React.FC = () => {
                   </span>
                 </div>
                 <p className="text-sm text-gray-500 truncate  ">
-                 
-                  {user?.lastMessage.slice(0,20)}
+                  {user?.lastMessage.slice(0, 20)}
                 </p>
               </div>
               {/* {user.unreadCount > 0 && (
@@ -346,6 +349,7 @@ const Message: React.FC = () => {
               )} */}
             </button>
           ))}
+          <div className="h-0.5 bg-gray-100 w-full " />
         </div>
       </div>
 
@@ -374,7 +378,14 @@ const Message: React.FC = () => {
             </div>
 
             {/* Messages */}
-            <div className="flex-1 overflow-y-auto p-4 break-words overflow-hidden">
+            <div
+              className="flex-1 overflow-y-auto p-4 break-words overflow-hidden bg-[url('../../Asset/background.jpg')] bg-cover bg-center"
+              style={{
+                backgroundImage: `url(${chatBg})`,
+                backgroundSize: "cover",
+                backgroundPosition: "center",
+              }}
+            >
               {messages?.map((message, index) => (
                 <div className="space-y-2" key={message?._id || index}>
                   <div
@@ -389,7 +400,7 @@ const Message: React.FC = () => {
                   >
                     <div
                       className={`max-w-[100%] rounded-lg p-3  flex space-x-2 ${
-                        message.receiverId ===
+                        message?.receiverId ===
                         (currentUser === "mentee"
                           ? selectedUser?.menteeId
                           : selectedUser?.mentorId)
@@ -397,10 +408,10 @@ const Message: React.FC = () => {
                           : "bg-[#a0a0a0] text-white"
                       } `}
                     >
-                      {message.messageType === "text" && (
-                        <p>{message.content}</p>
+                      {message?.messageType === "text" && (
+                        <p>{message?.content}</p>
                       )}
-                      {message.messageType === "image" && message?.content && (
+                      {message?.messageType === "image" && message?.content && (
                         <img
                           src={message?.content}
                           alt="Shared image"
@@ -424,9 +435,9 @@ const Message: React.FC = () => {
                                   : " border-gray-300  text-white-400"
                               }`}
                             >
-                              <Link
-                                to={message?.content}
-                                target="_blank"
+                              <span
+                               onClick={()=>window.location.href=message?.content}
+                                // target="_blank"
                                 rel="noopener noreferrer"
                                 className="flex items-center gap-2"
                               >
@@ -436,7 +447,7 @@ const Message: React.FC = () => {
                                 <span className="truncate max-w-[200px] font-medium">
                                   {decoded}
                                 </span>
-                              </Link>
+                              </span>
                             </div>
                           );
                         })()}
@@ -521,7 +532,6 @@ const Message: React.FC = () => {
               )} */}
 
               <div className="flex items-center gap-4">
-           
                 <input
                   type="text"
                   value={messageInput}
@@ -532,7 +542,7 @@ const Message: React.FC = () => {
                   onKeyDown={(e: React.KeyboardEvent) => {
                     if (e.key === "Enter" && !e.shiftKey) {
                       e.preventDefault();
-                      handleSendMessage()
+                      handleSendMessage();
                     }
                   }}
                   placeholder="Type a message..."
@@ -569,21 +579,21 @@ const Message: React.FC = () => {
 
                 <button
                   onClick={handleSendMessage}
-                  
                   disabled={(!messageInput && !selectedFile) || btnDisable} //&& !audioBlob
                   className="p-2 text-white bg-[#ff8800] rounded-lg hover:bg-[#ff9900] disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  {
-                    btnDisable?<div className="h-5 w-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>:  <Send className="h-5 w-5" />
-                  }
-               
+                  {btnDisable ? (
+                    <div className="h-5 w-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                  ) : (
+                    <Send className="h-5 w-5" />
+                  )}
                 </button>
               </div>
             </div>
           </>
         ) : (
-          <div className="flex-1 flex items-center justify-center text-gray-500">
-            Select a user to start chatting
+          <div className="flex-1 flex-col flex items-center justify-center text-gray-500">
+            <Send className="mb-3 w-10  " /> Select a user to start chatting
           </div>
         )}
       </div>

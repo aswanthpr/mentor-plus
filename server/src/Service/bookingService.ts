@@ -39,7 +39,6 @@ export class bookingService implements IbookingService {
     message: string;
     status: number;
     timeSlots: Itime[] | [];
-    platformFee: string | undefined;
   }> {
     try {
       if (!mentorId) {
@@ -48,7 +47,6 @@ export class bookingService implements IbookingService {
           message: "credential not found",
           success: false,
           timeSlots: [],
-          platformFee: undefined,
         };
       }
       const response = await this._timeSlotRepository.getMentorSlots(mentorId);
@@ -58,7 +56,6 @@ export class bookingService implements IbookingService {
           message: "Data not found",
           success: false,
           timeSlots: [],
-          platformFee: undefined,
         };
       }
       console.log(response, "from service");
@@ -67,7 +64,6 @@ export class bookingService implements IbookingService {
         message: "Data fetched successfully",
         success: true,
         timeSlots: response,
-        platformFee: process.env?.PLATFORM_FEE,
       };
     } catch (error: unknown) {
       throw new Error(
@@ -160,7 +156,6 @@ export class bookingService implements IbookingService {
             success: false,
           };
         }
-        console.log(deductAmountFromWallet, "deductamojuntform wallet ");
 
         const time = new Date().toLocaleString();
         console.log(time, "times ");
@@ -169,9 +164,9 @@ export class bookingService implements IbookingService {
         const newTranasaction = {
           amount: Number(totalAmount),
           walletId: deductAmountFromWallet?._id as ObjectId,
-          transactionType: "payment",
+          transactionType: "debit",
           status: "completed",
-          note: "slot booked successfully",
+          note: "slot booked ",
         };
 
         await this.__transactionRepository.createTransaction(newTranasaction);
@@ -304,12 +299,12 @@ export class bookingService implements IbookingService {
             !metadata.paymentMethod
           ) {
             console.log(
-              metadata ,
-            metadata.menteeId ,
-            metadata.timeSlot ,
-            metadata.message ,
-            metadata.paymentMethod
-            )
+              metadata,
+              metadata.menteeId,
+              metadata.timeSlot,
+              metadata.message,
+              metadata.paymentMethod
+            );
             console.error("❌ Invalid or missing metadata in Stripe webhook");
 
             // Redirect to error page when metadata is missing
@@ -381,7 +376,7 @@ export class bookingService implements IbookingService {
             walletId: (walletResponse
               ? walletResponse?.["_id"]
               : newWallet!._id) as ObjectId,
-            transactionType: "payment",
+            transactionType: "paid",
             status: "completed",
             note: "slot booked successfully",
           };
@@ -467,19 +462,23 @@ export class bookingService implements IbookingService {
         case "payment_intent.payment_failed": {
           const session = event.data.object as Stripe.Checkout.Session;
           console.error("❌ Payment Failed:", session.id);
-        
+
           if (session.metadata && session.metadata.menteeId) {
-           const notific = await this._notificationRepository.createNotification(
-              session.metadata.menteeId as unknown as ObjectId,
-              `Payment Failed`,
-              `Your payment attempt failed. Please try again.`,
-              `mentee`,
-              ""
+            const notific =
+              await this._notificationRepository.createNotification(
+                session.metadata.menteeId as unknown as ObjectId,
+                `Payment Failed`,
+                `Your payment attempt failed. Please try again.`,
+                `mentee`,
+                ""
+              );
+
+            socketManager.sendNotification(
+              session.metadata.menteeId,
+              notific as Inotification
             );
-        
-          socketManager.sendNotification(session.metadata.menteeId,notific as Inotification);
           }
-          return
+          return;
         }
         default:
           console.log(`Unhandled event type ${event.type}`);
@@ -586,8 +585,7 @@ export class bookingService implements IbookingService {
 
       const response = await this._slotScheduleRepository.getBookedSession(
         mentorId,
-        tabCond,
-
+        tabCond
       );
       if (!response || response.length === 0) {
         return {
@@ -718,7 +716,7 @@ export class bookingService implements IbookingService {
           walletId: (addToWallet
             ? addToWallet?._id
             : createWallet?.["_id"]) as ObjectId,
-          transactionType: "refund",
+          transactionType: "credit",
           status: "completed",
           note: "slot cancelled amount refunded",
         };
@@ -809,14 +807,17 @@ export class bookingService implements IbookingService {
     }
   }
   //session completed marking
-  async sessionCompleted(bookingId: string): Promise<{
+  async sessionCompleted(
+    bookingId: string,
+    mentorId: ObjectId
+  ): Promise<{
     success: boolean;
     message: string;
     status: number;
     sessionStatus: string | null;
   }> {
     try {
-      if (!bookingId) {
+      if (!bookingId || !mentorId) {
         return {
           success: false,
           message: "credential not found",
@@ -828,6 +829,7 @@ export class bookingService implements IbookingService {
       const response = await this._slotScheduleRepository.sessionCompleted(
         bookingId
       );
+
       if (!response) {
         return {
           success: false,
@@ -835,13 +837,54 @@ export class bookingService implements IbookingService {
           status: Status.NotFound,
           sessionStatus: null,
         };
+      } 
+      //calculate mentor cash;
+
+      const mentorCommision =
+        (parseInt(response?.paymentAmount) *parseInt(process.env.MENTOR_COMMISION as string))/100
+        
+
+      const result = await this.__walletRepository.findWallet(mentorId);
+      let newWallet: Iwallet | null = null;
+      if (!result) {
+        newWallet = await this?.__walletRepository.createWallet({
+          userId: mentorId as ObjectId,
+          balance:mentorCommision,
+        });
+      }else{
+        await this.__walletRepository.updateWalletAmount(
+          mentorId,
+          parseInt(response?.paymentAmount))
       }
+      
+      const newTranasaction = {
+        amount: mentorCommision,
+        walletId: (result ? result?._id : newWallet?.["_id"]) as ObjectId,
+        transactionType: "credit",
+        status: "completed",
+        note: "earnings credited to account",
+      };
+
+     await this.__transactionRepository.createTransaction(newTranasaction);
+    
+     const notification =  await this._notificationRepository.createNotification(
+        mentorId,
+        "Earnings credited",
+        "your earnings credited to your wallet.have a nice day",
+        "mentor",
+        `${process.env.CLIENT_ORIGIN_URL}/mentor/wallet`
+      );
+      if(notification){
+        socketManager.sendNotification(String(mentorId),notification as Inotification)
+      }
+      console.log(notification)
       return {
         success: true,
         message: "marked as completed!",
         status: Status.Ok,
         sessionStatus: response?.status,
       };
+
     } catch (error: unknown) {
       throw new Error(
         `${

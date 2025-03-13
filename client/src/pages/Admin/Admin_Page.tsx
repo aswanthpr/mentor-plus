@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import Header from '../../components/Common/common4All/Header'
-import { PaperclipIcon, LayoutDashboard, HandCoins, HelpCircle, UserRoundPenIcon, Users } from 'lucide-react';
+import { PaperclipIcon, LayoutDashboard, HelpCircle, UserRoundPenIcon, Users } from 'lucide-react';
 import SidePanel from '../../components/Common/common4All/SidePanel';
 import { Outlet } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
@@ -21,7 +21,7 @@ const navItems: INavItem[] = [
   { name: 'Category', path: '/admin/category_management', icon: PaperclipIcon },
   { name: 'Mentor', path: '/admin/mentor_management', icon: UserRoundPenIcon },
   { name: 'Mentee', path: '/admin/mentee_management', icon: Users },
-  { name: 'Payment', path: '/admin/payment_management', icon: HandCoins },
+  // { name: 'Payment', path: '/admin/payment_management', icon: HandCoins },
   { name: 'Q&A', path: '/admin/qa_management', icon: HelpCircle },
 ];
 

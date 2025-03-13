@@ -7,6 +7,7 @@ import { IwalletRepository } from "../Interface/wallet/IwalletRepository";
 import { Iwallet } from "../Model/walletModel";
 import { InotificationRepository } from "../Interface/Notification/InotificationRepository";
 import { socketManager } from "../index";
+import { Itransaction } from "src/Model/transactionModel";
 
 export class walletService implements IwalletService {
   constructor(
@@ -147,7 +148,7 @@ export class walletService implements IwalletService {
             walletId: (response
               ? response?.["_id"]
               : newWallet?._id) as ObjectId,
-            transactionType: "deposit",
+            transactionType: "credit",
             status: "completed",
             note: "wallet top-up",
           };
@@ -177,9 +178,7 @@ export class walletService implements IwalletService {
     }
   }
   //fetch wallet data ;
-  async getWalletData(
-    userId: ObjectId
-  ): Promise<{
+  async getWalletData(userId: ObjectId): Promise<{
     message: string;
     status: number;
     success: boolean;
@@ -203,6 +202,90 @@ export class walletService implements IwalletService {
         status: Status?.Ok,
         success: true,
         walletData: result,
+      };
+    } catch (error: unknown) {
+      throw new Error(
+        `${
+          error instanceof Error ? error.message : String(error)
+        } error while fetching user wallet Data`
+      );
+    }
+  }
+  async withdrawMentorEarnings(
+    amount: number,
+    userId: ObjectId
+  ): Promise<{
+    message: string;
+    status: number;
+    success: boolean;
+    result: Itransaction | null;
+  }> {
+    try {
+      console.log('2222222222222222222222222222',amount,userId,typeof amount)
+      if (!amount || !userId) {
+        console.log('haiiiiiiiiii',amount,userId,typeof amount)
+        return {
+          message: "credential not found",
+          status: Status?.BadRequest,
+          success: false,
+          result: null,
+        };
+      }
+      if(typeof amount !== 'number'&& amount < 500){
+        console.log('haiiiiiiiiii')
+        return {
+          message:"Withdrawals below $500 are not allowed. Please enter a higher amount",
+          status: Status?.BadRequest,
+          success: false,
+          result: null,
+        };
+      }
+    
+      const result = await this.__walletRepository.deductAmountFromWallet(
+        amount,
+        userId
+      );
+      console.log(result,'lskmdfdlkasdlfk')
+      if (!result) {
+        console.log(result,'000000000000000000000')
+        return {
+          message: "data not found",
+          status: Status?.BadRequest,
+          success: false,
+          result: null,
+        };
+      }
+      const newTranasaction = {
+        amount: Number(amount),
+        walletId: result?._id,
+        transactionType: "debit",
+        status: "completed",
+        note: "balance withdrawed ",
+      };
+      const transaction = await this.__transactionRepository.createTransaction(
+        newTranasaction
+      );
+
+      const notification =
+        await this.__notificationRepository.createNotification(
+          result?.userId,
+          "withdraw balance",
+          "money deducted. shortly credited in bank!",
+          "mentor",
+          `${process.env.CLIENT_ORIGIN_URL}/mentor/wallet`
+        );
+      //real time notification
+      if (result?._id && notification) {
+        socketManager.sendNotification(
+          String(result?._id) as string,
+          notification
+        );
+      }
+      return {
+        message: "successfully applied for withdraw",
+        status: Status?.Ok,
+        success: true,
+        result: transaction as Itransaction,
       };
     } catch (error: unknown) {
       throw new Error(

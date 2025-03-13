@@ -239,4 +239,20 @@ export class adminController implements IadminController {
         );
       }
     } 
+
+  async getDashboardData(req:Request,res:Response):Promise<void>{
+    try { 
+     const result = await this._adminService.dashboardData();
+     console.log(result)
+      res.status(200).json({ success: true, message: "Logout successfully" });
+     
+    } catch (error:unknown) {
+      res.status(500).json({ success: false, message: "Internal server error" });
+      throw new Error(
+        `Error while dashboard ${error instanceof Error ? error.message : String(error)
+        }`
+      );
+    }
+  }
+
 }

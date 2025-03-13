@@ -2,7 +2,7 @@ import { toast } from "react-toastify";
 import { Outlet } from "react-router-dom";
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { Home, MessageSquare, Calendar, Video } from "lucide-react";
+import { Home, MessageSquare, Calendar, Video, Wallet } from "lucide-react";
 
 import { RootState } from "../../Redux/store";
 import { axiosInstance } from "../../Config/mentorAxios";
@@ -22,6 +22,7 @@ const navItems: INavItem[] = [
   { name: "Session", path: "/mentor/session", icon: Video },
   { name: "Messages", path: "/mentor/messages", icon: MessageSquare },
   { name: "Schedule", path: "/mentor/Schedule", icon: Calendar },
+  { name: "Wallet", path: "/mentor/wallet", icon: Wallet },
 ];
 
 const Mentor_Page: React.FC = () => {

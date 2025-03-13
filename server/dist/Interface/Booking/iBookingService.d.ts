@@ -9,7 +9,6 @@ export interface IbookingService {
         message: string;
         status: number;
         timeSlots: Itime[] | [];
-        platformFee: string | undefined;
     }>;
     slotBooking(timeSlot: Itimes, message: string, paymentMethod: string, totalAmount: string, mentorName: string, menteeId: ObjectId, protocol: string, host: string): Promise<{
         success: boolean;
@@ -48,7 +47,7 @@ export interface IbookingService {
         status: number;
         sessionCode: string | null;
     }>;
-    sessionCompleted(bookingId: string): Promise<{
+    sessionCompleted(bookingId: string, mentorId: ObjectId): Promise<{
         success: boolean;
         message: string;
         status: number;

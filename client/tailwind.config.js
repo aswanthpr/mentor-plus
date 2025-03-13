@@ -22,18 +22,7 @@ export default {
     },
   },
   plugins: [
-    // function ({ addComponents }) {
-    //   // Custom Media Query for screens between 320px to 480px
-    //   addComponents({
-    //     '@media (min-width: 320px) and (max-width: 480px)': {
-    //       'xss': {
-    //         fontSize: '14px',  
-    //         lineHeight: '1.5',
-    //         padding: '10px',
-    //       },
-    //     },
-    //   });
-    // },
+
   ],
 }
 

@@ -182,20 +182,23 @@ const SessionCard: React.FC<SessionCardProps> = ({
           </span>
         </div>
         <div className="flex justify-end">
-          {session?.status === "CONFIRMED" && (
+          {(session?.status === "CONFIRMED" ||
+            session?.status === "REJECTED") && (
             <div className="flex gap-2">
-              {role == "mentee" && !session?.sessionCode && (
-                <Tooltip title="cancel session">
-                  <button
-                    onClick={() => setModalToggle(true)}
-                    className="text-red-600 hover:text-red-700 text-sm font-medium"
-                  >
-                    Cancel
-                  </button>
-                </Tooltip>
-              )}
-              {session?.sessionCode ? (
-                <Tooltip title="join session">
+              {session?.status === "CONFIRMED" &&
+                role == "mentee" &&
+                !session?.sessionCode && (
+                  <Tooltip title="Cancel session">
+                    <button
+                      onClick={() => setModalToggle(true)}
+                      className="text-red-600 hover:text-red-700 text-sm font-medium"
+                    >
+                      Cancel
+                    </button>
+                  </Tooltip>
+                )}
+              {session?.sessionCode && (
+                <Tooltip title="Join session">
                   <button
                     onClick={() =>
                       handleSessionJoin(
@@ -209,8 +212,6 @@ const SessionCard: React.FC<SessionCardProps> = ({
                     Join
                   </button>
                 </Tooltip>
-              ) : (
-                ""
               )}
             </div>
           )}

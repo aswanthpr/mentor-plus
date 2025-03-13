@@ -1,62 +1,66 @@
 import React, { useCallback, useEffect, useState } from "react";
-import { Wallet } from "lucide-react";
+import { DollarSign } from "lucide-react";
 import WalletCard from "../../components/Common/wallet/WalletCard";
-import AddMoneyModal from "../../components/Common/wallet/AddMoneyModal";
+import WithdrawModal from "../../components/Common/wallet/WithdrawModal";
 import TransactionList from "../../components/Common/wallet/TransactionList";
 import TransactionFilters from "../../components/Common/wallet/TransactionFilter";
 import { Pagination } from "../../components/Common/common4All/Pagination";
-import { fetchAddMoney, fetchWalletData } from "../../service/api";
+import { fetchHandleWithdraw, fetchWalletData } from "../../service/api";
+import { toast } from "react-toastify";
 
 const WalletPage: React.FC = () => {
-  const itemsPerPage = 8;
   const [walletData, setWalletData] = useState<Iwallet>({
     _id: "",
     userId: "",
-    balance:"",
+    balance: "",
     transaction: [],
   });
-  const [showAddMoney, setShowAddMoney] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+  const [showWithdraw, setShowWithdraw] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [typeFilter, setTypeFilter] = useState<
     "all" | "deposit" | "withdrawal" | "earning"
   >("all");
+  const itemsPerPage = 5;
 
   useEffect(() => {
     let flag: boolean = true;
     const wallet_Data = async () => {
-      const response = await fetchWalletData("mentee");
+      const response = await fetchWalletData("mentor");
       if (response?.status == 200 && response?.data?.success && flag) {
         setWalletData(response?.data?.walletData);
       }
     };
-
     if (flag) {
       wallet_Data();
     }
-
     return () => {
       flag = false;
     };
   }, []);
 
-  const handleAddMoney = useCallback(async (amount: number) => {
-    const response = await fetchAddMoney(amount);
-    if (response?.status && response?.data?.success) {
-      if (response?.data.session?.url) {
-        window.location.href = response?.data.session?.url;
-      }
-      //set socket io here
-      // setTransactions([newTransaction, ...transactions]);
+  const handleWithdraw = useCallback(async (amount: number) => {
+    if (Number(amount) < 500 || !amount) {
+      toast.error("amount cannot be less than $500");
+    }
+    const response = await fetchHandleWithdraw(amount);
+
+    if (response?.status == 200 && response?.data?.result) {
+      console.log(response);
+      setWalletData((pre) => ({
+        ...pre,
+        balance: String(Number(pre.balance) - Number(amount)),
+        transaction: [response?.data?.result, ...pre.transaction],
+      }));
     }
   }, []);
 
-  // const filteredTransactions = walletData?.transactions.filter((transaction) => {
+  // const filteredTransactions = transactions.filter(transaction => {
   //   const matchesSearch =
-  //     transaction.customer.toLowerCase().includes(searchQuery.toLowerCase()) ||
-  //     transaction.notes.toLowerCase().includes(searchQuery.toLowerCase());
-  //   const matchesType = typeFilter === "all" || transaction.type === typeFilter;
-  //   return matchesSearch && matchesType;
+  //     transaction.note.toLowerCase().includes(searchQuery.toLowerCase()) ||
+  //     transaction.transactionType.toLowerCase().includes(searchQuery.toLowerCase());
+  //   // const matchesType = typeFilter === 'all' || transaction.type === typeFilter;
+  //   // return matchesSearch && matchesType;
   // });
 
   const totalPages = Math.ceil(walletData?.transaction?.length / itemsPerPage);
@@ -66,19 +70,17 @@ const WalletPage: React.FC = () => {
   );
 
   return (
-    <div className="space-y-5  mt-10">
-      <div className="grid grid-cols-1  gap-6  ">
-        <div className="w-full  ">
-          <WalletCard
-            icon={Wallet}
-            title="Wallet Balance"
-            amount={Number(walletData?.balance) }
-            actionButton={{
-              label: "Add Money",
-              onClick: () => setShowAddMoney(true),
-            }}
-          />
-        </div>
+    <div className="space-y-6  mt-16  ">
+      <div className="grid grid-cols-1 md:grid-cols-1 gap-6">
+        <WalletCard
+          icon={DollarSign}
+          title="Balance"
+          amount={parseInt(String(walletData?.balance))}
+          actionButton={{
+            label: "Withdraw",
+            onClick: () => setShowWithdraw(true),
+          }}
+        />
       </div>
 
       <div className="bg-white p-6 rounded-lg shadow-sm">
@@ -107,10 +109,11 @@ const WalletPage: React.FC = () => {
           </div>
         )}
       </div>
-      <AddMoneyModal
-        isOpen={showAddMoney}
-        onClose={() => setShowAddMoney(false)}
-        onSubmit={handleAddMoney}
+      <WithdrawModal
+        isOpen={showWithdraw}
+        onClose={() => setShowWithdraw(false)}
+        onSubmit={handleWithdraw}
+        maxAmount={Number(walletData?.balance)}
       />
     </div>
   );

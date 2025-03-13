@@ -1,7 +1,8 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import  { AxiosResponse } from "axios";
+import  axios, { AxiosResponse } from "axios";
 import { axiosInstance } from "../Config/mentorAxios";
 import { protectedAPI } from "../Config/Axios";
+import { API } from "../Config/adminAxios";
 
 
 //COMMON_FETCH====================================================================
@@ -107,6 +108,7 @@ export const fetchSubmitRating = async (review:string,selectedSession:ISession,r
     console.log(error instanceof Error ? error.message : String(error))
   }
 }
+
 //MENTOR-ONLY//============================================================
 
 export const fetchCanceSessionResponse = async (
@@ -147,3 +149,28 @@ export const markAsSessionCompleted = async (bookingId: string) => {
     console.log(error instanceof Error ? error.message : String(error));
   }
 };
+
+export const fetchHandleWithdraw = async (amount:number)=>{
+  try {
+   
+    return await axiosInstance.put(`/mentor/withdraw-amount`,{
+     amount,
+    }) ;
+  } catch (error:unknown) {
+    console.log(error instanceof Error ? error.message : String(error))
+  }
+}
+
+//ADMIN ============================================================
+
+export const fetchDashboardData = async (signal:AbortSignal)=>{
+  try {
+   
+    return await API.get(`/admin/dashboard`,{signal}) ;
+  } catch (error:unknown) {
+    if (axios.isCancel(error)) {
+      console.log("Request canceled:", error.message);
+    }
+    console.log(error instanceof Error ? error.message : String(error))
+  }
+}

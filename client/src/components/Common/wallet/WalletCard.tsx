@@ -28,7 +28,7 @@ const WalletCard: React.FC<WalletCardProps> = ({ icon: Icon, title, amount, acti
           </button>
         )}
       </div>
-      <p className="text-3xl font-bold">${amount.toFixed(2)}</p>
+      <p className="text-3xl font-bold">${isNaN(amount)?"0.00":(amount)?.toFixed(2)}</p>
     </div>
   );
 };

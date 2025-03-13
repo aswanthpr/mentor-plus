@@ -26,11 +26,15 @@ const slotScheduleRepository_1 = __importDefault(require("../Repository/slotSche
 const notificationRepository_1 = __importDefault(require("../Repository/notificationRepository"));
 const walletRepository_1 = __importDefault(require("../Repository/walletRepository"));
 const transactionRepository_1 = __importDefault(require("../Repository/transactionRepository"));
+const walletController_1 = require("../Controller/walletController");
+const walletService_1 = require("../Service/walletService");
 const __mentorService = new mentorService_1.mentorService(mentorRepository_1.default, categoryRepository_1.default, questionRepository_1.default, timeSlotRepository_1.default);
 const __chatService = new chatService_1.default(chatRepository_1.default);
 const __qaService = new qaService_1.default(questionRepository_1.default, answerRepository_1.default, notificationRepository_1.default);
 const __bookingService = new bookingService_1.bookingService(timeSlotRepository_1.default, slotScheduleRepository_1.default, notificationRepository_1.default, chatRepository_1.default, walletRepository_1.default, transactionRepository_1.default);
 const __notificationService = new notificationService_1.notificationService(notificationRepository_1.default);
+const __walletService = new walletService_1.walletService(walletRepository_1.default, transactionRepository_1.default, notificationRepository_1.default);
+const __walletController = new walletController_1.walletController(__walletService);
 const __mentorController = new mentorController_1.mentorController(__mentorService);
 const __qaController = new qaController_1.default(__qaService);
 const __bookingController = new bookingController_1.bookingControlelr(__bookingService);
@@ -58,8 +62,11 @@ mentor_Router.patch(`/sessions/mark-as-session-completed`, mentorAuthorization_1
 //notification
 mentor_Router.get(`/notification`, mentorAuthorization_1.default, __notificationController === null || __notificationController === void 0 ? void 0 : __notificationController.getNotification.bind(__notificationController));
 mentor_Router.patch(`/notification-read/:notificationId`, mentorAuthorization_1.default, __notificationController.markAsReadNotif.bind(__notificationController));
-//chat 
+//chat
 mentor_Router.get(`/chats`, mentorAuthorization_1.default, __chatController.getChats.bind(__chatController));
 mentor_Router.get("/messages", mentorAuthorization_1.default, __chatController.getUserMessage.bind(__chatController));
 mentor_Router.post("/session/validate-session-join", mentorAuthorization_1.default, __bookingController.validateSessionJoin.bind(__bookingController));
+//wallet'
+mentor_Router.get(`/wallet`, mentorAuthorization_1.default, __walletController.getWalletData.bind(__walletController));
+mentor_Router.put(`/withdraw-amount`, mentorAuthorization_1.default, __walletController.withdrawMentorEarnings.bind(__walletController));
 exports.default = mentor_Router;

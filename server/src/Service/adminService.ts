@@ -12,15 +12,16 @@ import {
   verifyRefreshToken,
 } from "../Utils/jwt.utils";
 import { InotificationRepository } from "../Interface/Notification/InotificationRepository";
-import { socketManager } from "../index";
-import { Inotification } from "src/Model/notificationModel";
+import { Status } from "../Utils/httpStatusCode";
+import { IslotScheduleRepository } from "../Interface/Booking/iSlotScheduleRepository";
 
 export class adminService implements IadminService {
   constructor(
     private readonly _categoryRepository: IcategoryRepository,
     private readonly _menteeRepository: ImenteeRepository,
     private readonly _mentorRepository: ImentorRepository,
-    private readonly _notificationRepository:InotificationRepository
+    private readonly _notificationRepository:InotificationRepository,
+    private readonly _slotScheduleRepository:IslotScheduleRepository,
   ) {}
 
   async adminRefreshToken(refresh: string): Promise<{
@@ -428,6 +429,26 @@ export class adminService implements IadminService {
         status: 200,
       };
     } catch (error: unknown) {
+      throw new Error(
+        `Error while change mentor status in service: ${
+          error instanceof Error ? error.message : String(error)
+        }`
+      );
+    }
+  }
+
+  async dashboardData(): Promise<{ message: string; success: boolean; status: number; }> {
+    try {
+      console.log('haihel');
+
+      const totalRevenue = await this._slotScheduleRepository.findTotalRevenue();
+      console.log(totalRevenue,'this is toatlarevenue')
+      return {
+        message:"data successfuly recived",
+        success:true,
+        status:Status.Ok,
+      }
+    } catch (error:unknown) {
       throw new Error(
         `Error while change mentor status in service: ${
           error instanceof Error ? error.message : String(error)

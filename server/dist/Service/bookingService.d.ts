@@ -24,7 +24,6 @@ export declare class bookingService implements IbookingService {
         message: string;
         status: number;
         timeSlots: Itime[] | [];
-        platformFee: string | undefined;
     }>;
     slotBooking(timeSlot: Itimes, messages: string, paymentMethod: string, totalAmount: string, mentorName: string, menteeId: ObjectId, protocol: string, host: string): Promise<{
         success: boolean;
@@ -78,7 +77,7 @@ export declare class bookingService implements IbookingService {
         status: number;
         sessionCode: string | null;
     }>;
-    sessionCompleted(bookingId: string): Promise<{
+    sessionCompleted(bookingId: string, mentorId: ObjectId): Promise<{
         success: boolean;
         message: string;
         status: number;

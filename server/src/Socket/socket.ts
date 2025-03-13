@@ -95,15 +95,7 @@ export class SocketManager {
       });
       //geting new message
       socket.on("new-message", async ({ roomId, message }) => {
-        console.log(
-          `Message to Room ${roomId}: ${message}`,
-          message?.senderId,
-          message?.chatId,
-          message?.receiverId,
-          message?.content,
-          message?.senderType,
-          message?.messageType
-        );
+        
         try {
           if (!roomId) {
             console.log("no room");

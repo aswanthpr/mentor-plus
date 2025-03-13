@@ -6,6 +6,7 @@ import {
   FilePenIcon,
   Github,
   Linkedin,
+  NotepadText,
   PenLineIcon,
   Trash,
   X,
@@ -76,15 +77,16 @@ const QuestionList: React.FC<QuestionListProps> = ({
   return (
     <>
       {questions.length === 0 ? (
-        <div className="text-center text-gray-500 py-8">
-          No questions available.
+        <div className="flex text-center text-gray-500 py-6 justify-center items-center ">
+           No questions available.
+          <NotepadText className="w-8 "/>
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 ">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-3 ">
           {questions.map((question) => (
             <div
               key={question?._id}
-              className="bg-white p-10 rounded-lg shadow-sm border border-gray-200 break-words"
+              className="bg-white p-4 rounded-lg shadow-sm border border-gray-200 break-words"
             >
               <div className="flex justify-between items-start ">
                 <h3 className="text-xl font-semibold text-gray-900">

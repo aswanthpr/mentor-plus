@@ -24,7 +24,7 @@ const transactionSchema: Schema<Itransaction> = new Schema(
     },
     transactionType: {
       type: String,
-      enum: ["deposit", "withdrawal", "earning", "payment","refund"],
+      enum: ["credit", "debit","paid"],
       required: true,
       default: "payment",
     },

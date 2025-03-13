@@ -17,5 +17,6 @@ export declare class adminController implements IadminController {
     mentorVerify(req: Request, res: Response): Promise<void>;
     changeMentorStatus(req: Request, res: Response): Promise<void>;
     adminLogout(req: Request, res: Response): Promise<void>;
+    getDashboardData(req: Request, res: Response): Promise<void>;
 }
 //# sourceMappingURL=adminController.d.ts.map

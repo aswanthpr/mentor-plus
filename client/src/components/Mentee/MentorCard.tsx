@@ -73,14 +73,14 @@ const MentorCard: React.FC<MentorCardProps> = ({ mentor }) => {
       <Link
         to={`/mentee/explore/${mentor?.name.toLowerCase()}`}
         state={mentor}
-        className="mt-4 w-2/6 px-4 py-2 bg-[#ff8800] text-white rounded-lg hover:bg-[#ff9900] font-semibold transition-colors block text-center mx-auto"
+        className="mt-4 w-2/6 px-4 py-2 bg-[#ff8800] text-white rounded-lg hover:bg-[#ff9900] font-medium transition-colors block text-center mx-auto"
       >
-        View Profile
+        Profile
       </Link>
       <Link
         to={`/mentee/${decodeURIComponent(mentor?.name)}/slot-booking`}
         state={{mentorId:mentor?._id}}
-        className="mt-4 w-4/6 px-4 py-2 bg-[#ff8800]  text-white rounded-lg hover:bg-[#ff9900] font-semibold transition-colors block text-center "
+        className="mt-4 w-4/6 px-4 py-2 bg-[#ff8800]  text-white rounded-lg hover:bg-[#ff9900] font-medium transition-colors block text-center "
       >
        Book Now   
       </Link>

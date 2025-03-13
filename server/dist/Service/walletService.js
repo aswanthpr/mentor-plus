@@ -122,7 +122,7 @@ class walletService {
                             walletId: (response
                                 ? response === null || response === void 0 ? void 0 : response["_id"]
                                 : newWallet === null || newWallet === void 0 ? void 0 : newWallet._id),
-                            transactionType: "deposit",
+                            transactionType: "credit",
                             status: "completed",
                             note: "wallet top-up",
                         };
@@ -159,6 +159,64 @@ class walletService {
                     status: httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.Ok,
                     success: true,
                     walletData: result,
+                };
+            }
+            catch (error) {
+                throw new Error(`${error instanceof Error ? error.message : String(error)} error while fetching user wallet Data`);
+            }
+        });
+    }
+    withdrawMentorEarnings(amount, userId) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                console.log('2222222222222222222222222222', amount, userId, typeof amount);
+                if (!amount || !userId) {
+                    console.log('haiiiiiiiiii', amount, userId, typeof amount);
+                    return {
+                        message: "credential not found",
+                        status: httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.BadRequest,
+                        success: false,
+                        result: null,
+                    };
+                }
+                if (typeof amount !== 'number' && amount < 500) {
+                    console.log('haiiiiiiiiii');
+                    return {
+                        message: "Withdrawals below $500 are not allowed. Please enter a higher amount",
+                        status: httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.BadRequest,
+                        success: false,
+                        result: null,
+                    };
+                }
+                const result = yield this.__walletRepository.deductAmountFromWallet(amount, userId);
+                console.log(result, 'lskmdfdlkasdlfk');
+                if (!result) {
+                    console.log(result, '000000000000000000000');
+                    return {
+                        message: "data not found",
+                        status: httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.BadRequest,
+                        success: false,
+                        result: null,
+                    };
+                }
+                const newTranasaction = {
+                    amount: Number(amount),
+                    walletId: result === null || result === void 0 ? void 0 : result._id,
+                    transactionType: "debit",
+                    status: "completed",
+                    note: "balance withdrawed ",
+                };
+                const transaction = yield this.__transactionRepository.createTransaction(newTranasaction);
+                const notification = yield this.__notificationRepository.createNotification(result === null || result === void 0 ? void 0 : result.userId, "withdraw balance", "money deducted. shortly credited in bank!", "mentor", `${process.env.CLIENT_ORIGIN_URL}/mentor/wallet`);
+                //real time notification
+                if ((result === null || result === void 0 ? void 0 : result._id) && notification) {
+                    index_1.socketManager.sendNotification(String(result === null || result === void 0 ? void 0 : result._id), notification);
+                }
+                return {
+                    message: "successfully applied for withdraw",
+                    status: httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.Ok,
+                    success: true,
+                    result: transaction,
                 };
             }
             catch (error) {

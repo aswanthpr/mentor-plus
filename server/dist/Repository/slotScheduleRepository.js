@@ -296,5 +296,73 @@ class slotScheduleRepository extends baseRepo_1.baseRepository {
             }
         });
     }
+    findTotalRevenue() {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                return yield this.aggregateData(slotSchedule_2.default, [
+                    {
+                        $facet: {
+                            // Calculate yearly total revenue for completed bookings
+                            totalRevenue: [
+                                {
+                                    $match: {
+                                        createdAt: {
+                                            $gte: new Date(new Date().getFullYear(), 0, 1), // Start of current year
+                                            $lt: new Date(new Date().getFullYear() + 1, 0, 1) // Start of next year
+                                        },
+                                        status: "COMPLETED"
+                                    }
+                                },
+                                {
+                                    $addFields: {
+                                        paymentAmountNumeric: { $toDouble: "$paymentAmount" } // Convert to number
+                                    }
+                                },
+                                {
+                                    $group: {
+                                        _id: null,
+                                        totalRevenue: { $sum: { $multiply: ["$paymentAmountNumeric", 0.2] } } // 20% of paymentAmount
+                                    }
+                                },
+                                {
+                                    $project: { _id: 0, totalRevenue: 1 }
+                                }
+                            ],
+                            // Calculate monthly total bookings for given statuses
+                            totalBookings: [
+                                {
+                                    $match: {
+                                        createdAt: {
+                                            $gte: new Date(new Date().getFullYear(), new Date().getMonth(), 1), // Start of current month
+                                            $lt: new Date(new Date().getFullYear(), new Date().getMonth() + 1, 1) // Start of next month
+                                        },
+                                        status: { $in: ["CONFIRMED", "REJECTED", "COMPLETED"] }
+                                    }
+                                },
+                                {
+                                    $group: {
+                                        _id: null,
+                                        totalBookings: { $sum: 1 } // Count matching bookings
+                                    }
+                                },
+                                {
+                                    $project: { _id: 0, totalBookings: 1 }
+                                }
+                            ]
+                        }
+                    },
+                    {
+                        $project: {
+                            totalRevenue: { $arrayElemAt: ["$totalRevenue.totalRevenue", 0] }, // Extract totalRevenue value
+                            totalBookings: { $arrayElemAt: ["$totalBookings.totalBookings", 0] } // Extract totalBookings value
+                        }
+                    }
+                ]);
+            }
+            catch (error) {
+                throw new Error(` error while find totalRevenue ${error instanceof Error ? error.message : String(error)}`);
+            }
+        });
+    }
 }
 exports.default = new slotScheduleRepository();

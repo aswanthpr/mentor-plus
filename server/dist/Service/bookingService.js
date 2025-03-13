@@ -34,7 +34,6 @@ class bookingService {
     }
     getTimeSlots(mentorId) {
         return __awaiter(this, void 0, void 0, function* () {
-            var _a;
             try {
                 if (!mentorId) {
                     return {
@@ -42,7 +41,6 @@ class bookingService {
                         message: "credential not found",
                         success: false,
                         timeSlots: [],
-                        platformFee: undefined,
                     };
                 }
                 const response = yield this._timeSlotRepository.getMentorSlots(mentorId);
@@ -52,7 +50,6 @@ class bookingService {
                         message: "Data not found",
                         success: false,
                         timeSlots: [],
-                        platformFee: undefined,
                     };
                 }
                 console.log(response, "from service");
@@ -61,7 +58,6 @@ class bookingService {
                     message: "Data fetched successfully",
                     success: true,
                     timeSlots: response,
-                    platformFee: (_a = process.env) === null || _a === void 0 ? void 0 : _a.PLATFORM_FEE,
                 };
             }
             catch (error) {
@@ -128,16 +124,15 @@ class bookingService {
                             success: false,
                         };
                     }
-                    console.log(deductAmountFromWallet, "deductamojuntform wallet ");
                     const time = new Date().toLocaleString();
                     console.log(time, "times ");
                     //create  new transaction
                     const newTranasaction = {
                         amount: Number(totalAmount),
                         walletId: deductAmountFromWallet === null || deductAmountFromWallet === void 0 ? void 0 : deductAmountFromWallet._id,
-                        transactionType: "payment",
+                        transactionType: "debit",
                         status: "completed",
-                        note: "slot booked successfully",
+                        note: "slot booked ",
                     };
                     yield this.__transactionRepository.createTransaction(newTranasaction);
                     // Insert data into newSlotSchedule
@@ -264,7 +259,7 @@ class bookingService {
                             walletId: (walletResponse
                                 ? walletResponse === null || walletResponse === void 0 ? void 0 : walletResponse["_id"]
                                 : newWallet._id),
-                            transactionType: "payment",
+                            transactionType: "paid",
                             status: "completed",
                             note: "slot booked successfully",
                         };
@@ -494,7 +489,7 @@ class bookingService {
                         walletId: (addToWallet
                             ? addToWallet === null || addToWallet === void 0 ? void 0 : addToWallet._id
                             : createWallet === null || createWallet === void 0 ? void 0 : createWallet["_id"]),
-                        transactionType: "refund",
+                        transactionType: "credit",
                         status: "completed",
                         note: "slot cancelled amount refunded",
                     };
@@ -562,10 +557,10 @@ class bookingService {
         });
     }
     //session completed marking
-    sessionCompleted(bookingId) {
+    sessionCompleted(bookingId, mentorId) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                if (!bookingId) {
+                if (!bookingId || !mentorId) {
                     return {
                         success: false,
                         message: "credential not found",
@@ -582,6 +577,32 @@ class bookingService {
                         sessionStatus: null,
                     };
                 }
+                //calculate mentor cash;
+                const mentorCommision = (parseInt(response === null || response === void 0 ? void 0 : response.paymentAmount) * parseInt(process.env.MENTOR_COMMISION)) / 100;
+                const result = yield this.__walletRepository.findWallet(mentorId);
+                let newWallet = null;
+                if (!result) {
+                    newWallet = yield (this === null || this === void 0 ? void 0 : this.__walletRepository.createWallet({
+                        userId: mentorId,
+                        balance: mentorCommision,
+                    }));
+                }
+                else {
+                    yield this.__walletRepository.updateWalletAmount(mentorId, parseInt(response === null || response === void 0 ? void 0 : response.paymentAmount));
+                }
+                const newTranasaction = {
+                    amount: mentorCommision,
+                    walletId: (result ? result === null || result === void 0 ? void 0 : result._id : newWallet === null || newWallet === void 0 ? void 0 : newWallet["_id"]),
+                    transactionType: "credit",
+                    status: "completed",
+                    note: "earnings credited to account",
+                };
+                yield this.__transactionRepository.createTransaction(newTranasaction);
+                const notification = yield this._notificationRepository.createNotification(mentorId, "Earnings credited", "your earnings credited to your wallet.have a nice day", "mentor", `${process.env.CLIENT_ORIGIN_URL}/mentor/wallet`);
+                if (notification) {
+                    index_1.socketManager.sendNotification(String(mentorId), notification);
+                }
+                console.log(notification);
                 return {
                     success: true,
                     message: "marked as completed!",

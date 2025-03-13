@@ -13,10 +13,10 @@ export class bookingControlelr implements IbookingController {
     try {
       const { mentorId } = req.query;
 
-      const { success, status, message, timeSlots, platformFee } =
+      const { success, status, message, timeSlots } =
         await this._bookingService.getTimeSlots(mentorId as string);
 
-      res.status(status).json({ success, message, timeSlots, platformFee });
+      res.status(status).json({ success, message, timeSlots });
     } catch (error: unknown) {
       throw new Error(
         `Error while  getting timeslots for booking  ${
@@ -168,7 +168,7 @@ console.log( req.params.sessionId,req.body?.value)
    async sessionCompleted(req: Request, res: Response): Promise<void> {
      try {
       const {bookingId} =req.body;
-     const {message,sessionStatus,status,success} = await this._bookingService.sessionCompleted(bookingId);
+     const {message,sessionStatus,status,success} = await this._bookingService.sessionCompleted(bookingId,req.user as Express.User as ObjectId);
      res.status(status).json({message,sessionStatus,success});
      } catch (error:unknown) {
       throw new Error(

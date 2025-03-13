@@ -15,15 +15,16 @@ const qaController_1 = __importDefault(require("../Controller/qaController"));
 const questionRepository_1 = __importDefault(require("../Repository/questionRepository"));
 const answerRepository_1 = __importDefault(require("../Repository/answerRepository"));
 const notificationRepository_1 = __importDefault(require("../Repository/notificationRepository"));
+const slotScheduleRepository_1 = __importDefault(require("../Repository/slotScheduleRepository"));
 const admin_Router = express_1.default.Router();
-const _adminService = new adminService_1.adminService(categoryRepository_1.default, menteeRepository_1.default, mentorRepository_1.default, notificationRepository_1.default);
+const _adminService = new adminService_1.adminService(categoryRepository_1.default, menteeRepository_1.default, mentorRepository_1.default, notificationRepository_1.default, slotScheduleRepository_1.default);
 const _adminController = new adminController_1.adminController(_adminService);
 const __qaService = new qaService_1.default(questionRepository_1.default, answerRepository_1.default, notificationRepository_1.default);
 const __qaController = new qaController_1.default(__qaService);
 //---------------------------------------------------------------------------------------------------------
-admin_Router.post('/logout', _adminController.adminLogout.bind(_adminController));
-admin_Router.get('/category_management', adminAuthorization_1.default, _adminController.categoryData.bind(_adminController));
-admin_Router.patch('/edit_category', adminAuthorization_1.default, _adminController.editCategory.bind(_adminController));
+admin_Router.post("/logout", _adminController.adminLogout.bind(_adminController));
+admin_Router.get("/category_management", adminAuthorization_1.default, _adminController.categoryData.bind(_adminController));
+admin_Router.patch("/edit_category", adminAuthorization_1.default, _adminController.editCategory.bind(_adminController));
 admin_Router.post(`/create_category`, adminAuthorization_1.default, _adminController.createCategory.bind(_adminController));
 admin_Router.put(`/change_category_status`, adminAuthorization_1.default, _adminController.changeCategoryStatus.bind(_adminController));
 admin_Router.get(`/mentee_management`, adminAuthorization_1.default, _adminController.menteeData.bind(_adminController));
@@ -37,4 +38,5 @@ admin_Router.post(`/refresh-token`, _adminController.adminRefreshToken.bind(_adm
 admin_Router.get(`/qa-management`, adminAuthorization_1.default, __qaController.allQaData.bind(__qaController));
 admin_Router.patch(`/qa_management/change_question_status`, adminAuthorization_1.default, __qaController.blockQuestion.bind(__qaController));
 admin_Router.patch(`/qa_management/change_answer_status`, adminAuthorization_1.default, __qaController.blockAnswer.bind(__qaController));
+admin_Router.get(`/dashboard`, adminAuthorization_1.default, _adminController.getDashboardData.bind(_adminController));
 exports.default = admin_Router;

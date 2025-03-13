@@ -5,6 +5,7 @@ export interface IadminController {
     categoryData(req: Request, res: Response): Promise<void>;
     editCategory(req: Request, res: Response): Promise<void>;
     changeCategoryStatus(req: Request, res: Response): Promise<void>;
+    getDashboardData(req: Request, res: Response): Promise<void>;
     menteeData(req: Request, res: Response): Promise<void>;
     changeMenteeStatus(req: Request, res: Response): Promise<void>;
     editMentee(req: Request, res: Response): Promise<void>;

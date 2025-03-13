@@ -6,12 +6,14 @@ import { IcategoryRepository } from "../Interface/Category/iCategoryRepository";
 import { ImenteeRepository } from "../Interface/Mentee/iMenteeRepository";
 import { ImentorRepository } from "../Interface/Mentor/iMentorRepository";
 import { InotificationRepository } from "../Interface/Notification/InotificationRepository";
+import { IslotScheduleRepository } from "../Interface/Booking/iSlotScheduleRepository";
 export declare class adminService implements IadminService {
     private readonly _categoryRepository;
     private readonly _menteeRepository;
     private readonly _mentorRepository;
     private readonly _notificationRepository;
-    constructor(_categoryRepository: IcategoryRepository, _menteeRepository: ImenteeRepository, _mentorRepository: ImentorRepository, _notificationRepository: InotificationRepository);
+    private readonly _slotScheduleRepository;
+    constructor(_categoryRepository: IcategoryRepository, _menteeRepository: ImenteeRepository, _mentorRepository: ImentorRepository, _notificationRepository: InotificationRepository, _slotScheduleRepository: IslotScheduleRepository);
     adminRefreshToken(refresh: string): Promise<{
         success: boolean;
         message: string;
@@ -78,6 +80,11 @@ export declare class adminService implements IadminService {
     mentorStatusChange(id: string): Promise<{
         success: boolean;
         message: string;
+        status: number;
+    }>;
+    dashboardData(): Promise<{
+        message: string;
+        success: boolean;
         status: number;
     }>;
 }

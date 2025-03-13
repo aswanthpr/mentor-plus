@@ -2,6 +2,7 @@ import React, { lazy, Suspense } from "react";
 import { Routes, Route, Navigate } from "react-router-dom";
 import Spinner from "../components/Common/common4All/Spinner";
 import VideoPage from "../components/Common/Bookings/VideoPage";
+import WalletPage from "../pages/Mentor/WalletPage";
 
 
 const Chat  = lazy(() => import("../pages/Mentor/Chat"));
@@ -42,7 +43,7 @@ const MentorRoute: React.FC = () => (
           element={<MentorProtectLogin element={<Sessions />} />} 
         />
          <Route path="/session/:roomId" element={<MentorProtectLogin element={<VideoPage/>} />} /> 
-
+  <Route path="/wallet" element={<MentorProtectLogin element={<WalletPage />} />} />;
         <Route
           path="/messages"
           element={<MentorProtectLogin element={<Chat />} />}

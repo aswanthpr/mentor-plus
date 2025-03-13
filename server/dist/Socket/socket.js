@@ -93,7 +93,6 @@ class SocketManager {
             //geting new message
             socket.on("new-message", (_a) => __awaiter(this, [_a], void 0, function* ({ roomId, message }) {
                 var _b;
-                console.log(`Message to Room ${roomId}: ${message}`, message === null || message === void 0 ? void 0 : message.senderId, message === null || message === void 0 ? void 0 : message.chatId, message === null || message === void 0 ? void 0 : message.receiverId, message === null || message === void 0 ? void 0 : message.content, message === null || message === void 0 ? void 0 : message.senderType, message === null || message === void 0 ? void 0 : message.messageType);
                 try {
                     if (!roomId) {
                         console.log("no room");

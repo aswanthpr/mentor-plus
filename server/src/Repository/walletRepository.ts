@@ -112,6 +112,7 @@ class walletRepository
       );
     }
   }
+ 
 }
 
 export default new walletRepository();

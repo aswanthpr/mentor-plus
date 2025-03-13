@@ -1,4 +1,5 @@
 import { ObjectId } from "mongoose";
+import { Itransaction } from "src/Model/transactionModel";
 import { Iwallet } from "src/Model/walletModel";
 import Stripe from "stripe";
 export interface IwalletService {
@@ -14,6 +15,12 @@ export interface IwalletService {
         status: number;
         success: boolean;
         walletData: Iwallet | null;
+    }>;
+    withdrawMentorEarnings(amount: number, userId: ObjectId): Promise<{
+        message: string;
+        status: number;
+        success: boolean;
+        result: Itransaction | null;
     }>;
 }
 //# sourceMappingURL=IwalletService.d.ts.map

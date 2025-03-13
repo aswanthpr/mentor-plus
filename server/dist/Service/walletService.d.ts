@@ -5,6 +5,7 @@ import Stripe from "stripe";
 import { IwalletRepository } from "../Interface/wallet/IwalletRepository";
 import { Iwallet } from "../Model/walletModel";
 import { InotificationRepository } from "../Interface/Notification/InotificationRepository";
+import { Itransaction } from "src/Model/transactionModel";
 export declare class walletService implements IwalletService {
     private readonly __walletRepository;
     private readonly __transactionRepository;
@@ -23,6 +24,12 @@ export declare class walletService implements IwalletService {
         status: number;
         success: boolean;
         walletData: Iwallet | null;
+    }>;
+    withdrawMentorEarnings(amount: number, userId: ObjectId): Promise<{
+        message: string;
+        status: number;
+        success: boolean;
+        result: Itransaction | null;
     }>;
 }
 //# sourceMappingURL=walletService.d.ts.map

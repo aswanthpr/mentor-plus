@@ -44,7 +44,7 @@ export const disconnectNotificationSocket = () => {
   if (notificationSocket) {
     notificationSocket.disconnect();
     notificationSocket = null;
-    console.log("Socket disconnected and cleaned up");
+    console.log("Socket disconnected and cleaned up"); 
   }
 };
 //  connect to Chat namespace===========================================

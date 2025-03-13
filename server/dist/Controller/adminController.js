@@ -206,5 +206,18 @@ class adminController {
             }
         });
     }
+    getDashboardData(req, res) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const result = yield this._adminService.dashboardData();
+                console.log(result);
+                res.status(200).json({ success: true, message: "Logout successfully" });
+            }
+            catch (error) {
+                res.status(500).json({ success: false, message: "Internal server error" });
+                throw new Error(`Error while dashboard ${error instanceof Error ? error.message : String(error)}`);
+            }
+        });
+    }
 }
 exports.adminController = adminController;

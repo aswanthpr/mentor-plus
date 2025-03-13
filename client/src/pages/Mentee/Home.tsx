@@ -260,24 +260,24 @@ const Home: React.FC = () => {
 
   return (
     <div>
-      <div className="mb-6 mt-16 ">
+      <div className="mb-6 mt-8 ">
         {loading && <Spinner />}
-        <div className="flex items-center gap-3 mb-4 ">
-          <h1 className="text-3xl font-bold text-gray-900 ml-8  xs:text-xl sm:ml-0 ">
+        <div className="flex items-center gap-3 mb-2  justify-center">
+          <h1 className="text-3xl font-bold text-gray-900  xs:text-xl sm:ml-0 ">
             Welcome
           </h1>
-          <HandshakeIcon className="w-8 h-8 text-[#ff8800] mt-2" />
+          <HandshakeIcon className="w-6 h-6 text-[#ff8800] mt-1" />
         </div>
         <div className="h-0.5 bg-gray-200 w-full" />
 
         <section className="flex items-center justify-between mb-2 sm:mb-2 sm:flex-col lg:flex-row  xss:flex-col">
-          <h2 className="text-xl font-bold text-gray-900 ml-8 mt-4 sm:ml-0 ">
+          {/* <h2 className="text-sm font-bold text-gray-900  sm:ml-0 ">
             Asked Questions
-          </h2>
+          </h2> */}
           <div className="flex justify-between items-center  sm:gap-4 mt-3">
             <QuestionFilter activeFilter={filter} onFilterChange={setFilter} />
           </div>
-          <div className="w-96 mt-4 xss:w-auto">
+          <div className="w-96 mt-1 xss:w-auto">
             <InputField
               type="search"
               name="search"

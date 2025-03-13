@@ -15,12 +15,14 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.adminService = void 0;
 const mongoose_1 = __importDefault(require("mongoose"));
 const jwt_utils_1 = require("../Utils/jwt.utils");
+const httpStatusCode_1 = require("../Utils/httpStatusCode");
 class adminService {
-    constructor(_categoryRepository, _menteeRepository, _mentorRepository, _notificationRepository) {
+    constructor(_categoryRepository, _menteeRepository, _mentorRepository, _notificationRepository, _slotScheduleRepository) {
         this._categoryRepository = _categoryRepository;
         this._menteeRepository = _menteeRepository;
         this._mentorRepository = _mentorRepository;
         this._notificationRepository = _notificationRepository;
+        this._slotScheduleRepository = _slotScheduleRepository;
     }
     adminRefreshToken(refresh) {
         return __awaiter(this, void 0, void 0, function* () {
@@ -328,6 +330,23 @@ class adminService {
                     success: true,
                     message: "status updated successfully!",
                     status: 200,
+                };
+            }
+            catch (error) {
+                throw new Error(`Error while change mentor status in service: ${error instanceof Error ? error.message : String(error)}`);
+            }
+        });
+    }
+    dashboardData() {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                console.log('haihel');
+                const totalRevenue = yield this._slotScheduleRepository.findTotalRevenue();
+                console.log(totalRevenue, 'this is toatlarevenue');
+                return {
+                    message: "data successfuly recived",
+                    success: true,
+                    status: httpStatusCode_1.Status.Ok,
                 };
             }
             catch (error) {

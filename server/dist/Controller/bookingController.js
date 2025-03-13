@@ -20,8 +20,8 @@ class bookingControlelr {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 const { mentorId } = req.query;
-                const { success, status, message, timeSlots, platformFee } = yield this._bookingService.getTimeSlots(mentorId);
-                res.status(status).json({ success, message, timeSlots, platformFee });
+                const { success, status, message, timeSlots } = yield this._bookingService.getTimeSlots(mentorId);
+                res.status(status).json({ success, message, timeSlots });
             }
             catch (error) {
                 throw new Error(`Error while  getting timeslots for booking  ${error instanceof Error ? error.message : String(error)}`);
@@ -126,7 +126,7 @@ class bookingControlelr {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 const { bookingId } = req.body;
-                const { message, sessionStatus, status, success } = yield this._bookingService.sessionCompleted(bookingId);
+                const { message, sessionStatus, status, success } = yield this._bookingService.sessionCompleted(bookingId, req.user);
                 res.status(status).json({ message, sessionStatus, success });
             }
             catch (error) {

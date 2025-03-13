@@ -24,33 +24,39 @@ import slotScheduleRepository from "../Repository/slotScheduleRepository";
 import notificationRepository from "../Repository/notificationRepository";
 import walletRepository from "../Repository/walletRepository";
 import transactionRepository from "../Repository/transactionRepository";
+import { walletController } from "../Controller/walletController";
+import { walletService } from "../Service/walletService";
 const __mentorService = new mentorService(
-  mentorRepository, 
+  mentorRepository,
   categoryRepository,
   questionRepository,
-  timeSlotRepository,
-
+  timeSlotRepository
 );
 
 const __chatService = new chatService(chatRepository);
 const __qaService = new qaService(
   questionRepository,
   answerRepository,
-  notificationRepository);
-  const __bookingService = new bookingService(  
-    timeSlotRepository,
-      slotScheduleRepository,
-      notificationRepository,
-      chatRepository,
-      walletRepository,
-      transactionRepository,
-    );
-    const __notificationService = new notificationService(notificationRepository);
-
-  const __mentorController = new mentorController(__mentorService);
+  notificationRepository
+);
+const __bookingService = new bookingService(
+  timeSlotRepository,
+  slotScheduleRepository,
+  notificationRepository,
+  chatRepository,
+  walletRepository,
+  transactionRepository
+);
+const __notificationService = new notificationService
+(notificationRepository);
+const __walletService = new walletService(walletRepository,transactionRepository,notificationRepository)
+const __walletController = new walletController(__walletService);
+const __mentorController = new mentorController(__mentorService);
 const __qaController = new qaController(__qaService);
-const __bookingController = new bookingControlelr(__bookingService)
-const __notificationController = new notificationController(__notificationService);
+const __bookingController = new bookingControlelr(__bookingService);
+const __notificationController = new notificationController(
+  __notificationService
+);
 
 const __chatController = new chatController(__chatService);
 
@@ -59,7 +65,7 @@ const mentor_Router: Router = express.Router();
 mentor_Router.post(
   `/logout`,
   __mentorController.mentorLogout.bind(__mentorController)
-); 
+);
 //profile
 mentor_Router.get(
   `/profile`,
@@ -91,30 +97,94 @@ mentor_Router.get(
   mentorAuthorize,
   __mentorController.homeData.bind(__mentorController)
 );
-mentor_Router.post(`/qa/create-new-answer`,mentorAuthorize, __qaController.createNewAnswer.bind(__qaController));
-mentor_Router.patch(`/qa/edit-answer`,mentorAuthorize,__qaController.editAnswer.bind(__qaController));
+mentor_Router.post(
+  `/qa/create-new-answer`,
+  mentorAuthorize,
+  __qaController.createNewAnswer.bind(__qaController)
+);
+mentor_Router.patch(
+  `/qa/edit-answer`,
+  mentorAuthorize,
+  __qaController.editAnswer.bind(__qaController)
+);
 
 //schedule
-mentor_Router.post(`/schedule/create-slots`,mentorAuthorize,__mentorController.createTimeSlots.bind(__mentorController));
-mentor_Router.get(`/schedule/get-time-slots`,mentorAuthorize,__mentorController.getTimeSlots.bind(__mentorController));
-mentor_Router.delete(`/schedule/remove-time-slot`,mentorAuthorize,__mentorController.removeTimeSlot.bind(__mentorController));
+mentor_Router.post(
+  `/schedule/create-slots`,
+  mentorAuthorize,
+  __mentorController.createTimeSlots.bind(__mentorController)
+);
+mentor_Router.get(
+  `/schedule/get-time-slots`,
+  mentorAuthorize,
+  __mentorController.getTimeSlots.bind(__mentorController)
+);
+mentor_Router.delete(
+  `/schedule/remove-time-slot`,
+  mentorAuthorize,
+  __mentorController.removeTimeSlot.bind(__mentorController)
+);
 
-mentor_Router.get(`/sessions`,mentorAuthorize,__bookingController.getBookedSession.bind(__bookingController));
+mentor_Router.get(
+  `/sessions`,
+  mentorAuthorize,
+  __bookingController.getBookedSession.bind(__bookingController)
+);
 
-mentor_Router.patch(`/sessions/cancel_request/:sessionId`,mentorAuthorize,__bookingController.mentorSlotCancel.bind(__bookingController));
-mentor_Router.patch(`/sessions/create-session-code`,mentorAuthorize,__bookingController?.createSessionCode.bind(__bookingController));
-mentor_Router.patch(`/sessions/mark-as-session-completed`,mentorAuthorize,__bookingController.sessionCompleted.bind(__bookingController));
+mentor_Router.patch(
+  `/sessions/cancel_request/:sessionId`,
+  mentorAuthorize,
+  __bookingController.mentorSlotCancel.bind(__bookingController)
+);
+mentor_Router.patch(
+  `/sessions/create-session-code`,
+  mentorAuthorize,
+  __bookingController?.createSessionCode.bind(__bookingController)
+);
+mentor_Router.patch(
+  `/sessions/mark-as-session-completed`,
+  mentorAuthorize,
+  __bookingController.sessionCompleted.bind(__bookingController)
+);
 //notification
-mentor_Router.get(`/notification`,mentorAuthorize,__notificationController?.getNotification.bind(__notificationController));
+mentor_Router.get(
+  `/notification`,
+  mentorAuthorize,
+  __notificationController?.getNotification.bind(__notificationController)
+);
 
-mentor_Router.patch(`/notification-read/:notificationId`,mentorAuthorize,__notificationController.markAsReadNotif.bind(__notificationController));
+mentor_Router.patch(
+  `/notification-read/:notificationId`,
+  mentorAuthorize,
+  __notificationController.markAsReadNotif.bind(__notificationController)
+);
 
-//chat 
-mentor_Router.get(`/chats`,mentorAuthorize,__chatController.getChats.bind(__chatController));
+//chat
+mentor_Router.get(
+  `/chats`,
+  mentorAuthorize,
+  __chatController.getChats.bind(__chatController)
+);
 
-mentor_Router.get("/messages",mentorAuthorize,__chatController.getUserMessage.bind(__chatController));
+mentor_Router.get(
+  "/messages",
+  mentorAuthorize,
+  __chatController.getUserMessage.bind(__chatController)
+);
 
-mentor_Router.post("/session/validate-session-join",mentorAuthorize,__bookingController.validateSessionJoin.bind(__bookingController));
+mentor_Router.post(
+  "/session/validate-session-join",
+  mentorAuthorize,
+  __bookingController.validateSessionJoin.bind(__bookingController)
+);
 
+//wallet'
+mentor_Router.get(
+  `/wallet`,
+  mentorAuthorize,
+  __walletController.getWalletData.bind(__walletController)
+);
+mentor_Router.put(
+  `/withdraw-amount`,
+mentorAuthorize,__walletController.withdrawMentorEarnings.bind(__walletController));
 export default mentor_Router;
-

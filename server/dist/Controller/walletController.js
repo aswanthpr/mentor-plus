@@ -52,5 +52,18 @@ class walletController {
             }
         });
     }
+    withdrawMentorEarnings(req, res) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const { amount } = req.body;
+                const { message, status, result, success } = yield this.__walletService.withdrawMentorEarnings(amount, req.user);
+                console.log(result, success);
+                res.status(status).json({ message, success, result });
+            }
+            catch (error) {
+                throw new Error(`Error while fetch walletData ${error instanceof Error ? error.message : String(error)}`);
+            }
+        });
+    }
 }
 exports.walletController = walletController;

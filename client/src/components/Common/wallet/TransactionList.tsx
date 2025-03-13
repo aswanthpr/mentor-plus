@@ -43,19 +43,19 @@ const TransactionList: React.FC<TransactionListProps> = ({ transactions }) => {
         </tr>
       </thead>
       <tbody className="bg-white divide-y divide-gray-200">
-        {transactions.map((transaction) => (
-          <tr key={transaction._id}>
+        {transactions?.map((transaction) => (
+          <tr key={transaction?._id}>
             <td className="px-6 py-4 whitespace-nowrap">
               <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                transaction.transactionType === 'deposit'
+                transaction?.transactionType === 'credit'
                   ? 'bg-green-100 text-green-800'
-                  : transaction.transactionType === 'withdrawal'
+                  : transaction?.transactionType === 'debit'
                   ? 'bg-red-100 text-red-800'
-                  : transaction.transactionType === 'payment'
-                  ? 'bg-yellow-100 text-yellow-800'
-                  : 'bg-blue-100 text-blue-800'
+                  : transaction?.transactionType === 'paid'
+                  ? 'bg-blue-100 text-blue-800'
+                  : 'bg-yellow-100 text-yellow-800'
               }`}>
-                {transaction.transactionType.charAt(0).toUpperCase() + transaction.transactionType.slice(1)}
+                {transaction?.transactionType?.charAt(0)?.toUpperCase() + transaction?.transactionType?.slice(1)}
               </span>
             </td>
             <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
@@ -65,8 +65,8 @@ const TransactionList: React.FC<TransactionListProps> = ({ transactions }) => {
               {transaction.customer}
             </td> */}
             <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-              <span className={transaction.amount >= 0 ? 'text-green-600' : 'text-red-600'}>
-                ${Math.abs(transaction.amount).toFixed(2)}
+              <span className={transaction?.amount >= 0 ? 'text-green-600' : 'text-red-600'}>
+                ${Math.abs(transaction?.amount)?.toFixed(2)}
               </span>
             </td>
             <td className="px-6 py-4 text-sm text-gray-500">
