@@ -11,6 +11,7 @@ export class notificationController implements InotificationController {
       const {status,message,success,result} = await this._notificationService.getNotification(
         req.user as Express.User as ObjectId
       );
+    
       res.status(status).json({ success,message,result });
     } catch (error: unknown) {
       throw new Error(

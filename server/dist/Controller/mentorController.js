@@ -138,23 +138,24 @@ class mentorController {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 const { filter } = req.params;
-                const { status, success, message, homeData } = yield this._mentorService.homeData(filter);
+                const { search, page, limit } = req.query;
+                const { status, success, message, homeData, totalPage } = yield this._mentorService.homeData(filter, String(search), Number(page), Number(limit));
                 const userId = req.user;
-                res.status(status).json({ success, message, homeData, userId });
+                res.status(status).json({ success, message, homeData, userId, totalPage });
             }
             catch (error) {
                 throw new Error(`error while mentor profile Edit ${error instanceof Error ? error.message : String(error)}`);
             }
         });
     }
-    //create time slots in mentor side 
+    //create time slots in mentor side
     // /mentor/schedule/create-slots
     // get the scheule time in the req.body
     createTimeSlots(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 const { type, schedule } = req.body;
-                console.log(type, schedule, 'creaeSchedule');
+                console.log(type, schedule, "creaeSchedule");
                 const { success, status, message, timeSlots } = yield this._mentorService.createTimeSlots(type, schedule, req.user);
                 res.status(status).json({ success, message, status, timeSlots });
             }
@@ -179,7 +180,7 @@ class mentorController {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 const { slotId } = req.body;
-                console.log(slotId, 'ths is slot id');
+                console.log(slotId, "ths is slot id");
                 const { status, success, message } = yield this._mentorService.removeTimeSlot(slotId);
                 res.status(status).json({ message, success });
             }

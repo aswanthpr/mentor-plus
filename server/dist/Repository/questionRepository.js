@@ -302,9 +302,11 @@ class questionRepository extends baseRepo_1.baseRepository {
             }
         });
     }
-    allQuestionData(filter) {
+    allQuestionData(filter, search, skip, limit) {
         return __awaiter(this, void 0, void 0, function* () {
+            var _a;
             try {
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
                 let matchCondition = {};
                 if (filter === "answered") {
                     matchCondition = {
@@ -314,124 +316,145 @@ class questionRepository extends baseRepo_1.baseRepository {
                 else {
                     matchCondition = { answers: { $lte: 0 } };
                 }
+                if (search) {
+                    matchCondition.$or = [
+                        { title: { $regex: search, $options: "i" } },
+                        { content: { $regex: search, $options: "i" } },
+                        { tags: { $elemMatch: { $regex: search, $options: "i" } } },
+                        { "user.name": { $regex: search, $options: "i" } },
+                    ];
+                }
                 console.log(matchCondition, "matchcondition");
-                const resp = yield this.aggregateData(questionModal_2.default, [
-                    {
-                        $match: { isBlocked: false },
-                    },
-                    {
-                        $sort: { createdAt: -1 },
-                    },
-                    {
-                        $lookup: {
-                            from: "mentees",
-                            localField: "menteeId",
-                            foreignField: "_id",
-                            as: "user",
+                const [question, count] = yield Promise.all([this.aggregateData(questionModal_2.default, [
+                        {
+                            $match: { isBlocked: false },
                         },
-                    },
-                    {
-                        $unwind: {
-                            path: "$user",
-                            preserveNullAndEmptyArrays: true,
+                        {
+                            $sort: { createdAt: -1 },
                         },
-                    },
-                    {
-                        $lookup: {
-                            from: "answers",
-                            let: { questionId: "$_id" },
-                            pipeline: [
-                                { $match: { $expr: { $eq: ["$questionId", "$$questionId"] } } },
-                                { $sort: { createdAt: -1 } },
-                            ],
-                            as: "answerData",
-                        },
-                    },
-                    {
-                        $unwind: {
-                            path: "$answerData",
-                            preserveNullAndEmptyArrays: true,
-                        },
-                    },
-                    {
-                        $lookup: {
-                            from: "mentees",
-                            localField: "answerData.authorId",
-                            foreignField: "_id",
-                            as: "answerData.author1",
-                        },
-                    },
-                    {
-                        $lookup: {
-                            from: "mentors",
-                            localField: "answerData.authorId",
-                            foreignField: "_id",
-                            as: "answerData.author2",
-                        },
-                    },
-                    {
-                        $match: matchCondition,
-                    },
-                    {
-                        $addFields: {
-                            "answerData.author": {
-                                $cond: {
-                                    if: { $eq: ["$answerData.authorType", "mentee"] },
-                                    then: { $arrayElemAt: ["$answerData.author1", 0] },
-                                    else: { $arrayElemAt: ["$answerData.author2", 0] },
-                                },
+                        {
+                            $lookup: {
+                                from: "mentees",
+                                localField: "menteeId",
+                                foreignField: "_id",
+                                as: "user",
                             },
                         },
-                    },
-                    {
-                        $project: {
-                            "answerData.author1": 0,
-                            "answerData.author2": 0,
+                        {
+                            $unwind: {
+                                path: "$user",
+                                preserveNullAndEmptyArrays: true,
+                            },
                         },
-                    },
-                    {
-                        $group: {
-                            _id: "$_id",
-                            title: { $first: "$title" },
-                            tags: { $first: "$tags" },
-                            menteeId: { $first: "$menteeId" },
-                            content: { $first: "$content" },
-                            createdAt: { $first: "$createdAt" },
-                            user: { $first: "$user" },
-                            answers: { $sum: 1 },
-                            answerData: {
-                                $push: {
+                        {
+                            $lookup: {
+                                from: "answers",
+                                let: { questionId: "$_id" },
+                                pipeline: [
+                                    { $match: { $expr: { $eq: ["$questionId", "$$questionId"] } } },
+                                    { $sort: { createdAt: -1 } },
+                                ],
+                                as: "answerData",
+                            },
+                        },
+                        {
+                            $unwind: {
+                                path: "$answerData",
+                                preserveNullAndEmptyArrays: true,
+                            },
+                        },
+                        {
+                            $lookup: {
+                                from: "mentees",
+                                localField: "answerData.authorId",
+                                foreignField: "_id",
+                                as: "answerData.author1",
+                            },
+                        },
+                        {
+                            $lookup: {
+                                from: "mentors",
+                                localField: "answerData.authorId",
+                                foreignField: "_id",
+                                as: "answerData.author2",
+                            },
+                        },
+                        {
+                            $match: matchCondition,
+                        },
+                        {
+                            $addFields: {
+                                "answerData.author": {
                                     $cond: {
-                                        if: { $ne: ["$answerData", {}] },
-                                        then: "$answerData",
-                                        else: "$$REMOVE",
+                                        if: { $eq: ["$answerData.authorType", "mentee"] },
+                                        then: { $arrayElemAt: ["$answerData.author1", 0] },
+                                        else: { $arrayElemAt: ["$answerData.author2", 0] },
                                     },
                                 },
                             },
                         },
-                    },
-                    {
-                        $project: {
-                            _id: 1,
-                            title: 1,
-                            content: 1,
-                            tags: 1,
-                            menteeId: 1,
-                            createdAt: 1,
-                            user: {
-                                _id: 1,
-                                name: 1,
-                                profileUrl: 1,
-                                linkedinUrl: 1,
-                                githubUrl: 1,
+                        {
+                            $project: {
+                                "answerData.author1": 0,
+                                "answerData.author2": 0,
                             },
-                            answers: 1,
-                            answerData: 1,
-                            answer: 1,
                         },
-                    },
+                        {
+                            $group: {
+                                _id: "$_id",
+                                title: { $first: "$title" },
+                                tags: { $first: "$tags" },
+                                menteeId: { $first: "$menteeId" },
+                                content: { $first: "$content" },
+                                createdAt: { $first: "$createdAt" },
+                                user: { $first: "$user" },
+                                answers: { $sum: 1 },
+                                answerData: {
+                                    $push: {
+                                        $cond: {
+                                            if: { $ne: ["$answerData", {}] },
+                                            then: "$answerData",
+                                            else: "$$REMOVE",
+                                        },
+                                    },
+                                },
+                            },
+                        },
+                        {
+                            $skip: skip
+                        },
+                        {
+                            $limit: limit
+                        },
+                        {
+                            $project: {
+                                _id: 1,
+                                title: 1,
+                                content: 1,
+                                tags: 1,
+                                menteeId: 1,
+                                createdAt: 1,
+                                user: {
+                                    _id: 1,
+                                    name: 1,
+                                    profileUrl: 1,
+                                    linkedinUrl: 1,
+                                    githubUrl: 1,
+                                },
+                                answers: 1,
+                                answerData: 1,
+                                answer: 1,
+                            },
+                        },
+                    ]),
+                    this.aggregateData(questionModal_2.default, [
+                        { $match: filter === "answered" ? { answers: { $gt: 0 } } : { answers: { $lte: 0 } } },
+                        { $count: "count" },
+                    ]),
                 ]);
-                return resp;
+                const countResult = (count.length > 0 ? (_a = count[0]) === null || _a === void 0 ? void 0 : _a.count : 0);
+                console.log(countResult, 'eieieieieiiei', count);
+                return { question, count: countResult };
             }
             catch (error) {
                 throw new Error(`Error occured while get all data  questions ${error instanceof Error ? error.message : String(error)}`);

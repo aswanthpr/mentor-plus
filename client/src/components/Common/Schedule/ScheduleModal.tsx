@@ -1,5 +1,5 @@
 import moment, { Moment } from "moment";
-import   { useState } from "react";
+import { useCallback, useState } from "react";
 import { toast } from "react-toastify";
 import { Plus, Trash2 } from "lucide-react";
 import MuiInput from "./MuiInput";
@@ -9,20 +9,24 @@ import TimePickers from "./TimePickers";
 import DatePickers from "./DatePickers";
 import { ScheduleTypeSelector } from "./ScheduleTypeSelector";
 import { RecurringScheduleForm } from "./RecurringScheduleForm";
-
-
-
-
+import { TslotType } from "../../../Types/type";
+import {
+  baseScheduleSchema,
+  scheduleSchema,
+  timeSlotSchema,
+} from "../../../Validation/yupValidation";
+import * as Yup from "yup";
+import { ValidatingIsOverlapping } from "../../../Validation/Validation";
 
 export const ScheduleModal = ({
   isOpen,
   onClose,
   onSubmit,
 }: ScheduleModalProps) => {
-  const [scheduleType, setScheduleType] = useState<"normal" | "recurring">(
-    "normal"
-  );
-
+  
+  const [errors, setErrors] = useState<{ [key: string]: string }>({});
+  const [scheduleType, setScheduleType] = useState<TslotType>("normal");
+  const [selectedDates, setSelectedDates] = useState<string[]>([]);
   // Initialize normalSchedule as an empty array
   const [normalSchedule, setNormalSchedule] = useState<DaySchedule[]>([]);
   const [recurringSchedule, setRecurringSchedule] = useState<ISchedule>({
@@ -30,142 +34,273 @@ export const ScheduleModal = ({
     endDate: "",
     slots: [{ startTime: "", endTime: "" }],
     selectedDays: [],
-    price: "",
+    price: null,
   });
 
-  const [selectedDates, setSelectedDates] = useState<string[]>([]);
+  const handleDateSelection = useCallback(
+    (date: string) => {
+      if (selectedDates.length <= 1 && !selectedDates.includes(date)) {
+        setSelectedDates([date]);
 
-  const handleDateSelection = (date: string) => {
+        setNormalSchedule([
+          ...normalSchedule,
+          {
+            slots: [{ startTime: "", endTime: "" }],
+            price: null,
+            startDate: date,
+          },
+        ]);
+      }
+    },
+    [normalSchedule, selectedDates]
+  );
 
-    if (selectedDates.length < 7 && !selectedDates.includes(date)) {
-      setSelectedDates([...selectedDates, date]);
+  const removeDate = useCallback(
+    (date: string) => {
+      setSelectedDates(
+        selectedDates.filter((selectedDate) => selectedDate !== date)
+      );
+      setNormalSchedule(
+        normalSchedule.filter((schedule) => schedule.startDate !== date)
+      );
+    },
+    [normalSchedule, selectedDates]
+  );
 
-      setNormalSchedule([
-        ...normalSchedule,
-        {
-          slots: [{ startTime: "", endTime: "" }],
-          price: "",
-          startDate: date,
-        },
-      ]);
-    }
-  };
-
-  const removeDate = (date: string) => {
-    setSelectedDates(
-      selectedDates.filter((selectedDate) => selectedDate !== date)
-    );
-    setNormalSchedule(
-      normalSchedule.filter((schedule) => schedule.startDate !== date)
-    );
-  };
-
-  const handleNormalTimeChange = (
-    dayIndex: number,
-    slotIndex: number,
-    key: keyof TimeSlot,
-    value: string
-  ) => {
-    console.log(value,'timeString',typeof value)
-    const updated = [...normalSchedule];
-    updated[dayIndex] = {
-      ...updated[dayIndex],
-      slots: updated[dayIndex].slots.map((slot, idx) =>
-        idx === slotIndex ? { ...slot, [key]: value } : slot
-      ),
-    };
-    setNormalSchedule(updated);
-  };
-
-  const handleNormalPriceChange = (dayIndex: number, price: string) => {
-    const updated = [...normalSchedule];
-    updated[dayIndex] = {
-      ...updated[dayIndex],
-      price,
-    };
-    setNormalSchedule(updated);
-  };
-
-  const addNormalTimeSlot = (dayIndex: number) => {
-    const updated = [...normalSchedule];
-    if (updated[dayIndex].slots.length < 10) {
+  const handleNormalTimeChange = useCallback(
+    (
+      dayIndex: number,
+      slotIndex: number,
+      key: keyof TimeSlot,
+      value: string
+    ) => {
+      console.log(value, "timeString", typeof value);
+      const updated = [...normalSchedule];
       updated[dayIndex] = {
         ...updated[dayIndex],
-        slots: [...updated[dayIndex].slots, { startTime: "", endTime: "" }],
-      };
-      setNormalSchedule(updated);
-    } else {
-      toast.warning("You can only add up to 10 time slots.");
-    }
-  };
-
-  const removeNormalTimeSlot = (dayIndex: number, slotIndex: number) => {
-    const updated = [...normalSchedule];
-    if (updated[dayIndex].slots.length > 1) {
-      updated[dayIndex] = {
-        ...updated[dayIndex],
-        slots: updated[dayIndex].slots.filter(
-          (_, index) => index !== slotIndex
+        slots: updated[dayIndex].slots.map((slot, idx) =>
+          idx === slotIndex ? { ...slot, [key]: value } : slot
         ),
       };
       setNormalSchedule(updated);
-    }
-  };
+    },
+    [normalSchedule]
+  );
 
-  const handleSave = () => {
+  const handleNormalPriceChange = useCallback(
+    (dayIndex: number, price: number) => {
+      setNormalSchedule((prev) => {
+        const updated = [...prev];
+  
+  
+        updated[dayIndex].price = price??0;
+        return updated;
+      });
+    },
+    []
+  );
+
+  const addNormalTimeSlot = useCallback(
+    (dayIndex: number) => {
+      const updated = [...normalSchedule];
+      if (updated[dayIndex].slots.length < 10) {
+        updated[dayIndex] = {
+          ...updated[dayIndex],
+          slots: [...updated[dayIndex].slots, { startTime: "", endTime: "" }],
+        };
+        setNormalSchedule(updated);
+      } else {
+        toast.warning("You can only add up to 10 time slots.");
+      }
+    },
+    [normalSchedule]
+  );
+
+  const removeNormalTimeSlot = useCallback(
+    (dayIndex: number, slotIndex: number) => {
+      const updated = [...normalSchedule];
+      if (updated[dayIndex].slots.length > 1) {
+        updated[dayIndex] = {
+          ...updated[dayIndex],
+          slots: updated[dayIndex].slots.filter(
+            (_, index) => index !== slotIndex
+          ),
+        };
+        setNormalSchedule(updated);
+        const errorKey = `normalSchedule[${dayIndex}].slots[${slotIndex}].${slotIndex}`;
+    if (errors[errorKey]) {
+      setErrors((prevErrors) => {
+        const newErrors = { ...prevErrors };
+        delete newErrors[errorKey];
+        return newErrors;
+      });
+    }
+      }
+    },
+    [errors, normalSchedule]
+  );
+
+  const handleSave = useCallback(async () => {
+    setErrors({});
+    const validationErrors: Record<string, string> = {}; 
+
+    if (scheduleType === "normal") {
+      // Validate normal schedule entries
+      await Promise.all(
+        normalSchedule.map(async (slot, index) => {
+          try {
+            await baseScheduleSchema.validate(slot, { abortEarly: false });
+          } catch (err) {
+            if (err instanceof Yup.ValidationError) {
+              err.inner.forEach((error) => {
+                validationErrors[`normalSchedule[${index}].${error.path}`] =
+                  error.message;
+              });
+            }
+          }
+         
+
+          if (ValidatingIsOverlapping(slot?.slots)) {
+            validationErrors[`normalSchedule[${index}].slots}`] ="Time slots cannot overlap";
+            toast.error("Time slots cannot overlap")
+          }
+
+          // Validate each time slot inside normal schedule
+          await Promise.all(
+            slot.slots.map(async (time, slotIndex) => {
+              try {
+                await timeSlotSchema.validate(time, { abortEarly: false });
+              } catch (err) {
+                if (err instanceof Yup.ValidationError) {
+                  err.inner.forEach((error) => {
+                    validationErrors[
+                      `normalSchedule[${index}].slots[${slotIndex}].${error.path}`
+                    ] = error.message;
+                  });
+                }
+               
+              }
+
+            })
+          );
+        })
+      );
+    } else {
+      // Validate recurring schedule
+      try {
+        await scheduleSchema.validate(recurringSchedule, { abortEarly: false });
+      } catch (err) {
+        if (err instanceof Yup.ValidationError) {
+          err.inner.forEach((error) => {
+            validationErrors[`recurringSchedule.${error.path}`] = error.message;
+          });
+        }
+      }
+
+      // Validate time slots inside recurring schedule
+      await Promise.all(
+        recurringSchedule.slots.map(async (slot, slotIndex) => {
+          try {
+            await timeSlotSchema.validate(slot, { abortEarly: false });
+          } catch (err) {
+            if (err instanceof Yup.ValidationError) {
+              err.inner.forEach((error) => {
+                validationErrors[
+                  `recurringSchedule.slots[${slotIndex}].${error.path}`
+                ] = error.message;
+              });
+            }
+          }
+        })
+      );
+
+      // Validate selectedDays array
+      if (recurringSchedule?.selectedDays?.length === 0) {
+        validationErrors["recurringSchedule.selectedDays"] =
+          "At least one day must be selected";
+      }
+    }
+
+    // If validation errors exist, update state & stop submission
+   
+    if (Object.keys(validationErrors).length > 0) {
+      console.error("Validation Errors:", validationErrors);
+      setErrors(validationErrors);
+      return;
+    }
+
     const cleanNormalSchedule = normalSchedule
       .map((day) => ({
         ...day,
-        slots: day.slots.filter((slot) => slot.startTime && slot.endTime),
+        slots: day?.slots.filter((slot) => slot?.startTime && slot?.endTime),
       }))
-      .filter((day) => day.slots.length > 0 || day.price);
-
+      .filter((day) => day?.slots.length > 0 || day?.price);
 
     const scheduleData = {
       type: scheduleType,
       schedule:
-        scheduleType === "normal"
-          ? cleanNormalSchedule
-          : recurringSchedule,
+        scheduleType === "normal" ? cleanNormalSchedule : recurringSchedule,
     };
 
     console.log("Cleaned Schedule Data:", scheduleData);
     onSubmit(scheduleData as unknown as ISchedule);
     onClose();
-  };
+    setSelectedDates([])
+    setNormalSchedule([])
+    setRecurringSchedule({
+      startDate: "",
+      endDate: "",
+      slots: [{ startTime: "", endTime: "" }],
+      selectedDays: [],
+      price: null,
+    });
+   
+  }, [normalSchedule, onClose, onSubmit, recurringSchedule, scheduleType]);
 
-  const toggleRecurringDay = (day: string) => {
-    const updatedDays = recurringSchedule?.selectedDays?.includes(day)
-      ? recurringSchedule?.selectedDays.filter((d) => d !== day)
-      : [...recurringSchedule.selectedDays!, day];
+  const toggleRecurringDay = useCallback(
+    (day: string) => {
+      const updatedDays = recurringSchedule?.selectedDays?.includes(day)
+        ? recurringSchedule?.selectedDays.filter((d) => d !== day)
+        : [...recurringSchedule.selectedDays!, day];
 
-    setRecurringSchedule({ ...recurringSchedule, selectedDays: updatedDays });
-  };
+      setRecurringSchedule({ ...recurringSchedule, selectedDays: updatedDays });
+ 
+    },
+    [recurringSchedule]
+  );
 
-  const addRecurringTimeSlot = () => {
+  const addRecurringTimeSlot = useCallback(() => {
     setRecurringSchedule({
       ...recurringSchedule,
       slots: [...recurringSchedule.slots, { startTime: "", endTime: "" }],
+      
     });
-  };
+   
+  }, [recurringSchedule]);
 
-  const handleTimeSlotChange = (
-    index: number,
-    key: keyof TimeSlot,
-    value: string
-  ) => {
-    const updatedTimeSlots = [...recurringSchedule.slots];
-    updatedTimeSlots[index] = { ...updatedTimeSlots[index], [key]: value };
-    setRecurringSchedule({ ...recurringSchedule, slots: updatedTimeSlots });
-  };
+  const handleTimeSlotChange = useCallback(
+    (index: number, key: keyof TimeSlot, value: string) => {
+      const updatedTimeSlots = [...recurringSchedule.slots];
+      updatedTimeSlots[index] = { ...updatedTimeSlots[index], [key]: value };
+      setRecurringSchedule({ ...recurringSchedule, slots: updatedTimeSlots });
+   
+    
+    },
+    [recurringSchedule]
+   
+  );
 
-  const removeRecurringTimeSlot = (index: number) => {
-    const updatedTimeSlots = recurringSchedule.slots.filter(
-      (_, idx) => idx !== index
-    );
-    setRecurringSchedule({ ...recurringSchedule, slots: updatedTimeSlots });
-  };
-  
+  const removeRecurringTimeSlot = useCallback(
+    (index: number) => {
+      const updatedTimeSlots = recurringSchedule.slots.filter(
+        (_, idx) => idx !== index
+      );
+      setRecurringSchedule({ ...recurringSchedule, slots: updatedTimeSlots });
+    
+    },
+    [recurringSchedule]
+  );
+
   return (
     <Modal isOpen={isOpen} onClose={onClose}>
       <div className="max-h-[80vh] overflow-y-auto ">
@@ -182,27 +317,28 @@ export const ScheduleModal = ({
         {scheduleType === "normal" ? (
           <div className="space-y-6 pr-6">
             <div className="mb-4">
-            <DatePickers
-            className="w-full"
+              <DatePickers
+                className="w-full"
                 disablePast
                 format="DD-MM-YYYY"
                 label="Select Dates"
-        
                 value={null}
                 onChange={(newValue: Moment | null) => {
-              
                   if (newValue) {
-                    const formattedDate = newValue.format("YYYY-MM-DD"); 
+                    const formattedDate = newValue.format("YYYY-MM-DD");
                     // console.log(formattedDate,'formattedDate')
                     handleDateSelection(formattedDate);
                   } else {
-                    handleDateSelection(''); 
+                    handleDateSelection("");
                   }
                 }}
-                
+              />
+              {errors["selectedDates"] && (
+                <p className="text-red-500 text-sm mt-1">
+                  {errors["selectedDates"]}
+                </p>
+              )}
 
-            />
-              
               <div className="mt-2 flex gap-2">
                 {selectedDates.map((date, index) => (
                   <div key={index} className="flex items-center gap-2">
@@ -222,27 +358,38 @@ export const ScheduleModal = ({
               <div key={date} className="border-b pb-4 last:border-b-0">
                 <div className="flex justify-start items-center mb-4 pr-6">
                   <div className="w-auto">
-                  <MuiInput
-                   label= {`price of ${date.split('-').reverse().join('-')}`}
-                   type="text"
-                   value={normalSchedule[dateIndex]?.price}
-                   onChange={(e) =>
-                     handleNormalPriceChange(dateIndex, e.target.value)
-                   }
-                   placeholder="Enter price"
-                   className="ml-0 pl-0"
-                   min={0}
-                   />        
+                    <MuiInput
+                      label={`price of ${date.split("-").reverse().join("-")}`}
+                      type="text"
+                      value={normalSchedule[dateIndex]?.price as number}
+                      onChange={(e) =>
+                        handleNormalPriceChange(
+                          dateIndex,
+                          Number(e.target?.value)
+                        )
+                      }
+                      placeholder="Enter price"
+                      className="ml-0 pl-0"
+                      min={0}
+                    />
+                    {errors[`normalSchedule[${dateIndex}].price`] && (
+                      <p className="text-red-500 text-sm mt-1">
+                        {errors[`normalSchedule[${dateIndex}].price`]}
+                      </p>
+                    )}
                   </div>
                 </div>
 
                 {normalSchedule[dateIndex]?.slots.map((slot, slotIndex) => (
                   <div key={slotIndex} className="flex items-center gap-1 mb-2">
                     <div className="flex-1 w-full sm:w-1/2 md:w-1/3">
+                    
                       <TimePickers
                         label="StartTime"
                         value={
-                          slot.startTime ? moment(slot.startTime, "hh:mm A") : null
+                          slot.startTime
+                            ? moment(slot.startTime, "hh:mm A")
+                            : null
                         }
                         onChange={(newValue) => {
                           const timeString = newValue?.format("HH:mm:ss") || ""; // Format for display (AM/PM)
@@ -252,21 +399,33 @@ export const ScheduleModal = ({
                             "startTime",
                             timeString
                           );
-                          console.log(timeString,'timeString',newValue)
+                          console.log(timeString, "timeString", newValue);
                         }}
                       />
+                      {errors[
+                        `normalSchedule[${dateIndex}].slots[${slotIndex}].startTime`
+                      ] && (
+                        <p className="text-red-500 text-sm mt-1">
+                          {
+                            errors[
+                              `normalSchedule[${dateIndex}].slots[${slotIndex}].startTime`
+                            ]
+                          }
+                        </p>
+                      )}
                     </div>
 
                     <div className="flex-1 w-full xss:w-1/6 md:w-1/3 xss:flex ">
+                   <div className="flex flex-col">
+
                       <TimePickers
-                      
                         label="EndTime"
                         value={
-                          slot.endTime ? moment(slot.endTime,"hh:mm A") : null
+                          slot.endTime ? moment(slot.endTime, "hh:mm A") : null
                         }
                         onChange={(newValue) => {
                           const timeString = newValue?.format("HH:mm:ss") || "";
-                          
+
                           handleNormalTimeChange(
                             dateIndex,
                             slotIndex,
@@ -275,7 +434,18 @@ export const ScheduleModal = ({
                           );
                         }}
                       />
-
+                       {errors[
+                        `normalSchedule[${dateIndex}].slots[${slotIndex}].endTime`
+                      ] && (
+                        <p className="text-red-500 text-sm mt-1">
+                          {
+                            errors[
+                              `normalSchedule[${dateIndex}].slots[${slotIndex}].endTime`
+                            ]
+                          }
+                        </p>
+                      )}
+                   </div>
                       {slotIndex >=
                         normalSchedule[dateIndex]?.slots.length - 1 && (
                         <button
@@ -290,7 +460,9 @@ export const ScheduleModal = ({
                         </button>
                       )}
                     </div>
+                    
                   </div>
+                  
                 ))}
 
                 {normalSchedule[dateIndex]?.slots.length < 10 && (
@@ -308,9 +480,10 @@ export const ScheduleModal = ({
           </div>
         ) : (
           <RecurringScheduleForm
+          errors={errors}
             startDate={recurringSchedule.startDate}
             endDate={recurringSchedule["endDate"]!}
-            price={recurringSchedule.price}
+            price={recurringSchedule.price as number}
             selectedDays={recurringSchedule.selectedDays!}
             timeSlots={recurringSchedule.slots}
             onStartDateChange={(date) =>
@@ -331,8 +504,7 @@ export const ScheduleModal = ({
 
         <div className="mt-6">
           <Button
-            variant="orange"
-            className="w-full font-bold"
+            disabled={scheduleType=="normal"?!normalSchedule[0]:recurringSchedule.slots.length<0}
             onClick={handleSave}
           >
             Save Schedule

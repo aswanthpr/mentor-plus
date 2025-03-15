@@ -184,17 +184,15 @@ export class menteeController implements ImenteeController {
         sort: sortStr,
       });
 
-      res
-        .status(status)
-        .json({
-          message,
-          success,
-          category,
-          mentor,
-          skills,
-          currentPage,
-          totalPage,
-        });
+      res.status(status).json({
+        message,
+        success,
+        category,
+        mentor,
+        skills,
+        currentPage,
+        totalPage,
+      });
     } catch (error: unknown) {
       res
         .status(500)
@@ -209,11 +207,18 @@ export class menteeController implements ImenteeController {
   async homeData(req: Request, res: Response): Promise<void> {
     try {
       const { filter } = req.params;
-      const { status, success, message, homeData } =
-        await this._menteeService.homeData(filter as string);
+      const { page = 1, search, limit } = req.query;
+
+      const { status, success, message, homeData,totalPage } =
+        await this._menteeService.homeData(
+          filter as string,
+          String(search),
+          Number(page),
+          Number(limit)
+        );
       const userId = req.user as Express.User;
 
-      res.status(status).json({ success, message, homeData, userId });
+      res.status(status).json({ success, message, homeData, userId,totalPage });
     } catch (error: unknown) {
       res
         .status(500)

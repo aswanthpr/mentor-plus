@@ -321,9 +321,15 @@ class questionRepository
     }
   }
 
-  async allQuestionData(filter: string): Promise<Iquestion[] | null> {
+  async allQuestionData(
+    filter: string,
+    search: string,
+    skip: number,
+    limit: number
+  ): Promise<{question:Iquestion[] | [],count:number}> {
     try {
-      let matchCondition = {};
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      let matchCondition: any = {};
       if (filter === "answered") {
         matchCondition = {
           $and: [{ answers: { $gt: 0 } }, { "answerData.isBlocked": false }],
@@ -332,9 +338,18 @@ class questionRepository
         matchCondition = { answers: { $lte: 0 } };
       }
 
+      if (search) {
+        matchCondition.$or = [
+          { title: { $regex: search, $options: "i" } },
+          { content: { $regex: search, $options: "i" } },
+          { tags: { $elemMatch: { $regex: search, $options: "i" } } },
+          {"user.name":{$regex:search, $options:"i"}},
+        ];
+      }
+
       console.log(matchCondition, "matchcondition");
 
-      const resp = await this.aggregateData(questionModal, [
+     const [question,count] = await Promise.all([  this.aggregateData(questionModal, [
         {
           $match: { isBlocked: false },
         },
@@ -392,7 +407,7 @@ class questionRepository
           },
         },
         {
-          $match: matchCondition, 
+          $match: matchCondition,
         },
         {
           $addFields: {
@@ -432,7 +447,12 @@ class questionRepository
             },
           },
         },
-
+        {
+          $skip:skip
+        },
+        {
+          $limit:limit
+        },
         {
           $project: {
             _id: 1,
@@ -453,8 +473,15 @@ class questionRepository
             answer: 1,
           },
         },
-      ]);
-      return resp;
+      ]),
+      this.aggregateData(questionModal, [
+        { $match: filter==="answered"?{ answers: { $gt: 0 } }:{ answers: { $lte: 0 } } },
+        { $count: "count" },
+      ]) ,
+    ]);
+     const countResult = (count.length > 0 ? count[0]?.count : 0) as number;
+    console.log(countResult,'eieieieieiiei',count)
+      return {question,count:countResult }
     } catch (error: unknown) {
       throw new Error(
         `Error occured while get all data  questions ${

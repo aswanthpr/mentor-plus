@@ -12,17 +12,17 @@ interface TimeSlot {
 interface RecurringScheduleFormProps {
   startDate: string;
   endDate: string;
-  price: string;
+  price: number;
   selectedDays: string[];
   timeSlots: TimeSlot[];
+  errors: Record<string, string>;
   onStartDateChange: (date: string) => void;
   onEndDateChange: (date: string) => void;
-  onPriceChange: (price: string) => void;
+  onPriceChange: (price: number) => void;
   onDayToggle: (day: string) => void;
   onAddTimeSlot: () => void;
   onRemoveTimeSlot: (index: number) => void;
   onTimeSlotChange: (index: number, key: keyof TimeSlot, value: string) => void;
-  // onSubmit: (data: any) => void;
 }
 
 const DAYS = [
@@ -41,6 +41,7 @@ export const RecurringScheduleForm = ({
   price,
   selectedDays,
   timeSlots,
+  errors,
   onStartDateChange,
   onEndDateChange,
   onPriceChange,
@@ -53,55 +54,68 @@ export const RecurringScheduleForm = ({
     <div className="space-y-6">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pr-6">
         <div className="w-auto flex  xss:grid-col-1 md:flex-row sm:flex-row gap-x-20 gap-y-5 xss:w-full ">
-
-        
-          <DatePickers
-            disablePast
-            format="DD-MM-YYYY"
-            label="Start Date"
-            onChange={(newValue: Moment | null) => {
-              if (newValue) {
-                const formattedDate = newValue.format("YYYY-MM-DD");
-                onStartDateChange(formattedDate);
-              } else {
-                onStartDateChange("");
-              }
-            }}
-            className="w-full"
-            value={moment(startDate,'YYYY-MM-DD')}
-          />
-    
-
-          <DatePickers
-            disablePast
-            format="DD-MM-YYYY"
-            label="End Date"
-            className="w-full "
-            value={moment(endDate,'YYYY-MM-DD')}
-            onChange={(newValue: Moment | null) => {
-              if (newValue) {
-                const formattedDate = newValue.format("YYYY-MM-DD");
-                onEndDateChange(formattedDate);
-              } else {
-                onEndDateChange("");
-              }
-            }}
-          />
+          <div className="flex flex-col">
+            <DatePickers
+              disablePast
+              format="DD-MM-YYYY"
+              label="Start Date"
+              onChange={(newValue: Moment | null) => {
+                if (newValue) {
+                  const formattedDate = newValue.format("YYYY-MM-DD");
+                  onStartDateChange(formattedDate);
+                } else {
+                  onStartDateChange("");
+                }
+              }}
+              className="w-full"
+              value={moment(startDate, "YYYY-MM-DD")}
+            />
+            {errors["recurringSchedule.startDate"] && (
+              <p className="text-red-500 text-sm mt-1">
+                {errors["recurringSchedule.startDate"].split(",")[0]}
+              </p>
+            )}
+          </div>
+          <div className="flex flex-col">
+            <DatePickers
+              disablePast
+              format="DD-MM-YYYY"
+              label="End Date"
+              className="w-full "
+              value={moment(endDate, "YYYY-MM-DD")}
+              onChange={(newValue: Moment | null) => {
+                if (newValue) {
+                  const formattedDate = newValue.format("YYYY-MM-DD");
+                  onEndDateChange(formattedDate);
+                } else {
+                  onEndDateChange("");
+                }
+              }}
+            />
+            {errors["recurringSchedule.endDate"] && (
+              <p className="text-red-500 text-sm mt-1">
+                {errors["recurringSchedule.endDate"].split(",")[0]}
+              </p>
+            )}
+          </div>
         </div>
       </div>
 
       <div className="pr-6">
         <MuiInput
-          label= {'Price for All Sessions'}
+          label={"Price for All Sessions"}
           type="number"
           value={price}
-          onChange={(e) =>
-            onPriceChange(e.target.value)
-          }
+          onChange={(e) => onPriceChange(Number(e.target?.value))}
           placeholder="Enter price"
           className="w-1/full items-center"
           min={0}
         />
+        {errors["recurringSchedule.price"] && (
+          <p className="text-red-500 text-sm mt-1">
+            {errors["recurringSchedule.price"]}
+          </p>
+        )}
       </div>
 
       <div>
@@ -122,6 +136,11 @@ export const RecurringScheduleForm = ({
               {day}
             </button>
           ))}
+          {errors["recurringSchedule.selectedDays"] && (
+            <p className="text-red-500 text-sm mt-1">
+              {errors["recurringSchedule.selectedDays"]}
+            </p>
+          )}
         </div>
       </div>
 
@@ -142,6 +161,11 @@ export const RecurringScheduleForm = ({
                 }}
                 // slotProps={{ extField: { size: 'small' } }}
               />
+              {errors[`recurringSchedule.slots[${index}].startTime`] && (
+                <p className="text-red-500 text-sm mt-1">
+                  {errors[`recurringSchedule.slots[${index}].startTime`]}
+                </p>
+              )}
             </div>
             <div className="flex-1">
               <label className="block text-sm text-gray-600 mb-1">
@@ -154,6 +178,11 @@ export const RecurringScheduleForm = ({
                   onTimeSlotChange(index, "endTime", timeString);
                 }}
               />
+              {errors[`recurringSchedule.slots[${index}].endTime`] && (
+                <p className="text-red-500 text-sm mt-1">
+                  {errors[`recurringSchedule.slots[${index}].endTime`]}
+                </p>
+              )}
             </div>
             <button
               onClick={() => onRemoveTimeSlot(index)}

@@ -45,17 +45,18 @@ export declare class mentorService implements ImentorService {
         status: number;
         result: Imentor | null;
     }>;
-    homeData(filter: string): Promise<{
+    homeData(filter: string, search: string, page: number, limit: number): Promise<{
         success: boolean;
         message: string;
         status: number;
-        homeData: Iquestion[] | null;
+        homeData: Iquestion[] | [];
+        totalPage: number;
     }>;
     createTimeSlots(type: string, schedule: unknown, mentorId: ObjectId): Promise<{
         success: boolean;
         message: string;
         status: number;
-        timeSlots: Itime | undefined;
+        timeSlots: Itime[] | [];
     }>;
     getTimeSlots(mentorId: ObjectId): Promise<{
         success: boolean;

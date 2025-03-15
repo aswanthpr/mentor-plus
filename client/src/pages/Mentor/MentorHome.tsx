@@ -1,5 +1,5 @@
-import { HandshakeIcon } from "lucide-react";
-import React, { useEffect, useState } from "react";
+import { CircleAlertIcon, HandshakeIcon } from "lucide-react";
+import React, { useCallback, useEffect, useState } from "react";
 import InputField from "../../components/Auth/InputField";
 import QuestionFilter from "../../components/Common/Qa/QuestionFilter";
 
@@ -11,11 +11,12 @@ import { axiosInstance } from "../../Config/mentorAxios";
 import AnswerInputModal from "../../components/Common/Qa/AnswerInputModal";
 import { errorHandler } from "../../Utils/Reusable/Reusable";
 import { toast } from "react-toastify";
+import { fetchMentorHomeData } from "../../service/api";
+import InfiniteScroll from "react-infinite-scroll-component";
 
 const MentorHome: React.FC = () => {
+  const limit = 6;
   const [filter, setFilter] = useState<"answered" | "unanswered">("answered");
-
-
   const [questions, setQuestions] = useState<IQuestion[] | []>([]);
   const [selectedQuestion, setSelectedQuestion] = useState<IQuestion | null>(
     null
@@ -24,13 +25,16 @@ const MentorHome: React.FC = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [searchQuery, setSearchQuery] = useState("");
   const [loading, setLoading] = useState<boolean>(false);
-  const [answerInputModalOpen, setAnswerInputModalOpen] = useState<boolean>(false);
+  const [answerInputModalOpen, setAnswerInputModalOpen] =
+    useState<boolean>(false);
   const [answerQuestionId, setAnswerQuestionId] = useState<string>("");
   const [mentorId, setMentorId] = useState<string>("");
-    const [answer, setEditAnswer] = useState<string>("");
-    const [answerId, setAnswerId] = useState<string>("");
-   const [editAnswerModalOpen, setEditAnswerModalOpen] =
-      useState<boolean>(false);
+  const [answer, setEditAnswer] = useState<string>("");
+  const [answerId, setAnswerId] = useState<string>("");
+  const [editAnswerModalOpen, setEditAnswerModalOpen] =
+    useState<boolean>(false);
+
+  const [hasMore, setHasMore] = useState<boolean>(true);
   const [editData, setEditData] = useState<{
     content: string;
     answerId: string;
@@ -39,30 +43,46 @@ const MentorHome: React.FC = () => {
     answerId: "",
   });
 
-
-  useEffect(() => {
-    const fetchData = async () => {
+  const fetchData = useCallback(
+    async (page: number, isNewSearch = false) => {
       try {
         setLoading(false);
-        const response = await axiosInstance.get(`/mentor/home/${filter}`);
+        const response = await fetchMentorHomeData(
+          filter,
+          searchQuery,
+          page,
+          limit
+        );
 
         if (response?.status === 200 && response?.data?.success) {
-          setMentorId(response.data?.userId)
-          setQuestions(response?.data.homeData);
+          setMentorId(response.data?.userId);
+          const newQustion = response?.data.homeData;
+          setQuestions((pre) =>
+            isNewSearch ? newQustion : [...pre, ...newQustion]
+          );
+          setHasMore(page < response?.data?.totalPage);
+          setCurrentPage(page);
+       
         }
       } catch (error: unknown) {
         console.log(
-          `error while fetching home data ${error instanceof Error ? error.message : String(error)
+          `error while fetching home data ${
+            error instanceof Error ? error.message : String(error)
           }`
         );
       }
-    };
-    fetchData();
-  }, [filter]);
-  // const handleSearch = (query: string) => {
-  //   console.log('Searching for:', query);
-  //   // Implement search logic
-  // };
+    },
+    [filter, searchQuery]
+  );
+  useEffect(() => {
+    fetchData(1,true);
+  }, [fetchData, filter, searchQuery]);
+
+  const fetchMoreQuestion = useCallback(() => {
+    if (hasMore) {
+      fetchData(currentPage + 1);
+    }
+  }, [currentPage, fetchData, hasMore]);
 
   const handleShowAnswers = (questionId: string): void => {
     const question = questions.find((q) => q._id === questionId);
@@ -83,30 +103,31 @@ const MentorHome: React.FC = () => {
       tags.some((tag) => tag.includes(searchQuery.toLowerCase()))
     );
   });
-  const handleAnswerSubmit = async (answer: string,) => {
+  const handleAnswerSubmit = async (answer: string) => {
     try {
       setLoading(true);
-      const { status, data } = await axiosInstance.post(`/mentor/qa/create-new-answer`, {
-        answer,
-        questionId: answerQuestionId,
-        userType: "mentor",
-      });
+      const { status, data } = await axiosInstance.post(
+        `/mentor/qa/create-new-answer`,
+        {
+          answer,
+          questionId: answerQuestionId,
+          userType: "mentor",
+        }
+      );
       if (status === 200 && data.success) {
         // setEditData({ content: data?.answers, answerId: answerQuestionId });
         toast.success(data?.message);
-      
-    
+
         setQuestions((prevQuestions) =>
           prevQuestions.map((question) =>
             question._id === answerQuestionId
               ? {
-                ...question,
-                answerData: [...(question.answerData || []),
-                data.answers  ],
-              }
+                  ...question,
+                  answerData: [...(question.answerData || []), data.answers],
+                }
               : question
           )
-        )
+        );
         if (filter == "unanswered") {
           setQuestions((prevQuestions) =>
             prevQuestions.filter(
@@ -116,74 +137,73 @@ const MentorHome: React.FC = () => {
         }
       }
       setAnswerInputModalOpen(false);
-
     } catch (error: unknown) {
-      errorHandler(error)
-      console.log(error, 'unexpected error')
+      errorHandler(error);
+      console.log(error, "unexpected error");
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   const handleEditAnswerSubmit = async (content: string, answerId?: string) => {
-      console.log("Answer Edited: ", { content, answerId });
-  
-      if (!answerId) return;
-  
-      try {
-        setLoading(true);
-        const response = await axiosInstance.patch(`/mentor/qa/edit-answer`, {
-          content,
-          answerId,
-        });
-  
-        if (response.status === 200 && response.data.success) {
-          setEditData({ content: response.data?.answer, answerId: answerId });
-          toast.success(response.data.message);
-  
-          const updatedAnswer = response.data?.answer;
-          setQuestions((prevQuestions) =>
-            prevQuestions.map((question) => ({
-              ...question,
-              answerData: question.answerData?.map((ans) =>
-                ans._id === answerId ? { ...ans, answer: updatedAnswer } : ans
-              ),
-            }))
-          );
-        }
-      } catch (error) {
-        errorHandler(error);
-      } finally {
-        setLoading(false);
-        setEditAnswerModalOpen(false);
+    console.log("Answer Edited: ", { content, answerId });
+
+    if (!answerId) return;
+
+    try {
+      setLoading(true);
+      const response = await axiosInstance.patch(`/mentor/qa/edit-answer`, {
+        content,
+        answerId,
+      });
+
+      if (response.status === 200 && response.data.success) {
+        setEditData({ content: response.data?.answer, answerId: answerId });
+        toast.success(response.data.message);
+
+        const updatedAnswer = response.data?.answer;
+        setQuestions((prevQuestions) =>
+          prevQuestions.map((question) => ({
+            ...question,
+            answerData: question.answerData?.map((ans) =>
+              ans._id === answerId ? { ...ans, answer: updatedAnswer } : ans
+            ),
+          }))
+        );
       }
-    };
-    const handleEditAnswer = (content: string, answerId: string) => {
-      setEditAnswer(content);
-      setAnswerId(answerId);
-      setEditAnswerModalOpen(true);
-    };
+    } catch (error) {
+      errorHandler(error);
+    } finally {
+      setLoading(false);
+      setEditAnswerModalOpen(false);
+    }
+  };
+  const handleEditAnswer = (content: string, answerId: string) => {
+    setEditAnswer(content);
+    setAnswerId(answerId);
+    setEditAnswerModalOpen(true);
+  };
   return (
     <div>
-      <div className="mb-6 mt-16">
+      <div className="mb-3 mt-16">
         {loading && <Spinner />}
-        <div className="flex items-center gap-3 mb-4 ">
-          <h1 className="text-2xl font-bold text-gray-900 ml-8 xs:ml-2 xs:text-xl sm:ml-0 ">
-            Welcome
-          </h1>
-          <HandshakeIcon className="w-8 h-8 text-[#ff8800] mt-2" />
-        </div>
+        <div className="flex items-center gap-3 mb-2  justify-center">
+                  <h1 className="text-3xl font-bold text-gray-900  xs:text-xl sm:ml-0 ">
+                    Welcome
+                  </h1>
+                  <HandshakeIcon className="w-6 h-6 text-[#ff8800] mt-1" />
+                </div>
       </div>
 
       <div className="h-0.5 bg-gray-200 w-full" />
 
       <section className="flex items-center justify-between mb-6 sm:mb-4  sm:flex-col lg:flex-row  xss:flex-col">
-        <h2 className="text-2xl font-bold text-gray-900 ml-8 mt-2 sm:text-xl sm:ml-0 xs:text-lg xs:ml-2 xss:text-md">
+        {/* <h2 className="text-2xl font-bold text-gray-900 ml-8 mt-2 sm:text-xl sm:ml-0 xs:text-lg xs:ml-2 xss:text-md">
           Asked Questions
-        </h2>
+        </h2> */}
         <div className="flex justify-between items-center  sm:gap-4 mt-4">
-        <QuestionFilter activeFilter={filter} onFilterChange={setFilter} />
-      </div>
+          <QuestionFilter activeFilter={filter} onFilterChange={setFilter} />
+        </div>
         <div className="w-72  mt-2">
           <InputField
             type="search"
@@ -195,26 +215,30 @@ const MentorHome: React.FC = () => {
           />
         </div>
       </section>
-     
 
-      <QuestionList
-        questions={filterQuestions}
-        onShowAnswers={handleShowAnswers}
-        setAnswerQuestionId={setAnswerQuestionId}
-        setIsAnswerModalOpen={setAnswerInputModalOpen}
-        currentUserId={mentorId}
-        EditedData={editData}
-        onEditAnswer={handleEditAnswer}
-
-
-      />
-
-      <Pagination
-        currentPage={currentPage}
-        totalPages={Math.ceil(filterQuestions.length / 5)}
-        onPageChange={setCurrentPage}
-      />
-
+      <div className="bg-white p-6 rounded-lg shadow-sm">
+      <InfiniteScroll
+        dataLength={questions?.length}
+        next={fetchMoreQuestion}
+        hasMore={hasMore}
+        loader={<h4 className="text-center my-4">Loading more Questions...</h4>}
+        endMessage={questions.length>0?
+          <p className=" flex justify-center text-center my-4 text-gray-500">
+            <CircleAlertIcon className="w-6 mr-1" /> No more Questions to load.{" "}
+          </p>:""
+        }
+      >
+        <QuestionList
+          questions={filterQuestions}
+          onShowAnswers={handleShowAnswers}
+          setAnswerQuestionId={setAnswerQuestionId}
+          setIsAnswerModalOpen={setAnswerInputModalOpen}
+          currentUserId={mentorId}
+          EditedData={editData}
+          onEditAnswer={handleEditAnswer}
+        />
+      </InfiniteScroll>
+      </div>
       {selectedQuestion && (
         <AnswerModal
           isOpen={showAnswerModal}
@@ -222,20 +246,20 @@ const MentorHome: React.FC = () => {
           onSubmit={() => selectedQuestion.content}
         />
       )}
-      {answerInputModalOpen &&
+      {answerInputModalOpen && (
         <AnswerInputModal
           isOpen={answerInputModalOpen}
           onClose={() => setAnswerInputModalOpen(false)}
           onSubmit={handleAnswerSubmit}
         />
-      }
+      )}
       {editAnswerModalOpen && (
         <AnswerInputModal
-        isOpen={editAnswerModalOpen}
-        onClose={() => setEditAnswerModalOpen(false)}
-        onSubmit={handleEditAnswerSubmit}
-        receiveAnswer={answer}
-        answerId={answerId}
+          isOpen={editAnswerModalOpen}
+          onClose={() => setEditAnswerModalOpen(false)}
+          onSubmit={handleEditAnswerSubmit}
+          receiveAnswer={answer}
+          answerId={answerId}
         />
       )}
     </div>

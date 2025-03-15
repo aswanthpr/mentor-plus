@@ -13,7 +13,6 @@ const ExplorePage: React.FC = () => {
   const [filterVal, setFilterVal] = useState<Ifilter>({ sort: "", domain: [], skill: [] });
   const [searchQuery, setSearchQuery] = useState("");
   const [currentPage, setCurrentPage] = useState<number>(1);
-  const [totalPages, setTotalPages] = useState<number>(1);
   const [showFilters, setShowFilters] = useState(false);
   const [filters, setFilters] = useState<MentorFilters>({ categories: [], skills: [], rating: 0 });
   const [mentors, setMentors] = useState<IMentor[]>([]);
@@ -36,7 +35,6 @@ const ExplorePage: React.FC = () => {
         const newMentors = response?.data?.mentor || [];
 
         setMentors((prev) => (isNewSearch ? newMentors : [...prev, ...newMentors]));
-        setTotalPages(response?.data?.totalPage);
         setHasMore(page < response?.data?.totalPage);
         setCurrentPage(page);
 

@@ -337,31 +337,39 @@ class menteeService {
         });
     }
     //this is for getting mentee home question data
-    homeData(filter) {
+    homeData(filter, search, page, limit) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                if (!filter) {
+                console.log(filter, search, page, limit);
+                if (!filter || !page || !limit) {
                     return {
                         success: false,
                         message: "credentials not found",
                         status: httpStatusCode_1.Status.BadRequest,
-                        homeData: null,
+                        homeData: [],
+                        totalPage: 0,
                     };
                 }
-                const response = yield this._questionRepository.allQuestionData(filter);
+                const pageNo = page || 1;
+                const limitNo = limit || 6;
+                const skip = (pageNo - 1) * limitNo;
+                const response = yield this._questionRepository.allQuestionData(filter, search, skip, limit);
                 if (!response) {
                     return {
                         success: false,
                         message: "Data not found",
                         status: httpStatusCode_1.Status.NotFound,
-                        homeData: null,
+                        homeData: [],
+                        totalPage: 0,
                     };
                 }
+                const totalPage = Math.ceil((response === null || response === void 0 ? void 0 : response.count) / limitNo);
                 return {
                     success: true,
                     message: "Data successfully fetched",
                     status: httpStatusCode_1.Status.Ok,
-                    homeData: response,
+                    homeData: response === null || response === void 0 ? void 0 : response.question,
+                    totalPage,
                 };
             }
             catch (error) {
@@ -370,7 +378,8 @@ class menteeService {
                     success: false,
                     message: "Internal server error",
                     status: httpStatusCode_1.Status.InternalServerError,
-                    homeData: null,
+                    homeData: [],
+                    totalPage: 0
                 };
             }
         });

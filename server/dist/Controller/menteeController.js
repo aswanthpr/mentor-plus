@@ -160,9 +160,7 @@ class menteeController {
                     limit: limitStr,
                     sort: sortStr,
                 });
-                res
-                    .status(status)
-                    .json({
+                res.status(status).json({
                     message,
                     success,
                     category,
@@ -184,9 +182,10 @@ class menteeController {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 const { filter } = req.params;
-                const { status, success, message, homeData } = yield this._menteeService.homeData(filter);
+                const { page = 1, search, limit } = req.query;
+                const { status, success, message, homeData, totalPage } = yield this._menteeService.homeData(filter, String(search), Number(page), Number(limit));
                 const userId = req.user;
-                res.status(status).json({ success, message, homeData, userId });
+                res.status(status).json({ success, message, homeData, userId, totalPage });
             }
             catch (error) {
                 res

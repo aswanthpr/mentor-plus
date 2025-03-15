@@ -7,9 +7,8 @@ import { Socket } from "socket.io-client";
 import { connectToChat } from "../../Socket/connect";
 import { axiosInstance } from "../../Config/mentorAxios";
 import { uploadFile } from "../../Utils/Reusable/cloudinary";
-import { Link } from "react-router-dom";
 import moment from "moment";
-import chatBg from "../../Asset/background.jpg";
+import chatBg from "../../Asset/bgChat.jpg";
 
 const Message: React.FC = () => {
   const [selectedUser, setSelectedUser] = useState<Ichat | null>(null);

@@ -21,6 +21,7 @@ const hashPass_util_1 = __importDefault(require("../Utils/hashPass.util"));
 const cloudinary_util_1 = require("../Config/cloudinary.util");
 const httpStatusCode_1 = require("../Utils/httpStatusCode");
 const moment_1 = __importDefault(require("moment"));
+const reuseFunctions_1 = require("../Utils/reuseFunctions");
 class mentorService {
     constructor(_mentorRepository, _categoryRepository, _questionRepository, _timeSlotRepository) {
         this._mentorRepository = _mentorRepository;
@@ -301,23 +302,31 @@ class mentorService {
             }
         });
     }
-    homeData(filter) {
+    homeData(filter, search, page, limit) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                if (!filter) {
+                console.log(filter, search, page, limit);
+                if (!filter || !page ||
+                    !limit) {
                     return {
                         success: false,
                         message: "credentials not found",
                         status: 400,
-                        homeData: null,
+                        homeData: [],
+                        totalPage: 0
                     };
                 }
-                const response = yield this._questionRepository.allQuestionData(filter);
+                const pageNo = page || 1;
+                const limitNo = limit || 6;
+                const skip = (pageNo - 1) * limitNo;
+                const response = yield this._questionRepository.allQuestionData(filter, search, skip, limit);
+                const totalPage = Math.ceil((response === null || response === void 0 ? void 0 : response.count) / limitNo);
                 return {
                     success: true,
                     message: "Data successfully fetched",
                     status: 200,
-                    homeData: response,
+                    homeData: response === null || response === void 0 ? void 0 : response.question,
+                    totalPage
                 };
             }
             catch (error) {
@@ -327,11 +336,37 @@ class mentorService {
     }
     createTimeSlots(type, schedule, mentorId) {
         return __awaiter(this, void 0, void 0, function* () {
-            console.log("hiaiiiiiiiiiiiiiiiiiiii");
             try {
-                let result;
+                let result = [];
+                const timeSlotsToInsert = [];
                 if (type === "recurring") {
                     const { endDate, price, selectedDays, startDate, slots } = schedule;
+                    if (!type ||
+                        !price ||
+                        !startDate ||
+                        slots.length === 0 ||
+                        !endDate ||
+                        (selectedDays === null || selectedDays === void 0 ? void 0 : selectedDays.length) == 0) {
+                        return {
+                            success: false,
+                            message: "crdential not found",
+                            status: httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.BadRequest,
+                            timeSlots: [],
+                        };
+                    }
+                    let res = [];
+                    const checkedSlots = yield this._timeSlotRepository.checkTimeSlots(mentorId, new Date(startDate), new Date(endDate));
+                    if (checkedSlots.length > 0) {
+                        res = (0, reuseFunctions_1.checkForOverlap)(checkedSlots, slots);
+                    }
+                    if (res.length == 0) {
+                        return {
+                            success: false,
+                            message: "all time periods are  duplicates ",
+                            status: httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.BadRequest,
+                            timeSlots: [],
+                        };
+                    }
                     const today = new Date();
                     const startDateStr = new Date(startDate);
                     const endDateStr = new Date(endDate);
@@ -340,7 +375,7 @@ class mentorService {
                             success: false,
                             message: "Start date cannot be in the past.",
                             status: httpStatusCode_1.Status.Ok,
-                            timeSlots: undefined,
+                            timeSlots: [],
                         };
                     }
                     // Ensure endDate is after startDate
@@ -349,15 +384,7 @@ class mentorService {
                             success: false,
                             message: "The time duration must be between 30 and 60 minutes.",
                             status: httpStatusCode_1.Status.Ok,
-                            timeSlots: undefined,
-                        };
-                    }
-                    if (!endDate || !price || !selectedDays || !slots || !startDate) {
-                        return {
-                            success: false,
-                            message: "credential missing",
-                            status: httpStatusCode_1.Status.BadRequest,
-                            timeSlots: undefined,
+                            timeSlots: [],
                         };
                     }
                     const dayMap = {
@@ -378,9 +405,8 @@ class mentorService {
                         interval: 1,
                     });
                     const recurringDates = rrule.all();
-                    const timeSlotsToInsert = [];
                     recurringDates.forEach((date) => {
-                        slots.forEach((slot) => {
+                        (res !== null && res !== void 0 ? res : slots).forEach((slot) => {
                             const dateStr = date.toISOString();
                             const start = (0, moment_1.default)(`${dateStr.split("T")[0]} ${slot === null || slot === void 0 ? void 0 : slot.startTime}`, "YYYY-MM-DD HH:mm:ss");
                             const end = (0, moment_1.default)(`${dateStr.split("T")[0]} ${slot === null || slot === void 0 ? void 0 : slot.endTime}`, "YYYY-MM-DD HH:mm:ss");
@@ -391,7 +417,7 @@ class mentorService {
                                     success: false,
                                     message: "The time duration must be between 30 and 60 minutes.",
                                     status: httpStatusCode_1.Status.Ok,
-                                    timeSlots: null,
+                                    timeSlots: [],
                                 };
                             }
                             if (end.isBefore(start)) {
@@ -399,7 +425,7 @@ class mentorService {
                                     success: false,
                                     message: "The End Time is Befor Start Time",
                                     status: httpStatusCode_1.Status.Ok,
-                                    timeSlots: null,
+                                    timeSlots: [],
                                 };
                             }
                             const startStr = start.format("YYYY-MM-DDTHH:mm:ss");
@@ -422,7 +448,6 @@ class mentorService {
                     result = yield this._timeSlotRepository.createTimeSlot(timeSlotsToInsert);
                 }
                 else {
-                    const timeSlotsToInsert = [];
                     for (const entry of schedule) {
                         const { slots, price, startDate } = entry;
                         if (!price || !startDate || !mentorId) {
@@ -430,7 +455,20 @@ class mentorService {
                                 success: false,
                                 message: "credential missing",
                                 status: httpStatusCode_1.Status.BadRequest,
-                                timeSlots: undefined,
+                                timeSlots: [],
+                            };
+                        }
+                        let res = [];
+                        const checkedSlots = yield this._timeSlotRepository.checkTimeSlots(mentorId, new Date(`${startDate}T00:00:00.000Z`), new Date(`${startDate}T23:59:59.999Z`));
+                        if (checkedSlots.length > 0) {
+                            res = (0, reuseFunctions_1.checkForOverlap)(checkedSlots, slots);
+                        }
+                        if (res.length == 0) {
+                            return {
+                                success: false,
+                                message: "all time periods are  duplicates ",
+                                status: httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.BadRequest,
+                                timeSlots: [],
                             };
                         }
                         const givenDate = (0, moment_1.default)(startDate, "YYYY-MM-DD");
@@ -440,10 +478,10 @@ class mentorService {
                                 success: false,
                                 message: " The given date is in the past.",
                                 status: httpStatusCode_1.Status.BadRequest,
-                                timeSlots: undefined,
+                                timeSlots: [],
                             };
                         }
-                        const entrySlots = slots.map((slot) => {
+                        const entrySlots = (res !== null && res !== void 0 ? res : slots).map((slot) => {
                             const start = (0, moment_1.default)(`${startDate} ${slot === null || slot === void 0 ? void 0 : slot.startTime}`, "YYYY-MM-DD HH:mm:ss");
                             const end = (0, moment_1.default)(`${startDate} ${slot === null || slot === void 0 ? void 0 : slot.endTime}`, "YYYY-MM-DD HH:mm:ss");
                             console.log(start, "11111111111111111111111111", end);
@@ -453,7 +491,7 @@ class mentorService {
                                     success: false,
                                     message: "Time difference is not in between 20 to 60.",
                                     status: httpStatusCode_1.Status.BadRequest,
-                                    timeSlots: undefined,
+                                    timeSlots: [],
                                 };
                             }
                             const minutesDifference = duration.asMinutes();
@@ -463,7 +501,7 @@ class mentorService {
                                     success: false,
                                     message: "The time duration must be between 30 and 60 minutes.",
                                     status: httpStatusCode_1.Status.Ok,
-                                    timeSlots: null,
+                                    timeSlots: [],
                                 };
                             }
                             if (end.isBefore(start)) {
@@ -471,7 +509,7 @@ class mentorService {
                                     success: false,
                                     message: "The End Time is Befor Start Time",
                                     status: httpStatusCode_1.Status.Ok,
-                                    timeSlots: null,
+                                    timeSlots: [],
                                 };
                             }
                             // Create a date string in ISO format
@@ -494,9 +532,17 @@ class mentorService {
                         });
                         timeSlotsToInsert.push(...entrySlots);
                     }
-                    result = yield this._timeSlotRepository.createTimeSlot(timeSlotsToInsert);
                 }
+                result = yield this._timeSlotRepository.createTimeSlot(timeSlotsToInsert);
                 console.log(result, "thsi is the result ");
+                if (!result) {
+                    return {
+                        success: false,
+                        message: "error while slot creating ",
+                        status: httpStatusCode_1.Status.BadRequest,
+                        timeSlots: [],
+                    };
+                }
                 return {
                     success: true,
                     message: "slot created successfully",

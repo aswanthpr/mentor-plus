@@ -4,12 +4,12 @@ import SessionCard from "../../components/Common/Bookings/SessionCard";
 import TabNavigation from "../../components/Common/Bookings/TabNavigation";
 import InputField from "../../components/Auth/InputField";
 import { errorHandler } from "../../Utils/Reusable/Reusable";
-import { protectedAPI } from "../../Config/Axios";
 import Spinner from "../../components/Common/common4All/Spinner";
 import { toast } from "react-toastify";
 import { useSelector } from "react-redux";
 import { RootState } from "../../Redux/store";
 import {
+  fetchBookingSlots,
   fetchCanceSession,
   fetchSubmitRating,
   joinSessionHandler,
@@ -19,6 +19,7 @@ import { TFilter, TSort, TSortOrder } from "../../Types/type";
 import RatingModal from "../../components/Common/Bookings/RatingModal";
 
 const Boooking: React.FC = () => {
+  const limit = 6;
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [activeTab, setActiveTab] = useState<"upcoming" | "history">(
@@ -42,12 +43,10 @@ const Boooking: React.FC = () => {
       try {
         setLoading(true);
 
-        const { status, data } = await protectedAPI.get(`/mentee/sessions`, {
-          params: { activeTab },
-        });
+        const response = await fetchBookingSlots(activeTab);
 
-        if (status == 200 && data?.success) {
-          setSessions(data?.slots);
+        if (response?.status == 200 && response?.data?.success) {
+          setSessions(response?.data?.slots);
         }
       } catch (error: unknown) {
         errorHandler(error);
@@ -96,7 +95,7 @@ const Boooking: React.FC = () => {
         selectedSession!,
         rating
       );
-      console.log(response?.data)
+      console.log(response?.data);
       if (response?.data.success && response?.status == 200) {
         toast.success(response?.data?.message);
 
@@ -114,15 +113,14 @@ const Boooking: React.FC = () => {
               : session
           )
         );
-        if(response?.data?.oldReview){
-          console.log(response?.data?.oldReview,'older one')
+        if (response?.data?.oldReview) {
+          console.log(response?.data?.oldReview, "older one");
           setSessions((prev) =>
             prev.map((session) =>
               session.review?._id === response?.data?.oldReview
                 ? {
                     ...session,
-                    review:null,
-                   
+                    review: null,
                   }
                 : session
             )
@@ -170,7 +168,7 @@ const Boooking: React.FC = () => {
   );
   return (
     <div className="space-y-6 mt-10">
-      <div className="bg- p-6 round ">
+      <div className=" p-1 round ">
         {/* <h1 className="text-2xl font-bold mb-6">Bookings</h1> */}
 
         <TabNavigation
@@ -184,7 +182,7 @@ const Boooking: React.FC = () => {
       <div className="bg-white p-6 rounded-lg shadow-sm">
         {loading && <Spinner />}
         <div className="mb-6 flex">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
             {/* Search */}
             <div className="relative">
               <Search
@@ -210,13 +208,26 @@ const Boooking: React.FC = () => {
                 }
                 className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-orange-200 border-orange-500"
               >
-                <option value="all">All Status</option>
-                <option value="active">Active</option>
-                <option value="blocked">Blocked</option>
+                 <option value="all">All Status</option>
+                {
+                  activeTab=="upcoming"?(
+                    <>
+                    <option value="REJECTED">Rejected</option>
+                    <option value="CONFIRMED">Confirmed</option>
+                    </>
+                  ):(
+                    <>
+                    <option value="COMPLETED">Completed</option>
+                    <option value="CANCELLED">Cancelled</option>
+                    
+                    </>
+                  )
+                }
               </select>
             </div>
 
             {/* Sort */}
+
             <div className="flex items-center gap-2">
               <ArrowUpDown size={20} className="text-gray-400" />
               <select
@@ -228,10 +239,9 @@ const Boooking: React.FC = () => {
                 }}
                 className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-orange-200 border-orange-500"
               >
-                <option value="createdAt-desc">Newest First</option>
-                <option value="createdAt-asc">Oldest First</option>
-                <option value="answers-1">Answered</option>
-                <option value="answers-0">UnAnswered</option>
+                 <option value="createdAt-desc">Newest First</option>
+                 <option value="createdAt-asc">Oldest First</option>
+              
               </select>
             </div>
           </div>

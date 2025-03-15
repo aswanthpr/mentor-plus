@@ -126,5 +126,28 @@ class timeSlotRepository extends baseRepo_1.baseRepository {
             }
         });
     }
+    checkTimeSlots(mentorId, startDate, endDate) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                return yield this.aggregateData(timeModel_1.default, [
+                    {
+                        $match: {
+                            mentorId,
+                            startDate: { $gte: startDate, $lte: endDate },
+                        }
+                    },
+                    { $unwind: "$slots" },
+                    {
+                        $project: {
+                            slots: 1,
+                        }
+                    }
+                ]);
+            }
+            catch (error) {
+                throw new Error(`${"\x1b[35m%s\x1b[0m"}error while getting editing speific mentor time slots :${error instanceof Error ? error.message : String(error)}`);
+            }
+        });
+    }
 }
 exports.default = new timeSlotRepository();

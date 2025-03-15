@@ -11,9 +11,9 @@ class timeSlotRepository
   constructor() {
     super(timeSchema);
   }
-  async createTimeSlot(timeSlots: Itime[]): Promise<Itime | undefined> {
+  async createTimeSlot(timeSlots: Itime[]): Promise<Itime[] | []> {
     try {
-      return timeSchema.insertMany(timeSlots) as unknown as Itime;
+      return timeSchema.insertMany(timeSlots) as unknown as Itime[];
     } catch (error: unknown) {
       throw new Error(
         `${"\x1b[35m%s\x1b[0m"}error while creating tiem slot :${
@@ -119,6 +119,31 @@ class timeSlotRepository
   async makeTimeSlotBooked(slotId:string):Promise<Itime|null>{
     try {
       return await this.find_By_Id_And_Update(timeSchema,slotId,{$set:{isBooked:true}})
+    } catch (error:unknown) {
+      throw new Error(
+        `${"\x1b[35m%s\x1b[0m"}error while getting editing speific mentor time slots :${
+          error instanceof Error ? error.message : String(error)
+        }`
+      );
+    }
+  }
+
+  async checkTimeSlots(mentorId: ObjectId, startDate: Date, endDate: Date,): Promise<Itime []| []> {
+    try {
+      return await this.aggregateData(timeSchema,[
+        {
+          $match:{
+            mentorId,
+            startDate:{$gte:startDate,$lte:endDate},
+          }
+        },
+        { $unwind: "$slots" },
+        {
+          $project:{
+            slots:1,
+          }
+        }
+      ])
     } catch (error:unknown) {
       throw new Error(
         `${"\x1b[35m%s\x1b[0m"}error while getting editing speific mentor time slots :${

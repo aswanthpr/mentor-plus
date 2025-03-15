@@ -17,7 +17,7 @@ export const axiosInstance = axios.create({
 axiosInstance.interceptors.request.use(
   async (config:InternalAxiosRequestConfig) => {
     const state = store.getState();
-    const accessToken = state.menter?.mentorToken
+    const accessToken = state?.menter?.mentorToken
 
     if (accessToken) {
       config.headers["Authorization"] = `Bearer ${accessToken}`;
@@ -38,12 +38,12 @@ axiosInstance.interceptors.response.use(
     async  (error)=>{
       const originalRequest = error.config;
 
-      if(error.response.status==401&&!error.response?.data?.success){
+      if(error.response?.status==401&&!error.response?.data?.success){
         store.dispatch(clearMentorToken());
         return Promise.reject(error);
       }
 
-      if (error.response.status === 403 && !originalRequest._retry) {
+      if (error.response?.status === 403 && !originalRequest._retry) {
         originalRequest._retry = true;
         try {
           

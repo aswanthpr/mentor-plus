@@ -181,7 +181,7 @@ interface TimeSlot {
 
 interface DaySchedule {
   slots: TimeSlot[];
-  price: string;
+  price: number|null;
   startDate: string;
 }
 
@@ -190,7 +190,7 @@ interface ISchedule {
   endDate?: string;
   slots: TimeSlot[];
   selectedDays?: string[];
-  price: string;
+  price:number|null;
 }
 
 interface ScheduleModalProps {

@@ -6,7 +6,7 @@ import {
   genAccesssToken,
   genRefreshToken,
   verifyRefreshToken,
-} from "../Utils/jwt.utils";
+} from "../Utils/jwt.utils"; 
 
 import { Imentor } from "../Model/mentorModel";
 import hash_pass from "../Utils/hashPass.util";
@@ -427,36 +427,48 @@ export class menteeService implements ImenteeService {
     }
   }
   //this is for getting mentee home question data
-  async homeData(filter: string): Promise<{
+  async homeData(filter: string,search:string,page:number,limit:number): Promise<{
     success: boolean;
     message: string;
     status: number;
-    homeData: Iquestion[] | null;
+    homeData: Iquestion[] | [],
+    totalPage:number
   }> {
     try {
-      if (!filter) {
+      console.log(filter,search,page,limit)
+      if (!filter||!page||!limit) {
         return {
           success: false,
           message: "credentials not found",
           status: Status.BadRequest,
-          homeData: null,
+          homeData: [],
+          totalPage:0,
         };
       }
 
-      const response = await this._questionRepository.allQuestionData(filter);
+      const pageNo = page||1;
+      const limitNo =limit || 6;
+      const skip = (pageNo-1)*limitNo;
+      
+     
+
+      const response = await this._questionRepository.allQuestionData(filter,search,skip,limit);
       if (!response) {
         return {
           success: false,
           message: "Data not found",
           status: Status.NotFound,
-          homeData: null,
+          homeData: [],
+          totalPage:0,
         };
       }
+      const totalPage = Math.ceil(response?.count/limitNo);
       return {
         success: true,
         message: "Data successfully fetched",
         status: Status.Ok,
-        homeData: response,
+        homeData: response?.question,
+        totalPage,
       };
     } catch (error: unknown) {
       console.error(
@@ -468,7 +480,8 @@ export class menteeService implements ImenteeService {
         success: false,
         message: "Internal server error",
         status: Status.InternalServerError,
-        homeData: null,
+        homeData: [],
+        totalPage:0
       };
     }
   }

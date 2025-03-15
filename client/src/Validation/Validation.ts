@@ -203,3 +203,24 @@ export const validateSkills = (skills: string[]) => {
   }
   return "";
 };
+
+
+export const ValidatingIsOverlapping = (slots: { startTime: string; endTime: string }[]) => {
+  for (let i = 0; i < slots.length; i++) {
+    for (let j = i + 1; j < slots.length; j++) {
+      const startA = slots[i].startTime;
+      const endA = slots[i].endTime;
+      const startB = slots[j].startTime;
+      const endB = slots[j].endTime;
+
+      // Check if times overlap
+      if (
+        (startA < endB && endA > startB) || // Overlap case
+        (startB < endA && endB > startA)
+      ) {
+        return true;
+      }
+    }
+  }
+  return false;
+};

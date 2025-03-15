@@ -14,11 +14,11 @@ import {
 import Header from "../../components/Common/common4All/Header";
 import SidePanel from "../../components/Common/common4All/SidePanel";
 import { clearAccessToken } from "../../Redux/menteeSlice";
-import { protectedAPI } from "../../Config/Axios";
 import { toast } from "react-toastify";
 import { markAsRead, setNotification } from "../../Redux/notificationSlice";
 import { RootState } from "../../Redux/store";
 import { connectToNotifications, disconnectNotificationSocket } from "../../Socket/connect";
+import { fetchLogout, fetchNotification, ReadNotification } from "../../service/api";
 
 interface INavItem {
   name: string;
@@ -29,8 +29,8 @@ interface INavItem {
 const navItems: INavItem[] = [
   { name: "Home", path: "/mentee/home", icon: Home },
   { name: "Explore", path: "/mentee/explore", icon: Compass },
-  { name: "Messages", path: "/mentee/messages", icon: MessageSquare },
   { name: "Bookings", path: "/mentee/bookings", icon: Calendar },
+  { name: "Messages", path: "/mentee/messages", icon: MessageSquare },
   { name: "Wallet", path: "/mentee/wallet", icon: Wallet },
   { name: "Q&A", path: "/mentee/qa", icon: HelpCircle },
 ];
@@ -50,13 +50,13 @@ const Mentee_Page: React.FC = () => {
 
     const fetchData = async () => {
       try {
-        const { data, status } = await protectedAPI.get(`/mentee/notification`);
+        const response = await fetchNotification()
       
-        if (flag && status == 200 && data.success) {
-          const user_Id = data.result?.[0]?.['userId'] as string;
+        if (flag && response?.status == 200 && response?.data.success) {
+          const user_Id = response?.data.result?.[0]?.['userId'] as string;
 
           dispatch(
-            setNotification({ userType: "mentee", notification: data?.['result'] })
+            setNotification({ userType: "mentee", notification: response?.data?.['result'] })
           );
           if(user_Id){
 
@@ -87,7 +87,7 @@ const Mentee_Page: React.FC = () => {
   };
 
   const logoutMentee = async () => {
-    const response = await protectedAPI.post(`/mentee/logout`);
+    const response = await fetchLogout()
     if (response.data.success && response.status === 200) {
       dispatch(clearAccessToken());
       localStorage.removeItem("menteeToken");
@@ -96,11 +96,9 @@ const Mentee_Page: React.FC = () => {
   };
   const handleReadNotification = async (id: string) => {
     try {
-      const { status, data } = await protectedAPI.patch(
-        `/mentee/notification-read/${id}`
-      );
+      const response = await ReadNotification(id)
 
-      if (status == 200 && data.success) {
+      if (response?.status == 200 && response?.data.success) {
         dispatch(markAsRead({ userType: "mentee", id }));
       }
     } catch (error: unknown) {

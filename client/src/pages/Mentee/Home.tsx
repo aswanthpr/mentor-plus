@@ -1,6 +1,6 @@
-import React, { useEffect, useState } from "react";
-import { HandshakeIcon } from "lucide-react";
-import { Pagination } from "../../components/Common/common4All/Pagination";
+import React, { useCallback, useEffect, useState } from "react";
+import { CircleAlertIcon, HandshakeIcon } from "lucide-react";
+
 import QuestionFilter from "../../components/Common/Qa/QuestionFilter";
 import QuestionsList from "../../components/Common/Qa/QuestionsList";
 import AnswerModal from "../../components/Common/Qa/AnswerInputModal";
@@ -11,23 +11,28 @@ import { toast } from "react-toastify";
 import ConfirmToast from "../../components/Common/common4All/ConfirmToast";
 import Spinner from "../../components/Common/common4All/Spinner";
 import AnswerInputModal from "../../components/Common/Qa/AnswerInputModal";
+import { fetchHomeData } from "../../service/api";
+import InfiniteScroll from "react-infinite-scroll-component";
 
 const Home: React.FC = () => {
+  const page_limit = 6;
   const [filter, setFilter] = useState<"answered" | "unanswered">("answered");
   const [selectedQuestion, setSelectedQuestion] = useState<IQuestion | null>(
     null
   );
   const [isAnswerModalOpen, setIsAnswerModalOpen] = useState<boolean>(false);
   const [showAnswerModal, setShowAnswerModal] = useState(false);
-  const [currentPage, setCurrentPage] = useState(1);
+  const [currentPage, setCurrentPage] = useState<number>(1);
   const [questions, setQuestions] = useState<IQuestion[] | []>([]);
-  const [searchQuery, setSearchQuery] = useState("");
+  const [searchQuery, setSearchQuery] = useState<string>("");
   const [userId, setUserId] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(false);
   const [answerQuestionId, setAnswerQuestionId] = useState<string>("");
   const [editAnswerModalOpen, setEditAnswerModalOpen] = useState(false);
   const [editingAnswer, setEditingAnswer] = useState<string | null>(null);
   const [editingAnswerId, setEditingAnswerId] = useState<string | null>(null);
+  const [hasMore, setHasMore] = useState<boolean>(true);
+
   const [editData, setEditData] = useState<{
     content: string;
     answerId: string;
@@ -36,15 +41,26 @@ const Home: React.FC = () => {
     answerId: "",
   });
   const [newAns, setNewAns] = useState<Ianswer | null>(null);
-  useEffect(() => {
-    const fetchData = async () => {
+  console.log(questions.length, "length");
+  const fetchData = useCallback(
+    async (page: number, isNewSearch = false) => {
       try {
         setLoading(false);
-        const response = await protectedAPI.get(`/mentee/home/${filter}`);
+        const response = await fetchHomeData(
+          filter,
+          searchQuery,
+          page,
+          page_limit
+        );
 
         if (response?.status === 200 && response?.data?.success) {
           setUserId(response.data.userId);
-          setQuestions(response?.data.homeData);
+          const newQuestion = response?.data.homeData;
+          setQuestions((pre) =>
+            isNewSearch ? newQuestion : [...pre, ...newQuestion]
+          );
+          setHasMore(page < response?.data?.totalPage);
+          setCurrentPage(page);
         }
       } catch (error: unknown) {
         console.log(
@@ -53,17 +69,27 @@ const Home: React.FC = () => {
           }`
         );
       }
-    };
-    fetchData();
-  }, [filter]);
-
-  const handleShowAnswers = (questionId: string): void => {
-    const question = questions.find((q) => q._id === questionId);
-    if (question) {
-      setSelectedQuestion(question);
-      setShowAnswerModal(true);
+    },
+    [filter, searchQuery]
+  );
+  useEffect(() => {
+    fetchData(1, true);
+  }, [fetchData, filter, searchQuery]);
+  const fetchMoreQuestion = useCallback(() => {
+    if (hasMore) {
+      fetchData(currentPage + 1);
     }
-  };
+  }, [currentPage, fetchData, hasMore]);
+  const handleShowAnswers = useCallback(
+    (questionId: string): void => {
+      const question = questions.find((q) => q._id === questionId);
+      if (question) {
+        setSelectedQuestion(question);
+        setShowAnswerModal(true);
+      }
+    },
+    [questions]
+  );
 
   const handleEditQuestion = async (
     questionId: string,
@@ -271,7 +297,7 @@ const Home: React.FC = () => {
         <div className="h-0.5 bg-gray-200 w-full" />
 
         <section className="flex items-center justify-between mb-2 sm:mb-2 sm:flex-col lg:flex-row  xss:flex-col">
-          {/* <h2 className="text-sm font-bold text-gray-900  sm:ml-0 ">
+          {/* <h2 className="text-md font-bold text-gray-900  sm:ml-0 ">
             Asked Questions
           </h2> */}
           <div className="flex justify-between items-center  sm:gap-4 mt-3">
@@ -289,25 +315,32 @@ const Home: React.FC = () => {
           </div>
         </section>
       </div>
-
-      <QuestionsList
-        onDeleteQestion={handleDeleteQuestion}
-        currentUserId={userId}
-        questions={filterQuestions}
-        onShowAnswers={handleShowAnswers}
-        setIsAnswerModalOpen={setIsAnswerModalOpen}
-        setAnswerQuestionId={setAnswerQuestionId}
-        onEditQuestion={handleEditQuestion}
-        onEditAnswer={handleEditAnswer}
-        EditedData={editData}
-        newAns={newAns}
-      />
-
-      <Pagination
-        currentPage={currentPage}
-        totalPages={2}
-        onPageChange={setCurrentPage}
-      />
+      <div className="bg-white p-6 rounded-lg shadow-sm">
+      <InfiniteScroll
+        dataLength={questions?.length}
+        next={fetchMoreQuestion}
+        hasMore={hasMore}
+        loader={<h4 className="text-center my-4">Loading more Questions...</h4>}
+        endMessage={
+          <p className=" flex justify-center text-center my-4 text-gray-500">
+            <CircleAlertIcon className="w-6 mr-1" /> No more Questions to load.{" "}
+          </p>
+        }
+      >
+        <QuestionsList
+          onDeleteQestion={handleDeleteQuestion}
+          currentUserId={userId}
+          questions={filterQuestions}
+          onShowAnswers={handleShowAnswers}
+          setIsAnswerModalOpen={setIsAnswerModalOpen}
+          setAnswerQuestionId={setAnswerQuestionId}
+          onEditQuestion={handleEditQuestion}
+          onEditAnswer={handleEditAnswer}
+          EditedData={editData}
+          newAns={newAns}
+        />
+      </InfiniteScroll>
+      </div>
 
       {selectedQuestion && (
         <AnswerModal

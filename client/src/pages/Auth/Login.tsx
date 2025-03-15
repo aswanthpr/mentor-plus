@@ -96,7 +96,7 @@ const Login: React.FC = () => {
             formData
           );
           
-          if (response.status == 200) {
+          if (response?.status == 200&&response?.data?.accessToken) {
             dispatch(
               setAccessToken({
                 accessToken: response.data?.accessToken,

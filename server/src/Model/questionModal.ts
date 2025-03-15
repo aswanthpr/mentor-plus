@@ -1,6 +1,7 @@
 import mongoose, { Schema, Document } from "mongoose";
 
 export interface Iquestion extends Document {
+  count?: number;
   title: string;
   content: string; 
   tags: string[];

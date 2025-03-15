@@ -1,108 +1,109 @@
 import moment from "moment";
 import { Search } from "lucide-react";
 import { toast } from "react-toastify";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import Button from "../../components/Auth/Button";
 import InputField from "../../components/Auth/InputField";
 import { ScheduleModal } from "../../components/Common/Schedule/ScheduleModal";
 import { TimeSlotCard } from "../../components/Common/Schedule/TimeSlotCard";
 import { errorHandler } from "../../Utils/Reusable/Reusable";
-import { axiosInstance } from "../../Config/mentorAxios";
 import ConfirmToast from "../../components/Common/common4All/ConfirmToast";
+import {
+  createNewSlots,
+  deleteTimeSlots,
+  fetchTimeSlots,
+} from "../../service/api";
 
 const Schedule: React.FC = () => {
+  const [refresh, setRefresh] = useState<boolean>(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
 
-  // Mock data - replace with actual data from your backend
   const [timeSlots, setTimeSlots] = useState<Itime[]>([]);
 
   useEffect(() => {
     const fetchData = async () => {
-      const { data, status } = await axiosInstance.get(
-        `/mentor/schedule/get-time-slots`
-      );
+      const response = await fetchTimeSlots();
 
-      if (status === 200 && data?.success) {
-        // console.log(data)
-        setTimeSlots(data?.timeSlots);
+      if (response?.status === 200 && response?.data?.success) {
+        setTimeSlots(response?.data?.timeSlots);
       }
     };
     fetchData();
-  }, [searchQuery]);
+  }, [searchQuery, refresh]);
   const filteredTimeSlots = timeSlots.filter((slot) => {
     const formattedStartDate = slot?.startDate.split("T")[0];
     return formattedStartDate.toLowerCase().includes(searchQuery.toLowerCase());
   });
 
-  const handleDelete = async (id: string) => {
-    toast(
-      <ConfirmToast
-        message="Delete Time Slot"
-        description="Are you sure you want to delete this time slot?"
-        onReply={() => confirmDelete(id)}
-        onIgnore={() => toast.dismiss()}
-        ariaLabel="time slot deletion confirmation"
-      />,
-      {
-        closeButton: false,
-        className: "p-0 border border-purple-600/40 ml-1",
-        autoClose: false,
-      }
-    );
-
-    const confirmDelete = async (id: string) => {
-      toast.dismiss();
-      try {
-        const { status, data } = await axiosInstance.delete(
-          `/mentor/schedule/remove-time-slot`,
-          { data: { slotId: id } }
-        );
-
-        if (status == 200 && data.success) {
-          toast.success(data.message);
-          setTimeSlots(timeSlots.filter((slot) => slot._id !== id));
-          console.log(data.message);
+  const handleDelete = useCallback(
+    async (id: string) => {
+      toast(
+        <ConfirmToast
+          message="Delete Time Slot"
+          description="Are you sure you want to delete this time slot?"
+          onReply={() => confirmDelete(id)}
+          onIgnore={() => toast.dismiss()}
+          ariaLabel="time slot deletion confirmation"
+        />,
+        {
+          closeButton: false,
+          className: "p-0 border border-purple-600/40 ml-1",
+          autoClose: false,
         }
+      );
+
+      const confirmDelete = async (id: string) => {
+        toast.dismiss();
+        try {
+          const response = await deleteTimeSlots(id);
+
+          if (response?.status == 200 && response?.data.success) {
+            toast.success(response?.data.message);
+            setTimeSlots(timeSlots.filter((slot) => slot._id !== id));
+            console.log(response?.data.message);
+          }
+        } catch (error: unknown) {
+          errorHandler(error);
+        }
+      };
+    },
+    [timeSlots]
+  );
+
+  const handleSaveSchedule = useCallback(
+    async (scheduleData: { type: string; schedule: TimeSlot[] }) => {
+      try {
+        console.log(scheduleData,'thsi si final from frontend')
+        const response = await createNewSlots(scheduleData);
+
+        if (response?.status == 200 && response?.data?.success) {
+          toast.success(response?.data?.message);
+          console.log(response?.data?.timeSlots, "thsi si timeslots");
+          // setTimeSlots((pre) => [...response.data.timeSlots, ...pre]);
+
+          const formattedSlots = response?.data?.timeSlots.map(
+            (slot: Itime) => ({
+              ...slot,
+              startDate: moment(slot.startDate).toISOString(),
+              slots: slot.slots!.map((s: IslotField) => ({
+                ...s,
+                startTime: moment(s.startTime).toISOString(),
+                endTime: moment(s.endTime).toISOString(),
+              })),
+            })
+          );
+
+          setTimeSlots((pre) => [...formattedSlots, ...pre]);
+        }
+        setRefresh(!refresh);
+        console.error(response.data, "failed resonse response");
       } catch (error: unknown) {
         errorHandler(error);
       }
-    };
-  }; 
-
-  const handleSaveSchedule = async (scheduleData: {
-    type: string;
-    schedule: TimeSlot[];
-  }) => {
-    try {
-    
-      const response = await axiosInstance.post(
-        `/mentor/schedule/create-slots`,
-        scheduleData
-      );
-      if (response.status == 200 && response.data.success) {
-        toast.success(response.data?.message);
-        console.log(response.data.timeSlots,'thsi si timeslots')
-        // setTimeSlots((pre) => [...response.data.timeSlots, ...pre]);
-        
-        const formattedSlots = response.data.timeSlots.map((slot: Itime) => ({
-          ...slot,
-          startDate: moment(slot.startDate).toISOString(),
-          slots: slot.slots!.map((s: IslotField) => ({
-            ...s,
-            startTime: moment(s.startTime).toISOString(),
-            endTime: moment(s.endTime).toISOString(),
-          })),
-        }));
-  
-        setTimeSlots((pre) => [...formattedSlots, ...pre]);
-        window.location.reload();
-      }
-      console.error(response.data, "failed resonse response");
-    } catch (error: unknown) {
-      errorHandler(error);
-    }
-  };
+    },
+    [refresh]
+  );
 
   return (
     <div className="p-6 mt-10">
@@ -134,7 +135,7 @@ const Schedule: React.FC = () => {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {filteredTimeSlots.map((slot) => {
           const startDate = moment(slot?.startDate).format("DD-MM-YYYY");
-         
+
           const startTime = moment(slot?.startTime).format("hh:mm A");
           const endTime = moment(slot?.endTime).format("hh:mm A");
           return (

@@ -6,7 +6,7 @@ import {
   genRefreshToken,
   verifyRefreshToken,
 } from "../Utils/jwt.utils";
-import { ISchedule, ISlots } from "../Types";
+import { IcheckedSlot, ISchedule, ISlots } from "../Types";
 import { Itime, slot } from "../Model/timeModel";
 import { Imentor } from "../Model/mentorModel";
 import hash_pass from "../Utils/hashPass.util";
@@ -22,6 +22,7 @@ import { ObjectId } from "mongoose";
 import { ItimeSlotRepository } from "../Interface/Booking/iTimeSchedule";
 import { Status } from "../Utils/httpStatusCode";
 import moment from "moment";
+import { checkForOverlap } from "../Utils/reuseFunctions";
 
 export class mentorService implements ImentorService {
   constructor(
@@ -381,29 +382,39 @@ export class mentorService implements ImentorService {
       );
     }
   }
-  async homeData(filter: string): Promise<{
+  async homeData(filter: string,search:string,page:number,limit:number): Promise<{
     success: boolean;
     message: string;
     status: number;
-    homeData: Iquestion[] | null;
+    homeData: Iquestion[] | [],
+    totalPage:number
+    ;
   }> {
     try {
-      if (!filter) {
+      console.log(filter,search,page,limit)
+      if (!filter||!page||
+        !limit
+      ) {
         return {
           success: false,
           message: "credentials not found",
           status: 400,
-          homeData: null,
+          homeData: [],
+          totalPage:0
         };
       }
+      const pageNo = page||1;
+      const limitNo = limit||6;
+      const skip = (pageNo-1)*limitNo;
 
-      const response = await this._questionRepository.allQuestionData(filter);
-
+      const response = await this._questionRepository.allQuestionData(filter,search,skip,limit);
+      const totalPage = Math.ceil(response?.count / limitNo);
       return {
         success: true,
         message: "Data successfully fetched",
         status: 200,
-        homeData: response,
+        homeData: response?.question,
+        totalPage
       };
     } catch (error: unknown) {
       throw new Error(
@@ -422,14 +433,48 @@ export class mentorService implements ImentorService {
     success: boolean;
     message: string;
     status: number;
-    timeSlots: Itime | undefined;
+    timeSlots: Itime[] | [];
   }> {
-    console.log("hiaiiiiiiiiiiiiiiiiiiii");
     try {
-      let result: Itime | undefined;
+      let result: Itime[] = [];
+      const timeSlotsToInsert: Itime[] = [];
       if (type === "recurring") {
         const { endDate, price, selectedDays, startDate, slots } =
           schedule as ISlots;
+
+        if (
+          !type ||
+          !price ||
+          !startDate ||
+          slots.length === 0 ||
+          !endDate ||
+          selectedDays?.length == 0
+        ) {
+          return {
+            success: false,
+            message: "crdential not found",
+            status: Status?.BadRequest,
+            timeSlots: [],
+          };
+        }
+        let res: slot[] = [];
+        const checkedSlots = await this._timeSlotRepository.checkTimeSlots(
+          mentorId,
+          new Date(startDate),
+          new Date(endDate)
+        );
+        if (checkedSlots.length > 0) {
+          res = checkForOverlap(checkedSlots as IcheckedSlot[], slots);
+        }
+        if (res.length == 0) {
+          return {
+            success: false,
+            message: "all time periods are  duplicates ",
+            status: Status?.BadRequest,
+            timeSlots: [],
+          };
+        }
+
         const today = new Date();
         const startDateStr = new Date(startDate);
         const endDateStr = new Date(endDate!);
@@ -439,7 +484,7 @@ export class mentorService implements ImentorService {
             success: false,
             message: "Start date cannot be in the past.",
             status: Status.Ok,
-            timeSlots: undefined,
+            timeSlots: [],
           };
         }
 
@@ -449,16 +494,7 @@ export class mentorService implements ImentorService {
             success: false,
             message: "The time duration must be between 30 and 60 minutes.",
             status: Status.Ok,
-            timeSlots: undefined,
-          };
-        }
-
-        if (!endDate || !price || !selectedDays || !slots || !startDate) {
-          return {
-            success: false,
-            message: "credential missing",
-            status: Status.BadRequest,
-            timeSlots: undefined,
+            timeSlots: [],
           };
         }
 
@@ -484,10 +520,9 @@ export class mentorService implements ImentorService {
         });
 
         const recurringDates = rrule.all();
-        const timeSlotsToInsert: Itime[] = [];
 
         recurringDates.forEach((date) => {
-          slots.forEach((slot) => {
+          (res ?? slots).forEach((slot) => {
             const dateStr = date.toISOString();
 
             const start = moment(
@@ -506,7 +541,7 @@ export class mentorService implements ImentorService {
                 success: false,
                 message: "The time duration must be between 30 and 60 minutes.",
                 status: Status.Ok,
-                timeSlots: null,
+                timeSlots: [],
               };
             }
             if (end.isBefore(start)) {
@@ -514,7 +549,7 @@ export class mentorService implements ImentorService {
                 success: false,
                 message: "The End Time is Befor Start Time",
                 status: Status.Ok,
-                timeSlots: null,
+                timeSlots: [],
               };
             }
             const startStr = start.format("YYYY-MM-DDTHH:mm:ss");
@@ -540,7 +575,6 @@ export class mentorService implements ImentorService {
           timeSlotsToInsert
         );
       } else {
-        const timeSlotsToInsert: Itime[] = [];
 
         for (const entry of schedule as ISchedule[]) {
           const { slots, price, startDate } = entry;
@@ -550,9 +584,27 @@ export class mentorService implements ImentorService {
               success: false,
               message: "credential missing",
               status: Status.BadRequest,
-              timeSlots: undefined,
+              timeSlots: [],
             };
           }
+          let res: slot[] = [];
+          const checkedSlots = await this._timeSlotRepository.checkTimeSlots(
+            mentorId,
+            new Date(`${startDate}T00:00:00.000Z`),
+            new Date(`${startDate}T23:59:59.999Z`),
+          );
+          if (checkedSlots.length > 0) {
+            res = checkForOverlap(checkedSlots as IcheckedSlot[], slots);
+          }
+          if (res.length == 0) {
+            return {
+              success: false,
+              message: "all time periods are  duplicates ",
+              status: Status?.BadRequest,
+              timeSlots: [],
+            };
+          }
+
           const givenDate = moment(startDate, "YYYY-MM-DD");
           const currentDate = moment().startOf("day");
 
@@ -561,11 +613,11 @@ export class mentorService implements ImentorService {
               success: false,
               message: " The given date is in the past.",
               status: Status.BadRequest,
-              timeSlots: undefined,
+              timeSlots: [],
             };
           }
 
-          const entrySlots = slots.map((slot: slot) => {
+          const entrySlots = (res ?? slots).map((slot: slot) => {
             const start = moment(
               `${startDate} ${slot?.startTime}`,
               "YYYY-MM-DD HH:mm:ss"
@@ -581,7 +633,7 @@ export class mentorService implements ImentorService {
                 success: false,
                 message: "Time difference is not in between 20 to 60.",
                 status: Status.BadRequest,
-                timeSlots: undefined,
+                timeSlots: [],
               };
             }
 
@@ -600,7 +652,7 @@ export class mentorService implements ImentorService {
                 success: false,
                 message: "The time duration must be between 30 and 60 minutes.",
                 status: Status.Ok,
-                timeSlots: null,
+                timeSlots: [],
               };
             }
 
@@ -609,7 +661,7 @@ export class mentorService implements ImentorService {
                 success: false,
                 message: "The End Time is Befor Start Time",
                 status: Status.Ok,
-                timeSlots: null,
+                timeSlots: [],
               };
             }
 
@@ -644,17 +696,22 @@ export class mentorService implements ImentorService {
           });
           timeSlotsToInsert.push(...(entrySlots as unknown as Itime[]));
         }
-
-        result = await this._timeSlotRepository.createTimeSlot(
-          timeSlotsToInsert
-        );
       }
+      result = await this._timeSlotRepository.createTimeSlot(timeSlotsToInsert);
       console.log(result, "thsi is the result ");
+      if (!result) {
+        return {
+          success: false,
+          message: "error while slot creating ",
+          status: Status.BadRequest,
+          timeSlots: [],
+        };
+      }
       return {
         success: true,
         message: "slot created successfully",
         status: Status.Ok,
-        timeSlots: result as Itime,
+        timeSlots: result,
       };
     } catch (error: unknown) {
       throw new Error(

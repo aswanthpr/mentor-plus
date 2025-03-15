@@ -4,7 +4,7 @@ import { ImentorService } from "../Interface/Mentor/iMentorService";
 import { ObjectId } from "mongoose";
 
 export class mentorController implements ImentorController {
-  constructor(private _mentorService: ImentorService) { }
+  constructor(private _mentorService: ImentorService) {}
 
   async mentorLogout(req: Request, res: Response): Promise<void> {
     try {
@@ -18,7 +18,8 @@ export class mentorController implements ImentorController {
         message: "An internal server error occurred. Please try again later.",
       });
       throw new Error(
-        `Error while mentee  logout ${error instanceof Error ? error.message : String(error)
+        `Error while mentee  logout ${
+          error instanceof Error ? error.message : String(error)
         }`
       );
     }
@@ -40,7 +41,8 @@ export class mentorController implements ImentorController {
       });
     } catch (error: unknown) {
       throw new Error(
-        `Error while mentee  logout ${error instanceof Error ? error.message : String(error)
+        `Error while mentee  logout ${
+          error instanceof Error ? error.message : String(error)
         }`
       );
     }
@@ -73,7 +75,8 @@ export class mentorController implements ImentorController {
       });
 
       throw new Error(
-        `error while geting refreshToken${error instanceof Error ? error.message : String(error)
+        `error while geting refreshToken${
+          error instanceof Error ? error.message : String(error)
         }`
       );
     }
@@ -96,7 +99,8 @@ export class mentorController implements ImentorController {
       });
 
       throw new Error(
-        `error while profile password changing ${error instanceof Error ? error.message : String(error)
+        `error while profile password changing ${
+          error instanceof Error ? error.message : String(error)
         }`
       );
     }
@@ -109,9 +113,9 @@ export class mentorController implements ImentorController {
 
       const profileImage =
         req.files &&
-          (req.files as { [key: string]: Express.Multer.File[] }).profileImage
+        (req.files as { [key: string]: Express.Multer.File[] }).profileImage
           ? (req.files as { [key: string]: Express.Multer.File[] })
-            .profileImage[0]
+              .profileImage[0]
           : null;
 
       const result = await this._mentorService.mentorProfileImageChange(
@@ -122,7 +126,8 @@ export class mentorController implements ImentorController {
       res.status(result.status).json(result);
     } catch (error: unknown) {
       throw new Error(
-        `error while mentor profile image change${error instanceof Error ? error.message : String(error)
+        `error while mentor profile image change${
+          error instanceof Error ? error.message : String(error)
         }`
       );
     }
@@ -132,7 +137,7 @@ export class mentorController implements ImentorController {
     try {
       const resume =
         req.files &&
-          (req.files as { [key: string]: Express.Multer.File[] }).resume
+        (req.files as { [key: string]: Express.Multer.File[] }).resume
           ? (req.files as { [key: string]: Express.Multer.File[] }).resume[0]
           : null;
       console.log(resume, "this is resume", req.files);
@@ -146,7 +151,8 @@ export class mentorController implements ImentorController {
       res.status(status).json({ success, message, result });
     } catch (error: unknown) {
       throw new Error(
-        `error while mentor profile Edit ${error instanceof Error ? error.message : String(error)
+        `error while mentor profile Edit ${
+          error instanceof Error ? error.message : String(error)
         }`
       );
     }
@@ -156,25 +162,32 @@ export class mentorController implements ImentorController {
   async homeData(req: Request, res: Response): Promise<void> {
     try {
       const { filter } = req.params;
+      const { search, page, limit } = req.query;
 
-      const { status, success, message, homeData } =
-        await this._mentorService.homeData(filter as string);
+      const { status, success, message, homeData,totalPage } =
+        await this._mentorService.homeData(
+          filter as string,
+          String(search),
+          Number(page),
+          Number(limit)
+        );
       const userId = req.user as Express.User;
-      res.status(status).json({ success, message, homeData, userId });
+      res.status(status).json({ success, message, homeData, userId ,totalPage});
     } catch (error: unknown) {
       throw new Error(
-        `error while mentor profile Edit ${error instanceof Error ? error.message : String(error)
+        `error while mentor profile Edit ${
+          error instanceof Error ? error.message : String(error)
         }`
       );
     }
   }
-  //create time slots in mentor side 
+  //create time slots in mentor side
   // /mentor/schedule/create-slots
   // get the scheule time in the req.body
   async createTimeSlots(req: Request, res: Response): Promise<void> {
     try {
       const { type, schedule } = req.body;
-      console.log(type,schedule,'creaeSchedule',) 
+      console.log(type, schedule, "creaeSchedule");
       const { success, status, message, timeSlots } =
         await this._mentorService.createTimeSlots(
           type,
@@ -184,12 +197,13 @@ export class mentorController implements ImentorController {
       res.status(status).json({ success, message, status, timeSlots });
     } catch (error: unknown) {
       throw new Error(
-        `error while mentor creating time slots  ${error instanceof Error ? error.message : String(error)
+        `error while mentor creating time slots  ${
+          error instanceof Error ? error.message : String(error)
         }`
       );
-    } 
+    }
   }
- 
+
   //schedule getting data.  /schedule/get-time-slots
   async getTimeSlots(req: Request, res: Response): Promise<void> {
     try {
@@ -198,7 +212,8 @@ export class mentorController implements ImentorController {
       res.status(status).json({ success, message, status, timeSlots });
     } catch (error: unknown) {
       throw new Error(
-        `error while mentor getting time slots  ${error instanceof Error ? error.message : String(error)
+        `error while mentor getting time slots  ${
+          error instanceof Error ? error.message : String(error)
         }`
       );
     }
@@ -206,13 +221,15 @@ export class mentorController implements ImentorController {
 
   async removeTimeSlot(req: Request, res: Response): Promise<void> {
     try {
-       const {slotId}=req.body
-       console.log(slotId,'ths is slot id')
-      const { status, success, message } = await this._mentorService.removeTimeSlot(slotId as string)
+      const { slotId } = req.body;
+      console.log(slotId, "ths is slot id");
+      const { status, success, message } =
+        await this._mentorService.removeTimeSlot(slotId as string);
       res.status(status).json({ message, success });
     } catch (error: unknown) {
       throw new Error(
-        `error while mentor getting time slots  ${error instanceof Error ? error.message : String(error)
+        `error while mentor getting time slots  ${
+          error instanceof Error ? error.message : String(error)
         }`
       );
     }

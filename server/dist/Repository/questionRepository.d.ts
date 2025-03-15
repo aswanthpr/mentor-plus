@@ -8,7 +8,10 @@ declare class questionRepository extends baseRepository<Iquestion> implements Iq
     isQuestionExist(field1: string, field2: string): Promise<Iquestion[] | null>;
     questionData(menteeId: ObjectId, filter: string): Promise<Iquestion[]>;
     editQuestions(questionId: string, updatedQuestion: Iquestion, filter: string): Promise<Iquestion[] | null>;
-    allQuestionData(filter: string): Promise<Iquestion[] | null>;
+    allQuestionData(filter: string, search: string, skip: number, limit: number): Promise<{
+        question: Iquestion[] | [];
+        count: number;
+    }>;
     deleteQuestion(questionId: string): Promise<DeleteResult | undefined>;
     countAnswer(questionId: string): Promise<Iquestion | null>;
     reduceAnswerCount(questionId: string): Promise<Iquestion | null>;
