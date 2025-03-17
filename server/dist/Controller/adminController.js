@@ -209,9 +209,9 @@ class adminController {
     getDashboardData(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const result = yield this._adminService.dashboardData();
-                console.log(result);
-                res.status(200).json({ success: true, message: "Logout successfully" });
+                const { timeRange } = req.query;
+                const { message, status, success, salesData } = yield this._adminService.dashboardData(String(timeRange));
+                res.status(status).json({ success, message, status, salesData });
             }
             catch (error) {
                 res.status(500).json({ success: false, message: "Internal server error" });

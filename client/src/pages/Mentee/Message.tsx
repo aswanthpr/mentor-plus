@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from "react";
-import { Search, Send, Paperclip, Mic, X } from "lucide-react";
+import { Search, Send, Paperclip, X } from "lucide-react";
 
 import { errorHandler } from "../../Utils/Reusable/Reusable";
 import { protectedAPI } from "../../Config/Axios";
@@ -338,7 +338,7 @@ const Message: React.FC = () => {
                   </span>
                 </div>
                 <p className="text-sm text-gray-500 truncate  ">
-                  {user?.lastMessage.slice(0, 20)}
+                  {user?.lastMessage?.slice(0, 10)}
                 </p>
               </div>
               {/* {user.unreadCount > 0 && (
@@ -426,7 +426,7 @@ const Message: React.FC = () => {
                           return (
                             <div
                               className={`flex items-center gap-3 p-3 rounded-lg border ${
-                                message.receiverId ===
+                                message?.receiverId ===
                                 (currentUser === "mentee"
                                   ? selectedUser?.menteeId
                                   : selectedUser?.mentorId)
@@ -488,7 +488,7 @@ const Message: React.FC = () => {
                       className="max-h-32 rounded-lg"
                     />
                   )}
-                  {!previewUrl && selectedFile.name}
+                  {!previewUrl && selectedFile?.name}
                   <button
                     onClick={() => {
                       setSelectedFile(null);

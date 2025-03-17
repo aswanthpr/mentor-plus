@@ -1,15 +1,14 @@
 import React from 'react';
-import { Star, ArrowUp, ArrowDown } from 'lucide-react';
+import { Star } from 'lucide-react';
 
 interface Mentor {
-  id: string;
-  name: string;
-  avatar: string;
-  expertise: string;
-  earnings: number;
-  rating: number;
-  sessions: number;
-  growth: number;
+  mentorId: string;
+  mentorName: string;
+  profileUrl: string;
+  category: string;
+  totalRevenue: number;
+  averageRating: number;
+  totalSessions: number;
 }
 
 interface TopMentorsProps {
@@ -17,6 +16,7 @@ interface TopMentorsProps {
 }
 
 const TopMentors: React.FC<TopMentorsProps> = ({ mentors }) => {
+  console.log(mentors,'kljkhikhoiuh')
   return (
     <div className="bg-white p-6 rounded-lg shadow-sm">
       <h3 className="text-lg font-semibold mb-6 ">Top Performing Mentors</h3>
@@ -39,42 +39,39 @@ const TopMentors: React.FC<TopMentorsProps> = ({ mentors }) => {
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                 Sessions
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Growth
-              </th>
             </tr>
           </thead>
           <tbody className="bg-white divide-y divide-gray-200">
             {mentors.map((mentor) => (
-              <tr key={mentor.id}>
+              <tr key={mentor?.mentorId}>
                 <td className="px-6 py-4 whitespace-nowrap">
                   <div className="flex items-center">
                     <img
                       className="h-10 w-10 rounded-full"
-                      src={mentor.avatar}
-                      alt={mentor.name}
+                      src={mentor?.profileUrl}
+                      alt={mentor?.mentorName}
                     />
                     <div className="ml-4">
-                      <div className="text-sm font-medium text-gray-900">{mentor.name}</div>
+                      <div className="text-sm font-medium text-gray-900">{mentor?.mentorName}</div>
                     </div>
                   </div>
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap">
-                  <span className="text-sm text-gray-900">{mentor.expertise}</span>
+                  <span className="text-sm text-gray-900">{mentor?.category}</span>
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap">
-                  <span className="text-sm text-gray-900">${mentor.earnings.toLocaleString()}</span>
+                  <span className="text-sm text-gray-900">${mentor?.totalRevenue.toLocaleString()}</span>
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap">
                   <div className="flex items-center">
+                    <span className="ml-1 text-sm text-gray-900">{mentor?.averageRating}</span>
                     <Star className="h-4 w-4 text-yellow-400 fill-current" />
-                    <span className="ml-1 text-sm text-gray-900">{mentor.rating}</span>
                   </div>
                 </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                  {mentor.sessions}
+                <td className=" px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                  {mentor?.totalSessions}
                 </td>
-                <td className="px-6 py-4 whitespace-nowrap">
+                {/* <td className="px-6 py-4 whitespace-nowrap">
                   <div className={`flex items-center ${
                     mentor.growth >= 0 ? 'text-green-600' : 'text-red-600'
                   }`}>
@@ -85,7 +82,7 @@ const TopMentors: React.FC<TopMentorsProps> = ({ mentors }) => {
                     )}
                     <span className="ml-1 text-sm">{Math.abs(mentor.growth)}%</span>
                   </div>
-                </td>
+                </td> */}
               </tr>
             ))}
           </tbody>

@@ -40,8 +40,8 @@ class adminService {
                     };
                 }
                 const { userId } = decode;
-                const accessToken = (0, jwt_utils_1.genAccesssToken)(userId);
-                const refreshToken = (0, jwt_utils_1.genRefreshToken)(userId);
+                const accessToken = (0, jwt_utils_1.genAccesssToken)(userId, "admin");
+                const refreshToken = (0, jwt_utils_1.genRefreshToken)(userId, "admin");
                 return {
                     success: true,
                     message: "Token refresh successfully",
@@ -337,16 +337,16 @@ class adminService {
             }
         });
     }
-    dashboardData() {
+    dashboardData(timeRange) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                console.log('haihel');
-                const totalRevenue = yield this._slotScheduleRepository.findTotalRevenue();
-                console.log(totalRevenue, 'this is toatlarevenue');
+                const platformCommision = Number(process.env.PLATFORM_COMMISION);
+                const salesData = yield this._slotScheduleRepository.mentorDashboard(platformCommision, timeRange);
                 return {
                     message: "data successfuly recived",
                     success: true,
                     status: httpStatusCode_1.Status.Ok,
+                    salesData,
                 };
             }
             catch (error) {

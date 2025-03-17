@@ -112,9 +112,9 @@ export class authService implements IauthService {
         return { success: false, message: "password not matching" };
       }
       const userId: string = result._id as string;
-      console.log(userId, "userid");
-      const accessToken = genAccesssToken(userId as string);
-      const refreshToken = genRefreshToken(userId as string);
+     
+      const accessToken = genAccesssToken(userId as string,"mentee");
+      const refreshToken = genRefreshToken(userId as string,"mentee");
       console.log(accessToken, refreshToken, "access refrsh");
 
       return {
@@ -250,8 +250,8 @@ export class authService implements IauthService {
       }
       const userId: string = result._id as string;
 
-      const accessToken = genAccesssToken(userId as string);
-      const refreshToken = genRefreshToken(userId as string);
+      const accessToken = genAccesssToken(userId as string,"admin");
+      const refreshToken = genRefreshToken(userId as string,"admin");
       console.log(accessToken, refreshToken, "access refrsh");
 
       return {
@@ -391,8 +391,8 @@ export class authService implements IauthService {
       }
       const mentorId = `${result._id}`;
       console.log(mentorId, "userid");
-      const accessToken = genAccesssToken(mentorId as string);
-      const refreshToken = genRefreshToken(mentorId as string);
+      const accessToken = genAccesssToken(mentorId as string,"mentor");
+      const refreshToken = genRefreshToken(mentorId as string,"mentor");
 
       console.log(accessToken, refreshToken, "access refrsh");
       return {
@@ -473,8 +473,8 @@ export class authService implements IauthService {
         throw new Error("user deailes not found");
       }
       console.log(user, "this is the user");
-      const accessToken = genAccesssToken(user?._id as string);
-      const refreshToken = genRefreshToken(user?._id as string);
+      const accessToken = genAccesssToken(user?._id as string,"mentee");
+      const refreshToken = genRefreshToken(user?._id as string,"mentee");
 
       return {
         success: true,

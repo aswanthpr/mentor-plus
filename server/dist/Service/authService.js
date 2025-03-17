@@ -91,9 +91,8 @@ class authService {
                     return { success: false, message: "password not matching" };
                 }
                 const userId = result._id;
-                console.log(userId, "userid");
-                const accessToken = (0, jwt_utils_1.genAccesssToken)(userId);
-                const refreshToken = (0, jwt_utils_1.genRefreshToken)(userId);
+                const accessToken = (0, jwt_utils_1.genAccesssToken)(userId, "mentee");
+                const refreshToken = (0, jwt_utils_1.genRefreshToken)(userId, "mentee");
                 console.log(accessToken, refreshToken, "access refrsh");
                 return {
                     success: true,
@@ -195,8 +194,8 @@ class authService {
                     return { success: false, message: "password not matching" };
                 }
                 const userId = result._id;
-                const accessToken = (0, jwt_utils_1.genAccesssToken)(userId);
-                const refreshToken = (0, jwt_utils_1.genRefreshToken)(userId);
+                const accessToken = (0, jwt_utils_1.genAccesssToken)(userId, "admin");
+                const refreshToken = (0, jwt_utils_1.genRefreshToken)(userId, "admin");
                 console.log(accessToken, refreshToken, "access refrsh");
                 return {
                     success: true,
@@ -308,8 +307,8 @@ class authService {
                 }
                 const mentorId = `${result._id}`;
                 console.log(mentorId, "userid");
-                const accessToken = (0, jwt_utils_1.genAccesssToken)(mentorId);
-                const refreshToken = (0, jwt_utils_1.genRefreshToken)(mentorId);
+                const accessToken = (0, jwt_utils_1.genAccesssToken)(mentorId, "mentor");
+                const refreshToken = (0, jwt_utils_1.genRefreshToken)(mentorId, "mentor");
                 console.log(accessToken, refreshToken, "access refrsh");
                 return {
                     success: true,
@@ -377,8 +376,8 @@ class authService {
                     throw new Error("user deailes not found");
                 }
                 console.log(user, "this is the user");
-                const accessToken = (0, jwt_utils_1.genAccesssToken)(user === null || user === void 0 ? void 0 : user._id);
-                const refreshToken = (0, jwt_utils_1.genRefreshToken)(user === null || user === void 0 ? void 0 : user._id);
+                const accessToken = (0, jwt_utils_1.genAccesssToken)(user === null || user === void 0 ? void 0 : user._id, "mentee");
+                const refreshToken = (0, jwt_utils_1.genRefreshToken)(user === null || user === void 0 ? void 0 : user._id, "mentee");
                 return {
                     success: true,
                     message: "login successfull!",

@@ -7,6 +7,7 @@ import { ImenteeRepository } from "../Interface/Mentee/iMenteeRepository";
 import { ImentorRepository } from "../Interface/Mentor/iMentorRepository";
 import { InotificationRepository } from "../Interface/Notification/InotificationRepository";
 import { IslotScheduleRepository } from "../Interface/Booking/iSlotScheduleRepository";
+import { IcardData } from "../Types";
 export declare class adminService implements IadminService {
     private readonly _categoryRepository;
     private readonly _menteeRepository;
@@ -82,10 +83,11 @@ export declare class adminService implements IadminService {
         message: string;
         status: number;
     }>;
-    dashboardData(): Promise<{
+    dashboardData(timeRange: string): Promise<{
         message: string;
         success: boolean;
         status: number;
+        salesData: IcardData | null;
     }>;
 }
 //# sourceMappingURL=adminService.d.ts.map

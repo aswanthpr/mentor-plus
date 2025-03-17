@@ -59,5 +59,10 @@ export interface ImentorService {
         message: string;
         status: number;
     }>;
+    mentorChartData(mentorId: ObjectId, timeRange: string): Promise<{
+        success: boolean;
+        message: string;
+        status: number;
+    }>;
 }
 //# sourceMappingURL=iMentorService.d.ts.map

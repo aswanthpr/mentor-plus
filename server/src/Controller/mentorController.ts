@@ -234,4 +234,19 @@ export class mentorController implements ImentorController {
       );
     }
   }
+  async chartData(req:Request,res:Response):Promise<void>{
+    try {
+      const {timeRange} =req.query;
+      console.log(timeRange);
+      const {success, message, status} =await  this._mentorService.mentorChartData(req.user as Express.User as ObjectId,String(timeRange));
+      
+      res.status(status).json({message,success});
+    } catch (error:unknown) {
+      throw new Error(
+        `error while mentor getting time slots  ${
+          error instanceof Error ? error.message : String(error)
+        }`
+      );
+    }
+  }
 }

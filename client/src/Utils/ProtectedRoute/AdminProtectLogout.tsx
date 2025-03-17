@@ -11,8 +11,10 @@ export interface IAdminLogout {
 const AdminProtectLogout:React.FC<IAdminLogout> = ({element}) => {
 
     const navigate = useNavigate();
-    const adminToken = useSelector((state: RootState) => state.admin.adminToken);
-    const role = useSelector((state: RootState) => state.admin.adminRole);
+    const adminToken = useSelector((state: RootState) => state.admin?.adminToken);
+    console.log(adminToken)
+    const role = useSelector((state: RootState) => state.admin?.adminRole);
+    console.log(adminToken,role,'huauuuafjalsjdfl')
     useEffect(() => {
         if (adminToken && role === 'admin') {
             console.log("you are aleary logged in")
@@ -26,7 +28,7 @@ const AdminProtectLogout:React.FC<IAdminLogout> = ({element}) => {
       return element;
 }
 
-export default AdminProtectLogout
+export default AdminProtectLogout 
 
 
 

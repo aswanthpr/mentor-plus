@@ -27,7 +27,7 @@ const MuiInput: React.FC<CustomInputProps> = ({
       <InputLabel htmlFor="custom-input">{label}</InputLabel>
       <OutlinedInput
         id="custom-input"
-        value={value}
+        value={value??""}
         onChange={onChange}
         label={label}
         type={type}

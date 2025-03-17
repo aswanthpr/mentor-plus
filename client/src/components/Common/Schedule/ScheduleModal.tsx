@@ -245,15 +245,15 @@ export const ScheduleModal = ({
     console.log("Cleaned Schedule Data:", scheduleData);
     onSubmit(scheduleData as unknown as ISchedule);
     onClose();
-    setSelectedDates([])
-    setNormalSchedule([])
-    setRecurringSchedule({
-      startDate: "",
-      endDate: "",
-      slots: [{ startTime: "", endTime: "" }],
-      selectedDays: [],
-      price: null,
-    });
+    // setSelectedDates([])
+    // setNormalSchedule([])
+    // setRecurringSchedule({
+    //   startDate: "",
+    //   endDate: "",
+    //   slots: [{ startTime: "", endTime: "" }],
+    //   selectedDays: [],
+    //   price: null,
+    // });
    
   }, [normalSchedule, onClose, onSubmit, recurringSchedule, scheduleType]);
 

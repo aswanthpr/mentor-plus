@@ -1,6 +1,6 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
-interface IAccessToken {
+interface IAccessToken { 
   mentorToken: string;
   mentorRole: string;
 }

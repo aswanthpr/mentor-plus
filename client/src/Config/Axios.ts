@@ -49,7 +49,7 @@ protectedAPI.interceptors.response.use(
   async (error: AxiosError<ErrorResponseData>) => {
     const originalRequest = error.config as InternalAxiosRequestConfig & { _retry?: boolean };
 
-    if (error.response?.status === 401&& error.response.data.user) {
+    if (error.response?.status === 401) {//&& error.response.data.user
 
     store.dispatch(clearAccessToken());
       return Promise.reject(error);

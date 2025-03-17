@@ -57,7 +57,7 @@ const AdminLogin: React.FC = () => {
       });
 
       if (response.data.success && response.status === 200) {
-
+        console.log(response?.data?.accessToken,response?.data,'login sessikn')
         dispatch(setToken({adminToken:response.data.accessToken,adminRole:'admin'}));
         setLoading(false);
         toast.success(response.data.message);

@@ -104,3 +104,23 @@ interface IcheckedSlot {
   _id: ObjectId;
   slots: slot;
 }
+
+interface IcardData {
+  totalRevenue: number;
+  totalBookings: number;
+  totalCancelledBookings: number;
+  uniqueMentorsThisMonth: number;
+  yearly?:{year:number,revenue:number,session:number}[];
+  monthly?:{month:number,revenue:number,session:number}[];
+  weekly?:{week:number,revenue:number,session:number}[];
+  categoryDistribution: { category: string, value:number }[],
+  topMentors:{
+    mentorId: string,
+    mentorName:string,
+    totalSessions:number,
+    totalRevenue:number,
+    category:string,
+    averageRating:number,
+    profileUrl:string
+  }
+}

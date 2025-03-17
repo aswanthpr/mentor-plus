@@ -42,10 +42,11 @@ API.interceptors.response.use(
   },
   async (error: AxiosError) => {
     const originalRequest = error.config as InternalAxiosRequestConfig & { _retry?: boolean };
-
+console.log(error,'error aane')
     if (error.response?.status === 401) {
 
       store.dispatch(clearToken());
+
       return Promise.reject(error);
     }
 
@@ -56,7 +57,7 @@ API.interceptors.response.use(
         const { data } = await API.post(`/admin/refresh-token`);
 
 
-        store.dispatch(setToken({ adminToken: data?.accessToken, adminRole: 'admin' }));
+        store.dispatch(setToken({ adminToken: data?.accessToken, adminRole:'admin'}));
         axios.defaults.headers.common['Authorization'] = `Bearer ${data?.accessToken}`
 
         return API(originalRequest);

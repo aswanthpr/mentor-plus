@@ -227,10 +227,10 @@ export class menteeService implements ImenteeService {
 
       const { userId } = decode;
 
-      const accessToken: string | undefined = genAccesssToken(userId as string);
+      const accessToken: string | undefined = genAccesssToken(userId as string,"mentee");
 
       const refreshToken: string | undefined = genRefreshToken(
-        userId as string
+        userId as string,"mentee"
       );
 
       return {

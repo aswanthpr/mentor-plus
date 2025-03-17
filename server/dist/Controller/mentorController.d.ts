@@ -14,5 +14,6 @@ export declare class mentorController implements ImentorController {
     createTimeSlots(req: Request, res: Response): Promise<void>;
     getTimeSlots(req: Request, res: Response): Promise<void>;
     removeTimeSlot(req: Request, res: Response): Promise<void>;
+    chartData(req: Request, res: Response): Promise<void>;
 }
 //# sourceMappingURL=mentorController.d.ts.map

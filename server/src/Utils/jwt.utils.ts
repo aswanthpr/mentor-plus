@@ -1,10 +1,10 @@
-import jwt, { JwtPayload } from "jsonwebtoken";
+import jwt, { JsonWebTokenError, TokenExpiredError, JwtPayload } from "jsonwebtoken";
 
 
-export const genAccesssToken = (payload: string): string | undefined => {
+export const genAccesssToken = (userId: string,role:string): string | undefined => {
   try {
-    return jwt.sign({userId:payload}, process?.env?.JWT_ACCESS_SECRET as string, {
-      expiresIn:'1h',
+    return jwt.sign({userId,role}, process?.env?.JWT_ACCESS_SECRET as string, {
+      expiresIn:'1m',
     });
   } catch (error: unknown) {
     console.log(
@@ -14,9 +14,9 @@ export const genAccesssToken = (payload: string): string | undefined => {
   }
 };
 
-export const genRefreshToken = (payload: string): string | undefined => {
+export const genRefreshToken = (userId: string,role:string): string | undefined => {
   try {
-    return jwt.sign({userId:payload}, process?.env?.JWT_REFRESH_SECRET as string, {
+    return jwt.sign({userId,role}, process?.env?.JWT_REFRESH_SECRET as string, {
       expiresIn:"14d",
     });
   } catch (error: unknown) {
@@ -38,7 +38,15 @@ export const verifyAccessToken=(token:string)=>{
       `\x1b[35m%s\x1b[0m]`,
       `Error while verifying access token ${error instanceof Error? error.message:String(error)}`
     );
-    return null;
+    if (error instanceof TokenExpiredError) {
+      return { isValid: false, error: "TokenExpired" }; 
+    }
+    if (error instanceof JsonWebTokenError) {
+      return { isValid: false, error: "TamperedToken" }; 
+    }
+
+    console.error(`Unexpected error during token verification:`, String(error));
+    return { isValid: false, error: "UnknownError" };
   }
 }
 
@@ -54,6 +62,15 @@ export const verifyRefreshToken = (token: string) => {
       `\x1b[36m%s\x1b[0m]`,
       `Error while verifying refresh token ${error instanceof Error ? error.message : String(error)}`
     );
-    return null;
+    if (error instanceof TokenExpiredError) {
+      return { isValid: false, error: "TokenExpired" }; 
+    }
+    if (error instanceof JsonWebTokenError) {
+      return { isValid: false, error: "TamperedToken" }; 
+    }
+
+    console.error(`Unexpected error during token verification:`, String(error));
+    return { isValid: false, error: "UnknownError" };
+
   }
 };

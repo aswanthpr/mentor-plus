@@ -189,5 +189,18 @@ class mentorController {
             }
         });
     }
+    chartData(req, res) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const { timeRange } = req.query;
+                console.log(timeRange);
+                const { success, message, status } = yield this._mentorService.mentorChartData(req.user, String(timeRange));
+                res.status(status).json({ message, success });
+            }
+            catch (error) {
+                throw new Error(`error while mentor getting time slots  ${error instanceof Error ? error.message : String(error)}`);
+            }
+        });
+    }
 }
 exports.mentorController = mentorController;

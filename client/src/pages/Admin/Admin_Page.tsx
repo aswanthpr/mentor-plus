@@ -25,7 +25,7 @@ const navItems: INavItem[] = [
   { name: 'Q&A', path: '/admin/qa_management', icon: HelpCircle },
 ];
 
-const Admin_Page: React.FC = () => {
+const Admin_Page: React.FC = () => { 
   const dispatch = useDispatch()
   const [isSideBarOpen, setIsSideBarOpen] = useState<boolean>(true);
   const [searchValue, setSearchValue] = useState<string>('');
@@ -36,7 +36,7 @@ const Admin_Page: React.FC = () => {
   
       const fetchData = async () => {
         try {
-          const { data, status } = await API.get(`/mentee/notification`);
+          const { data, status } = await API.get(`/admin/notification`);
           console.log(data, status);
           if (flag && status == 200 && data.success) {
             dispatch(
@@ -62,7 +62,7 @@ const Admin_Page: React.FC = () => {
  const handleReadNotification = async (id: string) => {
     try {
       const { status,data} = await API.patch(
-        `/mentee/notification-read/${id}`
+        `/admin/notification-read/${id}`
       );
 
       if (status == 200 && data.success) {

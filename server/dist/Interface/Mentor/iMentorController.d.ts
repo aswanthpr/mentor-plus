@@ -10,5 +10,6 @@ export interface ImentorController {
     createTimeSlots(req: Request, res: Response): Promise<void>;
     getTimeSlots(req: Request, res: Response): Promise<void>;
     removeTimeSlot(req: Request, res: Response): Promise<void>;
+    chartData(req: Request, res: Response): Promise<void>;
 }
 //# sourceMappingURL=iMentorController.d.ts.map

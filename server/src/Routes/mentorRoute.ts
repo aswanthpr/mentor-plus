@@ -1,6 +1,6 @@
 import express, { Router } from "express";
 import upload from "../Config/multer.util";
-import mentorAuthorize from "../Middleware/mentorAuthorization";
+import mentorAuthorize from "../Middleware/mentorAuthMiddleware";
 
 import qaController from "../Controller/qaController";
 import { mentorController } from "../Controller/mentorController";
@@ -30,7 +30,8 @@ const __mentorService = new mentorService(
   mentorRepository,
   categoryRepository,
   questionRepository,
-  timeSlotRepository
+  timeSlotRepository,
+  slotScheduleRepository,
 );
 
 const __chatService = new chatService(chatRepository);
@@ -47,9 +48,12 @@ const __bookingService = new bookingService(
   walletRepository,
   transactionRepository
 );
-const __notificationService = new notificationService
-(notificationRepository);
-const __walletService = new walletService(walletRepository,transactionRepository,notificationRepository)
+const __notificationService = new notificationService(notificationRepository);
+const __walletService = new walletService(
+  walletRepository,
+  transactionRepository,
+  notificationRepository
+);
 const __walletController = new walletController(__walletService);
 const __mentorController = new mentorController(__mentorService);
 const __qaController = new qaController(__qaService);
@@ -186,5 +190,13 @@ mentor_Router.get(
 );
 mentor_Router.put(
   `/withdraw-amount`,
-mentorAuthorize,__walletController.withdrawMentorEarnings.bind(__walletController));
+  mentorAuthorize,
+  __walletController.withdrawMentorEarnings.bind(__walletController)
+);
+
+mentor_Router.get(
+  `/statistics`,
+  mentorAuthorize,
+  __mentorController.chartData.bind(__mentorController)
+);
 export default mentor_Router;

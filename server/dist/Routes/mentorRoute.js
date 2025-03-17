@@ -5,7 +5,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
 const multer_util_1 = __importDefault(require("../Config/multer.util"));
-const mentorAuthorization_1 = __importDefault(require("../Middleware/mentorAuthorization"));
+const mentorAuthMiddleware_1 = __importDefault(require("../Middleware/mentorAuthMiddleware"));
 const qaController_1 = __importDefault(require("../Controller/qaController"));
 const mentorController_1 = require("../Controller/mentorController");
 const bookingController_1 = require("../Controller/bookingController");
@@ -28,7 +28,7 @@ const walletRepository_1 = __importDefault(require("../Repository/walletReposito
 const transactionRepository_1 = __importDefault(require("../Repository/transactionRepository"));
 const walletController_1 = require("../Controller/walletController");
 const walletService_1 = require("../Service/walletService");
-const __mentorService = new mentorService_1.mentorService(mentorRepository_1.default, categoryRepository_1.default, questionRepository_1.default, timeSlotRepository_1.default);
+const __mentorService = new mentorService_1.mentorService(mentorRepository_1.default, categoryRepository_1.default, questionRepository_1.default, timeSlotRepository_1.default, slotScheduleRepository_1.default);
 const __chatService = new chatService_1.default(chatRepository_1.default);
 const __qaService = new qaService_1.default(questionRepository_1.default, answerRepository_1.default, notificationRepository_1.default);
 const __bookingService = new bookingService_1.bookingService(timeSlotRepository_1.default, slotScheduleRepository_1.default, notificationRepository_1.default, chatRepository_1.default, walletRepository_1.default, transactionRepository_1.default);
@@ -43,30 +43,31 @@ const __chatController = new chatController_1.chatController(__chatService);
 const mentor_Router = express_1.default.Router();
 mentor_Router.post(`/logout`, __mentorController.mentorLogout.bind(__mentorController));
 //profile
-mentor_Router.get(`/profile`, mentorAuthorization_1.default, __mentorController.mentorProfile.bind(__mentorController));
-mentor_Router.patch(`/profile/change_password`, mentorAuthorization_1.default, __mentorController.profilePasswordChange.bind(__mentorController));
+mentor_Router.get(`/profile`, mentorAuthMiddleware_1.default, __mentorController.mentorProfile.bind(__mentorController));
+mentor_Router.patch(`/profile/change_password`, mentorAuthMiddleware_1.default, __mentorController.profilePasswordChange.bind(__mentorController));
 mentor_Router.post("/refresh-token", __mentorController.mentorRefreshToken.bind(__mentorController));
-mentor_Router.patch(`/profile/image_change`, mentorAuthorization_1.default, multer_util_1.default.fields([{ name: "profileImage", maxCount: 1 }]), __mentorController.mentorProfileImageChange.bind(__mentorController));
+mentor_Router.patch(`/profile/image_change`, mentorAuthMiddleware_1.default, multer_util_1.default.fields([{ name: "profileImage", maxCount: 1 }]), __mentorController.mentorProfileImageChange.bind(__mentorController));
 mentor_Router.put(`/profile/edit_profile_details`, multer_util_1.default.fields([{ name: "resume", maxCount: 1 }]), __mentorController.mentorEditProfile.bind(__mentorController));
-mentor_Router.get(`/home/:filter`, mentorAuthorization_1.default, __mentorController.homeData.bind(__mentorController));
-mentor_Router.post(`/qa/create-new-answer`, mentorAuthorization_1.default, __qaController.createNewAnswer.bind(__qaController));
-mentor_Router.patch(`/qa/edit-answer`, mentorAuthorization_1.default, __qaController.editAnswer.bind(__qaController));
+mentor_Router.get(`/home/:filter`, mentorAuthMiddleware_1.default, __mentorController.homeData.bind(__mentorController));
+mentor_Router.post(`/qa/create-new-answer`, mentorAuthMiddleware_1.default, __qaController.createNewAnswer.bind(__qaController));
+mentor_Router.patch(`/qa/edit-answer`, mentorAuthMiddleware_1.default, __qaController.editAnswer.bind(__qaController));
 //schedule
-mentor_Router.post(`/schedule/create-slots`, mentorAuthorization_1.default, __mentorController.createTimeSlots.bind(__mentorController));
-mentor_Router.get(`/schedule/get-time-slots`, mentorAuthorization_1.default, __mentorController.getTimeSlots.bind(__mentorController));
-mentor_Router.delete(`/schedule/remove-time-slot`, mentorAuthorization_1.default, __mentorController.removeTimeSlot.bind(__mentorController));
-mentor_Router.get(`/sessions`, mentorAuthorization_1.default, __bookingController.getBookedSession.bind(__bookingController));
-mentor_Router.patch(`/sessions/cancel_request/:sessionId`, mentorAuthorization_1.default, __bookingController.mentorSlotCancel.bind(__bookingController));
-mentor_Router.patch(`/sessions/create-session-code`, mentorAuthorization_1.default, __bookingController === null || __bookingController === void 0 ? void 0 : __bookingController.createSessionCode.bind(__bookingController));
-mentor_Router.patch(`/sessions/mark-as-session-completed`, mentorAuthorization_1.default, __bookingController.sessionCompleted.bind(__bookingController));
+mentor_Router.post(`/schedule/create-slots`, mentorAuthMiddleware_1.default, __mentorController.createTimeSlots.bind(__mentorController));
+mentor_Router.get(`/schedule/get-time-slots`, mentorAuthMiddleware_1.default, __mentorController.getTimeSlots.bind(__mentorController));
+mentor_Router.delete(`/schedule/remove-time-slot`, mentorAuthMiddleware_1.default, __mentorController.removeTimeSlot.bind(__mentorController));
+mentor_Router.get(`/sessions`, mentorAuthMiddleware_1.default, __bookingController.getBookedSession.bind(__bookingController));
+mentor_Router.patch(`/sessions/cancel_request/:sessionId`, mentorAuthMiddleware_1.default, __bookingController.mentorSlotCancel.bind(__bookingController));
+mentor_Router.patch(`/sessions/create-session-code`, mentorAuthMiddleware_1.default, __bookingController === null || __bookingController === void 0 ? void 0 : __bookingController.createSessionCode.bind(__bookingController));
+mentor_Router.patch(`/sessions/mark-as-session-completed`, mentorAuthMiddleware_1.default, __bookingController.sessionCompleted.bind(__bookingController));
 //notification
-mentor_Router.get(`/notification`, mentorAuthorization_1.default, __notificationController === null || __notificationController === void 0 ? void 0 : __notificationController.getNotification.bind(__notificationController));
-mentor_Router.patch(`/notification-read/:notificationId`, mentorAuthorization_1.default, __notificationController.markAsReadNotif.bind(__notificationController));
+mentor_Router.get(`/notification`, mentorAuthMiddleware_1.default, __notificationController === null || __notificationController === void 0 ? void 0 : __notificationController.getNotification.bind(__notificationController));
+mentor_Router.patch(`/notification-read/:notificationId`, mentorAuthMiddleware_1.default, __notificationController.markAsReadNotif.bind(__notificationController));
 //chat
-mentor_Router.get(`/chats`, mentorAuthorization_1.default, __chatController.getChats.bind(__chatController));
-mentor_Router.get("/messages", mentorAuthorization_1.default, __chatController.getUserMessage.bind(__chatController));
-mentor_Router.post("/session/validate-session-join", mentorAuthorization_1.default, __bookingController.validateSessionJoin.bind(__bookingController));
+mentor_Router.get(`/chats`, mentorAuthMiddleware_1.default, __chatController.getChats.bind(__chatController));
+mentor_Router.get("/messages", mentorAuthMiddleware_1.default, __chatController.getUserMessage.bind(__chatController));
+mentor_Router.post("/session/validate-session-join", mentorAuthMiddleware_1.default, __bookingController.validateSessionJoin.bind(__bookingController));
 //wallet'
-mentor_Router.get(`/wallet`, mentorAuthorization_1.default, __walletController.getWalletData.bind(__walletController));
-mentor_Router.put(`/withdraw-amount`, mentorAuthorization_1.default, __walletController.withdrawMentorEarnings.bind(__walletController));
+mentor_Router.get(`/wallet`, mentorAuthMiddleware_1.default, __walletController.getWalletData.bind(__walletController));
+mentor_Router.put(`/withdraw-amount`, mentorAuthMiddleware_1.default, __walletController.withdrawMentorEarnings.bind(__walletController));
+mentor_Router.get(`/statistics`, mentorAuthMiddleware_1.default, __mentorController.chartData.bind(__mentorController));
 exports.default = mentor_Router;

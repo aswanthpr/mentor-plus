@@ -1,3 +1,4 @@
+import { IcardData } from "src/Types";
 import { Icategory } from "../../Model/categorySchema"
 import { Imentee } from "../../Model/menteeModel";
 import { Imentor } from "../../Model/mentorModel";
@@ -23,6 +24,6 @@ export interface IadminService {
     mentorStatusChange(id: string): Promise<{ success: boolean, message: string, status: number }>;
 
     //admin;
-    dashboardData():Promise<{message:string,success:boolean,status:number}>;
+    dashboardData(timeRange:string):Promise<{message:string,success:boolean,status:number,salesData:IcardData|null}>;
     
 }

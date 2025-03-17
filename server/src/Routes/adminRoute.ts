@@ -4,13 +4,15 @@ import categoryRepository from "../Repository/categoryRepository";
 import { adminController } from "../Controller/adminController";
 import menteeRepository from "../Repository/menteeRepository";
 import mentorRepository from "../Repository/mentorRepository";
-import authorization from "../Middleware/adminAuthorization";
+import authorization from "../Middleware/adminAuthMiddleware";
 import qaService from "../Service/qaService";
 import qaController from "../Controller/qaController";
 import questionRepository from "../Repository/questionRepository";
 import answerRepository from "../Repository/answerRepository";
 import notificationRepository from "../Repository/notificationRepository";
 import slotScheduleRepository from "../Repository/slotScheduleRepository";
+import { notificationService } from "../Service/notificationService";
+import { notificationController } from "../Controller/notificationController";
 
 const admin_Router: Router = express.Router();
 
@@ -21,7 +23,9 @@ const _adminService = new adminService(
   notificationRepository,
   slotScheduleRepository,
 );
-
+const __notificationService = new notificationService(
+  notificationRepository
+)
 const _adminController = new adminController(_adminService);
 const __qaService = new qaService(
   questionRepository,
@@ -29,6 +33,7 @@ const __qaService = new qaService(
   notificationRepository
 );
 const __qaController = new qaController(__qaService);
+const __notificationController = new notificationController(__notificationService)
 //---------------------------------------------------------------------------------------------------------
 admin_Router.post(
   "/logout",
@@ -110,4 +115,15 @@ admin_Router.patch(
 );
 admin_Router.get(`/dashboard`,authorization,_adminController.getDashboardData.bind(_adminController));
 
+admin_Router.get(
+  `/notification`,
+  authorization,
+  __notificationController.getNotification.bind(__notificationController)
+);
+
+admin_Router.patch(
+  `/notification-read/:notificationId`,
+  authorization,
+  __notificationController.markAsReadNotif.bind(__notificationController)
+);
 export default admin_Router;

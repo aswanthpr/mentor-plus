@@ -170,8 +170,8 @@ class menteeService {
                     };
                 }
                 const { userId } = decode;
-                const accessToken = (0, jwt_utils_1.genAccesssToken)(userId);
-                const refreshToken = (0, jwt_utils_1.genRefreshToken)(userId);
+                const accessToken = (0, jwt_utils_1.genAccesssToken)(userId, "mentee");
+                const refreshToken = (0, jwt_utils_1.genRefreshToken)(userId, "mentee");
                 return {
                     success: true,
                     message: "Token refresh successfully",

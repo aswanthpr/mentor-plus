@@ -22,14 +22,16 @@ import { ObjectId } from "mongoose";
 import { ItimeSlotRepository } from "../Interface/Booking/iTimeSchedule";
 import { Status } from "../Utils/httpStatusCode";
 import moment from "moment";
-import { checkForOverlap } from "../Utils/reuseFunctions";
+import { checkForOverlap } from "../Utils/reusable.util";
+import { IslotScheduleRepository } from "../Interface/Booking/iSlotScheduleRepository";
 
 export class mentorService implements ImentorService {
   constructor(
     private _mentorRepository: ImentorRepository,
     private _categoryRepository: IcategoryRepository,
     private _questionRepository: IquestionRepository,
-    private _timeSlotRepository: ItimeSlotRepository
+    private _timeSlotRepository: ItimeSlotRepository,
+    private readonly _slotScheduleRepository:IslotScheduleRepository,
   ) {}
 
   async mentorProfile(token: string): Promise<{
@@ -122,10 +124,10 @@ export class mentorService implements ImentorService {
       }
       const { userId } = decode;
 
-      const accessToken: string | undefined = genAccesssToken(userId as string);
+      const accessToken: string | undefined = genAccesssToken(userId as string,"mentor");
 
       const refreshToken: string | undefined = genRefreshToken(
-        userId as string
+        userId as string,"mentor"
       );
 
       return {
@@ -450,6 +452,7 @@ export class mentorService implements ImentorService {
           !endDate ||
           selectedDays?.length == 0
         ) {
+          console.log("haiiiii")
           return {
             success: false,
             message: "crdential not found",
@@ -463,10 +466,12 @@ export class mentorService implements ImentorService {
           new Date(startDate),
           new Date(endDate)
         );
+        console.log(checkedSlots)
         if (checkedSlots.length > 0) {
           res = checkForOverlap(checkedSlots as IcheckedSlot[], slots);
         }
-        if (res.length == 0) {
+        if (checkedSlots.length>0&&res.length == 0) {
+          console.log("00000000000000000000")
           return {
             success: false,
             message: "all time periods are  duplicates ",
@@ -480,6 +485,7 @@ export class mentorService implements ImentorService {
         const endDateStr = new Date(endDate!);
 
         if (startDateStr < today) {
+          console.log("1111111111111111111")
           return {
             success: false,
             message: "Start date cannot be in the past.",
@@ -490,6 +496,7 @@ export class mentorService implements ImentorService {
 
         // Ensure endDate is after startDate
         if (endDateStr.getTime() <= startDateStr.getTime()) {
+          console.log("2222222222222222")
           return {
             success: false,
             message: "The time duration must be between 30 and 60 minutes.",
@@ -522,7 +529,7 @@ export class mentorService implements ImentorService {
         const recurringDates = rrule.all();
 
         recurringDates.forEach((date) => {
-          (res ?? slots).forEach((slot) => {
+          (res.length>0? res: slots).forEach((slot) => {
             const dateStr = date.toISOString();
 
             const start = moment(
@@ -537,6 +544,7 @@ export class mentorService implements ImentorService {
             const minutesDifference = duration.asMinutes();
 
             if (minutesDifference < 30 || minutesDifference > 60) {
+              console.log("333333333333333")
               return {
                 success: false,
                 message: "The time duration must be between 30 and 60 minutes.",
@@ -545,6 +553,7 @@ export class mentorService implements ImentorService {
               };
             }
             if (end.isBefore(start)) {
+              console.log("44444444444444")
               return {
                 success: false,
                 message: "The End Time is Befor Start Time",
@@ -578,7 +587,7 @@ export class mentorService implements ImentorService {
 
         for (const entry of schedule as ISchedule[]) {
           const { slots, price, startDate } = entry;
-
+console.log("slot:",slots,"price",price,"strtDAte",startDate,entry)
           if (!price || !startDate || !mentorId) {
             return {
               success: false,
@@ -596,7 +605,7 @@ export class mentorService implements ImentorService {
           if (checkedSlots.length > 0) {
             res = checkForOverlap(checkedSlots as IcheckedSlot[], slots);
           }
-          if (res.length == 0) {
+          if (checkedSlots.length>0&&res.length == 0) {
             return {
               success: false,
               message: "all time periods are  duplicates ",
@@ -617,7 +626,7 @@ export class mentorService implements ImentorService {
             };
           }
 
-          const entrySlots = (res ?? slots).map((slot: slot) => {
+          const entrySlots = (res.length>0? res: slots).map((slot: slot) => {
             const start = moment(
               `${startDate} ${slot?.startTime}`,
               "YYYY-MM-DD HH:mm:ss"
@@ -700,6 +709,7 @@ export class mentorService implements ImentorService {
       result = await this._timeSlotRepository.createTimeSlot(timeSlotsToInsert);
       console.log(result, "thsi is the result ");
       if (!result) {
+        console.log("555555555555")
         return {
           success: false,
           message: "error while slot creating ",
@@ -779,6 +789,33 @@ export class mentorService implements ImentorService {
     } catch (error: unknown) {
       throw new Error(
         `Error while  remove slots  in service: ${
+          error instanceof Error ? error.message : String(error)
+        }`
+      );
+    }
+  }
+  async mentorChartData(
+    mentorId:ObjectId,timeRange: string
+  ): Promise<{ success: boolean; message: string; status: number }> {
+    try {
+      if (!timeRange) {
+        return {
+          success: false,
+          message: "credentials not found",
+          status: Status.BadRequest,
+        };
+      }
+     console.log(timeRange,'timerange');
+     const result  = await  this._slotScheduleRepository.mentorChartData(mentorId,timeRange);
+     console.log(result,'ressult')
+      return {
+        success: true,
+        message: "successfully removed",
+        status: Status.Ok,
+      };
+    } catch (error: unknown) {
+      throw new Error(
+        `Error while while finding chart data: ${
           error instanceof Error ? error.message : String(error)
         }`
       );

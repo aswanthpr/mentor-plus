@@ -14,6 +14,7 @@ import {
 import { InotificationRepository } from "../Interface/Notification/InotificationRepository";
 import { Status } from "../Utils/httpStatusCode";
 import { IslotScheduleRepository } from "../Interface/Booking/iSlotScheduleRepository";
+import { IcardData } from "../Types";
 
 export class adminService implements IadminService {
   constructor(
@@ -29,7 +30,7 @@ export class adminService implements IadminService {
     message: string;
     status: number;
     accessToken?: string;
-    refreshToken?: string;
+    refreshToken?: string; 
   }> {
     try {
       console.log(refresh, "thsi is admin refrsh");
@@ -48,10 +49,10 @@ export class adminService implements IadminService {
       
       const { userId } = decode;
 
-      const accessToken: string | undefined = genAccesssToken(userId as string);
+      const accessToken: string | undefined = genAccesssToken(userId as string,"admin");
 
       const refreshToken: string | undefined = genRefreshToken(
-        userId as string
+        userId as string,"admin"
       );
 
       return {
@@ -437,16 +438,16 @@ export class adminService implements IadminService {
     }
   }
 
-  async dashboardData(): Promise<{ message: string; success: boolean; status: number; }> {
+  async dashboardData(timeRange:string): Promise<{ message: string; success: boolean; status: number;salesData:IcardData|null }> {
     try {
-      console.log('haihel');
+      const platformCommision = Number(process.env.PLATFORM_COMMISION as string);
 
-      const totalRevenue = await this._slotScheduleRepository.findTotalRevenue();
-      console.log(totalRevenue,'this is toatlarevenue')
+      const salesData = await this._slotScheduleRepository.mentorDashboard(platformCommision,timeRange);
       return {
         message:"data successfuly recived",
         success:true,
         status:Status.Ok,
+        salesData,
       }
     } catch (error:unknown) {
       throw new Error(

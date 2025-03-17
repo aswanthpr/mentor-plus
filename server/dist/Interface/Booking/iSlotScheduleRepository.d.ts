@@ -1,6 +1,6 @@
 import { ObjectId } from "mongoose";
 import { IslotSchedule } from "../../Model/slotSchedule";
-import { InewSlotSchedule } from "../../Types";
+import { IcardData, InewSlotSchedule } from "../../Types";
 export interface IslotScheduleRepository {
     newSlotBooking(newSlotSchedule: InewSlotSchedule): Promise<InewSlotSchedule | null>;
     getBookedSlot(userId: ObjectId, tabCond: boolean, userType: "mentee" | "mentor"): Promise<IslotSchedule[] | []>;
@@ -10,6 +10,7 @@ export interface IslotScheduleRepository {
     createSessionCode(bookingId: string, sessionCode: string): Promise<string>;
     sessionCompleted(bookingId: string): Promise<IslotSchedule | null>;
     validateSessionJoin(sessionId: string, sessionCode: string): Promise<IslotSchedule | null>;
-    findTotalRevenue(): Promise<IslotSchedule[] | null>;
+    mentorDashboard(platformCommision: number, timeRange: string): Promise<IcardData | null>;
+    mentorChartData(mentorId: ObjectId, timeRange: string): Promise<void>;
 }
 //# sourceMappingURL=iSlotScheduleRepository.d.ts.map

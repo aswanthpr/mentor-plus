@@ -14,5 +14,6 @@ export interface ImentorService {
     homeData(filter: string,search:string,page:number,limit:number): Promise<{ success: boolean; message: string; status: number; homeData: Iquestion[] |[],totalPage:number }>
     createTimeSlots(type:string,schedule:unknown,mentorId:ObjectId):Promise<{success: boolean; message: string; status: number; timeSlots:Itime[]|[] }>;
    getTimeSlots(mentorId:ObjectId):Promise<{success: boolean; message: string; status: number; timeSlots:Itime[]|[]}> ;
-   removeTimeSlot(slotId:string):Promise<{success: boolean; message: string; status: number;}>
+   removeTimeSlot(slotId:string):Promise<{success: boolean; message: string; status: number;}>;
+   mentorChartData(mentorId:ObjectId,timeRange:string):Promise<{success: boolean; message: string; status: number}>
 }

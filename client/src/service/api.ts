@@ -79,7 +79,7 @@ export const fetchCanceSession = async (
   sessionId: string,
   customReason: string,
   reason: string
-):Promise<AxiosResponse|any> => {
+): Promise<AxiosResponse | any> => {
   try {
     return await protectedAPI.patch(
       `/mentee/sessions/cancel_request/${sessionId}`,
@@ -96,7 +96,7 @@ export const fetchSubmitRating = async (
   review: string,
   selectedSession: ISession,
   rating?: number
-):Promise<AxiosResponse|any> => {
+): Promise<AxiosResponse | any> => {
   try {
     return await protectedAPI.post(`/mentee/review-and-rating`, {
       rating,
@@ -110,76 +110,73 @@ export const fetchSubmitRating = async (
   }
 };
 export const fetchHomeData = async (
-filter:string,
-search:string,
-page:number,
-limit:number
-):Promise<AxiosResponse|any> => {
+  filter: string,
+  search: string,
+  page: number,
+  limit: number
+): Promise<AxiosResponse | any> => {
   try {
-    return await protectedAPI.get(`/mentee/home/${filter}`,{
-      params:{
+    return await protectedAPI.get(`/mentee/home/${filter}`, {
+      params: {
         search,
         page,
         limit,
-      }
+      },
     });
   } catch (error: unknown) {
     console.log(error instanceof Error ? error.message : String(error));
   }
 };
-export const fetchNotification = async (
+export const fetchNotification = async (): Promise<AxiosResponse | any> => {
+  try {
+    return await protectedAPI.get(`/mentee/notification`);
+  } catch (error: unknown) {
+    console.log(error instanceof Error ? error.message : String(error));
+  }
+};
+export const fetchLogout = async (): Promise<AxiosResponse | any> => {
+  try {
+    return await protectedAPI.post(`/mentee/logout`);
+  } catch (error: unknown) {
+    console.log(error instanceof Error ? error.message : String(error));
+  }
+};
+export const ReadNotification = async (
+  id: string
+): Promise<AxiosResponse | any> => {
+  try {
+    return await protectedAPI.patch(`/mentee/notification-read/${id}`);
+  } catch (error: unknown) {
+    console.log(error instanceof Error ? error.message : String(error));
+  }
+};
+export const fetchBookingSlots = async (
+  activeTab: string
+): Promise<AxiosResponse | any> => {
+  try {
+    return await protectedAPI.get(`/mentee/sessions`, {
+      params: { activeTab },
+    });
+  } catch (error: unknown) {
+    console.log(error instanceof Error ? error.message : String(error));
+  }
+};
 
-  ):Promise<AxiosResponse|any> => {
-    try {
-      return await protectedAPI.get(`/mentee/notification`);
-    } catch (error: unknown) {
-      console.log(error instanceof Error ? error.message : String(error));
-    }
-  };
-  export const fetchLogout = async (
-  ):Promise<AxiosResponse|any> => {
-    try {
-      return await protectedAPI.post(`/mentee/logout`);
-    } catch (error: unknown) {
-      console.log(error instanceof Error ? error.message : String(error));
-    }
-  };
-  export const ReadNotification = async (id:string
-  ):Promise<AxiosResponse|any> => {
-    try {
-      return await protectedAPI.patch(
-        `/mentee/notification-read/${id}`
-      );
-    } catch (error: unknown) {
-      console.log(error instanceof Error ? error.message : String(error));
-    }
-  };
-  export const fetchBookingSlots = async (activeTab:string
-  ):Promise<AxiosResponse|any> => {
-    try {
-      return await  protectedAPI.get(`/mentee/sessions`, {
-        params: { activeTab },
-      });
-    } catch (error: unknown) {
-      console.log(error instanceof Error ? error.message : String(error));
-    }
-  };
- 
 //MENTOR-ONLY//============================================================
 
 export const fetchMentorHomeData = async (
-  filter:string,
-  search:string,
-  page:number,
-  limit:number,
-): Promise<AxiosResponse|any > => {
+  filter: string,
+  search: string,
+  page: number,
+  limit: number
+): Promise<AxiosResponse | any> => {
   try {
-    return await axiosInstance.get(`/mentor/home/${filter}`,{
-      params:{
+    return await axiosInstance.get(`/mentor/home/${filter}`, {
+      params: {
         search,
         page,
         limit,
-      }
+      },
     });
   } catch (error: unknown) {
     console.log(error instanceof Error ? error.message : String(error));
@@ -233,41 +230,60 @@ export const fetchHandleWithdraw = async (amount: number) => {
     console.log(error instanceof Error ? error.message : String(error));
   }
 };
-export const createNewSlots = async (scheduleData:{type:string,schedule:TimeSlot[]}):Promise<AxiosResponse|any> => {
+export const createNewSlots = async (scheduleData: {
+  type: string;
+  schedule: TimeSlot[];
+}): Promise<AxiosResponse | any> => {
   try {
-
-   return  await axiosInstance.post(`/mentor/schedule/create-slots`, scheduleData);
+    return await axiosInstance.post(
+      `/mentor/schedule/create-slots`,
+      scheduleData
+    );
   } catch (error: unknown) {
     console.log(error instanceof Error ? error.message : String(error));
   }
 };
-export const fetchTimeSlots = async ():Promise<AxiosResponse|any> => {
+export const fetchTimeSlots = async (): Promise<AxiosResponse | any> => {
   try {
-   return   await axiosInstance.get(
-    `/mentor/schedule/get-time-slots`
-  );
+    return await axiosInstance.get(`/mentor/schedule/get-time-slots`);
   } catch (error: unknown) {
     console.log(error instanceof Error ? error.message : String(error));
   }
 };
-export const deleteTimeSlots = async (slotId:string):Promise<AxiosResponse|any> => {
+export const deleteTimeSlots = async (
+  slotId: string
+): Promise<AxiosResponse | any> => {
   try {
-   return  await axiosInstance.delete(
-    `/mentor/schedule/remove-time-slot`,
-    { data: { slotId } }
-  );
+    return await axiosInstance.delete(`/mentor/schedule/remove-time-slot`, {
+      data: { slotId },
+    });
   } catch (error: unknown) {
     console.log(error instanceof Error ? error.message : String(error));
   }
 };
-
-
-
+export const fetchMentorStatistics = async (
+  timeRange: string
+): Promise<AxiosResponse | any> => {
+  try {
+    console.log('hai.........',timeRange)
+    return await axiosInstance.get(`/mentor/statistics`,{params:{timeRange}});
+  } catch (error: unknown) {
+    console.log(error instanceof Error ? error.message : String(error));
+  }
+};
 //ADMIN ============================================================
 
-export const fetchDashboardData = async (signal: AbortSignal) => {
+export const fetchDashboardData = async (
+  signal: AbortSignal,
+  timeRange: string
+) => {
   try {
-    return await API.get(`/admin/dashboard`, { signal });
+    return await API.get(`/admin/dashboard`, {
+      signal,
+      params: {
+        timeRange,
+      },
+    });
   } catch (error: unknown) {
     if (axios.isCancel(error)) {
       console.log("Request canceled:", error.message);

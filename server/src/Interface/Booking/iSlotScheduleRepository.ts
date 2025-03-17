@@ -1,6 +1,6 @@
 import { ObjectId } from "mongoose";
 import { IslotSchedule } from "../../Model/slotSchedule";
-import { InewSlotSchedule } from "../../Types";
+import { IcardData, InewSlotSchedule } from "../../Types";
 
 export interface IslotScheduleRepository {
   newSlotBooking(
@@ -23,5 +23,6 @@ export interface IslotScheduleRepository {
   createSessionCode(bookingId:string,sessionCode:string):Promise<string>;
   sessionCompleted(bookingId:string):Promise<IslotSchedule|null>;
   validateSessionJoin(sessionId:string,sessionCode:string):Promise<IslotSchedule|null>;
-   findTotalRevenue():Promise<IslotSchedule[]|null>;
+   mentorDashboard(platformCommision:number,timeRange:string):Promise<IcardData|null>;
+   mentorChartData(mentorId:ObjectId,timeRange:string):Promise<void>
 }

@@ -242,9 +242,11 @@ export class adminController implements IadminController {
 
   async getDashboardData(req:Request,res:Response):Promise<void>{
     try { 
-     const result = await this._adminService.dashboardData();
-     console.log(result)
-      res.status(200).json({ success: true, message: "Logout successfully" });
+      const {timeRange} = req.query;
+
+     const {message,status,success,salesData} = await this._adminService.dashboardData(String(timeRange));
+   
+      res.status(status).json({ success, message,status,salesData});
      
     } catch (error:unknown) {
       res.status(500).json({ success: false, message: "Internal server error" });

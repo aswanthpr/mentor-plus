@@ -291,3 +291,22 @@ _id:string;
   createdAt?:string;
   updatedAt?:string;
 }
+interface IcardData{
+  totalRevenue:number,
+  totalBookings: number,
+  totalCancelledBookings: number,
+  uniqueMentorsThisMonth: number,
+  yearly?:{year:number,revenue:number,sessions:number}[];
+  monthly?:{month:number,revenue:number,sessions:number}[];
+  weekly?:{week:number,revenue:number,sessions:number}[];
+  categoryDistribution: { category: string, value:number }[],
+  topMentors:{
+    mentorId: string,
+    mentorName:string,
+    totalSessions:number,
+    totalRevenue:number,
+    category:string,
+    averageRating:number,
+    profileUrl:string
+  }[]
+}

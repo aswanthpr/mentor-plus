@@ -21,13 +21,14 @@ const hashPass_util_1 = __importDefault(require("../Utils/hashPass.util"));
 const cloudinary_util_1 = require("../Config/cloudinary.util");
 const httpStatusCode_1 = require("../Utils/httpStatusCode");
 const moment_1 = __importDefault(require("moment"));
-const reuseFunctions_1 = require("../Utils/reuseFunctions");
+const reusable_util_1 = require("../Utils/reusable.util");
 class mentorService {
-    constructor(_mentorRepository, _categoryRepository, _questionRepository, _timeSlotRepository) {
+    constructor(_mentorRepository, _categoryRepository, _questionRepository, _timeSlotRepository, _slotScheduleRepository) {
         this._mentorRepository = _mentorRepository;
         this._categoryRepository = _categoryRepository;
         this._questionRepository = _questionRepository;
         this._timeSlotRepository = _timeSlotRepository;
+        this._slotScheduleRepository = _slotScheduleRepository;
     }
     mentorProfile(token) {
         return __awaiter(this, void 0, void 0, function* () {
@@ -96,8 +97,8 @@ class mentorService {
                     };
                 }
                 const { userId } = decode;
-                const accessToken = (0, jwt_utils_1.genAccesssToken)(userId);
-                const refreshToken = (0, jwt_utils_1.genRefreshToken)(userId);
+                const accessToken = (0, jwt_utils_1.genAccesssToken)(userId, "mentor");
+                const refreshToken = (0, jwt_utils_1.genRefreshToken)(userId, "mentor");
                 return {
                     success: true,
                     message: "Token refresh successfully",
@@ -347,6 +348,7 @@ class mentorService {
                         slots.length === 0 ||
                         !endDate ||
                         (selectedDays === null || selectedDays === void 0 ? void 0 : selectedDays.length) == 0) {
+                        console.log("haiiiii");
                         return {
                             success: false,
                             message: "crdential not found",
@@ -356,10 +358,12 @@ class mentorService {
                     }
                     let res = [];
                     const checkedSlots = yield this._timeSlotRepository.checkTimeSlots(mentorId, new Date(startDate), new Date(endDate));
+                    console.log(checkedSlots);
                     if (checkedSlots.length > 0) {
-                        res = (0, reuseFunctions_1.checkForOverlap)(checkedSlots, slots);
+                        res = (0, reusable_util_1.checkForOverlap)(checkedSlots, slots);
                     }
-                    if (res.length == 0) {
+                    if (checkedSlots.length > 0 && res.length == 0) {
+                        console.log("00000000000000000000");
                         return {
                             success: false,
                             message: "all time periods are  duplicates ",
@@ -371,6 +375,7 @@ class mentorService {
                     const startDateStr = new Date(startDate);
                     const endDateStr = new Date(endDate);
                     if (startDateStr < today) {
+                        console.log("1111111111111111111");
                         return {
                             success: false,
                             message: "Start date cannot be in the past.",
@@ -380,6 +385,7 @@ class mentorService {
                     }
                     // Ensure endDate is after startDate
                     if (endDateStr.getTime() <= startDateStr.getTime()) {
+                        console.log("2222222222222222");
                         return {
                             success: false,
                             message: "The time duration must be between 30 and 60 minutes.",
@@ -406,13 +412,14 @@ class mentorService {
                     });
                     const recurringDates = rrule.all();
                     recurringDates.forEach((date) => {
-                        (res !== null && res !== void 0 ? res : slots).forEach((slot) => {
+                        (res.length > 0 ? res : slots).forEach((slot) => {
                             const dateStr = date.toISOString();
                             const start = (0, moment_1.default)(`${dateStr.split("T")[0]} ${slot === null || slot === void 0 ? void 0 : slot.startTime}`, "YYYY-MM-DD HH:mm:ss");
                             const end = (0, moment_1.default)(`${dateStr.split("T")[0]} ${slot === null || slot === void 0 ? void 0 : slot.endTime}`, "YYYY-MM-DD HH:mm:ss");
                             const duration = moment_1.default.duration(end.diff(start));
                             const minutesDifference = duration.asMinutes();
                             if (minutesDifference < 30 || minutesDifference > 60) {
+                                console.log("333333333333333");
                                 return {
                                     success: false,
                                     message: "The time duration must be between 30 and 60 minutes.",
@@ -421,6 +428,7 @@ class mentorService {
                                 };
                             }
                             if (end.isBefore(start)) {
+                                console.log("44444444444444");
                                 return {
                                     success: false,
                                     message: "The End Time is Befor Start Time",
@@ -450,6 +458,7 @@ class mentorService {
                 else {
                     for (const entry of schedule) {
                         const { slots, price, startDate } = entry;
+                        console.log("slot:", slots, "price", price, "strtDAte", startDate, entry);
                         if (!price || !startDate || !mentorId) {
                             return {
                                 success: false,
@@ -461,9 +470,9 @@ class mentorService {
                         let res = [];
                         const checkedSlots = yield this._timeSlotRepository.checkTimeSlots(mentorId, new Date(`${startDate}T00:00:00.000Z`), new Date(`${startDate}T23:59:59.999Z`));
                         if (checkedSlots.length > 0) {
-                            res = (0, reuseFunctions_1.checkForOverlap)(checkedSlots, slots);
+                            res = (0, reusable_util_1.checkForOverlap)(checkedSlots, slots);
                         }
-                        if (res.length == 0) {
+                        if (checkedSlots.length > 0 && res.length == 0) {
                             return {
                                 success: false,
                                 message: "all time periods are  duplicates ",
@@ -481,7 +490,7 @@ class mentorService {
                                 timeSlots: [],
                             };
                         }
-                        const entrySlots = (res !== null && res !== void 0 ? res : slots).map((slot) => {
+                        const entrySlots = (res.length > 0 ? res : slots).map((slot) => {
                             const start = (0, moment_1.default)(`${startDate} ${slot === null || slot === void 0 ? void 0 : slot.startTime}`, "YYYY-MM-DD HH:mm:ss");
                             const end = (0, moment_1.default)(`${startDate} ${slot === null || slot === void 0 ? void 0 : slot.endTime}`, "YYYY-MM-DD HH:mm:ss");
                             console.log(start, "11111111111111111111111111", end);
@@ -536,6 +545,7 @@ class mentorService {
                 result = yield this._timeSlotRepository.createTimeSlot(timeSlotsToInsert);
                 console.log(result, "thsi is the result ");
                 if (!result) {
+                    console.log("555555555555");
                     return {
                         success: false,
                         message: "error while slot creating ",
@@ -606,6 +616,30 @@ class mentorService {
             }
             catch (error) {
                 throw new Error(`Error while  remove slots  in service: ${error instanceof Error ? error.message : String(error)}`);
+            }
+        });
+    }
+    mentorChartData(mentorId, timeRange) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                if (!timeRange) {
+                    return {
+                        success: false,
+                        message: "credentials not found",
+                        status: httpStatusCode_1.Status.BadRequest,
+                    };
+                }
+                console.log(timeRange, 'timerange');
+                const result = yield this._slotScheduleRepository.mentorChartData(mentorId, timeRange);
+                console.log(result, 'ressult');
+                return {
+                    success: true,
+                    message: "successfully removed",
+                    status: httpStatusCode_1.Status.Ok,
+                };
+            }
+            catch (error) {
+                throw new Error(`Error while while finding chart data: ${error instanceof Error ? error.message : String(error)}`);
             }
         });
     }

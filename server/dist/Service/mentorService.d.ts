@@ -8,12 +8,14 @@ import { IcategoryRepository } from "../Interface/Category/iCategoryRepository";
 import { IquestionRepository } from "../Interface/Qa/IquestionRepository";
 import { ObjectId } from "mongoose";
 import { ItimeSlotRepository } from "../Interface/Booking/iTimeSchedule";
+import { IslotScheduleRepository } from "../Interface/Booking/iSlotScheduleRepository";
 export declare class mentorService implements ImentorService {
     private _mentorRepository;
     private _categoryRepository;
     private _questionRepository;
     private _timeSlotRepository;
-    constructor(_mentorRepository: ImentorRepository, _categoryRepository: IcategoryRepository, _questionRepository: IquestionRepository, _timeSlotRepository: ItimeSlotRepository);
+    private readonly _slotScheduleRepository;
+    constructor(_mentorRepository: ImentorRepository, _categoryRepository: IcategoryRepository, _questionRepository: IquestionRepository, _timeSlotRepository: ItimeSlotRepository, _slotScheduleRepository: IslotScheduleRepository);
     mentorProfile(token: string): Promise<{
         success: boolean;
         message: string;
@@ -65,6 +67,11 @@ export declare class mentorService implements ImentorService {
         timeSlots: Itime[] | [];
     }>;
     removeTimeSlot(slotId: string): Promise<{
+        success: boolean;
+        message: string;
+        status: number;
+    }>;
+    mentorChartData(mentorId: ObjectId, timeRange: string): Promise<{
         success: boolean;
         message: string;
         status: number;

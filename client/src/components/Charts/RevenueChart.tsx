@@ -11,10 +11,13 @@ import {
 } from 'recharts';
 
 interface RevenueData {
-  month: string;
+  month?: string;
   revenue: number;
   sessions: number;
+  year?: string;
+  week?: string;
 }
+
 
 interface RevenueChartProps {
   data: RevenueData[];
@@ -36,16 +39,16 @@ const RevenueChart: React.FC<RevenueChartProps> = ({
           onChange={(e) => onTimeRangeChange(e.target.value)}
           className="px-3 py-1 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#ff8800]"
         >
-          <option value="week">This Week</option>
-          <option value="month">This Month</option>
-          <option value="year">This Year</option>
+          <option value="week">Weekly</option>
+          <option value="month">Monthly</option>
+          <option value="year">Yearly</option>
         </select>
       </div>
       <div className="h-80">
         <ResponsiveContainer width="100%" height="100%">
           <BarChart data={data}>
             <CartesianGrid strokeDasharray="3 3" />
-            <XAxis dataKey="month" />
+            <XAxis dataKey={'month'} />
             <YAxis />
             <Tooltip />
             <Legend />

@@ -79,7 +79,7 @@ class qaService implements IqaService {
       throw new Error(
         `Error during creating question${error instanceof Error ? error.message : String(error)
         }`
-      );
+      ); 
     }
   }
 

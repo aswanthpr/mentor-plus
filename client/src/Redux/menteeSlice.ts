@@ -10,7 +10,7 @@ const initialState: IAccessToken = {
   role: localStorage.getItem("role") || "",
 };
 
-const accessSlice = createSlice({
+const accessSlice = createSlice({ 
   name: "access",
   initialState,
   reducers: {

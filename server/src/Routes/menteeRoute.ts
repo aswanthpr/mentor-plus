@@ -3,7 +3,7 @@ import upload from "../Config/multer.util";
 import qaService from "../Service/qaService";
 import qaController from "../Controller/qaController";
 import { menteeService } from "../Service/menteeService";
-import authorize from "../Middleware/menteeAuthorization";
+import authorize from "../Middleware/menteeAuthMiddleware";
 import { bookingService } from "../Service/bookingService";
 import menteeRepository from "../Repository/menteeRepository";
 import mentorRepository from "../Repository/mentorRepository";

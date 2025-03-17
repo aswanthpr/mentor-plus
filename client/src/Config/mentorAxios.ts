@@ -38,7 +38,7 @@ axiosInstance.interceptors.response.use(
     async  (error)=>{
       const originalRequest = error.config;
 
-      if(error.response?.status==401&&!error.response?.data?.success){
+      if(error.response?.status==401){//&&!error.response?.data?.success
         store.dispatch(clearMentorToken());
         return Promise.reject(error);
       }
