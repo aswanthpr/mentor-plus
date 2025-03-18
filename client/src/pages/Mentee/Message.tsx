@@ -1,14 +1,13 @@
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect, useCallback } from "react";
 import { Search, Send, Paperclip, X } from "lucide-react";
+import moment from "moment";
+import { Socket } from "socket.io-client";
 
 import { errorHandler } from "../../Utils/Reusable/Reusable";
-import { protectedAPI } from "../../Config/Axios";
-import { Socket } from "socket.io-client";
 import { connectToChat } from "../../Socket/connect";
-import { axiosInstance } from "../../Config/mentorAxios";
 import { uploadFile } from "../../Utils/Reusable/cloudinary";
-import moment from "moment";
 import chatBg from "../../Asset/bgChat.jpg";
+import { fetchChats } from "../../service/commonApi";
 
 const Message: React.FC = () => {
   const [selectedUser, setSelectedUser] = useState<Ichat | null>(null);
@@ -38,16 +37,11 @@ const Message: React.FC = () => {
     let flag = true;
     const fetchChat = async () => {
       try {
-        const { status, data } = await (usr == "mentee"
-          ? protectedAPI
-          : axiosInstance
-        ).get(`/${usr}/chats`, {
-          params: { role: usr },
-        });
-
-        if (flag && status == 200 && data) {
-          setUsers([...data.result]);
-          userId.current = data?.userId;
+        const response = await fetchChats(usr);
+      
+        if (flag && response?.status == 200 && response?.data) {
+          setUsers([...response.data.result]);
+          userId.current = response?.data?.userId;
         }
       } catch (error: unknown) {
         errorHandler(error);
@@ -156,7 +150,7 @@ const Message: React.FC = () => {
   );
   console.log(currentUser, "currentUser");
 
-  const handleSelectedUser = async (user: Ichat) => {
+  const handleSelectedUser = useCallback(async (user: Ichat) => {
     setMessages([]);
 
     setSelectedUser(user); // save the selected User
@@ -165,7 +159,7 @@ const Message: React.FC = () => {
     if (chatSocket.current) {
       chatSocket.current.emit("join-room", { roomId: user["_id"] });
     }
-  };
+  },[]);
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const handleFileSelect = (e: any) => {
@@ -183,7 +177,7 @@ const Message: React.FC = () => {
     }
   };
 
-  const handleSendMessage = async () => {
+  const handleSendMessage =useCallback( async () => {
     setBtnDisable(true);
 
     if (!selectedFile && !messageInput.trim()) {
@@ -235,7 +229,7 @@ const Message: React.FC = () => {
     setPreviewUrl(null);
     setBtnDisable(false);
     // setAudioBlob(null);
-  };
+  },[currentUser, messageInput, selectedFile, selectedUser?._id, selectedUser?.menteeId, selectedUser?.mentorId]);
 
   // const handleStartRecording = async () => {
   //   try {

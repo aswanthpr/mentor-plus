@@ -60,9 +60,66 @@ class mentorRepository
     }
   }
   //finding all mentors
-  async findAllMentor(): Promise<Imentor[] | null> {
+  async findAllMentor(
+    skip:number,
+        limit:number,
+        activeTab:string,
+        search:string,
+        sortField:string,
+        sortOrder:string,
+  ): Promise<{mentors:Imentor[] | [],totalDoc:number}> {
     try {
-      return await this.find(mentorModel, {});
+     
+      const sortOptions = sortOrder === "asc"?1:-1;
+
+      const pipeline:PipelineStage[] =[];
+
+      if(search){
+        pipeline.push({
+          $match:{
+            $or:[
+              { name: { $regex: search, $options: "i" } },
+              { email: { $regex: search, $options: "i" } },
+              { jobTitle: { $regex: search, $options: "i" } },
+              { bio: { $regex: search, $options: "i" } },
+              { category: { $regex: search, $options: "i" } },
+              { skills: {$elemMatch:{ $regex: search, $options: "i" } }},
+            ],
+
+          }
+        })
+      };
+        pipeline.push({
+          $match:{
+            verified:activeTab==="verified",
+          }
+        })
+      if(sortField==="createdAt"){
+        pipeline.push({
+          $sort:{
+            createdAt:sortOptions
+          }
+        })
+      }
+      pipeline.push({
+        $skip: skip,
+      });
+
+      pipeline.push({
+        $limit:limit,
+      });
+      const countPipeline =[
+        ...pipeline.slice(0,pipeline?.length-2),
+        {
+          $count: "totalDocuments",
+        },
+      ]
+      const [mentors,totalDocuments]=await Promise.all([
+        this.aggregateData(mentorModel,pipeline),
+        mentorModel.aggregate(countPipeline)
+      ])
+     
+      return {mentors,totalDoc:totalDocuments[0]?.totalDocuments}
     } catch (error: unknown) {
       throw new Error(
         `error while finding mentor data from data base${

@@ -1,5 +1,5 @@
 import { toast } from "react-toastify";
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { MessageCircleQuestion, Search } from "lucide-react";
 
 import AddQuestion from "../../components/Common/Qa/AddQuestion";
@@ -8,10 +8,17 @@ import InputField from "../../components/Auth/InputField";
 import { Pagination } from "../../components/Common/common4All/Pagination";
 import Spinner from "../../components/Common/common4All/Spinner";
 import { errorHandler } from "../../Utils/Reusable/Reusable";
-import { protectedAPI } from "../../Config/Axios";
 import ConfirmToast from "../../components/Common/common4All/ConfirmToast";
 import QuestionFilter from "../../components/Common/Qa/QuestionFilter";
 import AnswerInputModal from "../../components/Common/Qa/AnswerInputModal";
+import {
+  fetchCreateAnswer,
+  fetchCreateQuestion,
+  fetchDeleteQuestion,
+  fetchEditAnswer,
+  fetchEditQuestion,
+  fetchMenteeQuestions,
+} from "../../service/menteeApi";
 
 const QnA_page: React.FC = () => {
   const [isAnswerModalOpen, setIsAnswerModalOpen] = useState<boolean>(false);
@@ -28,15 +35,19 @@ const QnA_page: React.FC = () => {
   const [answerId, setAnswerId] = useState<string>("");
   const [editAnswerModalOpen, setEditAnswerModalOpen] =
     useState<boolean>(false);
-    const [editData, setEditData] = useState<{ content: string; answerId: string }>({
-      content: '',
-      answerId:'',
-    });
+  const [editData, setEditData] = useState<{
+    content: string;
+    answerId: string;
+  }>({
+    content: "",
+    answerId: "",
+  });
   useEffect(() => {
     const fetchQuestions = async () => {
       try {
         setLoading(true);
-        const response = await protectedAPI.get(`/mentee/qa/${filter}`);
+        const response = await fetchMenteeQuestions(filter);
+
         if (response?.status === 200 && response.data?.success) {
           console.log(response.data.question, "thsi is response data");
 
@@ -53,13 +64,10 @@ const QnA_page: React.FC = () => {
     fetchQuestions();
   }, [filter]);
 
-  const handleAddQuestion = async (question: IQuestion) => {
+  const handleAddQuestion = useCallback(async (question: IQuestion) => {
     setShowAddModal(false);
     try {
-      const response = await protectedAPI.post(
-        `/mentee/qa/add-question/`,
-        question
-      );
+      const response = await fetchCreateQuestion(question);
 
       if (response.status == 200 && response.data.success) {
         if (filter == "unanswered") {
@@ -81,9 +89,9 @@ const QnA_page: React.FC = () => {
         setLoading(false);
       }, 500);
     }
-  };
+  },[filter]);
 
-  const handleEditQuestion = async (
+  const handleEditQuestion =useCallback( async (
     questionId: string,
     updatedQuestion: IQuestion
   ) => {
@@ -112,15 +120,16 @@ const QnA_page: React.FC = () => {
 
     try {
       setLoading(true);
-      const { status, data } = await protectedAPI.patch(`/mentee/qa/edit-question`, {
+      const { status, data } = await fetchEditQuestion(
         questionId,
         updatedQuestion,
         filter
-      });
+      );
 
       if (status == 200 && data.success) {
-
-        setQuestions(questions.map((q) => (q._id === questionId ? data?.question : q)));
+        setQuestions(
+          questions.map((q) => (q._id === questionId ? data?.question : q))
+        );
         toast.success(data.message);
       }
     } catch (error: unknown) {
@@ -130,7 +139,7 @@ const QnA_page: React.FC = () => {
         setLoading(false);
       }, 500);
     }
-  };
+  },[filter, questions]);
 
   const filteredQuestions = questions.filter((question) => {
     const title = question.title?.toLowerCase() || "";
@@ -147,8 +156,7 @@ const QnA_page: React.FC = () => {
     console.log(`Show answers for question ID: ${questionId}`);
   };
 
-  const handleDeleteQuestion = (questionId: string) => {
-    console.log(questionId, "kdflkassdkasjfslf");
+  const handleDeleteQuestion =useCallback( (questionId: string) => {
     toast(
       <ConfirmToast
         message="Confirm Deletion"
@@ -166,9 +174,8 @@ const QnA_page: React.FC = () => {
     const handleDel = async (questionId: string) => {
       toast.dismiss();
       try {
-        const response = await protectedAPI.delete(
-          `/mentee/qa/delete/${questionId}`
-        );
+        const response = await fetchDeleteQuestion(questionId);
+
         if (response.status === 200 && response.data.success) {
           setQuestions((prevQuestions) =>
             prevQuestions.filter((question) => question._id !== questionId)
@@ -183,21 +190,21 @@ const QnA_page: React.FC = () => {
         }, 500);
       }
     };
-  };
+  },[]);
 
-  const handleAnswerSubmit = async (content: string) => {
+  const handleAnswerSubmit = useCallback(async (content: string) => {
     console.log(answerQuestionId, "thsi sit he question id ");
     try {
       setLoading(true);
-      const response = await protectedAPI.post(`/mentee/qa/create-answer`, {
-        answer: content,
-        questionId: answerQuestionId,
-        userType: "mentee",
-      });
+      const response = await fetchCreateAnswer(
+        content,
+        answerQuestionId,
+        "mentee"
+      );
 
       if (response.status === 200 && response.data.success) {
         toast.success("Answer submited  successfully");
-        
+
         setQuestions((prevQuestions) =>
           prevQuestions.map((question) =>
             question._id === answerQuestionId
@@ -211,7 +218,7 @@ const QnA_page: React.FC = () => {
               : question
           )
         );
-        
+
         if (filter == "unanswered") {
           setQuestions((prevQuestions) =>
             prevQuestions.filter(
@@ -228,32 +235,27 @@ const QnA_page: React.FC = () => {
         setLoading(false);
       });
     }
-  };
+  },[answerQuestionId, filter]);
 
-  const handleEditAnswer = (content: string,answerId: string) => {
+  const handleEditAnswer = useCallback((content: string, answerId: string) => {
     setEditAnswer(content);
     setAnswerId(answerId);
     setEditAnswerModalOpen(true);
-  };
-  const handleEditAnswerSubmit = async (content: string, answerId?: string) => {
+  },[]);
+  const handleEditAnswerSubmit =useCallback( async (content: string, answerId?: string) => {
     console.log(answerId, "thsi sit he question id ", content);
     try {
       setLoading(true);
-      const response = await protectedAPI.patch(`/mentee/qa/edit-answer`, {
-        content,
-        answerId,
-      });
+      const response = await fetchEditAnswer(content, answerId as string);
 
       if (response.status === 200 && response.data.success) {
-        setEditData({content:response.data?.answer,answerId:answerId!});
-        const updatedAnswer = response.data?.answer; 
+        setEditData({ content: response.data?.answer, answerId: answerId! });
+        const updatedAnswer = response.data?.answer;
         setQuestions((prevQuestions) =>
           prevQuestions.map((question) => ({
             ...question,
-            answerData: question.answerData?.map((ans) => 
-              ans._id === answerId
-                ? { ...ans, answer:updatedAnswer } 
-                : ans
+            answerData: question.answerData?.map((ans) =>
+              ans._id === answerId ? { ...ans, answer: updatedAnswer } : ans
             ),
           }))
         );
@@ -263,11 +265,9 @@ const QnA_page: React.FC = () => {
     } catch (error: unknown) {
       errorHandler(error);
     } finally {
-      
-        setLoading(false);
-    
+      setLoading(false);
     }
-  };
+  },[]);
 
   return (
     <div>
@@ -314,7 +314,6 @@ const QnA_page: React.FC = () => {
         setIsAnswerModalOpen={setIsAnswerModalOpen}
         onEditAnswer={handleEditAnswer}
         EditedData={editData}
-
       />
 
       <AddQuestion
@@ -324,18 +323,18 @@ const QnA_page: React.FC = () => {
       />
       {isAnswerModalOpen && (
         <AnswerInputModal
-        isOpen={isAnswerModalOpen}
-        onClose={() => setIsAnswerModalOpen(false)}
-        onSubmit={handleAnswerSubmit}
+          isOpen={isAnswerModalOpen}
+          onClose={() => setIsAnswerModalOpen(false)}
+          onSubmit={handleAnswerSubmit}
         />
       )}
       {editAnswerModalOpen && (
         <AnswerInputModal
-        isOpen={editAnswerModalOpen}
-        onClose={() => setEditAnswerModalOpen(false)}
-        onSubmit={handleEditAnswerSubmit}
-        receiveAnswer={answer}
-        answerId={answerId}
+          isOpen={editAnswerModalOpen}
+          onClose={() => setEditAnswerModalOpen(false)}
+          onSubmit={handleEditAnswerSubmit}
+          receiveAnswer={answer}
+          answerId={answerId}
         />
       )}
       <Pagination

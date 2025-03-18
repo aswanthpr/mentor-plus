@@ -322,27 +322,67 @@ export class adminService implements IadminService {
   }
 
   //mentormanagement
-  async mentorData(): Promise<{
+  async mentorData(
+    search:string,
+    activeTab:string,
+    sortField:string,
+    sortOrder:string,
+    page:number,
+    limit:number
+  ): Promise<{
     success: boolean;
     message: string;
     status: number;
     mentorData: Imentor[] | [];
+    totalPage:number;
   }> {
     try {
-      const result = await this._mentorRepository.findAllMentor();
+      console.log(
+        // skip,
+        activeTab,
+        limit,
+        search,
+        sortField,
+        sortOrder,'jkbofiaaaaaaa')
+      if(!activeTab||!sortField||!sortOrder||1>page||1>limit){
+        return {
+          success: false,
+          message: 'Invalid pagination or missing parameters',
+          status: Status.BadRequest,
+          mentorData: [],
+          totalPage: 0
+        };
+      }
+   
+      const pageNo = Math.max(page,1);
+      const limitNo = Math.max(limit,1);
+      const skip = (pageNo -1 ) * limitNo;
+      
+      const result = await this._mentorRepository.findAllMentor(
+        skip,
+        limitNo,
+        activeTab,
+        search,
+        sortField,
+        sortOrder,
+      );
+      const totalPage = Math.ceil(result?.totalDoc/limitNo);
+      console.log(result,totalPage)
       if (!result) {
         return {
           success: false,
           message: "Data not found",
           status: 204,
           mentorData: [],
+          totalPage:0
         };
       }
       return {
         success: true,
         message: "data successfully retrieved ",
         status: 200,
-        mentorData: result,
+        mentorData: result?.mentors,
+        totalPage
       };
     } catch (error: unknown) {
       throw new Error(

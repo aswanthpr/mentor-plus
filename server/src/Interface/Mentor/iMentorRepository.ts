@@ -7,7 +7,14 @@ import { ImentorApplication } from "../../Types";
 export interface ImentorRepository {
     findMentor(email?: string, phone?: string): Promise<Imentor | null>;
     createMentor(mentorData: ImentorApplication, imageUrl: string, fileUrl: string): Promise<Imentor | undefined>;
-    findAllMentor(): Promise<Imentor[] | null>;
+    findAllMentor(
+        skip:number,
+        limitNo:number,
+        activeTab:string,
+        search:string,
+        sortField:string,
+        sortOrder:string,
+    ): Promise<{mentors:Imentor[] | [],totalDoc:number}>;
     findVerifiedMentor(aggregateData:PipelineStage[]): Promise<{mentor:Imentor[] | null,count:number}>;
     verifyMentor(id: mongoose.Types.ObjectId): Promise<Imentor | null>;
     changeMentorStatus(id: mongoose.Types.ObjectId): Promise<Imentor | null>;

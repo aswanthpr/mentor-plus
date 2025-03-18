@@ -61,10 +61,56 @@ class mentorRepository extends baseRepo_1.baseRepository {
         });
     }
     //finding all mentors
-    findAllMentor() {
+    findAllMentor(skip, limit, activeTab, search, sortField, sortOrder) {
         return __awaiter(this, void 0, void 0, function* () {
+            var _a;
             try {
-                return yield this.find(mentorModel_1.default, {});
+                const sortOptions = sortOrder === "asc" ? 1 : -1;
+                const pipeline = [];
+                if (search) {
+                    pipeline.push({
+                        $match: {
+                            $or: [
+                                { name: { $regex: search, $options: "i" } },
+                                { email: { $regex: search, $options: "i" } },
+                                { jobTitle: { $regex: search, $options: "i" } },
+                                { bio: { $regex: search, $options: "i" } },
+                                { category: { $regex: search, $options: "i" } },
+                                { skills: { $elemMatch: { $regex: search, $options: "i" } } },
+                            ],
+                        }
+                    });
+                }
+                ;
+                pipeline.push({
+                    $match: {
+                        verified: activeTab === "verified",
+                    }
+                });
+                if (sortField === "createdAt") {
+                    pipeline.push({
+                        $sort: {
+                            createdAt: sortOptions
+                        }
+                    });
+                }
+                pipeline.push({
+                    $skip: skip,
+                });
+                pipeline.push({
+                    $limit: limit,
+                });
+                const countPipeline = [
+                    ...pipeline.slice(0, (pipeline === null || pipeline === void 0 ? void 0 : pipeline.length) - 2),
+                    {
+                        $count: "totalDocuments",
+                    },
+                ];
+                const [mentors, totalDocuments] = yield Promise.all([
+                    this.aggregateData(mentorModel_1.default, pipeline),
+                    mentorModel_1.default.aggregate(countPipeline)
+                ]);
+                return { mentors, totalDoc: (_a = totalDocuments[0]) === null || _a === void 0 ? void 0 : _a.totalDocuments };
             }
             catch (error) {
                 throw new Error(`error while finding mentor data from data base${error instanceof Error ? error.message : String(error)}`);

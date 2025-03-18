@@ -19,7 +19,13 @@ export interface IadminService {
     addMentee(formData: Partial<Imentee>): Promise<{ success: boolean, message: string, status?: number, mentee?: Imentee | null }>;
 
     //mentor
-    mentorData(): Promise<{ success: boolean, message: string, status: number, mentorData: Imentor[] | [] }>
+    mentorData( 
+        searchQuery:string,
+        activeTab:string,
+        sortField:string,
+        sortOrder:string,
+        page:number,
+        limit:number,): Promise<{ success: boolean, message: string, status: number, mentorData: Imentor[] | [],totalPage:number }>
     mentorVerify(id: string): Promise<{ success: boolean, message: string, status: number, result: Imentor | null }>;
     mentorStatusChange(id: string): Promise<{ success: boolean, message: string, status: number }>;
 

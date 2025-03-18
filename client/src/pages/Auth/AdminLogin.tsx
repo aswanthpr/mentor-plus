@@ -1,8 +1,7 @@
-import React, { useState } from "react";
+import React, { useCallback, useState } from "react";
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
 
-import { unAPI } from "../../Config/adminAxios";
 import Button from "../../components/Auth/Button";
 import { validatePassword, validateEmail } from "../../Validation/Validation";
 import Spinner from "../../components/Common/common4All/Spinner";
@@ -10,6 +9,7 @@ import { useDispatch } from "react-redux";
 import { setToken } from "../../Redux/adminSlice";
 import { EyeClosedIcon, EyeIcon } from "lucide-react";
 import { errorHandler } from "../../Utils/Reusable/Reusable";
+import { fetchAdminLogin } from "../../service/adminApi";
 
 
 interface IError {
@@ -28,14 +28,14 @@ const AdminLogin: React.FC = () => {
     password: "",
   });
 
-  const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleEmailChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     setEmail(e.target.value);
-  };
-  const handlePassChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  },[]);
+  const handlePassChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     setPassword(e.target.value);
-  };
+  },[]);
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = useCallback( async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     try {
       const emailError = validateEmail(email);
@@ -51,12 +51,10 @@ const AdminLogin: React.FC = () => {
 
       setLoading(true);
 
-      const response = await unAPI.post(`/auth/login/admin`, {
-        email,
-        password,
-      });
+      const response = await fetchAdminLogin(email,password)
+     
 
-      if (response.data.success && response.status === 200) {
+      if (response?.data.success && response?.status === 200) {
         console.log(response?.data?.accessToken,response?.data,'login sessikn')
         dispatch(setToken({adminToken:response.data.accessToken,adminRole:'admin'}));
         setLoading(false);
@@ -75,7 +73,7 @@ const AdminLogin: React.FC = () => {
 
       },500)
     }
-  };
+  },[dispatch, email, navigate, password]);
 
   return (
     <div className="font-poppins flex items-center justify-center min-h-screen bg-gray-100">

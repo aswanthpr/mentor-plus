@@ -1,3 +1,6 @@
+import { useSelector } from "react-redux";
+import { toast } from "react-toastify";
+import { useNavigate } from "react-router-dom";
 import React, { useCallback, useEffect, useState } from "react";
 import { ArrowUpDown, Filter, Search, User } from "lucide-react";
 import SessionCard from "../../components/Common/Bookings/SessionCard";
@@ -5,21 +8,14 @@ import TabNavigation from "../../components/Common/Bookings/TabNavigation";
 import InputField from "../../components/Auth/InputField";
 import { errorHandler } from "../../Utils/Reusable/Reusable";
 import Spinner from "../../components/Common/common4All/Spinner";
-import { toast } from "react-toastify";
-import { useSelector } from "react-redux";
 import { RootState } from "../../Redux/store";
-import {
-  fetchBookingSlots,
-  fetchCanceSession,
-  fetchSubmitRating,
-  joinSessionHandler,
-} from "../../service/api";
-import { useNavigate } from "react-router-dom";
 import { TFilter, TSort, TSortOrder } from "../../Types/type";
 import RatingModal from "../../components/Common/Bookings/RatingModal";
+import { fetchBookingSlots, fetchCanceSession, fetchSubmitRating } from "../../service/menteeApi";
+import { joinSessionHandler } from "../../service/commonApi";
 
 const Boooking: React.FC = () => {
-  const limit = 6;
+  // const limit = 6;
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [activeTab, setActiveTab] = useState<"upcoming" | "history">(

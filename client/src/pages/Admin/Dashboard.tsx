@@ -4,7 +4,8 @@ import { DollarSign, Star, TrendingDown, Users } from "lucide-react";
 import RevenueChart from "../../components/Charts/RevenueChart";
 import CategoryDistribution from "../../components/Charts/CategoryDistribution";
 import TopMentors from "../../components/Charts/TopMentors";
-import { fetchDashboardData } from "../../service/api";
+import { fetchDashboardData } from "../../service/adminApi";
+
 
 const COLORS = ["#ff8800", "#ff9900", "#ffaa00", "#ffbb00", "#ffcc00"];
 

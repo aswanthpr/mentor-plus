@@ -18,7 +18,7 @@ interface BookingTrendsProps {
   data: BookingData[];
 }
 
-const BookingTrends: React.FC<BookingTrendsProps> = ({ data }) => {
+const BookingTrends: React.FC<BookingTrendsProps> = React.memo(({ data }) => {
   return (
     <div className="bg-white p-6 rounded-lg shadow-sm">
       <h3 className="text-lg font-semibold mb-6">Hourly Booking Trends</h3>
@@ -35,6 +35,6 @@ const BookingTrends: React.FC<BookingTrendsProps> = ({ data }) => {
       </div>
     </div>
   );
-};
+});
 
 export default BookingTrends;

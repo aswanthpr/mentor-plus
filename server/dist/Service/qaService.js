@@ -139,7 +139,7 @@ class qaService {
                 }
                 const questId = questionId;
                 const result = yield this.__questionRepository.countAnswer(questId);
-                console.log(response, 'thsi is the respnose of answer tha tcreated me ', result);
+                console.log(response, "thsi is the respnose of answer tha tcreated me ", result);
                 if (!result) {
                     return {
                         success: false,
@@ -172,7 +172,7 @@ class qaService {
                     };
                 }
                 const result = yield this.__answerRepository.editAnswer(content, answerId);
-                console.log(result, 'this is result');
+                console.log(result, "this is result");
                 if (!result) {
                     return {
                         success: false,
@@ -181,7 +181,12 @@ class qaService {
                         answer: null,
                     };
                 }
-                return { success: true, message: 'edited successfully', status: httpStatusCode_1.Status.Ok, answer: result === null || result === void 0 ? void 0 : result.answer };
+                return {
+                    success: true,
+                    message: "edited successfully",
+                    status: httpStatusCode_1.Status.Ok,
+                    answer: result === null || result === void 0 ? void 0 : result.answer,
+                };
             }
             catch (error) {
                 throw new Error(`Error during edit answer ${error instanceof Error ? error.message : String(error)}`);
@@ -220,7 +225,7 @@ class qaService {
                 };
             }
             catch (error) {
-                //console the error 
+                //console the error
                 console.error(
                 //using different color in terminal to show the error
                 "\x1b[34m%s\x1b[0m", "Error while getting home data:", error instanceof Error ? error.message : String(error));
@@ -233,33 +238,32 @@ class qaService {
             }
         });
     }
-    //this is for admin side qa-management 
-    // /admin/qa-management 
+    //this is for admin side qa-management
+    // /admin/qa-management
     allQaData(search, status, sortField, sortOrder, page, limit) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                if (!status || !sortField ||
-                    !sortOrder || !page || !limit) {
+                if (!status || !sortField || !sortOrder || page < 1 || limit < 1) {
                     return {
                         success: false,
-                        message: 'credentials are missing',
+                        message: "Invalid pagination or missing parameters",
                         status: httpStatusCode_1.Status.BadRequest,
                         questions: undefined,
-                        docCount: undefined
+                        totalPage: undefined,
                     };
                 }
-                // let  pages  = parseInt(page, 10) || 1 ;
-                // const limits = parseInt(limit, 10) || 10;
-                // const skip = (parseInt(pages) - 1) * parseInt(limits);
-                // pages = Math.max(pages, 1);
-                const skip = (parseInt(page) - 1) * parseInt(limit);
-                const respnose = yield this.__questionRepository.allQaData(skip, search, status, limit, sortOrder, sortField);
+                const pageNo = Math.max(page, 1);
+                const limitNo = Math.max(limit, 6);
+                const skip = (pageNo - 1) * limitNo;
+                const response = yield this.__questionRepository.allQaData(skip, search, status, limitNo, sortOrder, sortField);
+                const totalPage = Math.ceil((response === null || response === void 0 ? void 0 : response.docCount) / limitNo);
+                console.log(response === null || response === void 0 ? void 0 : response.docCount, totalPage, limit, skip, page);
                 return {
                     success: true,
                     message: "data fetched successfully",
                     status: httpStatusCode_1.Status.Ok,
-                    questions: respnose === null || respnose === void 0 ? void 0 : respnose.questions,
-                    docCount: respnose === null || respnose === void 0 ? void 0 : respnose.docCount
+                    questions: response === null || response === void 0 ? void 0 : response.questions,
+                    totalPage,
                 };
             }
             catch (error) {
@@ -279,15 +283,17 @@ class qaService {
                 }
                 const result = yield this.__questionRepository.changeQuestionStatus(questionId);
                 if (!result) {
-                    return { success: false,
+                    return {
+                        success: false,
                         message: "Question not found",
-                        status: httpStatusCode_1.Status.NotFound };
+                        status: httpStatusCode_1.Status.NotFound,
+                    };
                 }
                 return {
                     success: true,
                     message: "Status changed successfully",
                     status: httpStatusCode_1.Status.Ok,
-                    result: result === null || result === void 0 ? void 0 : result.isBlocked
+                    result: result === null || result === void 0 ? void 0 : result.isBlocked,
                 };
             }
             catch (error) {
@@ -309,15 +315,17 @@ class qaService {
                 }
                 const result = yield this.__answerRepository.changeAnswerStatus(answerId);
                 if (!result) {
-                    return { success: false,
+                    return {
+                        success: false,
                         message: "answer not found",
-                        status: httpStatusCode_1.Status.NotFound };
+                        status: httpStatusCode_1.Status.NotFound,
+                    };
                 }
                 return {
                     success: true,
                     message: "Status changed successfully",
                     status: httpStatusCode_1.Status.Ok,
-                    result: result === null || result === void 0 ? void 0 : result.isBlocked
+                    result: result === null || result === void 0 ? void 0 : result.isBlocked,
                 };
             }
             catch (error) {

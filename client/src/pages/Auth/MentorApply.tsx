@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import ProfileImageUpload from "../../components/Auth/ProfileImageUpload";
 import InputField from "../../components/Auth/InputField";
 import SkillInput from "../../components/Auth/SkillInput";
@@ -10,40 +10,42 @@ import { Link, useNavigate } from "react-router-dom";
 import Spinner from "../../components/Common/common4All/Spinner";
 import { EyeClosedIcon, EyeIcon } from "lucide-react";
 import { errorHandler } from "../../Utils/Reusable/Reusable";
+import { fetchMentorApplication } from "../../service/mentorApi";
+import { githubUrlPattern, linkedinUrlPattern, noNumbersOrSymbols } from "../../Validation/Validation";
 
 const MentorApply: React.FC = () => {
-  const Data:IErrors ={
-    name: "",
-    email: "",
-    password: "",
-    phone: "",
-    jobTitle: "",
-    category: "",
-    linkedinUrl: "",
-    githubUrl: "",
-    bio: "",
-    skills: '',
-    resume: "",
-    profileImage: '' 
-  }
-  const initialform:IFormData ={
-    name: "",
-    email: "",
-    password: "",
-    phone: "",
-    jobTitle: "",
-    category: "",
-    linkedinUrl: "",
-    githubUrl: "",
-    bio: "",
-    skills: [],
-    resume: null,
-    profileImage: null
-
-
-  }
-  const [formData, setFormData] = useState<IFormData>(initialform);
-  const [errors, setErrors] = useState<IErrors>(Data);
+  const initialState = useMemo(() => ({
+    formData: {
+      name: "",
+      email: "",
+      password: "",
+      phone: "",
+      jobTitle: "",
+      category: "",
+      linkedinUrl: "",
+      githubUrl: "",
+      bio: "",
+      skills: [],
+      resume: null,
+      profileImage: null
+    },
+    errors: {
+      name: "",
+      email: "",
+      password: "",
+      phone: "",
+      jobTitle: "",
+      category: "",
+      linkedinUrl: "",
+      githubUrl: "",
+      bio: "",
+      skills: "",
+      resume: "",
+      profileImage: ""
+    }
+  }), []);
+  const [formData, setFormData] = useState<IFormData>(initialState?.formData);
+  const [errors, setErrors] = useState<IErrors>(initialState?.errors);
   const[isPasswordVisible,setIsPasswordVisible]=useState<boolean>(false)
   const [skills, setSkills] = useState<string[]>([]);
   const [resume, setResume] = useState<File | null>(null);
@@ -55,7 +57,7 @@ const MentorApply: React.FC = () => {
 
   useEffect(() => {
     const fetchRole = async () => {
-      const response = await unProtectedAPI.get(`/auth/apply_as_mentor`);
+      const response = await fetchMentorApplication()
       console.log(response.data.categories, 'this is the response')
       setCategories(response.data.categories);
     };
@@ -63,14 +65,10 @@ const MentorApply: React.FC = () => {
     fetchRole();
   }, []);
 
-  const linkedinUrlPattern =
-    /^https:\/\/www\.linkedin\.com\/in\/[a-zA-Z0-9_-]+\/?$/;
-  const githubUrlPattern = /^https:\/\/github\.com\/[a-zA-Z0-9_-]+\/?$/;
-  const noNumbersOrSymbols = /^[a-zA-Z\s]+$/; // Allow only letters and spaces
 
   // Validation function
-  const validateForm = () => {
-  const  formErrors: IErrors ={...Data}
+  const validateForm = useCallback(() => {
+  const  formErrors: IErrors ={...initialState?.errors}
 
 
     let isValid = true;
@@ -161,9 +159,9 @@ const MentorApply: React.FC = () => {
 
     setErrors(formErrors);
     return isValid;
-  };
+  },[formData.bio.length, formData.category, formData.email, formData.githubUrl, formData.jobTitle, formData.linkedinUrl, formData.name, formData.password, formData.phone, initialState?.errors, profileImage, resume, skills]);
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit =useCallback( async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
     if (!validateForm()) return;
@@ -200,7 +198,7 @@ const MentorApply: React.FC = () => {
         console.log(data.message);
         toast.success(data.message);
 
-        setFormData(initialform);
+        setFormData(initialState?.formData);
         navigate('/auth/login/mentor')
         
         toast.info('"Your application is currently under review. Once verified, you will receive a notification via email within 3 working days. Have a great day!"')
@@ -210,11 +208,11 @@ const MentorApply: React.FC = () => {
     } finally {
       setLoading(false)
     }
-  };
+  },[formData.bio, formData.category, formData.email, formData.githubUrl, formData.jobTitle, formData.linkedinUrl, formData.name, formData.password, formData.phone, initialState?.formData, navigate, profileImage, resume, skills, validateForm]);
 
-  const handleInputChange = (field: string, value: string) => {
+  const handleInputChange = useCallback((field: string, value: string) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
-  };
+  },[]);
   return (
     <div className="min-h-screen bg-gray-50 py-12 px-4 font-sans">
     {  loading && <Spinner/>}

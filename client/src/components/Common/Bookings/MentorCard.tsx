@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { Calendar, Clock, Star } from 'lucide-react';
+import { Calendar, Clock } from 'lucide-react';
 import { format } from 'date-fns';
 // import { Session } from './types';
 interface Session {

@@ -99,23 +99,18 @@ class qaController {
     allQaData(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const { search = '', Status = 'all', sortField = 'createdAt', sortOrder = 'desc', page = 1, limit = 8 } = req.query;
-                const searchStr = typeof search === 'string' ? search : String(search);
-                const statusStr = typeof Status === 'string' ? Status : String(Status);
-                const sortFieldStr = typeof sortField === 'string' ? sortField : String(sortField);
-                const sortOrderStr = typeof sortOrder === 'string' ? sortOrder : String(sortOrder);
-                const pageStr = typeof page === 'string' ? page : String(page);
-                const limitStr = typeof limit === 'string' ? limit : String(limit);
-                console.log(search, ':search', 'status:', Status, 'sortField:', sortField, 'sortOrder:', sortOrder, 'page:', page, 'limit:', limit);
-                const { message, success, status, questions, docCount } = yield this._qaService.allQaData(searchStr, statusStr, sortFieldStr, sortOrderStr, pageStr, limitStr);
-                res.status(status).json({ message, status, success, questions, docCount });
+                const { search = "", Status = "all", sortField = "createdAt", sortOrder = "desc", page = 1, limit = 8, } = req.query;
+                const { message, success, status, questions, totalPage } = yield this._qaService.allQaData(String(search), String(Status), String(sortField), String(sortOrder), Number(page), Number(limit));
+                res
+                    .status(status)
+                    .json({ message, status, success, questions, totalPage });
             }
             catch (error) {
                 throw new Error(`Error while getting all QA data ${error instanceof Error ? error.message : String(error)}`);
             }
         });
     }
-    //qa status change admin 
+    //qa status change admin
     // /admin/qa-management/change-question-status
     blockQuestion(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
@@ -124,7 +119,11 @@ class qaController {
                 const result = yield this._qaService.changeQuestionStatus((_a = req.body) === null || _a === void 0 ? void 0 : _a.questionId);
                 res
                     .status(result.status)
-                    .json({ success: result === null || result === void 0 ? void 0 : result.success, message: result === null || result === void 0 ? void 0 : result.message, result: result === null || result === void 0 ? void 0 : result.result });
+                    .json({
+                    success: result === null || result === void 0 ? void 0 : result.success,
+                    message: result === null || result === void 0 ? void 0 : result.message,
+                    result: result === null || result === void 0 ? void 0 : result.result,
+                });
             }
             catch (error) {
                 throw new Error(`error while edit qa status ${error instanceof Error ? error.message : String(error)}`);
@@ -139,7 +138,11 @@ class qaController {
                 console.log(result.result);
                 res
                     .status(result.status)
-                    .json({ success: result === null || result === void 0 ? void 0 : result.success, message: result === null || result === void 0 ? void 0 : result.message, result: result === null || result === void 0 ? void 0 : result.result });
+                    .json({
+                    success: result === null || result === void 0 ? void 0 : result.success,
+                    message: result === null || result === void 0 ? void 0 : result.message,
+                    result: result === null || result === void 0 ? void 0 : result.result,
+                });
             }
             catch (error) {
                 throw new Error(`error while edit answer status ${error instanceof Error ? error.message : String(error)}`);

@@ -251,23 +251,42 @@ class adminService {
         });
     }
     //mentormanagement
-    mentorData() {
+    mentorData(search, activeTab, sortField, sortOrder, page, limit) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const result = yield this._mentorRepository.findAllMentor();
+                console.log(
+                // skip,
+                activeTab, limit, search, sortField, sortOrder, 'jkbofiaaaaaaa');
+                if (!activeTab || !sortField || !sortOrder || 1 > page || 1 > limit) {
+                    return {
+                        success: false,
+                        message: 'Invalid pagination or missing parameters',
+                        status: httpStatusCode_1.Status.BadRequest,
+                        mentorData: [],
+                        totalPage: 0
+                    };
+                }
+                const pageNo = Math.max(page, 1);
+                const limitNo = Math.max(limit, 1);
+                const skip = (pageNo - 1) * limitNo;
+                const result = yield this._mentorRepository.findAllMentor(skip, limitNo, activeTab, search, sortField, sortOrder);
+                const totalPage = Math.ceil((result === null || result === void 0 ? void 0 : result.totalDoc) / limitNo);
+                console.log(result, totalPage);
                 if (!result) {
                     return {
                         success: false,
                         message: "Data not found",
                         status: 204,
                         mentorData: [],
+                        totalPage: 0
                     };
                 }
                 return {
                     success: true,
                     message: "data successfully retrieved ",
                     status: 200,
-                    mentorData: result,
+                    mentorData: result === null || result === void 0 ? void 0 : result.mentors,
+                    totalPage
                 };
             }
             catch (error) {

@@ -15,7 +15,7 @@ interface TopMentorsProps {
   mentors: Mentor[];
 }
 
-const TopMentors: React.FC<TopMentorsProps> = ({ mentors }) => {
+const TopMentors: React.FC<TopMentorsProps> =React.memo( ({ mentors }) => {
   console.log(mentors,'kljkhikhoiuh')
   return (
     <div className="bg-white p-6 rounded-lg shadow-sm">
@@ -90,6 +90,6 @@ const TopMentors: React.FC<TopMentorsProps> = ({ mentors }) => {
       </div>
     </div>
   );
-};
+});
 
 export default TopMentors;

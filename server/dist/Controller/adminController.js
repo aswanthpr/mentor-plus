@@ -18,16 +18,20 @@ class adminController {
         return __awaiter(this, void 0, void 0, function* () {
             var _a;
             try {
-                console.log("Received refresh token from cookies:", req.cookies.refreshToken);
                 const result = yield this._adminService.adminRefreshToken((_a = req.cookies) === null || _a === void 0 ? void 0 : _a.adminToken);
-                res.status(result.status)
+                res
+                    .status(result.status)
                     .cookie("adminToken", result === null || result === void 0 ? void 0 : result.refreshToken, {
                     httpOnly: true,
-                    secure: process.env.NODE_ENV === 'production',
+                    secure: process.env.NODE_ENV === "production",
                     sameSite: "lax",
                     maxAge: 14 * 24 * 60 * 60 * 1000,
                 })
-                    .json({ success: result === null || result === void 0 ? void 0 : result.success, message: result === null || result === void 0 ? void 0 : result.message, accessToken: result === null || result === void 0 ? void 0 : result.accessToken });
+                    .json({
+                    success: result === null || result === void 0 ? void 0 : result.success,
+                    message: result === null || result === void 0 ? void 0 : result.message,
+                    accessToken: result === null || result === void 0 ? void 0 : result.accessToken,
+                });
             }
             catch (error) {
                 res
@@ -162,8 +166,16 @@ class adminController {
     mentorData(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const result = yield this._adminService.mentorData();
-                res.status(result.status).json({ success: result.success, message: result.message, mentorData: result.mentorData });
+                const { searchQuery, sortField, sortOrder, page, limit, activeTab } = req.query;
+                const result = yield this._adminService.mentorData(String(searchQuery), String(activeTab), String(sortField), String(sortOrder), Number(page), Number(limit));
+                res
+                    .status(result.status)
+                    .json({
+                    success: result.success,
+                    message: result.message,
+                    mentorData: result.mentorData,
+                    totalPage: result === null || result === void 0 ? void 0 : result.totalPage,
+                });
             }
             catch (error) {
                 throw new Error(`error while get mentor Data  in controller ${error instanceof Error ? error.message : String(error)}`);
@@ -173,9 +185,15 @@ class adminController {
     mentorVerify(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                console.log(req.body, 'lkasndflnf');
+                console.log(req.body, "lkasndflnf");
                 const result = yield this._adminService.mentorVerify(req.body);
-                res.status(result.status).json({ success: result.success, message: result.message, metnorData: result.result });
+                res
+                    .status(result.status)
+                    .json({
+                    success: result.success,
+                    message: result.message,
+                    metnorData: result.result,
+                });
             }
             catch (error) {
                 throw new Error(`error while mentor verify  in controller ${error instanceof Error ? error.message : String(error)}`);
@@ -187,7 +205,9 @@ class adminController {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 const result = yield this._adminService.mentorStatusChange(req.body.id);
-                res.status(result.status).json({ success: result.success, message: result.message });
+                res
+                    .status(result.status)
+                    .json({ success: result.success, message: result.message });
             }
             catch (error) {
                 throw new Error(`error while mentor stutus  in controller ${error instanceof Error ? error.message : String(error)}`);
@@ -197,11 +217,13 @@ class adminController {
     adminLogout(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                res.clearCookie('adminToken');
+                res.clearCookie("adminToken");
                 res.status(200).json({ success: true, message: "Logout successfully" });
             }
             catch (error) {
-                res.status(500).json({ success: false, message: "Internal server error" });
+                res
+                    .status(500)
+                    .json({ success: false, message: "Internal server error" });
                 throw new Error(`Error while mentee  logout ${error instanceof Error ? error.message : String(error)}`);
             }
         });
@@ -214,7 +236,9 @@ class adminController {
                 res.status(status).json({ success, message, status, salesData });
             }
             catch (error) {
-                res.status(500).json({ success: false, message: "Internal server error" });
+                res
+                    .status(500)
+                    .json({ success: false, message: "Internal server error" });
                 throw new Error(`Error while dashboard ${error instanceof Error ? error.message : String(error)}`);
             }
         });

@@ -7,11 +7,8 @@ import Button from "../Auth/Button";
 import stripeLogo from "../../Asset/stripe-icon.svg";
 import { errorHandler } from "../../Utils/Reusable/Reusable";
 import { bookingInputValidation } from "../../Validation/yupValidation";
-import {
-  confirmSlotBooking,
-  fetchSlotBookingPageData,
-} from "../../service/api";
 import { toast } from "react-toastify";
+import { confirmSlotBooking, fetchSlotBookingPageData } from "../../service/menteeApi";
 
 interface IBookingError {
   message: string;

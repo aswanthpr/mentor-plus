@@ -5,8 +5,8 @@ import Filters from "../../components/Mentee/Filters";
 import MentorCard from "../../components/Mentee/MentorCard";
 import InfiniteScroll from "react-infinite-scroll-component";
 import { MentorFilters } from "../../components/Mentee/Filters";
-import { protectedAPI } from "../../Config/Axios";
 import { errorHandler } from "../../Utils/Reusable/Reusable";
+import { fetchExplorePage } from "../../service/menteeApi";
 
 const ExplorePage: React.FC = () => {
   const limit = 3;
@@ -20,16 +20,13 @@ const ExplorePage: React.FC = () => {
 
   const fetchMentor = useCallback(async (page: number, isNewSearch = false) => {
     try {
-      const response = await protectedAPI.get(`/mentee/explore/`, {
-        params: {
-          search: searchQuery ?? "",
-          categories: filterVal?.domain ?? [],
-          skill: filterVal?.skill ?? [],
-          sort: filterVal?.sort ?? '',
-          page,
-          limit
-        }
-      });
+      const response = await fetchExplorePage(searchQuery,
+        filterVal?.domain,
+        filterVal?.skill,
+        filterVal?.sort,
+        page,
+        limit)
+     
 
       if (response?.status === 200 && response?.data) {
         const newMentors = response?.data?.mentor || [];

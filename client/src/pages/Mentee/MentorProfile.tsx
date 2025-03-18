@@ -6,11 +6,11 @@ import { BookOption } from "../../components/Common/exploreMentor/BookOption";
 import MentorListByCategory from "../../components/Common/exploreMentor/MentorListByCategory";
 // import Button from "../../components/Auth/Button";
 import { useLocation, useNavigate } from "react-router-dom";
-import { useEffect, useState } from "react";
-import { protectedAPI } from "../../Config/Axios";
+import { useCallback, useEffect, useState } from "react";
 import Spinner from "../../components/Common/common4All/Spinner";
 import { errorHandler } from "../../Utils/Reusable/Reusable";
 import { ReviewSection } from "../../components/Mentee/ReviewSection";
+import { fetchSimilarMentors } from "../../service/menteeApi";
 
  const MentorProfile = () => {
   const { state } = useLocation();
@@ -27,15 +27,8 @@ import { ReviewSection } from "../../components/Mentee/ReviewSection";
       try {
         setLoading(true);
 
-        const response = await protectedAPI.get(
-          `/mentee/explore/similar-mentors`,
-          {
-            params: {
-              category: mentorData?.category,
-              mentorId: mentorData?._id,
-            },
-          }
-        );
+        const response = await fetchSimilarMentors(mentorData?.category as string,mentorData?._id as string);
+       
         if (response.status === 200 && response.data.success) {
           setSimilarMentor(response.data.mentor);
         }
@@ -46,14 +39,14 @@ import { ReviewSection } from "../../components/Mentee/ReviewSection";
       }
     };
 
-    // if () {
+   
     fetchMentorData();
-    // }
+
   }, [mentorData?._id, mentorData?.category]);
 
-  const handleBooking = () => {
+  const handleBooking = useCallback(() => {
     navigate(`/mentee/${decodeURIComponent(mentorData?.name as string)}/slot-booking`,{state:{mentorId:mentorData?._id}});
-  };
+  },[mentorData?._id, mentorData?.name, navigate]);
 
   return (
     <div className="min-h-screen bg-gray-50 pt-10">

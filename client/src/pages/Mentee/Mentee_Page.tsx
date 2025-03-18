@@ -1,8 +1,6 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { Outlet } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-
-
 import { 
   Home,
   Compass,
@@ -18,7 +16,8 @@ import { toast } from "react-toastify";
 import { markAsRead, setNotification } from "../../Redux/notificationSlice";
 import { RootState } from "../../Redux/store";
 import { connectToNotifications, disconnectNotificationSocket } from "../../Socket/connect";
-import { fetchLogout, fetchNotification, ReadNotification } from "../../service/api";
+import { fetchLogout, fetchNotification, ReadNotification } from "../../service/menteeApi";
+
 
 interface INavItem {
   name: string;
@@ -78,23 +77,23 @@ const Mentee_Page: React.FC = () => {
 
   }, [dispatch]);
 
-  const ToggleSideBar = () => {
+  const ToggleSideBar =useCallback( () => {
     setIsSideBarOpen(!isSideBarOpen);
-  };
+  },[isSideBarOpen]);
 
-  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleSearchChange =useCallback( (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchValue(e.target.value);
-  };
+  },[]);
 
-  const logoutMentee = async () => {
+  const logoutMentee = useCallback(async () => {
     const response = await fetchLogout()
     if (response.data.success && response.status === 200) {
       dispatch(clearAccessToken());
       localStorage.removeItem("menteeToken");
       toast.success(response.data.message);
     }
-  };
-  const handleReadNotification = async (id: string) => {
+  },[dispatch]);
+  const handleReadNotification = useCallback(async (id: string) => {
     try {
       const response = await ReadNotification(id)
 
@@ -104,7 +103,7 @@ const Mentee_Page: React.FC = () => {
     } catch (error: unknown) {
       console.log(`${error instanceof Error ? error.message : String(error)}`);
     }
-  };
+  },[dispatch]);
   return (
     <div className="min-h-screen bg-gray-50">
       <Header

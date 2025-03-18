@@ -19,7 +19,7 @@ interface IHeader {
   notifData:Inotification[]
 }
 
-const Header: React.FC<IHeader> = (props) => {
+const Header: React.FC<IHeader> =React.memo( (props) => {
   const { userType, ToggleSideBar, profileLink, logout, onRead ,notifData} = props;
 
   const [showProfileMenu, setShowProfileMenu] = useState<boolean>(false);
@@ -71,25 +71,6 @@ const Header: React.FC<IHeader> = (props) => {
 
           <img src={logo} alt="logo" className="w-auto h-24" />
         </div>
-
-        {/* {userType !== 'mentor' && (
-                    <div className='flex-1 max-w-xl mx-4'>
-                        <div className='relative '>
-                            <Search
-                                className='absolute mt-1.5 left-3 top-1/2 transform -translate-y-1/2  text-grey-400 h-5 w-5 '
-                            />
-                            <InputField
-                                type={'search'}
-                                placeholder={props.placeholder}
-                                value={props.value!}
-                                onChange={props.onChange}
-                                name={'search'}
-                                className='w-1/2 pl-10 pr-4 border border-grey-300 rounded-lg foucus:outline-none focus:ring-2 focus:ring-[#ff8800] focus:border-transparent'
-                            />
-                        </div>
-                    </div>
-
-                )} */}
         <div className="flex items-center space-x-4">
           <div className="relative">
             <button
@@ -154,6 +135,6 @@ const Header: React.FC<IHeader> = (props) => {
       </div>
     </header>
   );
-};
+});
 
 export default Header;

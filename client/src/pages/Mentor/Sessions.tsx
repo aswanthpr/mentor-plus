@@ -1,7 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
 import TabNavigation from "../../components/Common/Bookings/TabNavigation";
 import { ArrowUpDown, Filter, Search, User } from "lucide-react";
-import { axiosInstance } from "../../Config/mentorAxios";
 import { errorHandler } from "../../Utils/Reusable/Reusable";
 import SessionCard from "../../components/Common/Bookings/SessionCard";
 import Spinner from "../../components/Common/common4All/Spinner";
@@ -9,15 +8,12 @@ import { useSelector } from "react-redux";
 import { RootState } from "../../Redux/store";
 import ConfirmToast from "../../components/Common/common4All/ConfirmToast";
 import { toast } from "react-toastify";
-import {
-  createSessionCodeApi,
-  fetchCanceSessionResponse,
-  joinSessionHandler,
-  markAsSessionCompleted,
-} from "../../service/api";
+
 import { useNavigate } from "react-router-dom";
 import InputField from "../../components/Auth/InputField";
 import { TFilter, TSort, TSortOrder } from "../../Types/type";
+import { createSessionCodeApi, fetchCanceSessionResponse, getMentorSessions, markAsSessionCompleted } from "../../service/mentorApi";
+import { joinSessionHandler } from "../../service/commonApi";
 
 const Sessions: React.FC = () => {
   const sessionsPerPage = 5;
@@ -40,9 +36,8 @@ const Sessions: React.FC = () => {
       try {
         setLoading(true);
 
-        const response = await axiosInstance.get(`/mentor/sessions`, {
-          params: { activeTab },
-        });
+        const response = await getMentorSessions(activeTab);
+         
         if (response?.status == 200 && response?.data?.success) {
           setSessions(response?.data?.slots);
         }
@@ -157,7 +152,7 @@ const Sessions: React.FC = () => {
       }
     );
 
-    const handleRequest = async (bookingId: string) => {
+    const handleRequest =  async (bookingId: string) => {
       const response = await markAsSessionCompleted(bookingId);
       if (response?.status == 200 && response?.data.success) {
         toast.success(response?.data?.message);

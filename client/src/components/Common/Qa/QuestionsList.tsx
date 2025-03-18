@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { Tooltip } from "@mui/material";
 import {
   BadgeCheckIcon,
@@ -45,9 +45,9 @@ const QuestionList: React.FC<QuestionListProps> = ({
   const [pickedQuestion, setPickedQuestion] = useState<IQuestion | null>(null);
 
 
-  const canEditQuestion = (question: IQuestion) => {
+  const canEditQuestion = useCallback((question: IQuestion) => {
     return question.menteeId === currentUserId;
-  };
+  },[currentUserId]);
   useEffect(() => {
 
     if (EditedData&&Object.values(EditedData).length) {

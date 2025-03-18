@@ -5,14 +5,19 @@ import QuestionFilter from "../../components/Common/Qa/QuestionFilter";
 import QuestionsList from "../../components/Common/Qa/QuestionsList";
 import AnswerModal from "../../components/Common/Qa/AnswerInputModal";
 import InputField from "../../components/Auth/InputField";
-import { protectedAPI } from "../../Config/Axios";
 import { errorHandler } from "../../Utils/Reusable/Reusable";
 import { toast } from "react-toastify";
 import ConfirmToast from "../../components/Common/common4All/ConfirmToast";
 import Spinner from "../../components/Common/common4All/Spinner";
 import AnswerInputModal from "../../components/Common/Qa/AnswerInputModal";
-import { fetchHomeData } from "../../service/api";
 import InfiniteScroll from "react-infinite-scroll-component";
+import {
+  fetchCreateAnswer,
+  fetchDeleteQuestion,
+  fetchEditQuestion,
+  fetchHomeData,
+  fetchMenteeEditAnswer,
+} from "../../service/menteeApi";
 
 const Home: React.FC = () => {
   const page_limit = 6;
@@ -41,7 +46,7 @@ const Home: React.FC = () => {
     answerId: "",
   });
   const [newAns, setNewAns] = useState<Ianswer | null>(null);
-  console.log(questions.length, "length");
+
   const fetchData = useCallback(
     async (page: number, isNewSearch = false) => {
       try {
@@ -91,64 +96,61 @@ const Home: React.FC = () => {
     [questions]
   );
 
-  const handleEditQuestion = async (
-    questionId: string,
-    updatedQuestion: IQuestion
-  ) => {
-    // Update the question in the state
+  const handleEditQuestion = useCallback(
+    async (questionId: string, updatedQuestion: IQuestion) => {
+      // Update the question in the state
 
-    const originalQuestion = questions.find((q) => q._id === questionId);
+      const originalQuestion = questions.find((q) => q._id === questionId);
 
-    if (!originalQuestion) {
-      toast.error("Unexpected error occured");
-      console.error(`Question with ID ${questionId} not found.`);
-      return;
-    }
+      if (!originalQuestion) {
+        toast.error("Unexpected error occured");
+        console.error(`Question with ID ${questionId} not found.`);
+        return;
+      }
 
-    // Check if any field has changed
-    const isChanged = Object.keys(updatedQuestion).some((key) => {
-      console.log(
-        typeof JSON.stringify(updatedQuestion),
-        "this is the quesion where error occure"
-      );
-      return (
-        JSON.stringify(updatedQuestion[key as keyof IQuestion]) !==
-        JSON.stringify(originalQuestion[key as keyof IQuestion])
-      );
-    });
+      // Check if any field has changed
+      const isChanged = Object.keys(updatedQuestion).some((key) => {
+        console.log(
+          typeof JSON.stringify(updatedQuestion),
+          "this is the quesion where error occure"
+        );
+        return (
+          JSON.stringify(updatedQuestion[key as keyof IQuestion]) !==
+          JSON.stringify(originalQuestion[key as keyof IQuestion])
+        );
+      });
 
-    if (!isChanged) {
-      toast.info(
-        "No changes detected. Please modify the question before updating."
-      );
-      return;
-    }
+      if (!isChanged) {
+        toast.info(
+          "No changes detected. Please modify the question before updating."
+        );
+        return;
+      }
 
-    try {
-      setLoading(true);
-      const { status, data } = await protectedAPI.patch(
-        `/mentee/qa/edit-question`,
-        {
+      try {
+        setLoading(true);
+        const { status, data } = await fetchEditQuestion(
           questionId,
           updatedQuestion,
-          filter,
-        }
-      );
-
-      if (status == 200 && data.success) {
-        setQuestions(
-          questions.map((q) => (q._id === questionId ? data?.question : q))
+          filter
         );
-        toast.success(data.message);
+
+        if (status == 200 && data.success) {
+          setQuestions(
+            questions.map((q) => (q._id === questionId ? data?.question : q))
+          );
+          toast.success(data.message);
+        }
+      } catch (error: unknown) {
+        errorHandler(error);
+      } finally {
+        setInterval(() => {
+          setLoading(false);
+        }, 500);
       }
-    } catch (error: unknown) {
-      errorHandler(error);
-    } finally {
-      setInterval(() => {
-        setLoading(false);
-      }, 500);
-    }
-  };
+    },
+    [filter, questions]
+  );
 
   const filterQuestions = questions.filter((question) => {
     const search = searchQuery.toLowerCase();
@@ -163,7 +165,7 @@ const Home: React.FC = () => {
     );
   });
 
-  const handleDeleteQuestion = (questionId: string) => {
+  const handleDeleteQuestion = useCallback((questionId: string) => {
     toast(
       <ConfirmToast
         message="Confirm Deletion"
@@ -182,9 +184,8 @@ const Home: React.FC = () => {
       toast.dismiss();
       try {
         setLoading(true);
-        const response = await protectedAPI.delete(
-          `/mentee/qa/delete/${questId}`
-        );
+        const response = await fetchDeleteQuestion(questId);
+
         if (response.status === 200 && response.data.success) {
           setQuestions((prevQuestions) =>
             prevQuestions.filter((question) => question._id !== questId)
@@ -198,91 +199,92 @@ const Home: React.FC = () => {
         setLoading(false);
       }
     };
-  };
+  }, []);
 
-  const handleAnswerSubmit = async (content: string) => {
-    console.log(answerQuestionId, "thsi sit he question id ");
-    try {
-      setLoading(true);
-      const { status, data } = await protectedAPI.post(
-        `/mentee/qa/create-answer`,
-        {
-          answer: content,
-          questionId: answerQuestionId,
-          userType: "mentee",
-        }
-      );
-      console.log(data.answers);
-      if (status === 200 && data.success) {
-        toast.success(data.message);
-        setIsAnswerModalOpen(false);
-        setNewAns(data?.answers);
-        setQuestions((prevQuestions) =>
-          prevQuestions.map((question) =>
-            question._id === answerQuestionId
-              ? {
-                  ...question,
-                  answerData: [...(question.answerData || []), data?.answers],
-                }
-              : question
-          )
+  const handleAnswerSubmit = useCallback(
+    async (content: string) => {
+      console.log(answerQuestionId, "thsi sit he question id ");
+      try {
+        setLoading(true);
+        const { status, data } = await fetchCreateAnswer(
+          content,
+          answerQuestionId,
+          "mentee"
         );
-        if (filter == "unanswered") {
+
+        console.log(data.answers);
+        if (status === 200 && data.success) {
+          toast.success(data.message);
+          setIsAnswerModalOpen(false);
+          setNewAns(data?.answers);
           setQuestions((prevQuestions) =>
-            prevQuestions.filter(
-              (question) => question._id !== answerQuestionId
+            prevQuestions.map((question) =>
+              question._id === answerQuestionId
+                ? {
+                    ...question,
+                    answerData: [...(question.answerData || []), data?.answers],
+                  }
+                : question
             )
           );
+          if (filter == "unanswered") {
+            setQuestions((prevQuestions) =>
+              prevQuestions.filter(
+                (question) => question._id !== answerQuestionId
+              )
+            );
+          }
         }
+      } catch (error: unknown) {
+        errorHandler(error);
+      } finally {
+        setTimeout(() => {
+          setLoading(false);
+        });
       }
-    } catch (error: unknown) {
-      errorHandler(error);
-    } finally {
-      setTimeout(() => {
-        setLoading(false);
-      });
-    }
-  };
+    },
+    [answerQuestionId, filter]
+  );
 
-  const handleEditAnswer = (content: string, answerId: string) => {
+  const handleEditAnswer = useCallback((content: string, answerId: string) => {
     setEditingAnswer(content);
     setEditingAnswerId(answerId);
     setEditAnswerModalOpen(true);
-  };
+  }, []);
 
-  const handleEditAnswerSubmit = async (content: string, answerId?: string) => {
-    console.log("Answer Edited: ", { content, answerId });
+  const handleEditAnswerSubmit = useCallback(
+    async (content: string, answerId?: string) => {
+      console.log("Answer Edited: ", { content, answerId });
 
-    if (!answerId) return;
+      if (!answerId) return;
 
-    try {
-      setLoading(true);
-      const response = await protectedAPI.patch(`/mentee/qa/edit-answer`, {
-        content,
-        answerId,
-      });
+      try {
+        setLoading(true);
+        const response = await fetchMenteeEditAnswer(content, answerId);
 
-      if (response.status === 200 && response.data.success) {
-        setEditData({ content: response.data?.answer, answerId: answerId });
-        toast.success(response.data.message);
+        if (response.status === 200 && response.data.success) {
+          setEditData({ content: response.data?.answer, answerId: answerId });
+          toast.success(response.data.message);
 
-        const updatedAnswer = response.data?.answer;
-        setQuestions((prevQuestions) =>
-          prevQuestions.map((question) => ({
-            ...question,
-            answerData: question.answerData?.map((ans) =>
-              ans._id === answerId ? { ...ans, answer: updatedAnswer } : ans
-            ),
-          }))
-        );
+          const updatedAnswer = response.data?.answer;
+          setQuestions((prevQuestions) =>
+            prevQuestions.map((question) => ({
+              ...question,
+              answerData: question.answerData?.map((ans) =>
+                ans._id === answerId ? { ...ans, answer: updatedAnswer } : ans
+              ),
+            }))
+          );
+        }
+      } catch (error) {
+        errorHandler(error);
+      } finally {
+        setLoading(false);
+        setEditAnswerModalOpen(false);
       }
-    } catch (error) {
-      errorHandler(error);
-    } finally {
-      setLoading(false);
-      setEditAnswerModalOpen(false);
-    }
-  };
+    },
+    []
+  );
 
   return (
     <div>
@@ -316,30 +318,33 @@ const Home: React.FC = () => {
         </section>
       </div>
       <div className="bg-white p-6 rounded-lg shadow-sm">
-      <InfiniteScroll
-        dataLength={questions?.length}
-        next={fetchMoreQuestion}
-        hasMore={hasMore}
-        loader={<h4 className="text-center my-4">Loading more Questions...</h4>}
-        endMessage={
-          <p className=" flex justify-center text-center my-4 text-gray-500">
-            <CircleAlertIcon className="w-6 mr-1" /> No more Questions to load.{" "}
-          </p>
-        }
-      >
-        <QuestionsList
-          onDeleteQestion={handleDeleteQuestion}
-          currentUserId={userId}
-          questions={filterQuestions}
-          onShowAnswers={handleShowAnswers}
-          setIsAnswerModalOpen={setIsAnswerModalOpen}
-          setAnswerQuestionId={setAnswerQuestionId}
-          onEditQuestion={handleEditQuestion}
-          onEditAnswer={handleEditAnswer}
-          EditedData={editData}
-          newAns={newAns}
-        />
-      </InfiniteScroll>
+        <InfiniteScroll
+          dataLength={questions?.length}
+          next={fetchMoreQuestion}
+          hasMore={hasMore}
+          loader={
+            <h4 className="text-center my-4">Loading more Questions...</h4>
+          }
+          endMessage={
+            <p className=" flex justify-center text-center my-4 text-gray-500">
+              <CircleAlertIcon className="w-6 mr-1" /> No more Questions to
+              load.{" "}
+            </p>
+          }
+        >
+          <QuestionsList
+            onDeleteQestion={handleDeleteQuestion}
+            currentUserId={userId}
+            questions={filterQuestions}
+            onShowAnswers={handleShowAnswers}
+            setIsAnswerModalOpen={setIsAnswerModalOpen}
+            setAnswerQuestionId={setAnswerQuestionId}
+            onEditQuestion={handleEditQuestion}
+            onEditAnswer={handleEditAnswer}
+            EditedData={editData}
+            newAns={newAns}
+          />
+        </InfiniteScroll>
       </div>
 
       {selectedQuestion && (

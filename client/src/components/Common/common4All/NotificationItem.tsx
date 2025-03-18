@@ -8,7 +8,7 @@ interface INotificationitem {
   onRead: (id: string) => void;
 }
 
-const NotificationItems: React.FC<INotificationitem> = ({
+const NotificationItems: React.FC<INotificationitem> = React.memo(({
   notification,
   onRead,
 }) => {
@@ -40,6 +40,6 @@ const NotificationItems: React.FC<INotificationitem> = ({
       </div>
     </div>
   );
-};
+});
 
 export default NotificationItems;

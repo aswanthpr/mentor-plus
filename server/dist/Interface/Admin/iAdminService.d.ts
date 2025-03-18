@@ -54,11 +54,12 @@ export interface IadminService {
         status?: number;
         mentee?: Imentee | null;
     }>;
-    mentorData(): Promise<{
+    mentorData(searchQuery: string, activeTab: string, sortField: string, sortOrder: string, page: number, limit: number): Promise<{
         success: boolean;
         message: string;
         status: number;
         mentorData: Imentor[] | [];
+        totalPage: number;
     }>;
     mentorVerify(id: string): Promise<{
         success: boolean;

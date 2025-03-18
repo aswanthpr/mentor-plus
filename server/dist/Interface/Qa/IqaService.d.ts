@@ -39,12 +39,12 @@ export interface IqaService {
         message: string;
         status: number;
     }>;
-    allQaData(search: string | undefined, status: string, sortField: string, sortOrder: string, page: string, limit: string): Promise<{
+    allQaData(search: string, status: string, sortField: string, sortOrder: string, page: number, limit: number): Promise<{
         success: boolean;
         message: string;
         status: number;
         questions: Iquestion[] | undefined;
-        docCount: number | undefined;
+        totalPage: number | undefined;
     }>;
     changeQuestionStatus(questionId: string): Promise<{
         success: boolean;

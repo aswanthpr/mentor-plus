@@ -502,7 +502,6 @@ class questionRepository extends baseRepo_1.baseRepository {
             var _a;
             try {
                 const sortOptions = sortOrder === "asc" ? 1 : -1;
-                console.log(sortField, "field", sortOrder, "order", sortOptions, "option");
                 const pipeline = [];
                 if (search) {
                     pipeline.push({
@@ -626,10 +625,6 @@ class questionRepository extends baseRepo_1.baseRepository {
                         },
                     },
                 });
-                //limit the noof questoins
-                // pipeline.push({
-                //   $sort:{[sortField]:sortOptions},
-                // });
                 if (sortField === "createdAt") {
                     pipeline.push({
                         $sort: { createdAt: sortOptions },
@@ -656,7 +651,7 @@ class questionRepository extends baseRepo_1.baseRepository {
                     $skip: skip,
                 });
                 pipeline.push({
-                    $limit: parseInt(limit, 10),
+                    $limit: limit,
                 });
                 //count the total no of doc
                 const countPipeline = [

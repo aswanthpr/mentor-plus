@@ -1,16 +1,16 @@
 import { toast } from "react-toastify";
 import { Outlet } from "react-router-dom";
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Home, MessageSquare, Calendar, Video, Wallet, SquareActivity } from "lucide-react";
 
 import { RootState } from "../../Redux/store";
-import { axiosInstance } from "../../Config/mentorAxios";
 import { markAsRead, setNotification } from "../../Redux/notificationSlice";
 import { clearMentorToken } from "../../Redux/mentorSlice";
 import Header from "../../components/Common/common4All/Header";
 import SidePanel from "../../components/Common/common4All/SidePanel";
 import { connectToNotifications, disconnectNotificationSocket } from "../../Socket/connect";
+import { fetchMentorLogout, fetchMentorNotification, fetchReadNotification } from "../../service/mentorApi";
 
 interface INavItem {
   name: string;
@@ -39,9 +39,7 @@ const Mentor_Page: React.FC = () => {
 
     const fetchData = async () => {
       try {
-        const response = await axiosInstance.get(
-          `/mentor/notification`
-        );
+        const response = await fetchMentorNotification()
 
         if (flag && response?.status == 200 && response.data?.success) {
           const user_Id = response.data?.result?.[0]?.["userId"] as string;
@@ -71,28 +69,26 @@ const Mentor_Page: React.FC = () => {
     };
   }, [dispatch]);
 
-  const handleReadNotification = async (id: string) => {
+  const handleReadNotification = useCallback(async (id: string) => {
     try {
-      const response = await axiosInstance.patch(
-        `/mentor/notification-read/${id}`
-      );
-
+      const response = await fetchReadNotification(id as string)
+     
       if (response?.status == 200 && response.data?.success) {
         dispatch(markAsRead({ userType: "mentor", id }));
       }
     } catch (error: unknown) {
       console.log(`${error instanceof Error ? error.message : String(error)}`);
     }
-  };
+  },[dispatch]);
   const ToggleSideBar = () => {
     setIsSideBarOpen(!isSideBarOpen);
   };
 
-  const handleSearchChange = (e: React. ChangeEvent<HTMLInputElement>) => {
+  const handleSearchChange = useCallback((e: React. ChangeEvent<HTMLInputElement>) => {
     setSearchValue(e.target.value);
-  };
-  const mentorLogout = async () => {
-    const response = await axiosInstance.post(`/mentor/logout`);
+  },[]);
+  const mentorLogout = useCallback(async () => {
+    const response = await fetchMentorLogout()
     if (response.data?.success && response?.status == 200) {
       dispatch(clearMentorToken());
       localStorage.removeItem("mentorToken");
@@ -100,7 +96,7 @@ const Mentor_Page: React.FC = () => {
 
       toast.success(response.data.message);
     }
-  };
+  },[dispatch]);
   return (
     <div className="min-h-screen bg-gray-50">
       <Header

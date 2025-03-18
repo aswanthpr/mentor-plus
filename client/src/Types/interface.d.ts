@@ -310,3 +310,19 @@ interface IcardData{
     profileUrl:string
   }[]
 }
+
+interface IChangePass{
+  currentPassword:string,
+  newPassword:string,
+  _id:string;
+}
+type IUserType = "mentee" | "mentor";
+
+interface LoginFormData {
+  email: string;
+  password: string;
+}
+interface LoginFormError {
+  email?: string;
+  password?: string;
+}

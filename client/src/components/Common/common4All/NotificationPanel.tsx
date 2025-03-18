@@ -10,7 +10,7 @@ interface INotificationPanel {
   notification: Inotification[];
 }
 
-const NotificationPanel: React.FC<INotificationPanel> = ({
+const NotificationPanel: React.FC<INotificationPanel> = React.memo(({
   isOpen,
   onClose,
   onReadNotification,
@@ -91,6 +91,6 @@ const NotificationPanel: React.FC<INotificationPanel> = ({
       )}
     </div>
   );
-};
+});
 
 export default NotificationPanel;

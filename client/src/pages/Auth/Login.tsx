@@ -1,156 +1,143 @@
-import React, { useState } from "react";
-import { EyeClosedIcon, EyeIcon,  } from "lucide-react";
+import React, { useCallback, useState } from "react";
+import { EyeClosedIcon, EyeIcon } from "lucide-react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { toast } from "react-toastify";
 import { Link } from "react-router-dom";
-// import {useGoogleLogin} from '@react-oauth/google'
-import Spinner from "../../components/Common/common4All/Spinner";
-import InputField from "../../components/Auth/InputField";
+
 // import SocialLogins from "../../components/auth/SocialLogins";
-import { validateEmail, validatePassword } from "../../Validation/Validation";
 import { AppDispatch } from "../../Redux/store";
 import { setAccessToken } from "../../Redux/menteeSlice";
-import { protectedAPI } from "../../Config/Axios";
 import { setMentorToken } from "../../Redux/mentorSlice";
-import { axiosInstance } from "../../Config/mentorAxios";
+import { fetchMenteeLogin } from "../../service/menteeApi";
+import { fetchMentorLogin } from "../../service/mentorApi";
 import { errorHandler } from "../../Utils/Reusable/Reusable";
-
-type UserType = "mentee" | "mentor";
-
-interface LoginFormData {
-  email: string;
-  password: string;
-}
-interface LoginFormError {
-  email?: string;
-  password?: string;
-}
+import InputField from "../../components/Auth/InputField";
+import Spinner from "../../components/Common/common4All/Spinner";
+import { validateEmail, validatePassword } from "../../Validation/Validation";
 
 const Login: React.FC = () => {
   const dispatch: AppDispatch = useDispatch();
 
   const navigate = useNavigate();
   const location = useLocation();
+
   const [isPasswordVisible, setIsPasswordVisible] = useState<boolean>(false);
   const [formData, setFormData] = useState<LoginFormData>({
     email: "",
     password: "",
   });
+
   const [errors, setErrors] = useState<LoginFormError>({});
   const [loading, setLoading] = useState<boolean>(false);
 
-  const getActivePath = (path: string) => {
+  const getActivePath = useCallback((path: string) => {
     if (path.includes("mentor")) {
       return "mentor";
     }
     return "mentee";
-  };
+  }, []);
 
-  const [userType, setUserType] = useState<UserType>(
+  const [userType, setUserType] = useState<IUserType>(
     getActivePath(location.pathname)
   );
 
-  const handleUserTypeChange = (type: UserType) => {
-    setUserType(type);
-    navigate(`/auth/login/${type}`); // Update the URL based on the selected user type
-  };
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleUserTypeChange = useCallback(
+    (type: IUserType) => {
+      setUserType(type);
+      navigate(`/auth/login/${type}`); // Update the URL based on the selected user type
+    },
+    [navigate]
+  );
+
+  const handleChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const { id, value } = e.target;
     setFormData((prev) => ({ ...prev, [id]: value }));
     setErrors((pre) => ({ ...pre, [id]: undefined }));
-  };
+  }, []);
 
-  const validateField = (
-    field: keyof LoginFormData, 
-    value: string
-  ): string | undefined => {
-    switch (field) {
-      case "email":
-        return validateEmail(value);
-      case "password":
-        return validatePassword(value);
-      default:
-        return undefined;
-    }
-  };
-
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    try {
-      e.preventDefault();
-      const newErrors: LoginFormError = {};
-      (Object.keys(formData) as Array<keyof LoginFormData>).forEach((key) => {
-        const error = validateField(key, formData[key]);
-        if (error) {
-          newErrors[key] = error;
-        }
-      });
-      setErrors(newErrors);
-      
-      if (Object.keys(newErrors).length === 0) {
-        
-        if (userType == "mentee") {
-         
-          const response = await protectedAPI.post(
-            `/auth/login/mentee`,
-            formData
-          );
-          
-          if (response?.status == 200&&response?.data?.accessToken) {
-            dispatch(
-              setAccessToken({
-                accessToken: response.data?.accessToken,
-                role: "mentee",
-              })
-            );
-
-            toast.success(response.data.message);
-
-            navigate("/mentee/home");
-          
-          }
-        }
-        if (userType == "mentor") {
-          setLoading(true);
-          const response = await axiosInstance.post(
-            "/auth/login/mentor",
-            formData
-          );
-
-          if (response.status == 200 && response.data.success) {
-            
-            dispatch(
-              setMentorToken({
-                mentorToken: response.data?.accessToken,
-                mentorRole: "mentor",
-              })
-            );
-            console.log(
-              response.data?.accessToken,
-              "thsi is from redux",
-              response.data
-            );
-            
-            navigate("/mentor/home");
-          }
-          toast.success(response.data.message);
-        }
+  const validateField = useCallback(
+    (field: keyof LoginFormData, value: string): string | undefined => {
+      switch (field) {
+        case "email":
+          return validateEmail(value);
+        case "password":
+          return validatePassword(value);
+        default:
+          return undefined;
       }
-    } catch (error: unknown) {
-     errorHandler(error)
-    } finally {
-      setTimeout(() => {
-        setLoading(false);
-      }, 500);
+    },
+    []
+  );
+
+  const handleSubmit = useCallback(
+    async (e: React.FormEvent<HTMLFormElement>) => {
+      try {
+        e.preventDefault();
+        const newErrors: LoginFormError = {};
+        (Object.keys(formData) as Array<keyof LoginFormData>).forEach((key) => {
+          const error = validateField(key, formData[key]);
+          if (error) {
+            newErrors[key] = error;
+          }
+        });
+        setErrors(newErrors);
+
+        if (Object.keys(newErrors).length === 0) {
+          if (userType == "mentee") {
+            const response = await fetchMenteeLogin(formData);
+
+            if (response?.status == 200 && response?.data?.accessToken) {
+              dispatch(
+                setAccessToken({
+                  accessToken: response.data?.accessToken,
+                  role: "mentee",
+                })
+              );
+
+              toast.success(response.data.message);
+
+              navigate("/mentee/home");
+            }
+          }
+          if (userType == "mentor") {
+            setLoading(true);
+            const response = await fetchMentorLogin(formData);
+
+            if (response.status == 200 && response.data.success) {
+              dispatch(
+                setMentorToken({
+                  mentorToken: response.data?.accessToken,
+                  mentorRole: "mentor",
+                })
+              );
+              console.log(
+                response.data?.accessToken,
+                "thsi is from redux",
+                response.data
+              );
+
+              navigate("/mentor/home");
+            }
+            toast.success(response.data.message);
+          }
+        }
+      } catch (error: unknown) {
+        errorHandler(error);
+      } finally {
+        setTimeout(() => {
+          setLoading(false);
+        }, 500);
+      }
+    },
+    [dispatch, formData, navigate, userType, validateField]
+  );
+
+  const handleSocialLogin = useCallback(async (provider: string) => {
+    if (provider === "google") {
+      window.location.href = `${import.meta.env.VITE_SERVER_URL}/auth/google`;
     }
-  };
-
-  const handleSocialLogin = async (provider: string) => {
-   if(provider ==='google'){
-
-    window.location.href=`${import.meta.env.VITE_SERVER_URL}/auth/google` ;
-   }
-  };
+  }, []);
 
   return (
     <div className="min-h-screen flex flex-col justify-center py-12 sm:px-6 lg:px-8 font-poppins">
@@ -192,13 +179,14 @@ const Login: React.FC = () => {
                 provider="GitHub"
                 onClick={() => handleSocialLogin("GitHub")}
               />
+
               <SocialLogins
                 icon={Linkedin}
                 provider="LinkedIn"
                 onClick={() => handleSocialLogin("LinkedIn")}
               /> */}
               <button
-                onClick={() => handleSocialLogin('google')}
+                onClick={() => handleSocialLogin("google")}
                 className="w-full flex items-center justify-center gap-2 px-4 py-2 border-2 border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
               >
                 <img
@@ -248,7 +236,7 @@ const Login: React.FC = () => {
               />
               <button
                 type="button"
-                onClick={()=>setIsPasswordVisible((pre)=>!pre)}
+                onClick={() => setIsPasswordVisible((pre) => !pre)}
                 aria-label={
                   isPasswordVisible ? "Hide Password" : "Show Password"
                 }

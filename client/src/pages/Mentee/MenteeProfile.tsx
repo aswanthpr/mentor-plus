@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import {
   Linkedin,
   Camera,
@@ -12,7 +12,6 @@ import {
   EyeClosedIcon,
   EyeIcon,
 } from "lucide-react";
-import { protectedAPI } from "../../Config/Axios";
 import profile from '../../Asset/images.png';
 import Modal from "../../components/Common/common4All/Modal";
 import { toast } from "react-toastify";
@@ -34,6 +33,7 @@ import {
 import { Link } from "react-router-dom";
 import ImageCropper from "../../components/Auth/ImageCropper";
 import Spinner from "../../components/Common/common4All/Spinner";
+import { fetchImageChange, fetchMenteeChangePassword, fetchProfileData, fetchProfileEdit } from "../../service/menteeApi";
 
 
 
@@ -84,7 +84,7 @@ const MenteeProfile: React.FC = () => {
     newPassword: "",
     confirmPassword: "",
   });
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
 
     if (!file) return;
@@ -97,16 +97,17 @@ const MenteeProfile: React.FC = () => {
     }
     setProfileImage(file);
     setShowcropper(true);
-  };
+  },[]);
 
   useEffect(() => {
     const menteeData = async () => {
       try {
         setLoading(true);
-        const response = await protectedAPI.get("/mentee/profile");
-        if (response.status == 200 && response.data.success) {
-          setMentee(response.data.result);
-          setFormData(response.data.result);
+        const response = await fetchProfileData()
+       
+        if (response?.status == 200 && response.data?.success) {
+          setMentee(response.data?.result);
+          setFormData(response.data?.result);
         }
       } catch (error: unknown) {
         errorHandler(error);
@@ -118,7 +119,7 @@ const MenteeProfile: React.FC = () => {
     menteeData();
   }, []);
 
-  const handleValidation = () => {
+  const handleValidation =useCallback( () => {
     const formErrors: IFormErrors = {};
 
     formErrors.name = validateNames(formData.name || "");
@@ -136,8 +137,8 @@ const MenteeProfile: React.FC = () => {
 
     // Return true if no errors exist
     return Object.values(formErrors).every((error) => error === "");
-  };
-  const handlePasswordValidation = () => {
+  },[formData.bio, formData.currentPosition, formData.education, formData.email, formData.githubUrl, formData.linkedinUrl, formData.name, formData.phone]);
+  const handlePasswordValidation = useCallback(() => {
     const passErrors: IPass = {};
     passErrors.currentPassword = validatePassword(`${editPassword?.currentPassword}`);
     passErrors.newPassword = validatePassword(`${editPassword?.newPassword}`);
@@ -148,9 +149,13 @@ const MenteeProfile: React.FC = () => {
 
     // Return true if there are no errors
     return Object.values(passErrors).every((error) => error === undefined);
-  };
+  },[editPassword?.confirmPassword, editPassword?.currentPassword, editPassword.newPassword]);
+  const modalClose =useCallback( () => {
+    setEditModalOpen(false);
 
-  const handleSaveChanges = async () => {
+    setErrors({});
+  },[]);
+  const handleSaveChanges = useCallback(async () => {
     // Validate the form before sending data
     if (!handleValidation()) {
       return; // Stop if validation fails
@@ -158,7 +163,7 @@ const MenteeProfile: React.FC = () => {
 
     setLoading(true);
     try {
-      const Data = {
+      const menteeData = {
         _id: formData?._id,
         name: formData?.name,
         email: formData?.email,
@@ -169,11 +174,9 @@ const MenteeProfile: React.FC = () => {
         education: formData?.education,
         currentPosition: formData?.currentPosition,
       };
-      console.log(Data, "thsi si the data");
-      const response = await protectedAPI.put(
-        "/mentee/profile/edit_profile",
-        Data
-      );
+     
+      const response = await fetchProfileEdit(menteeData);
+    
 
       if (response?.status === 200 && response?.data?.success) {
         setFormData(response.data?.result);
@@ -186,24 +189,20 @@ const MenteeProfile: React.FC = () => {
     } finally {
       setLoading(false);
     }
-  };
+  },[formData?._id, formData?.bio, formData?.currentPosition, formData?.education, formData?.email, formData?.githubUrl, formData?.linkedinUrl, formData?.name, formData?.phone, handleValidation, modalClose]);
 
-  const modalClose = () => {
-    setEditModalOpen(false);
 
-    setErrors({});
-  };
-  const passModalClose = () => {
+  const passModalClose = useCallback(() => {
     setShowEditPassword(false);
     setEditPassword({
       currentPassword: "",
       newPassword: "",
       confirmPassword: "",
     });
-  };
+  },[]);
 
 
-  const handleChangePassword = async () => {
+  const handleChangePassword = useCallback(async () => {
     try {
       if (!handlePasswordValidation()) {
         return; // Stop if validation fails
@@ -214,10 +213,8 @@ const MenteeProfile: React.FC = () => {
         _id: `${formData._id}`,
       };
 
-      const response = await protectedAPI.patch(
-        "/mentee/profile/change_password",
-        passFormData
-      );
+      const response = await fetchMenteeChangePassword(passFormData as IChangePass)
+     
 
       if (response?.status === 200 && response?.data?.success) {
         toast.success(response.data?.message);
@@ -228,23 +225,14 @@ const MenteeProfile: React.FC = () => {
     } finally {
       setLoading(false);
     }
-  };
+  },[editPassword.currentPassword, editPassword.newPassword, formData._id, handlePasswordValidation, passModalClose]);
 
-  const handleCropComplete = async (profileImage: Blob) => {
+  const handleCropComplete = useCallback(async (profileImage: Blob) => {
     try {
-      const Data = {
-        profileImage,
-        _id: formData._id,
-      };
       setLoading(true);
-      console.log(Data, "this is data");
-      const response = await protectedAPI.patch( 
-        "/mentee/profile/change_profile",
-        Data,
-        {
-          headers: { "Content-Type": "multipart/form-data" },
-        }
-      );
+
+      const response = await fetchImageChange(profileImage,formData?._id)
+     
       setShowcropper(false);
       if (response.data && response.data.status == 200) {
         console.log(response.data.message);
@@ -265,7 +253,7 @@ const MenteeProfile: React.FC = () => {
     } finally {
       setLoading(false);
     }
-  };
+  },[formData._id]);
 
   return (
     <div className="relative mt-16">

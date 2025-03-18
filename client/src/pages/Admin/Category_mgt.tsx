@@ -1,6 +1,5 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { StatusBadge } from "../../components/Admin/StatusBadge";
-// import { Pagination } from "../../components/Common/common4All/Pagination";
 import { Table } from "../../components/Admin/Table";
 import { toast } from "react-toastify";
 import Spinner from "../../components/Common/common4All/Spinner";
@@ -8,9 +7,9 @@ import { categoryValidation } from "../../Validation/Validation";
 import { BanIcon, CircleCheckBigIcon, PencilLineIcon } from "lucide-react";
 import CategoryModal from "../../components/Admin/CategoryModal";
 import ConfirmToast from "../../components/Common/common4All/ConfirmToast";
-import { API } from "../../Config/adminAxios";
 import { errorHandler } from "../../Utils/Reusable/Reusable";
 import { Pagination } from "@mui/material";
+import { fetchAllcategoryData, fetchCategoryChange, fetchCreateCategory, fetchEditCategory } from "../../service/adminApi";
 
 interface Category {
   _id: string;
@@ -32,78 +31,13 @@ const Category_mgt: React.FC = () => {
   });
   const CATEGORIES_PER_PAGE = 10;
 
-  // Handle modal opening
-  const handleAddCategoryClick = async (): Promise<void> => {
-    setIsModalOpen(true);
-  };
-
-  // Handle modal close
-  const handleCloseModal = (): void => {
-    setIsModalOpen(!isModalOpen);
-    setCategory("");
-    setError("");
-  };
-  const handleEditCloseModal = () => {
-    setIsEditModalOpen(!isEditModalOpen);
-    setCategory("");
-    setError("");
-  };
-
-  // Handle category input change
-  const handleCategoryChange = (
-    e: React.ChangeEvent<HTMLInputElement>
-  ): void => {
-    e.preventDefault();
-    setCategory(e.target.value);
-  };
-
-  // Pagination logic
-  const indexOfLastCategory = currentPage * CATEGORIES_PER_PAGE;
-  const indexOfFirstCategory = indexOfLastCategory - CATEGORIES_PER_PAGE;
-  const currentCategories = categories.slice(
-    indexOfFirstCategory,
-    indexOfLastCategory
-  );
-
-  // Handle add category
-  const handleAddCategory = async (): Promise<void> => {
-    const categoryValue = category.trim().toLowerCase();
-    const isValid = await categoryValidation(categoryValue);
-    if (!isValid) {
-      setError(
-        "Category must be between 3 and 20 letters, and no symbols or numbers are allowed."
-      );
-      return;
-    }
-
-    try {
-      setLoading(true);
-
-      const response = await API.post(`/admin/create_category`, {
-        category: categoryValue,
-      });
-
-      if (response.data.success && response.status === 201) {
-        setCategories((prev) => [...prev, response.data.result]);
-
-        handleCloseModal();
-        toast.success(response.data.message);
-      }
-    } catch (error: unknown) {
-      errorHandler(error);
-    } finally {
-      setTimeout(() => {
-        setLoading(false);
-      }, 500);
-    }
-  };
-
   //fetch category data
   useEffect(() => {
     const fetchCategories = async () => {
       setLoading(true);
       try {
-        const response = await API.get("/admin/category_management");
+        const response = await fetchAllcategoryData()
+      
         if (response.data.success) {
           setCategories(response.data.categories);
         } else {
@@ -118,15 +52,81 @@ const Category_mgt: React.FC = () => {
 
     fetchCategories();
   }, []);
+  // Handle modal opening
+  const handleAddCategoryClick = useCallback(async (): Promise<void> => {
+    setIsModalOpen(true);
+  }, []);
+
+  // Handle modal close
+  const handleCloseModal = useCallback((): void => {
+    setIsModalOpen(!isModalOpen);
+    setCategory("");
+    setError("");
+  }, [isModalOpen]);
+  const handleEditCloseModal = useCallback(() => {
+    setIsEditModalOpen(!isEditModalOpen);
+    setCategory("");
+    setError("");
+  }, [isEditModalOpen]);
+
+  // Handle category input change
+  const handleCategoryChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>): void => {
+      e.preventDefault();
+      setCategory(e.target.value);
+    },
+    []
+  );
+
+  // Pagination logic
+  const indexOfLastCategory = currentPage * CATEGORIES_PER_PAGE;
+  const indexOfFirstCategory = indexOfLastCategory - CATEGORIES_PER_PAGE;
+  const currentCategories = categories.slice(
+    indexOfFirstCategory,
+    indexOfLastCategory
+  );
+
+  // Handle add category
+  const handleAddCategory = useCallback(async (): Promise<void> => {
+    const categoryValue = category.trim().toLowerCase();
+    const isValid = await categoryValidation(categoryValue);
+    if (!isValid) {
+      setError(
+        "Category must be between 3 and 20 letters, and no symbols or numbers are allowed."
+      );
+      return;
+    }
+
+    try {
+      setLoading(true);
+
+      const response = await fetchCreateCategory(categoryValue)
+       
+
+      if (response.data.success && response.status === 201) {
+        setCategories((prev) => [...prev, response.data.result]);
+
+        handleCloseModal();
+        toast.success(response.data.message);
+      }
+    } catch (error: unknown) {
+      errorHandler(error);
+    } finally {
+      setTimeout(() => {
+        setLoading(false);
+      }, 500);
+    }
+  }, [category, handleCloseModal]);
+
 
   //handle edit category modal open
-  const handleEditCategory = (_id: string, category: string) => {
+  const handleEditCategory = useCallback((_id: string, category: string) => {
     setIsEditModalOpen(true);
     setEditData({ _id, category });
-  };
+  }, []);
 
   //handle edit save
-  const editCategorySave = async (): Promise<void> => {
+  const editCategorySave = useCallback(async (): Promise<void> => {
     const categoryValue = editData.category.trim().toLowerCase();
 
     const isValid = await categoryValidation(categoryValue);
@@ -141,10 +141,8 @@ const Category_mgt: React.FC = () => {
     try {
       setLoading(true);
 
-      const response = await API.patch(`/admin/edit_category`, {
-        id: editData._id,
-        category: editData.category,
-      });
+      const response = await fetchEditCategory(editData?._id, editData?.category)
+      
 
       if (response.data.success && response.status === 200) {
         toast.success(response.data.message);
@@ -163,41 +161,14 @@ const Category_mgt: React.FC = () => {
       }, 500);
       handleEditCloseModal();
     }
-  };
+  }, [editData._id, editData.category, handleEditCloseModal]);
 
-  const handlecategoryBlock = async (id: string) => {
-    // Show confirmation toast before performing block action
-    notify(id);
-  };
-  const handlePageChange = (
-    event: React.ChangeEvent<unknown>,
-    value: number
-  ) => {
-    event.preventDefault();
-    setCurrentPage(value);
-  };
-  const notify = (id: string) => {
-    toast(
-      <ConfirmToast
-        message="Change Category Status"
-        description="Are you sure you want to change Status?"
-        onReply={() => handleBlock(id as string)}
-        onIgnore={() => toast.dismiss()}
-        ariaLabel="category status confirmation"
-      />,
-      {
-        closeButton: false,
-        className: "p-0  border border-purple-600/40 ml-0",
-        autoClose: false,
-      }
-    );
-  };
   //HANDLE CATEGORY BLOCK UNBLOCK;
-  const handleBlock = async (id: string): Promise<void> => {
+  const handleBlock = useCallback(async (id: string): Promise<void> => {
     try {
       setLoading(true);
-      const response = await API.put(`/admin/change_category_status`, { id });
-
+      const response = await fetchCategoryChange(id)
+     
       console.log(response.data, response.status, response.data.message);
       if (response.data.success && response.status === 200) {
         toast.dismiss();
@@ -218,7 +189,40 @@ const Category_mgt: React.FC = () => {
         setLoading(false);
       }, 500);
     }
-  };
+  }, []);
+  const notify = useCallback(
+    (id: string) => {
+      toast(
+        <ConfirmToast
+          message="Change Category Status"
+          description="Are you sure you want to change Status?"
+          onReply={() => handleBlock(id as string)}
+          onIgnore={() => toast.dismiss()}
+          ariaLabel="category status confirmation"
+        />,
+        {
+          closeButton: false,
+          className: "p-0  border border-purple-600/40 ml-0",
+          autoClose: false,
+        }
+      );
+    },
+    [handleBlock]
+  );
+  const handlecategoryBlock = useCallback(
+    async (id: string) => {
+      // Show confirmation toast before performing block action
+      notify(id);
+    },
+    [notify]
+  );
+  const handlePageChange = useCallback(
+    (event: React.ChangeEvent<unknown>, value: number) => {
+      event.preventDefault();
+      setCurrentPage(value);
+    },
+    []
+  );
 
   return (
     <div>
@@ -291,17 +295,16 @@ const Category_mgt: React.FC = () => {
 
       {/* Pagination component */}
       <div className="flex justify-center items-center">
-      <Pagination
-        count={Math.ceil(categories.length / CATEGORIES_PER_PAGE)} // Total pages
-        page={currentPage} // Current page
-        onChange={handlePageChange} // Page change handler
-        color="standard" // Pagination color
-        shape="circular" // Rounded corners
-        size="small" // Size of pagination
-        siblingCount={1} // Number of sibling pages shown next to the current page
-        boundaryCount={1} // Number of boundary pages to show at the start and end
-      />
-
+        <Pagination
+          count={Math.ceil(categories.length / CATEGORIES_PER_PAGE)} // Total pages
+          page={currentPage} // Current page
+          onChange={handlePageChange} // Page change handler
+          color="standard" // Pagination color
+          shape="circular" // Rounded corners
+          size="small" // Size of pagination
+          siblingCount={1} // Number of sibling pages shown next to the current page
+          boundaryCount={1} // Number of boundary pages to show at the start and end
+        />
       </div>
 
       {/* Modal for eding Category */}

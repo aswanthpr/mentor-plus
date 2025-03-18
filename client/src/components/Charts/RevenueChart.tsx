@@ -25,7 +25,7 @@ interface RevenueChartProps {
   onTimeRangeChange: (range: string) => void;
 }
 
-const RevenueChart: React.FC<RevenueChartProps> = ({
+const RevenueChart: React.FC<RevenueChartProps> = React.memo(({
   data,
   timeRange,
   onTimeRangeChange
@@ -59,6 +59,6 @@ const RevenueChart: React.FC<RevenueChartProps> = ({
       </div>
     </div>
   );
-};
+});
 
 export default RevenueChart;

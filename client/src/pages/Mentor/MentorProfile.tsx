@@ -1,7 +1,6 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { toast } from "react-toastify";
 import { Link } from "react-router-dom";
-
 import Modal from "../../components/Common/common4All/Modal";
 import Spinner from "../../components/Common/common4All/Spinner";
 import { axiosInstance } from "../../Config/mentorAxios";
@@ -40,6 +39,11 @@ import {
   validateSkills,
 } from "../../Validation/Validation";
 import { errorHandler } from "../../Utils/Reusable/Reusable";
+import {
+  fetchChangeImage,
+  fetchChangePassword,
+  fetchEditProfile,
+} from "../../service/mentorApi";
 
 const MentorProfile: React.FC = () => {
   const [isPasswordVisible, setIsPasswordVisible] = useState<boolean>(false);
@@ -114,7 +118,7 @@ const MentorProfile: React.FC = () => {
     menterData();
   }, []);
 
-  const handleValidation = () => {
+  const handleValidation = useCallback(() => {
     const formErrors: IMentorErrors = {
       name: "",
       email: "",
@@ -141,10 +145,20 @@ const MentorProfile: React.FC = () => {
     setErrors(formErrors);
 
     return Object.values(formErrors).every((error) => error === "");
-  };
+  }, [
+    formData?.bio,
+    formData?.category,
+    formData?.email,
+    formData?.githubUrl,
+    formData?.jobTitle,
+    formData?.linkedinUrl,
+    formData?.name,
+    formData?.phone,
+    formData?.skills,
+  ]);
 
   //password validation
-  const handlePasswordValidation = () => {
+  const handlePasswordValidation = useCallback(() => {
     const passErrors: IPass = {};
     passErrors.currentPassword = validatePassword(
       `${editPassword.currentPassword}`
@@ -159,9 +173,29 @@ const MentorProfile: React.FC = () => {
 
     // Return true if there are no errors
     return Object.values(passErrors).every((error) => error === undefined);
-  };
+  }, [
+    editPassword?.confirmPassword,
+    editPassword.currentPassword,
+    editPassword.newPassword,
+  ]);
+  const modalClose = useCallback(() => {
+    setErrors({
+      name: "",
+      email: "",
+      phone: "",
+      linkedinUrl: "",
+      githubUrl: "",
+      bio: "",
+      jobTitle: "",
+      category: "",
+      skills: "",
+      resume: "",
+    });
+    setResume(null);
+    setEditModalOpen(false);
+  }, []);
 
-  const handleSaveChanges = async () => {
+  const handleSaveChanges = useCallback(async () => {
     if (!handleValidation()) {
       return;
     }
@@ -182,11 +216,7 @@ const MentorProfile: React.FC = () => {
         linkedinUrl: formData?.linkedinUrl,
       };
 
-      const response = await axiosInstance.put(
-        `/mentor/profile/edit_profile_details`,
-        Data,
-        { headers: { "Content-Type": "multipart/form-data" } }
-      );
+      const response = await fetchEditProfile(Data);
 
       if (response?.status === 200 && response?.data?.success) {
         setFormData(response.data?.result);
@@ -199,35 +229,32 @@ const MentorProfile: React.FC = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [
+    formData?._id,
+    formData?.bio,
+    formData?.category,
+    formData?.email,
+    formData?.githubUrl,
+    formData?.jobTitle,
+    formData?.linkedinUrl,
+    formData?.name,
+    formData?.phone,
+    formData?.skills,
+    handleValidation,
+    modalClose,
+    resume,
+  ]);
 
-  const modalClose = () => {
-    setErrors({
-      name: "",
-      email: "",
-      phone: "",
-      linkedinUrl: "",
-      githubUrl: "",
-      bio: "",
-      jobTitle: "",
-      category: "",
-      skills: "",
-      resume: "",
-    });
-    setResume(null);
-    setEditModalOpen(false);
-  };
-
-  const passModalClose = () => {
+  const passModalClose = useCallback(() => {
     setShowEditPassword(false);
     setEditPassword({
       currentPassword: "",
       newPassword: "",
       confirmPassword: "",
     });
-  };
+  }, []);
 
-  const handleChangePassword = async () => {
+  const handleChangePassword = useCallback(async () => {
     try {
       if (!handlePasswordValidation()) {
         return; // Stop if validation fails
@@ -238,10 +265,7 @@ const MentorProfile: React.FC = () => {
         _id: `${formData._id}`,
       };
 
-      const response = await axiosInstance.patch(
-        "/mentor/profile/change_password",
-        passFormData
-      );
+      const response = await fetchChangePassword(passFormData);
 
       if (response?.status === 200 && response?.data?.success) {
         toast.success(response.data?.message);
@@ -252,60 +276,64 @@ const MentorProfile: React.FC = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [
+    editPassword?.currentPassword,
+    editPassword?.newPassword,
+    formData._id,
+    handlePasswordValidation,
+    passModalClose,
+  ]);
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      const error = validateImageFile(file);
+  const handleFileChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      const file = e.target.files?.[0];
+      if (file) {
+        const error = validateImageFile(file);
 
-      if (error) {
-        toast.error("invalid file type");
-        console.log(error);
-        return;
-      }
-      setProfileImage(file);
-      setShowcropper(true);
-    }
-  };
-
-  const handleCropComplete = async (profileImage: Blob) => {
-    try {
-      setShowcropper(false);
-      setLoading(true);
-
-      const Data = {
-        profileImage,
-        _id: formData._id,
-      };
-
-      const response = await axiosInstance.patch(
-        "/mentor/profile/image_change",
-        Data,
-        {
-          headers: { "Content-Type": "multipart/form-data" },
+        if (error) {
+          toast.error("invalid file type");
+          console.log(error);
+          return;
         }
-      );
-
-      if (response.data && response.data.status == 200) {
-        toast.success(response.data.message);
-
-        setMentor((prevMentee) => {
-          if (prevMentee === null) {
-            return null;
-          }
-          return {
-            ...prevMentee,
-            profileUrl: response.data.profileUrl,
-          };
-        });
+        setProfileImage(file);
+        setShowcropper(true);
       }
-    } catch (error: unknown) {
-      errorHandler(error);
-    } finally {
-      setLoading(false);
-    }
-  };
+    },
+    []
+  );
+
+  const handleCropComplete = useCallback(
+    async (profileImage: Blob) => {
+      try {
+        setShowcropper(false);
+        setLoading(true);
+
+        const response = await fetchChangeImage(
+          profileImage,
+          formData?._id as string
+        );
+
+        if (response.data && response.data?.status == 200) {
+          toast.success(response.data?.message);
+
+          setMentor((prevMentee) => {
+            if (prevMentee === null) {
+              return null;
+            }
+            return {
+              ...prevMentee,
+              profileUrl: response.data?.profileUrl,
+            };
+          });
+        }
+      } catch (error: unknown) {
+        errorHandler(error);
+      } finally {
+        setLoading(false);
+      }
+    },
+    [formData._id]
+  );
 
   return (
     <div className="relative mt-16">
@@ -339,10 +367,13 @@ const MentorProfile: React.FC = () => {
             </div>
             <div className="ml-4 mb-0 ">
               <div className="flex flex-row">
-              <h1 className="flex text-2xl font-bold text-gray-700 pt-2">
-                {mentor?.name}
-              </h1>
-              <span className="mt-3"> <BadgeCheckIcon className="ml-1 text-green-600 w-5"/></span>
+                <h1 className="flex text-2xl font-bold text-gray-700 pt-2">
+                  {mentor?.name}
+                </h1>
+                <span className="mt-3">
+                  {" "}
+                  <BadgeCheckIcon className="ml-1 text-green-600 w-5" />
+                </span>
               </div>
               <div className="">
                 <div>
@@ -617,15 +648,16 @@ const MentorProfile: React.FC = () => {
                 <div className="space-y-2">
                   <FileUpload onFileSelect={(file) => setResume(file)} />
 
-                  {mentor?.resume &&
-                    typeof mentor?.resume === "string" &&
-                    (resume ? (
-                      ""
-                    ) : (
-                      <p className="from-neutral-600 text-gray-400">
-                        {`${mentor?.resume}`.slice(-10)}
-                      </p>
-                    )) // Show file URL or name if it's just a string
+                  {
+                    mentor?.resume &&
+                      typeof mentor?.resume === "string" &&
+                      (resume ? (
+                        ""
+                      ) : (
+                        <p className="from-neutral-600 text-gray-400">
+                          {`${mentor?.resume}`.slice(-10)}
+                        </p>
+                      )) // Show file URL or name if it's just a string
                   }
 
                   {errors.resume && (
@@ -635,7 +667,6 @@ const MentorProfile: React.FC = () => {
               </div>
 
               <div className="mt-6 flex justify-end">
-             
                 <button
                   type="submit"
                   onClick={handleSaveChanges}
@@ -748,7 +779,6 @@ const MentorProfile: React.FC = () => {
                 </div>
               </div>
               <div className="mt-6 flex justify-end ">
-
                 <button
                   onClick={handleChangePassword}
                   className="px-4 py-2 bg-[#ff8800] text-white rounded-md hover:bg-[#e67a00]"

@@ -11,8 +11,8 @@ import ChangePassword from '../../components/Auth/ChangePassword';
 import Modal from '../../components/Common/common4All/Modal';
 import Spinner from '../../components/Common/common4All/Spinner';
 import { toast } from 'react-toastify';
-import { unProtectedAPI } from '../../Config/Axios';
 import { errorHandler } from '../../Utils/Reusable/Reusable';
+import { fetchForgotPassOtpVerify, fetchForgotPassSendOtp, fetchForgotPassword, forgetPasswordResendOtp } from '../../service/commonApi';
 
 
 const ForgetPassword: React.FC = () => {
@@ -52,7 +52,8 @@ const ForgetPassword: React.FC = () => {
             setLoading(true);
 
 
-            const response = await unProtectedAPI.post(`/auth/forgot_password/${user == 'mentee' ? 'mentee' : 'mentor'}`, { email });
+            const response = await fetchForgotPassSendOtp(email,user as string)
+            
 
             if (response?.status == 200 && response?.data?.success) {
 
@@ -79,7 +80,8 @@ const ForgetPassword: React.FC = () => {
 
         try {
             setLoading(true)
-            const response = await unProtectedAPI.post('/auth/resend-otp', { email })
+            const response = await forgetPasswordResendOtp(email)
+            
 
             if (response.data?.success) {
 
@@ -111,8 +113,8 @@ const ForgetPassword: React.FC = () => {
             setLoading(true);
 
 
-            const response = await unProtectedAPI.post(`/auth/verify-otp`, { email, otp, type: 'forgot_Passsword' });
-
+            const response = await fetchForgotPassOtpVerify(email,otp)
+           
 
             console.log(response?.data && response?.status);
 
@@ -139,7 +141,8 @@ const ForgetPassword: React.FC = () => {
             console.log('password  changed', password);
             setIsModalOpen(false);
 
-            const response = await unProtectedAPI.put(`/auth/change_password/${user == 'mentee' ? 'mentee' : 'mentor'}`, { email, password });
+            const response = await fetchForgotPassword(user as string,email,password)
+            
 
 
             console.log(response?.data.message, response?.status);

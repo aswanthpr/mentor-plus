@@ -11,7 +11,7 @@ interface StatsCardProps {
 
 }
 
-const StatsCard: React.FC<StatsCardProps> = ({
+const StatsCard: React.FC<StatsCardProps> = React.memo (({
   title,
   value,
   icon: Icon,
@@ -32,6 +32,6 @@ const StatsCard: React.FC<StatsCardProps> = ({
      
     </div>
   );
-};
+});
 
 export default StatsCard;

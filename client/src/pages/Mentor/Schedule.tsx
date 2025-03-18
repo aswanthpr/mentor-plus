@@ -8,12 +8,7 @@ import { ScheduleModal } from "../../components/Common/Schedule/ScheduleModal";
 import { TimeSlotCard } from "../../components/Common/Schedule/TimeSlotCard";
 import { errorHandler } from "../../Utils/Reusable/Reusable";
 import ConfirmToast from "../../components/Common/common4All/ConfirmToast";
-import {
-  createNewSlots,
-  deleteTimeSlots,
-  fetchTimeSlots,
-} from "../../service/api";
-
+import { createNewSlots, deleteTimeSlots, fetchTimeSlots } from "../../service/mentorApi";
 const Schedule: React.FC = () => {
   const [refresh, setRefresh] = useState<boolean>(false);
   const [isModalOpen, setIsModalOpen] = useState(false);

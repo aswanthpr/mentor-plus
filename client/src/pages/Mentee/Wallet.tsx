@@ -5,14 +5,15 @@ import AddMoneyModal from "../../components/Common/wallet/AddMoneyModal";
 import TransactionList from "../../components/Common/wallet/TransactionList";
 import TransactionFilters from "../../components/Common/wallet/TransactionFilter";
 import { Pagination } from "../../components/Common/common4All/Pagination";
-import { fetchAddMoney, fetchWalletData } from "../../service/api";
+import { fetchWalletData } from "../../service/commonApi";
+import { fetchAddMoney } from "../../service/menteeApi";
 
 const WalletPage: React.FC = () => {
   const itemsPerPage = 8;
   const [walletData, setWalletData] = useState<Iwallet>({
     _id: "",
     userId: "",
-    balance:"",
+    balance: "",
     transaction: [],
   });
   const [showAddMoney, setShowAddMoney] = useState(false);
@@ -72,7 +73,7 @@ const WalletPage: React.FC = () => {
           <WalletCard
             icon={Wallet}
             title="Wallet Balance"
-            amount={Number(walletData?.balance) }
+            amount={Number(walletData?.balance)}
             actionButton={{
               label: "Add Money",
               onClick: () => setShowAddMoney(true),

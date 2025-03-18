@@ -354,8 +354,8 @@ export class bookingService implements IbookingService {
             }
             return;
           }
-          const totalAmount = (session.amount_total || 0) / 100;
-          const time = new Date(session.created * 1000).toISOString();
+          const totalAmount = (session?.amount_total || 0) / 100;
+          const time = new Date(session?.created * 1000).toISOString();
 
           //checking wallet exist or not
           const walletResponse = (await this.__walletRepository.findWallet(

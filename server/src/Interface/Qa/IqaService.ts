@@ -15,7 +15,7 @@ export interface IqaService {
     createNewAnswer(answer:string,questionId:ObjectId,userId:ObjectId,userType:string):Promise<{success:boolean,message:string,status:number,answers:Ianswer |null}>
     editAnswer(content:string,answerId:string):Promise<{success:boolean,message:string,status:number,answer:string|null}>;
     deleteQuestion(questionId: string): Promise<{ success: boolean; message: string; status: number; }>;
-    allQaData(search:string|undefined,status:string,sortField:string,sortOrder:string,page:string,limit:string):Promise<{success:boolean;message:string;status:number;questions:Iquestion[] | undefined,docCount:number|undefined}>;
+    allQaData(search:string,status:string,sortField:string,sortOrder:string,page:number,limit:number):Promise<{success:boolean;message:string;status:number;questions:Iquestion[] | undefined,totalPage:number|undefined}>;
     changeQuestionStatus(questionId:string):Promise<{success:boolean;message:string;status:number;result?:boolean}>;
     changeAnswerStatus(answerId:string):Promise<{success:boolean;message:string;status:number;result?:boolean}>;
 

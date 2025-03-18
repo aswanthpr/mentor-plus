@@ -241,8 +241,8 @@ class bookingService {
                             }
                             return;
                         }
-                        const totalAmount = (session.amount_total || 0) / 100;
-                        const time = new Date(session.created * 1000).toISOString();
+                        const totalAmount = ((session === null || session === void 0 ? void 0 : session.amount_total) || 0) / 100;
+                        const time = new Date((session === null || session === void 0 ? void 0 : session.created) * 1000).toISOString();
                         //checking wallet exist or not
                         const walletResponse = (yield this.__walletRepository.findWallet(menteeObjectId));
                         let newWallet = null;

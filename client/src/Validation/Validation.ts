@@ -1,5 +1,8 @@
 import * as EmailValidator from "email-validator";
-
+export const linkedinUrlPattern =
+  /^https:\/\/www\.linkedin\.com\/in\/[a-zA-Z0-9_-]+\/?$/;
+export const githubUrlPattern = /^https:\/\/github\.com\/[a-zA-Z0-9_-]+\/?$/;
+export const noNumbersOrSymbols = /^[a-zA-Z\s]+$/;
 
 export const validateName = (name: string): string | undefined => {
   if (name.length < 4 || name.length > 25) {
@@ -10,7 +13,6 @@ export const validateName = (name: string): string | undefined => {
   }
   return undefined;
 };
-
 
 export const validateEmail = (email: string): string | undefined => {
   if (!email) {
@@ -24,7 +26,6 @@ export const validateEmail = (email: string): string | undefined => {
   return undefined;
 };
 
-
 export const validatePassword = (password: string): string | undefined => {
   const passwordRegex =
     /^(?=.*[A-Za-z])(?=.*\d)(?=.*[!@#$%^&*])[A-Za-z\d!@#$%^&*]{6,}$/;
@@ -37,7 +38,6 @@ export const validatePassword = (password: string): string | undefined => {
 
   return undefined;
 };
-
 
 export const validateConfirmPassword = (
   confirmPassword: string,
@@ -74,7 +74,6 @@ export const validatePhone = (phone: string) => {
   return undefined;
 };
 
-
 export const validateEmails = (email: string) => {
   const emailPattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
   if (!email) {
@@ -89,7 +88,6 @@ export const validateEmails = (email: string) => {
   }
   return "";
 };
-
 
 export const validatePhones = (phone: string) => {
   const phonePattern = /^[0-9]{10}$/;
@@ -113,7 +111,6 @@ export const validateNames = (name: string) => {
   return "";
 };
 
-
 export const validateEducation = (education: string) => {
   const educationPattern = /^[a-zA-Z,.\s]+$/;
   if (!education) {
@@ -136,7 +133,6 @@ export const validateCurrentPosition = (currentPosition: string) => {
   return "";
 };
 
-
 export const validateLinkedinUrl = (linkedinUrl: string) => {
   if (linkedinUrl && !/^https:\/\/www\.linkedin\.com\/in\//.test(linkedinUrl)) {
     return "LinkedIn URL must start with https://www.linkedin.com/in/";
@@ -144,14 +140,12 @@ export const validateLinkedinUrl = (linkedinUrl: string) => {
   return "";
 };
 
-
 export const validateGithubUrl = (githubUrl: string) => {
   if (githubUrl && !/^https:\/\/github\.com\//.test(githubUrl)) {
     return "GitHub URL must start with https://github.com/";
   }
   return "";
 };
-
 
 export const validateBio = (bio: string) => {
   const wordCount = bio.split(/\s+/).length;
@@ -170,19 +164,16 @@ export const validateBio = (bio: string) => {
 export const validateImageFile = (
   file: File | undefined
 ): string | undefined => {
-
   if (!file) {
     return "";
   }
 
   const validImageTypes = ["image/png", "image/jpeg", "image/jpg"];
-  const maxFileSize = 5 * 1024 * 1024; 
-
+  const maxFileSize = 5 * 1024 * 1024;
 
   if (!validImageTypes.includes(file.type)) {
     return "Only PNG, JPG, and JPEG images are allowed.";
   }
-
 
   if (file.size > maxFileSize) {
     return "File size must be less than 5MB.";
@@ -204,8 +195,9 @@ export const validateSkills = (skills: string[]) => {
   return "";
 };
 
-
-export const ValidatingIsOverlapping = (slots: { startTime: string; endTime: string }[]) => {
+export const ValidatingIsOverlapping = (
+  slots: { startTime: string; endTime: string }[]
+) => {
   for (let i = 0; i < slots.length; i++) {
     for (let j = i + 1; j < slots.length; j++) {
       const startA = slots[i].startTime;

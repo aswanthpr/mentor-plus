@@ -1,28 +1,28 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { Table } from "../../components/Admin/Table";
 import Modal from "../../components/Common/common4All/Modal";
 import { StatusBadge } from "../../components/Admin/StatusBadge";
 import {
   Eye,
   XCircle,
-  CheckCircle, 
+  CheckCircle,
   Search,
   Filter,
   ArrowUpDown,
 } from "lucide-react";
 import InputField from "../../components/Auth/InputField";
-import { API } from "../../Config/adminAxios";
-
 import Spinner from "../../components/Common/common4All/Spinner";
 import { Pagination, Tooltip } from "@mui/material";
 import { errorHandler } from "../../Utils/Reusable/Reusable";
 import { toast } from "react-toastify";
 import { TFilter, TSort, TSortOrder } from "../../Types/type";
+import {
+  changeQuestionStatus,
+  fetchChangeAnswerStatus,
+  fetchQuestionMangement,
+} from "../../service/adminApi";
 
-
-const QUESTIONS_PER_PAGE = 6;
-
-
+const QUESTIONS_PER_PAGE = 8;
 
 const QA_mgt: React.FC = () => {
   const [currentPage, setCurrentPage] = useState(1);
@@ -38,86 +38,59 @@ const QA_mgt: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [totalDocuments, setTotalDocuments] = useState<number>(0);
 
-  console.log(sortField, sortOrder, statusFilter, searchQuery);
-  // Fetch questions from API
-  const fetchQuestions = async () => {
 
+  // Fetch questions from API
+  const fetchQuestions = useCallback(async () => {
     try {
-      let flag = true
-      const intravel =  setTimeout(() => {
-        setLoading(true)
+      let flag = true;
+      const intravel = setTimeout(() => {
+        setLoading(true);
       }, 1000);
-      const { data, status } = await API.get(`/admin/qa-management`, {
-        params: {
-          search: searchQuery,
-          Status: statusFilter,
-          sortField,
-          sortOrder,
-          page: currentPage,
-          limit: QUESTIONS_PER_PAGE,
-        },
-      });
-      console.log(data?.questions);
-      if (status === 200 && data?.success&&flag) {
-        setQuestions(data?.questions);
-        setTotalDocuments(data?.docCount);
+      const response = await fetchQuestionMangement(
+        searchQuery,
+        statusFilter,
+        sortField,
+        sortOrder,
+        currentPage,
+        QUESTIONS_PER_PAGE
+      );
+
+      console.log(response?.data?.questions);
+      if (response?.status === 200 && response?.data?.success && flag) {
+        setQuestions(response?.data?.questions);
+        setTotalDocuments(response?.data?.totalPage);
       }
-      clearInterval(intravel)
-      return ()=>{
-        flag=false
-      }
+      clearInterval(intravel);
+      return () => {
+        flag = false;
+      };
     } catch (error) {
       console.error("Error fetching questions:", error);
-    } finally{
-      setLoading(false)
+    } finally {
+      setLoading(false);
     }
-  };
+  }, [currentPage, searchQuery, sortField, sortOrder, statusFilter]);
 
   useEffect(() => {
-
     fetchQuestions();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [sortField, searchQuery, sortOrder, statusFilter, currentPage]);
+  }, [
+    sortField,
+    searchQuery,
+    sortOrder,
+    statusFilter,
+    currentPage,
+    fetchQuestions,
+  ]);
 
-  const filterQuestions = (questions: IQuestion[]) => {
-    return questions
-      .filter(
-        (q) =>
-          ((q.content &&
-            q.content.toLowerCase().includes(searchQuery.toLowerCase())) ||
-            (q?.user &&
-              q?.user?.name
-                .toLowerCase()
-                .includes(searchQuery.toLowerCase()))) &&
-          (statusFilter === "all" ||
-            (statusFilter === "blocked" && q?.isBlocked) ||
-            (statusFilter === "active" && !q?.isBlocked))
-      )
-      .sort((a, b) => {
-        if (sortField === "createdAt") {
-          return sortOrder === "asc"
-            ? new Date(a?.createdAt).getTime() -
-                new Date(b?.createdAt).getTime()
-            : new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
-        } else {
-          return sortOrder === "asc"
-          ? (Number(a?.answers) || 0) - (Number(b?.answers) || 0)
-          : (Number(b?.answers) || 0) - (Number(a?.answers) || 0);
-      }
-      });
-  };
-
-  const toggleQuestionBlock = async (questionId: string) => {
+  const toggleQuestionBlock = useCallback(async (questionId: string) => {
     console.log("Toggle question block:", questionId);
     try {
       if (!questionId) {
         toast.error("Credential not found");
         return;
       }
-      const response = await API.patch(
-        `/admin/qa_management/change_question_status`,
-        { questionId }
-      );
+      const response = await changeQuestionStatus(questionId);
+
       if (response.data?.success && response.status === 200) {
         toast.dismiss();
         setQuestions((prevQuestions) =>
@@ -130,81 +103,78 @@ const QA_mgt: React.FC = () => {
     } catch (error: unknown) {
       errorHandler(error);
     }
-  };
+  }, []);
 
-  const toggleAnswerBlock = async (questionId: string, answerId: string) => {
-    console.log(questionId, answerId, "qkaslkdjflkasdjflajsjl");
-    try {
-      if (!questionId || !answerId) {
-        toast.error("credential not found");
-        return;
-      }
-      // setLoading(true)
-      const response = await API.patch(
-        `/admin/qa_management/change_answer_status`,
-        { answerId }
-      );
-      console.log(response?.data, response.status, response.data?.message);
+  const toggleAnswerBlock = useCallback(
+    async (questionId: string, answerId: string) => {
+      try {
+        if (!questionId || !answerId) {
+          toast.error("credential not found");
+          return;
+        }
+        // setLoading(true)
+        const response = await fetchChangeAnswerStatus(answerId);
 
-      if (response.data?.success && response?.status === 200) {
-        // toast.dismiss();
+        console.log(response?.data, response.status, response.data?.message);
 
-        setQuestions((prevQuestions) => {
-          return prevQuestions.map((question) => {
-            if (question._id === questionId) {
-              return {
-                ...question,
-                answerData: question.answerData?.map((ans) => {
-                  if (ans._id === answerId) {
-                    const updatedAnswer = {
-                      ...ans,
-                      isBlocked: !ans.isBlocked,
-                    };
-                    console.log("Updated Answer:", updatedAnswer);
-                    return updatedAnswer;
-                  }
-                  return ans;
-                }),
-              };
-            }
-            return question;
+        if (response.data?.success && response?.status === 200) {
+          // toast.dismiss();
+
+          setQuestions((prevQuestions) => {
+            return prevQuestions.map((question) => {
+              if (question._id === questionId) {
+                return {
+                  ...question,
+                  answerData: question.answerData?.map((ans) => {
+                    if (ans._id === answerId) {
+                      const updatedAnswer = {
+                        ...ans,
+                        isBlocked: !ans.isBlocked,
+                      };
+                      console.log("Updated Answer:", updatedAnswer);
+                      return updatedAnswer;
+                    }
+                    return ans;
+                  }),
+                };
+              }
+              return question;
+            });
           });
-        });
-        setSelectedQuestion((prevSelectedQuestion) => {
-          if (!prevSelectedQuestion) return prevSelectedQuestion;
+          setSelectedQuestion((prevSelectedQuestion) => {
+            if (!prevSelectedQuestion) return prevSelectedQuestion;
 
-          return {
-            ...prevSelectedQuestion,
-            answerData: prevSelectedQuestion.answerData?.map((ans) =>
-              ans._id === answerId ? { ...ans, isBlocked: !ans.isBlocked } : ans
-            ),
-          };
-        });
+            return {
+              ...prevSelectedQuestion,
+              answerData: prevSelectedQuestion.answerData?.map((ans) =>
+                ans._id === answerId
+                  ? { ...ans, isBlocked: !ans.isBlocked }
+                  : ans
+              ),
+            };
+          });
 
-        toast.success(response.data?.message);
+          toast.success(response.data?.message);
+        }
+      } catch (error: unknown) {
+        errorHandler(error);
       }
-    } catch (error: unknown) {
-      errorHandler(error);
-    }
-  };
+    },
+    []
+  );
 
-  const filteredQuestions = filterQuestions(questions);
-  const totalPages = Math.ceil(totalDocuments / QUESTIONS_PER_PAGE);
-  const indexOfLastCategory = currentPage * QUESTIONS_PER_PAGE;
-  const indexOfFirstCategory = indexOfLastCategory - QUESTIONS_PER_PAGE;
-  const currentQuestions = filteredQuestions.slice(indexOfFirstCategory, indexOfLastCategory);
-
-  // (currentPage-1 ) * QUESTIONS_PER_PAGE,
-  // currentPage * QUESTIONS_PER_PAGE
-const handlePageChange = (event: React.ChangeEvent<unknown>, value: number) => {
-  event.preventDefault()
-    setCurrentPage(value);
-  };
+  const handlePageChange = useCallback(
+    (event: React.ChangeEvent<unknown>, value: number) => {
+      event.preventDefault();
+      setCurrentPage(value);
+    },
+    []
+  );
   return (
-    <div className="p-6 pb-24">
-      <h1 className="text-3xl font-bold mb-8">Q&A Management</h1>
+    <div className="p-6 mt-16  ">
+ 
 
-      <div className="bg-white rounded-lg shadow-md p-6 mb-6">
+      <div className="bg-white rounded-lg shadow-md p-6 h-[87vh]">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
           {/* Search */}
           <div className="relative">
@@ -261,7 +231,7 @@ const handlePageChange = (event: React.ChangeEvent<unknown>, value: number) => {
           <Spinner />
         ) : (
           <Table headers={["Question", "Answers", "Status", "Actions"]}>
-            {currentQuestions.map((question) => (
+            {questions?.map((question) => (
               <tr key={question._id}>
                 <td className="px-6 py-4 ">
                   <div className="max-w-md">
@@ -284,7 +254,6 @@ const handlePageChange = (event: React.ChangeEvent<unknown>, value: number) => {
                     View ({question?.answerData?.length})
                   </button>
                 </td>
-
 
                 <td className="px-6 py-4 text-center">
                   <StatusBadge
@@ -323,22 +292,20 @@ const handlePageChange = (event: React.ChangeEvent<unknown>, value: number) => {
             ))}
           </Table>
         )}
-       <hr className="h-px my-8 bg-gray-200 border-0 dark:bg-gray-700"/>
-            <div className="flex justify-center mt-2">
-      <Pagination
-        count={totalPages}
-        page={currentPage}  // Current page
-        onChange={handlePageChange}  // Page change handler
-        color="standard"  // Pagination color
-        shape="circular"  // Rounded corners
-        size="small"  // Size of pagination
-        siblingCount={1}  // Number of sibling pages shown next to the current page
-        boundaryCount={1}  // Number of boundary pages to show at the start and end
-      />
+        <hr className="h-px  bg-gray-200 border-0 dark:bg-gray-700" />
+        <div className="flex justify-center mt-3">
+          <Pagination
+            count={totalDocuments}
+            page={currentPage} // Current page
+            onChange={handlePageChange} // Page change handler
+            color="standard" // Pagination color
+            shape="circular" // Rounded corners
+            size="small" // Size of pagination
+            siblingCount={1} // Number of sibling pages shown next to the current page
+            boundaryCount={1} // Number of boundary pages to show at the start and end
+          />
+        </div>
       </div>
-      </div>
-
-  
 
       <Modal
         isOpen={isAnswersModalOpen}

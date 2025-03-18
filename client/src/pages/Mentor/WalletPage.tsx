@@ -5,8 +5,9 @@ import WithdrawModal from "../../components/Common/wallet/WithdrawModal";
 import TransactionList from "../../components/Common/wallet/TransactionList";
 import TransactionFilters from "../../components/Common/wallet/TransactionFilter";
 import { Pagination } from "../../components/Common/common4All/Pagination";
-import { fetchHandleWithdraw, fetchWalletData } from "../../service/api";
 import { toast } from "react-toastify";
+import { fetchWalletData } from "../../service/commonApi";
+import { fetchHandleWithdraw } from "../../service/mentorApi";
 
 const WalletPage: React.FC = () => {
   const [walletData, setWalletData] = useState<Iwallet>({

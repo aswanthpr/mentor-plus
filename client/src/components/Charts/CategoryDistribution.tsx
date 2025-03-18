@@ -11,7 +11,7 @@ interface CategoryDistributionProps {
   colors: string[];
 }
 
-const CategoryDistribution: React.FC<CategoryDistributionProps> = ({ data, colors }) => {
+const CategoryDistribution: React.FC<CategoryDistributionProps> =React.memo( ({ data, colors }) => {
   return (
     <div className="bg-white p-6 rounded-lg shadow-sm">
       <h3 className="text-lg font-semibold mb-6">Category Distribution</h3>
@@ -38,6 +38,6 @@ const CategoryDistribution: React.FC<CategoryDistributionProps> = ({ data, color
       </div>
     </div>
   );
-};
+});
 
 export default CategoryDistribution;

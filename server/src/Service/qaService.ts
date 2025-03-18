@@ -14,9 +14,8 @@ class qaService implements IqaService {
   constructor(
     private readonly __questionRepository: IquestionRepository,
     private readonly __answerRepository: IanswerRepository,
-    private readonly __notificationRepository:InotificationRepository,
-
-  ) { }
+    private readonly __notificationRepository: InotificationRepository
+  ) {}
 
   async addQuestionService(
     Data: IcreateQuestion,
@@ -25,7 +24,7 @@ class qaService implements IqaService {
     success: boolean;
     message: string;
     status: number;
-    question: Iquestion | undefined; 
+    question: Iquestion | undefined;
   }> {
     try {
       const { title, content, tags } = Data;
@@ -44,7 +43,10 @@ class qaService implements IqaService {
           question: undefined,
         };
       }
-      const result = await this.__questionRepository.isQuestionExist(title, content)
+      const result = await this.__questionRepository.isQuestionExist(
+        title,
+        content
+      );
       if (!result) {
         return {
           success: false,
@@ -68,7 +70,6 @@ class qaService implements IqaService {
         };
       }
 
-     
       return {
         success: true,
         message: "Question created Successfully!",
@@ -77,9 +78,10 @@ class qaService implements IqaService {
       };
     } catch (error: unknown) {
       throw new Error(
-        `Error during creating question${error instanceof Error ? error.message : String(error)
+        `Error during creating question${
+          error instanceof Error ? error.message : String(error)
         }`
-      ); 
+      );
     }
   }
 
@@ -106,7 +108,7 @@ class qaService implements IqaService {
         userId,
         filter
       );
-     
+
       return {
         success: true,
         message: "Data retrieved successfully",
@@ -116,7 +118,8 @@ class qaService implements IqaService {
       };
     } catch (error: unknown) {
       throw new Error(
-        `Error during get questions ${error instanceof Error ? error.message : String(error)
+        `Error during get questions ${
+          error instanceof Error ? error.message : String(error)
         }`
       );
     }
@@ -125,7 +128,7 @@ class qaService implements IqaService {
   async editQuestion(
     questionId: string,
     updatedQuestion: Iquestion,
-    filter:string,
+    filter: string
   ): Promise<{
     success: boolean;
     message: string;
@@ -133,7 +136,7 @@ class qaService implements IqaService {
     question: Iquestion[] | null;
   }> {
     try {
-      if (!questionId || !updatedQuestion||!filter) {
+      if (!questionId || !updatedQuestion || !filter) {
         return {
           success: false,
           message: "Invalid input: title, content, and tags are required",
@@ -152,11 +155,12 @@ class qaService implements IqaService {
         success: true,
         message: "Edit Successfully!",
         status: 200,
-        question:response,
+        question: response,
       };
     } catch (error: unknown) {
       throw new Error(
-        `Error during edit questions ${error instanceof Error ? error.message : String(error)
+        `Error during edit questions ${
+          error instanceof Error ? error.message : String(error)
         }`
       );
     }
@@ -173,8 +177,7 @@ class qaService implements IqaService {
     answers: Ianswer | null;
   }> {
     try {
-
-      if (!answer || !questionId || !userId || !userType) { 
+      if (!answer || !questionId || !userId || !userType) {
         return {
           success: false,
           message: "Credential missing",
@@ -182,15 +185,14 @@ class qaService implements IqaService {
           answers: null,
         };
       }
-      const response = await this?.__answerRepository
-        .createNewAnswer(
-          answer,
-          questionId,
-          userId,
-          userType,
-        );
+      const response = await this?.__answerRepository.createNewAnswer(
+        answer,
+        questionId,
+        userId,
+        userType
+      );
 
-      if (!response?.menteeId||!response?.result) {
+      if (!response?.menteeId || !response?.result) {
         return {
           success: false,
           message: "Answer not saved !unexpected error",
@@ -198,30 +200,33 @@ class qaService implements IqaService {
           answers: null,
         };
       }
-      
-      if(userId!== response?.menteeId){
 
-       const notif =  await this.__notificationRepository.createNotification(
-         response?.menteeId,
+      if (userId !== response?.menteeId) {
+        const notif = await this.__notificationRepository.createNotification(
+          response?.menteeId,
           "You've Got a New Answer!",
           "Good news! you got replied to your question ",
           "mentee",
           `${process.env.CLIENT_ORIGIN_URL}/mentee/qa`
-        )
-        const  user_Id = String(response?.menteeId);
-        socketManager.sendNotification(user_Id,notif as Inotification);
+        );
+        const user_Id = String(response?.menteeId);
+        socketManager.sendNotification(user_Id, notif as Inotification);
       }
       const questId = questionId as unknown as string;
 
-      const result = await this.__questionRepository.countAnswer(questId)
-      console.log(response, 'thsi is the respnose of answer tha tcreated me ', result)
-      if (!result){
+      const result = await this.__questionRepository.countAnswer(questId);
+      console.log(
+        response,
+        "thsi is the respnose of answer tha tcreated me ",
+        result
+      );
+      if (!result) {
         return {
           success: false,
           message: "Unexpected Error ! answer not created",
           status: Status.NotFound,
           answers: null,
-        }
+        };
       }
 
       return {
@@ -229,16 +234,24 @@ class qaService implements IqaService {
         message: "Answer Created Successfully",
         status: Status.Ok,
         answers: response?.result,
-      }
-
+      };
     } catch (error: unknown) {
       throw new Error(
-        `Error during create answer ${error instanceof Error ? error.message : String(error)
+        `Error during create answer ${
+          error instanceof Error ? error.message : String(error)
         }`
       );
     }
   }
-  async editAnswer(content: string, answerId: string): Promise<{ success: boolean; message: string; status: number; answer: string | null; }> {
+  async editAnswer(
+    content: string,
+    answerId: string
+  ): Promise<{
+    success: boolean;
+    message: string;
+    status: number;
+    answer: string | null;
+  }> {
     try {
       if (!answerId || !content) {
         return {
@@ -249,8 +262,11 @@ class qaService implements IqaService {
         };
       }
 
-      const result = await this.__answerRepository.editAnswer(content, answerId);
-      console.log(result, 'this is result');
+      const result = await this.__answerRepository.editAnswer(
+        content,
+        answerId
+      );
+      console.log(result, "this is result");
       if (!result) {
         return {
           success: false,
@@ -259,16 +275,23 @@ class qaService implements IqaService {
           answer: null,
         };
       }
-      return { success: true, message: 'edited successfully', status: Status.Ok, answer: result?.answer };
-
+      return {
+        success: true,
+        message: "edited successfully",
+        status: Status.Ok,
+        answer: result?.answer,
+      };
     } catch (error: unknown) {
       throw new Error(
-        `Error during edit answer ${error instanceof Error ? error.message : String(error)
+        `Error during edit answer ${
+          error instanceof Error ? error.message : String(error)
         }`
       );
     }
   }
-  async deleteQuestion(questionId: string): Promise<{ success: boolean; message: string; status: number; }> {
+  async deleteQuestion(
+    questionId: string
+  ): Promise<{ success: boolean; message: string; status: number }> {
     try {
       // Validate input
       if (!questionId) {
@@ -278,7 +301,9 @@ class qaService implements IqaService {
           status: Status.BadRequest,
         };
       }
-      const response = await this.__questionRepository.deleteQuestion(questionId);
+      const response = await this.__questionRepository.deleteQuestion(
+        questionId
+      );
 
       // Check if the deletion was successful
       if (!response || response.deletedCount !== 1) {
@@ -289,21 +314,18 @@ class qaService implements IqaService {
         };
       }
       //reducing the count of answers after delete the document
-      await this.__questionRepository.reduceAnswerCount(questionId)
+      await this.__questionRepository.reduceAnswerCount(questionId);
       //Delete the quesiton with its answer
-      await this.__answerRepository.deleteAnswer(questionId)
+      await this.__answerRepository.deleteAnswer(questionId);
 
       //returning the success response
       return {
         success: true,
         message: "Data successfully fetched",
         status: Status.Ok,
-
       };
-
-
     } catch (error: unknown) {
-      //console the error 
+      //console the error
       console.error(
         //using different color in terminal to show the error
         "\x1b[34m%s\x1b[0m",
@@ -319,66 +341,95 @@ class qaService implements IqaService {
     }
   }
 
-  //this is for admin side qa-management 
-  // /admin/qa-management 
+  //this is for admin side qa-management
+  // /admin/qa-management
 
-  async allQaData(search: string, status: string, sortField: string, sortOrder: string, page: string, limit: string): Promise<{ success: boolean; message: string; status: number; questions: Iquestion[] | undefined, docCount: number | undefined }> {
+  async allQaData(
+    search: string,
+    status: string,
+    sortField: string,
+    sortOrder: string,
+    page: number,
+    limit: number
+  ): Promise<{
+    success: boolean;
+    message: string;
+    status: number;
+    questions: Iquestion[] | undefined;
+    totalPage: number | undefined;
+  }> {
     try {
-     
-      if (!status || !sortField ||
-        !sortOrder || !page || !limit) {
+      if (!status || !sortField || !sortOrder || page < 1 || limit < 1) {
         return {
           success: false,
-          message: 'credentials are missing',
+          message: "Invalid pagination or missing parameters",
           status: Status.BadRequest,
           questions: undefined,
-          docCount: undefined
-        }
+          totalPage: undefined,
+        };
       }
+      const pageNo = Math.max(page, 1);
+      const limitNo = Math.max(limit, 6);
+      const skip = (pageNo - 1) * limitNo;
 
-      // let  pages  = parseInt(page, 10) || 1 ;
-      // const limits = parseInt(limit, 10) || 10;
-      // const skip = (parseInt(pages) - 1) * parseInt(limits);
-      // pages = Math.max(pages, 1);
-      const skip = (parseInt(page) - 1) * parseInt(limit);
-      const respnose = await this.__questionRepository.allQaData(skip, search, status, limit, sortOrder, sortField);
+      const response = await this.__questionRepository.allQaData(
+        skip,
+        search,
+        status,
+        limitNo,
+        sortOrder,
+        sortField
+      );
 
+      const totalPage = Math.ceil((response?.docCount as number) / limitNo);
+      console.log(response?.docCount, totalPage, limit, skip, page);
       return {
         success: true,
         message: "data fetched successfully",
         status: Status.Ok,
-        questions: respnose?.questions,
-        docCount: respnose?.docCount
-      }
+        questions: response?.questions,
+        totalPage,
+      };
     } catch (error: unknown) {
       throw new Error(
-        `Error during fetch all data to admin ${error instanceof Error ? error.message : String(error)
+        `Error during fetch all data to admin ${
+          error instanceof Error ? error.message : String(error)
         }`
       );
     }
   }
 
-  async changeQuestionStatus(questionId: string): Promise<{ success: boolean; message: string; status: number; result?: boolean; }> {
+  async changeQuestionStatus(
+    questionId: string
+  ): Promise<{
+    success: boolean;
+    message: string;
+    status: number;
+    result?: boolean;
+  }> {
     try {
       if (!questionId) {
         return {
           success: false,
           message: "credential is missing",
           status: Status.BadRequest,
-    
         };
       }
-      const result = await this.__questionRepository.changeQuestionStatus(questionId);
+      const result = await this.__questionRepository.changeQuestionStatus(
+        questionId
+      );
       if (!result) {
-        return { success: false, 
-          message: "Question not found", 
-          status: Status.NotFound };
+        return {
+          success: false,
+          message: "Question not found",
+          status: Status.NotFound,
+        };
       }
       return {
         success: true,
         message: "Status changed successfully",
         status: Status.Ok,
-        result:result?.isBlocked
+        result: result?.isBlocked,
       };
     } catch (error: unknown) {
       throw new Error(
@@ -390,28 +441,36 @@ class qaService implements IqaService {
   }
   //answer status change in admin
   ///admin/qa-management/change-answer-status/
-  async changeAnswerStatus(answerId: string): Promise<{ success: boolean; message: string; status: number; result?: boolean; }> {
+  async changeAnswerStatus(
+    answerId: string
+  ): Promise<{
+    success: boolean;
+    message: string;
+    status: number;
+    result?: boolean;
+  }> {
     try {
       if (!answerId) {
         return {
           success: false,
           message: "credential is missing",
           status: Status.BadRequest,
-    
         };
       }
 
       const result = await this.__answerRepository.changeAnswerStatus(answerId);
       if (!result) {
-        return { success: false, 
-          message: "answer not found", 
-          status: Status.NotFound };
+        return {
+          success: false,
+          message: "answer not found",
+          status: Status.NotFound,
+        };
       }
       return {
         success: true,
         message: "Status changed successfully",
         status: Status.Ok,
-        result:result?.isBlocked
+        result: result?.isBlocked,
       };
     } catch (error: unknown) {
       throw new Error(

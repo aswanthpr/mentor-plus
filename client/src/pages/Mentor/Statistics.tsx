@@ -3,7 +3,7 @@ import StatsCard from '../../components/Charts/StatsCard';
 import { DollarSign, Star, TrendingDown, UserCircle } from 'lucide-react';
 import GrowthTrend from '../../components/Charts/GrowthTrend';
 import RevenueChart from '../../components/Charts/RevenueChart';
-import { fetchMentorStatistics } from '../../service/api';
+import { fetchMentorStatistics } from '../../service/mentorApi';
 
 const ChartOverview = () => {
   const [data,setData] = useState({})

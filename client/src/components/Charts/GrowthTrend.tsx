@@ -20,7 +20,7 @@ interface GrowthTrendProps {
   data: GrowthData[];
 }
 
-const GrowthTrend: React.FC<GrowthTrendProps> = ({ data }) => {
+const GrowthTrend: React.FC<GrowthTrendProps> = React.memo(({ data }) => {
   return (
     <div className="bg-white p-6 rounded-lg shadow-sm">
       <h3 className="text-lg font-semibold mb-6">Growth Trend</h3>
@@ -39,6 +39,6 @@ const GrowthTrend: React.FC<GrowthTrendProps> = ({ data }) => {
       </div>
     </div>
   );
-};
+});
 
 export default GrowthTrend;

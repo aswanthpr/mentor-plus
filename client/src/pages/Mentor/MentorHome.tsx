@@ -2,17 +2,15 @@ import { CircleAlertIcon, HandshakeIcon } from "lucide-react";
 import React, { useCallback, useEffect, useState } from "react";
 import InputField from "../../components/Auth/InputField";
 import QuestionFilter from "../../components/Common/Qa/QuestionFilter";
-
 import AnswerModal from "../../components/Common/Qa/AnswerInputModal";
 import QuestionList from "../../components/Common/Qa/QuestionsList";
-import { Pagination } from "../../components/Common/common4All/Pagination";
 import Spinner from "../../components/Common/common4All/Spinner";
 import { axiosInstance } from "../../Config/mentorAxios";
 import AnswerInputModal from "../../components/Common/Qa/AnswerInputModal";
 import { errorHandler } from "../../Utils/Reusable/Reusable";
-import { toast } from "react-toastify";
-import { fetchMentorHomeData } from "../../service/api";
 import InfiniteScroll from "react-infinite-scroll-component";
+import { fetchMentorHomeData } from "../../service/mentorApi";
+import { toast } from "react-toastify";
 
 const MentorHome: React.FC = () => {
   const limit = 6;
@@ -62,7 +60,6 @@ const MentorHome: React.FC = () => {
           );
           setHasMore(page < response?.data?.totalPage);
           setCurrentPage(page);
-       
         }
       } catch (error: unknown) {
         console.log(
@@ -75,7 +72,7 @@ const MentorHome: React.FC = () => {
     [filter, searchQuery]
   );
   useEffect(() => {
-    fetchData(1,true);
+    fetchData(1, true);
   }, [fetchData, filter, searchQuery]);
 
   const fetchMoreQuestion = useCallback(() => {
@@ -84,13 +81,13 @@ const MentorHome: React.FC = () => {
     }
   }, [currentPage, fetchData, hasMore]);
 
-  const handleShowAnswers = (questionId: string): void => {
+  const handleShowAnswers = useCallback((questionId: string): void => {
     const question = questions.find((q) => q._id === questionId);
     if (question) {
       setSelectedQuestion(question);
       setShowAnswerModal(true);
     }
-  };
+  },[questions]);
   const filterQuestions = questions.filter((question) => {
     // Safely check if title, content, and tags exist before calling toLowerCase
     const title = question.title?.toLowerCase() || "";
@@ -103,7 +100,7 @@ const MentorHome: React.FC = () => {
       tags.some((tag) => tag.includes(searchQuery.toLowerCase()))
     );
   });
-  const handleAnswerSubmit = async (answer: string) => {
+  const handleAnswerSubmit = useCallback(async (answer: string) => {
     try {
       setLoading(true);
       const { status, data } = await axiosInstance.post(
@@ -143,9 +140,9 @@ const MentorHome: React.FC = () => {
     } finally {
       setLoading(false);
     }
-  };
+  },[answerQuestionId, filter]);
 
-  const handleEditAnswerSubmit = async (content: string, answerId?: string) => {
+  const handleEditAnswerSubmit = useCallback(async (content: string, answerId?: string) => {
     console.log("Answer Edited: ", { content, answerId });
 
     if (!answerId) return;
@@ -177,22 +174,22 @@ const MentorHome: React.FC = () => {
       setLoading(false);
       setEditAnswerModalOpen(false);
     }
-  };
-  const handleEditAnswer = (content: string, answerId: string) => {
+  },[]);
+  const handleEditAnswer =useCallback( (content: string, answerId: string) => {
     setEditAnswer(content);
     setAnswerId(answerId);
     setEditAnswerModalOpen(true);
-  };
+  },[]);
   return (
     <div>
       <div className="mb-3 mt-16">
         {loading && <Spinner />}
         <div className="flex items-center gap-3 mb-2  justify-center">
-                  <h1 className="text-3xl font-bold text-gray-900  xs:text-xl sm:ml-0 ">
-                    Welcome
-                  </h1>
-                  <HandshakeIcon className="w-6 h-6 text-[#ff8800] mt-1" />
-                </div>
+          <h1 className="text-3xl font-bold text-gray-900  xs:text-xl sm:ml-0 ">
+            Welcome
+          </h1>
+          <HandshakeIcon className="w-6 h-6 text-[#ff8800] mt-1" />
+        </div>
       </div>
 
       <div className="h-0.5 bg-gray-200 w-full" />
@@ -217,27 +214,34 @@ const MentorHome: React.FC = () => {
       </section>
 
       <div className="bg-white p-6 rounded-lg shadow-sm">
-      <InfiniteScroll
-        dataLength={questions?.length}
-        next={fetchMoreQuestion}
-        hasMore={hasMore}
-        loader={<h4 className="text-center my-4">Loading more Questions...</h4>}
-        endMessage={questions.length>0?
-          <p className=" flex justify-center text-center my-4 text-gray-500">
-            <CircleAlertIcon className="w-6 mr-1" /> No more Questions to load.{" "}
-          </p>:""
-        }
-      >
-        <QuestionList
-          questions={filterQuestions}
-          onShowAnswers={handleShowAnswers}
-          setAnswerQuestionId={setAnswerQuestionId}
-          setIsAnswerModalOpen={setAnswerInputModalOpen}
-          currentUserId={mentorId}
-          EditedData={editData}
-          onEditAnswer={handleEditAnswer}
-        />
-      </InfiniteScroll>
+        <InfiniteScroll
+          dataLength={questions?.length}
+          next={fetchMoreQuestion}
+          hasMore={hasMore}
+          loader={
+            <h4 className="text-center my-4">Loading more Questions...</h4>
+          }
+          endMessage={
+            questions.length > 0 ? (
+              <p className=" flex justify-center text-center my-4 text-gray-500">
+                <CircleAlertIcon className="w-6 mr-1" /> No more Questions to
+                load.{" "}
+              </p>
+            ) : (
+              ""
+            )
+          }
+        >
+          <QuestionList
+            questions={filterQuestions}
+            onShowAnswers={handleShowAnswers}
+            setAnswerQuestionId={setAnswerQuestionId}
+            setIsAnswerModalOpen={setAnswerInputModalOpen}
+            currentUserId={mentorId}
+            EditedData={editData}
+            onEditAnswer={handleEditAnswer}
+          />
+        </InfiniteScroll>
       </div>
       {selectedQuestion && (
         <AnswerModal

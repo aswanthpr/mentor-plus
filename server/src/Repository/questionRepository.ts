@@ -10,7 +10,7 @@ class questionRepository
 {
   constructor() {
     super(questionSchema);
-  }
+  } 
 
   async createQuestion(
     title: string,
@@ -535,20 +535,14 @@ class questionRepository
     skip: number,
     search: string,
     status: string,
-    limit: string,
+    limit: number,
     sortOrder: string,
     sortField: string
   ): Promise<{ questions: Iquestion[]; docCount: number } | null> {
     try {
+
       const sortOptions = sortOrder === "asc" ? 1 : -1;
-      console.log(
-        sortField,
-        "field",
-        sortOrder,
-        "order",
-        sortOptions,
-        "option"
-      );
+  
 
       const pipeline: PipelineStage[] = [];
 
@@ -687,10 +681,6 @@ class questionRepository
           },
         }
       );
-      //limit the noof questoins
-      // pipeline.push({
-      //   $sort:{[sortField]:sortOptions},
-      // });
 
       if (sortField === "createdAt") {
         pipeline.push({
@@ -717,7 +707,7 @@ class questionRepository
       });
 
       pipeline.push({
-        $limit: parseInt(limit, 10),
+        $limit:limit,
       });
       //count the total no of doc
       const countPipeline = [

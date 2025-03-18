@@ -15,7 +15,7 @@ declare class questionRepository extends baseRepository<Iquestion> implements Iq
     deleteQuestion(questionId: string): Promise<DeleteResult | undefined>;
     countAnswer(questionId: string): Promise<Iquestion | null>;
     reduceAnswerCount(questionId: string): Promise<Iquestion | null>;
-    allQaData(skip: number, search: string, status: string, limit: string, sortOrder: string, sortField: string): Promise<{
+    allQaData(skip: number, search: string, status: string, limit: number, sortOrder: string, sortField: string): Promise<{
         questions: Iquestion[];
         docCount: number;
     } | null>;

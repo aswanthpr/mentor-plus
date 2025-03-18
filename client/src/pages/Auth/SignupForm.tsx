@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useCallback, useState } from "react";
 import { EyeClosedIcon, EyeIcon  } from "lucide-react";
 import { toast } from "react-toastify";
 import { Link, useNavigate } from 'react-router-dom';
@@ -13,7 +13,7 @@ import {
   validateConfirmPassword,
 } from "../../Validation/Validation";
 import { errorHandler } from "../../Utils/Reusable/Reusable";
-import { unProtectedAPI } from "../../Config/Axios";
+import { fetchMenteeSignup, fetchResendOtp, fetchVerifyOtp } from "../../service/menteeApi";
 
 interface IFormErrors {
   name?: string;
@@ -43,17 +43,17 @@ const SignupForm:React.FC = () => {
   const [showOtpModal, setShowOtpModal] = useState<boolean>(false);
   const [loading,setLoading]=useState<boolean>(false);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleChange =useCallback( (e: React.ChangeEvent<HTMLInputElement>) => {
     const { id, value } = e.target;
     console.log(e.target.value);
     setFormData((prev) => ({ ...prev, [id]: value }));
 
     // Clear error when user starts typing
     setErrors((prev: IFormErrors) => ({ ...prev, [id]: undefined }));
-  };
+  },[]);
 
 
-  const validateField = (field: string, value: string) => {
+  const validateField = useCallback((field: string, value: string) => {
     switch (field) {
       case "name":
         return validateName(value);
@@ -66,10 +66,10 @@ const SignupForm:React.FC = () => {
       default:
         return undefined;
     }
-  };
+  },[formData.password]);
  
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit =useCallback( async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
     // Validate all fields
@@ -85,7 +85,8 @@ const SignupForm:React.FC = () => {
     if (Object.keys(newErrors).length === 0) {
       setLoading(true)
       try { 
-        const response = await unProtectedAPI.post("/auth/signup", formData);
+        const response = await fetchMenteeSignup(formData);
+         
        
         if (response.status == 200) {
           setLoading(false)
@@ -102,16 +103,17 @@ const SignupForm:React.FC = () => {
         setLoading(false)
       }
     }
-  };
+  },[formData, validateField]);
 
-  const handleVerifyOtp = async (otp: string) => { 
+  const handleVerifyOtp = useCallback(async (otp: string) => { 
     setLoading(true)
     try{
     const {email} = formData;
     
     setLoading(true)
     console.log("Verifying OTP:", otp,email);;
-    const response = await unProtectedAPI.post('/auth/verify-otp',{email,otp,type:'signup'});
+    const response = await fetchVerifyOtp(email,otp)
+   
 
   
     if(response.status==200&&response.data.success){
@@ -126,12 +128,13 @@ const SignupForm:React.FC = () => {
   }finally{
     setLoading(true)
   }
-  };
+  },[formData, navigate]);
 
-  const handleResendOtp = async()=>{
+  const handleResendOtp = useCallback(async()=>{
     try {
       const {email} = formData;
-      const response = await unProtectedAPI.post('/auth/resend-otp',{email});
+      const response = await fetchResendOtp(email)
+      
       if(response.status == 200){
         toast.success(response.data.message||'OTP resend successfull')
       }else{
@@ -140,7 +143,7 @@ const SignupForm:React.FC = () => {
     } catch (error:unknown) {
      errorHandler(error)
     }
-  }
+  },[formData])
 
 
   return (
