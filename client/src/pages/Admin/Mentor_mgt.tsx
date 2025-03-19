@@ -7,12 +7,11 @@ import profile from "../../Asset/rb_2877.png";
 import { ArrowUpDown, BanIcon, CheckCircle2, CircleCheckBigIcon, Eye, Filter, Search } from "lucide-react";
 import ConfirmToast from "../../components/Common/common4All/ConfirmToast";
 import Spinner from "../../components/Common/common4All/Spinner";
-import { API } from "../../Config/adminAxios";
 import { errorHandler } from "../../Utils/Reusable/Reusable";
 import { Pagination } from "@mui/material";
 import InputField from "../../components/Auth/InputField";
 import {  TSort, TSortOrder } from "../../Types/type";
-import { fetchMentorData } from "../../service/adminApi";
+import { fetchMentorData, fetchMentorVerify, toggleMentorStatus } from "../../service/adminApi";
 type Tactive = "verified" | "not-verified"
 const PAGE_LIMIT = 8;
 
@@ -82,10 +81,8 @@ const [searchQuery, setSearchQuery] = useState("");
     try {
       toast.dismiss();
       setLoading(true);
-      const response = await API.patch(
-        `/admin/mentor_management/mentor_verify`,
-        { id: id }
-      );
+      const response = await fetchMentorVerify(id)
+     
       if (response && response.data) {
         setTimeout(() => {
           toast.success(response.data.message);
@@ -113,10 +110,8 @@ const [searchQuery, setSearchQuery] = useState("");
       toast.dismiss();
       setLoading(true);
 
-      const response = await API.patch(
-        `/admin/mentor_management/change_mentor_status`,
-        { id: id }
-      );
+      const response = await toggleMentorStatus(id)
+     
       if (response.status == 200 && response.data.success) {
         setTimeout(() => {
           toast.success(response.data?.message);

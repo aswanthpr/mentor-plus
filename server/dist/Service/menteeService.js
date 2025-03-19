@@ -303,7 +303,7 @@ class menteeService {
                 //calculating total pages
                 const totalPage = Math.ceil((mentorData === null || mentorData === void 0 ? void 0 : mentorData.count) / limitNo);
                 //finding categoryData
-                const categoryData = yield this._categoryRepository.categoryData();
+                const categoryData = yield this._categoryRepository.allCategoryData();
                 if (!categoryData) {
                     return {
                         success: false,

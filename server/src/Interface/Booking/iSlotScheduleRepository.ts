@@ -9,8 +9,14 @@ export interface IslotScheduleRepository {
   getBookedSlot(
     userId: ObjectId,
     tabCond: boolean,
-    userType:"mentee"|"mentor"
-  ): Promise<IslotSchedule[] | []>;
+    userType: "mentee" | "mentor",
+    skip: number,
+    limitNo: number,
+    search: string,
+    sortOrder: string,
+    sortField: string,
+    filter: string
+  ): Promise<{ slots: IslotSchedule[] | []; totalDocs: number }>;
   getBookedSession(
     menteeId: ObjectId,
     tabCond: boolean
@@ -20,9 +26,15 @@ export interface IslotScheduleRepository {
     sessionId: string,
     slotValule: string
   ): Promise<IslotSchedule | null>;
-  createSessionCode(bookingId:string,sessionCode:string):Promise<string>;
-  sessionCompleted(bookingId:string):Promise<IslotSchedule|null>;
-  validateSessionJoin(sessionId:string,sessionCode:string):Promise<IslotSchedule|null>;
-   mentorDashboard(platformCommision:number,timeRange:string):Promise<IcardData|null>;
-   mentorChartData(mentorId:ObjectId,timeRange:string):Promise<void>
+  createSessionCode(bookingId: string, sessionCode: string): Promise<string>;
+  sessionCompleted(bookingId: string): Promise<IslotSchedule | null>;
+  validateSessionJoin(
+    sessionId: string,
+    sessionCode: string
+  ): Promise<IslotSchedule | null>;
+  mentorDashboard(
+    platformCommision: number,
+    timeRange: string
+  ): Promise<IcardData | null>;
+  mentorChartData(mentorId: ObjectId, timeRange: string): Promise<void>;
 }

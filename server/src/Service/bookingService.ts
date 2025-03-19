@@ -12,7 +12,7 @@ import moment from "moment";
 import { socketManager } from "../index";
 import { Inotification } from "../Model/notificationModel";
 import { IchatRepository } from "../Interface/chat/IchatRepository";
-import { generateSessionCode } from "../Utils/reusable.util";
+import { createSkip, generateSessionCode } from "../Utils/reusable.util";
 import { Iwallet } from "../Model/walletModel";
 import { IwalletRepository } from "../Interface/wallet/IwalletRepository";
 import { ItransactionRepository } from "../Interface/wallet/ItransactionRepository";
@@ -505,49 +505,66 @@ export class bookingService implements IbookingService {
    */
   async getBookedSlots(
     menteeId: ObjectId,
-    currentTab: string
+    currentTab: string,
+    search:string,
+    sortField:string,
+    sortOrder:string,
+    filter:string,
+    page:number,
+    limit:number,
   ): Promise<{
     success: boolean;
     message: string;
     status: number;
     slots: IslotSchedule[] | [];
+    totalPage:number
   }> {
     try {
-      console.log(currentTab, menteeId, "098765432");
-      if (
-        !menteeId ||
-        !currentTab ||
-        !mongoose.Types.ObjectId.isValid(String(menteeId))
-      ) {
+      if (!menteeId ||!currentTab || !sortField ||!filter || !sortOrder || page < 1 || limit < 1||!mongoose.Types.ObjectId.isValid(String(menteeId))) {
         return {
           success: false,
-          message: "credential not found",
-          status: Status.NotFound,
+          message: "missing parameters",
+          status: Status.BadRequest,
           slots: [],
+          totalPage: 0,
         };
       }
+     const skipData = createSkip(page,limit);
+           const limitNo = skipData?.limitNo;
+           const skip = skipData?.skip
+     
       const tabCond = currentTab == "upcoming" ? false : true;
       console.log(tabCond, currentTab, "this si tab");
 
       const response = await this._slotScheduleRepository.getBookedSlot(
         menteeId,
         tabCond,
-        "mentee"
+        "mentee",
+        skip,
+        limitNo,
+        search,
+        sortOrder,
+        sortField,
+        filter,
+
       );
-      if (!response || response.length === 0) {
+
+      if (response?.slots.length < 0||response?.totalDocs < 0) {
         return {
           success: false,
           message: "No slots found",
           status: Status.Ok,
           slots: [],
+          totalPage: 0,
         };
       }
-
+const totalPage = Math.ceil(response?.totalDocs/limitNo)
       return {
         success: true,
         message: "slots found",
         status: Status.Ok,
-        slots: response,
+        slots: response?.slots,
+        totalPage,
       };
     } catch (error: unknown) {
       throw new Error(

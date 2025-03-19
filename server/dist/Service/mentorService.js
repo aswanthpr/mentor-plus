@@ -54,7 +54,7 @@ class mentorService {
                         categories: [],
                     };
                 }
-                const categoryData = yield this._categoryRepository.categoryData();
+                const categoryData = yield this._categoryRepository.allCategoryData();
                 if (!categoryData) {
                     return {
                         success: false,

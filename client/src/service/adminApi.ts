@@ -98,22 +98,18 @@ export const fetchNotificaitionRead = async (
     console.log(error instanceof Error ? error?.message : String(error));
   }
 };
-export const fetchAllNotification = async (
-
-): Promise<AxiosResponse | any> => {
+export const fetchAllNotification = async (): Promise<AxiosResponse | any> => {
   try {
-    return await  API.get(`/admin/notification`);
+    return await API.get(`/admin/notification`);
   } catch (error: unknown) {
     console.log(error instanceof Error ? error?.message : String(error));
   }
 };
 export const fetchCategoryChange = async (
-  id: string,
-
+  id: string
 ): Promise<AxiosResponse | any> => {
   try {
     return await API.put(`/admin/change_category_status`, { id });
-
   } catch (error: unknown) {
     console.log(error instanceof Error ? error?.message : String(error));
   }
@@ -123,75 +119,122 @@ export const fetchEditCategory = async (
   category: string
 ): Promise<AxiosResponse | any> => {
   try {
-    return await   API.patch(`/admin/edit_category`, {
-        id,
-        category,
-      });
+    return await API.patch(`/admin/edit_category`, {
+      id,
+      category,
+    });
   } catch (error: unknown) {
     console.log(error instanceof Error ? error?.message : String(error));
   }
 };
 export const fetchAllcategoryData = async (
+    searchQuery:string,
+        statusFilter:string,
+        sortField:string,
+        sortOrder:string,
+        page:number,
+        limit:number
 ): Promise<AxiosResponse | any> => {
   try {
-    return await   API.get("/admin/category_management");
+    return await API.get("/admin/category_management",{
+        params:{
+            searchQuery,
+            statusFilter,
+            sortField,
+            sortOrder,
+            page,
+            limit 
+        }
+    });
   } catch (error: unknown) {
     console.log(error instanceof Error ? error?.message : String(error));
   }
 };
 export const fetchCreateCategory = async (
-  category: string,
+  category: string
 ): Promise<AxiosResponse | any> => {
   try {
     return await API.post(`/admin/create_category`, {
-        category,
-      });
+      category,
+    });
   } catch (error: unknown) {
     console.log(error instanceof Error ? error?.message : String(error));
   }
 };
 export const fetchAllMentee = async (
+  search: string,
+  sortField: string,
+  sortOrder: string,
+  statusFilter:string,
+  page: number,
+  limit: number
 ): Promise<AxiosResponse | any> => {
   try {
-    return await  API.get(`/admin/mentee_management`);
+    return await API.get(`/admin/mentee_management`,{
+        params:{
+            search,
+            sortField,
+            sortOrder,
+            statusFilter,
+            page,
+            limit,
+        }
+    });
   } catch (error: unknown) {
     console.log(error instanceof Error ? error?.message : String(error));
   }
 };
 export const ToggleMenteeStatus = async (
-  id: string,
-
+  id: string
 ): Promise<AxiosResponse | any> => {
   try {
-    return await  API.patch(
-        `/admin/mentee_management/change_mentee_status`,
-        { id }
-      );
+    return await API.patch(`/admin/mentee_management/change_mentee_status`, {
+      id,
+    });
   } catch (error: unknown) {
     console.log(error instanceof Error ? error?.message : String(error));
   }
 };
 export const fetchMentorData = async (
-    searchQuery:string,
-    activeTab:string,
-    sortField:string,
-    sortOrder:string,
-    currentPage:number,
-    PAGE_LIMIT:number,
-  ): Promise<AxiosResponse | any> => {
-    try {
-
-      return await API.get(`/admin/mentor_management`,{
-        params:{
-          searchQuery,
-          activeTab,
-          sortField,
-          sortOrder,
-          page:currentPage,
-          limit:PAGE_LIMIT
-        }
-      });
-    } catch (error: unknown) {
-      console.log(error instanceof Error ? error.message : String(error));
-    }
-  };
+  searchQuery: string,
+  activeTab: string,
+  sortField: string,
+  sortOrder: string,
+  currentPage: number,
+  PAGE_LIMIT: number
+): Promise<AxiosResponse | any> => {
+  try {
+    return await API.get(`/admin/mentor_management`, {
+      params: {
+        searchQuery,
+        activeTab,
+        sortField,
+        sortOrder,
+        page: currentPage,
+        limit: PAGE_LIMIT,
+      },
+    });
+  } catch (error: unknown) {
+    console.log(error instanceof Error ? error.message : String(error));
+  }
+};
+export const fetchMentorVerify = async (
+  id: string
+): Promise<AxiosResponse | any> => {
+  try {
+    return await API.patch(`/admin/mentor_management/mentor_verify`, { id });
+  } catch (error: unknown) {
+    console.log(error instanceof Error ? error?.message : String(error));
+  }
+};
+export const toggleMentorStatus = async (
+  id: string
+): Promise<AxiosResponse | any> => {
+  try {
+    return await API.patch(`/admin/mentor_management/change_mentor_status`, {
+      id,
+    });
+  } catch (error: unknown) {
+    console.log(error instanceof Error ? error?.message : String(error));
+  }
+};

@@ -1,6 +1,9 @@
 import { Imentee } from "../../Model/menteeModel";
 export interface ImenteeRepository {
-    menteeData(): Promise<Imentee[] | null>;
+    menteeData(skip: number, limit: number, search: string, sortOrder: string, sortField: string, statusFilter: string): Promise<{
+        mentees: Imentee[] | [];
+        totalDoc: number;
+    }>;
     changeMenteeStatus(id: string): Promise<Imentee | null>;
     editMentee(formData: Partial<Imentee>): Promise<Imentee | null>;
     addMentee(formData: Partial<Imentee>): Promise<Imentee | null>;

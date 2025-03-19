@@ -10,6 +10,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.adminController = void 0;
+const httpStatusCode_1 = require("../Utils/httpStatusCode");
 class adminController {
     constructor(_adminService) {
         this._adminService = _adminService;
@@ -58,13 +59,9 @@ class adminController {
     categoryData(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const result = yield this._adminService.categoryData();
-                if (result.success) {
-                    res.status(200).json(result);
-                }
-                else {
-                    res.status(409).json(result);
-                }
+                const { searchQuery, statusFilter, sortField, sortOrder, page, limit } = req.query;
+                const { message, success, categories, totalPage, status } = yield this._adminService.categoryData(String(searchQuery), String(statusFilter), String(sortField), String(sortOrder), Number(page), Number(limit));
+                res.status(status).json({ message, success, categories, totalPage });
             }
             catch (error) {
                 res
@@ -115,12 +112,13 @@ class adminController {
     menteeData(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const result = yield this._adminService.menteeData();
-                res.status(result.status).json(result);
+                const { search, sortField, sortOrder, statusFilter, page, limit } = req.query;
+                const { message, status, success, totalPage, Data } = yield this._adminService.menteeData(String(search), String(sortField), String(sortOrder), String(statusFilter), Number(page), Number(limit));
+                res.status(status).json({ message, success, totalPage, Data });
             }
             catch (error) {
                 res
-                    .status(500)
+                    .status(httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.InternalServerError)
                     .json({ success: false, message: "Internal server error" });
                 throw new Error(`error while getting category in controller ${error instanceof Error ? error.message : String(error)}`);
             }
@@ -168,9 +166,7 @@ class adminController {
             try {
                 const { searchQuery, sortField, sortOrder, page, limit, activeTab } = req.query;
                 const result = yield this._adminService.mentorData(String(searchQuery), String(activeTab), String(sortField), String(sortOrder), Number(page), Number(limit));
-                res
-                    .status(result.status)
-                    .json({
+                res.status(result.status).json({
                     success: result.success,
                     message: result.message,
                     mentorData: result.mentorData,
@@ -187,9 +183,7 @@ class adminController {
             try {
                 console.log(req.body, "lkasndflnf");
                 const result = yield this._adminService.mentorVerify(req.body);
-                res
-                    .status(result.status)
-                    .json({
+                res.status(result.status).json({
                     success: result.success,
                     message: result.message,
                     metnorData: result.result,

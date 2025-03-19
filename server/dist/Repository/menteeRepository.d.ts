@@ -4,7 +4,10 @@ import { baseRepository } from "./baseRepo";
 import { ImenteeRepository } from "../Interface/Mentee/iMenteeRepository";
 export declare class menteeRepository extends baseRepository<Imentee> implements ImenteeRepository {
     constructor();
-    menteeData(): Promise<Imentee[] | null>;
+    menteeData(skip: number, limit: number, search: string, sortOrder: string, sortField: string, statusFilter: string): Promise<{
+        mentees: Imentee[] | [];
+        totalDoc: number;
+    }>;
     changeMenteeStatus(id: string): Promise<Imentee | null>;
     editMentee(formData: Partial<Imentee>): Promise<Imentee | null>;
     findMentee(email: string): Promise<Imentee | null>;

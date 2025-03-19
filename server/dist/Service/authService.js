@@ -156,7 +156,7 @@ class authService {
     mentorFields() {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const result = yield this._categoryRepository.categoryData();
+                const result = yield this._categoryRepository.allCategoryData();
                 if (!result) {
                     return { success: false, message: "No data found ", status: 204 };
                 }

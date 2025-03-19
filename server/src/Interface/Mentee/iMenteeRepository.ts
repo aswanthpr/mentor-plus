@@ -1,7 +1,7 @@
 import { Imentee } from "../../Model/menteeModel";
 
 export interface ImenteeRepository {
-  menteeData(): Promise<Imentee[] | null>;
+  menteeData(skip:number,limit:number,search:string,sortOrder:string,sortField:string,statusFilter:string): Promise<{mentees:Imentee[] | [],totalDoc:number}>;
   changeMenteeStatus(id: string): Promise<Imentee | null>;
   editMentee(formData: Partial<Imentee>): Promise<Imentee | null>;
   addMentee(formData: Partial<Imentee>): Promise<Imentee | null>;
@@ -11,6 +11,7 @@ export interface ImenteeRepository {
   googleAddMentee(formData: Partial<Imentee>): Promise<Imentee | null>;
   changePassword(id: string, password: string): Promise<Imentee | null>;
   profileChange(image: string, id: string): Promise<Imentee | null>;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   updateMentee(email: string): Promise<any>;
   findByEmail(email: string): Promise<Imentee | null>;
   create_Mentee(userData: Imentee): Promise<Imentee>;

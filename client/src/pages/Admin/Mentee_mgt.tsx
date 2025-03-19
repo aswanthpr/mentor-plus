@@ -5,7 +5,6 @@ import { Table } from "../../components/Admin/Table";
 import { StatusBadge } from "../../components/Admin/StatusBadge";
 import profile from "../../Asset/rb_2877.png";
 import ConfirmToast from "../../components/Common/common4All/ConfirmToast";
-
 import Spinner from "../../components/Common/common4All/Spinner";
 import { errorHandler } from "../../Utils/Reusable/Reusable";
 import { Pagination } from "@mui/material";
@@ -34,30 +33,40 @@ export const Mentee_mgt: React.FC = () => {
     const [sortField, setSortField] = useState<TSort>("createdAt");
     const [sortOrder, setSortOrder] = useState<TSortOrder>("desc");
     const [statusFilter, setStatusFilter] = useState<TFilter>("all");
+    const [totalPage, setTotalPage] = useState<number>(0);
 
-  const indexOfLastMentee = currentPage * MENTEES_PER_PAGE;
-  const indexOfFirstMentee = indexOfLastMentee - MENTEES_PER_PAGE;
-  const currentMentee = menteeData.slice(indexOfFirstMentee, indexOfLastMentee);
+  // const indexOfLastMentee = currentPage * MENTEES_PER_PAGE;
+  // const indexOfFirstMentee = indexOfLastMentee - MENTEES_PER_PAGE;
+  // const currentMentee = menteeData.slice(indexOfFirstMentee, indexOfLastMentee);
 
   useEffect(() => {
     const fetchUserData = async (): Promise<void> => {
       try {
-        setLoading(true);
+        // setLoading(true);
 
-        const response = await fetchAllMentee();
+        const response = await fetchAllMentee(
+          searchQuery,
+          sortField,
+          sortOrder,
+          statusFilter,
+          currentPage,
+          MENTEES_PER_PAGE,
+        );
 
         if (response.status == 200 && response.data.success) {
           setMenteeData(response.data?.Data);
+          setTotalPage(response?.data?.totalPage)
           
         }
       } catch (error: unknown) {
         errorHandler(error);
-      } finally {
-        setLoading(false);
-      }
+      } 
+      // finally {
+      //   setLoading(false);
+      // }
     };
     fetchUserData();
-  }, []);
+  }, [currentPage, searchQuery, sortField, sortOrder, statusFilter]);
 
   const handleMenteeBlock = (id: string) => {
     notify(id);
@@ -74,9 +83,10 @@ export const Mentee_mgt: React.FC = () => {
 
       if (response.data?.success && response?.status === 200) {
         toast.dismiss();
+console.log(id)
 
         setMenteeData((prev) =>
-          prev.map((mentee) =>
+          prev.filter((mentee) =>
             mentee?._id === id
               ? { ...mentee, isBlocked: !mentee?.isBlocked }
               : mentee
@@ -140,7 +150,7 @@ export const Mentee_mgt: React.FC = () => {
               onChange={(e) => setSearchQuery(e.target.value)}
               className="pl-10"
             />
-          </div>
+          </div> 
 
           {/* Filter */}
           <div className="flex items-center gap-2">
@@ -172,14 +182,12 @@ export const Mentee_mgt: React.FC = () => {
             >
               <option value="createdAt-desc">Newest First</option>
               <option value="createdAt-asc">Oldest First</option>
-              <option value="answers-1">Answered</option>
-              <option value="answers-0">UnAnswered</option>
             </select>
           </div>
         </div>
 
       <Table headers={["Profile", "Name", "Email", "Status", "Actions"]}>
-        {currentMentee.map((mentee) => (
+        {menteeData?.map((mentee) => (
           <tr key={mentee?._id}>
             <td className=" py-4 flex justify-center">
               <img
@@ -213,9 +221,10 @@ export const Mentee_mgt: React.FC = () => {
           </tr>
         ))}
       </Table>
+      <hr className="h-px  bg-gray-200 border-0 dark:bg-gray-700" />
       <div className="flex justify-center mt-2">
         <Pagination
-          count={Math.ceil(menteeData.length / MENTEES_PER_PAGE)} // Total pages
+          count={totalPage} // Total pages
           page={currentPage} // Current page
           onChange={handlePageChange} // Page change handler
           color="standard" // Pagination color

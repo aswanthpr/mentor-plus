@@ -3,7 +3,10 @@ import { IslotSchedule } from "../../Model/slotSchedule";
 import { IcardData, InewSlotSchedule } from "../../Types";
 export interface IslotScheduleRepository {
     newSlotBooking(newSlotSchedule: InewSlotSchedule): Promise<InewSlotSchedule | null>;
-    getBookedSlot(userId: ObjectId, tabCond: boolean, userType: "mentee" | "mentor"): Promise<IslotSchedule[] | []>;
+    getBookedSlot(userId: ObjectId, tabCond: boolean, userType: "mentee" | "mentor", skip: number, limitNo: number, search: string, sortOrder: string, sortField: string, filter: string): Promise<{
+        slots: IslotSchedule[] | [];
+        totalDocs: number;
+    }>;
     getBookedSession(menteeId: ObjectId, tabCond: boolean): Promise<IslotSchedule[] | []>;
     cancelSlot(sessionId: string, issue: string): Promise<IslotSchedule | null>;
     mentorSlotCancel(sessionId: string, slotValule: string): Promise<IslotSchedule | null>;

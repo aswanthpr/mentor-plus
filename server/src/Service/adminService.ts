@@ -15,6 +15,7 @@ import { InotificationRepository } from "../Interface/Notification/Inotification
 import { Status } from "../Utils/httpStatusCode";
 import { IslotScheduleRepository } from "../Interface/Booking/iSlotScheduleRepository";
 import { IcardData } from "../Types";
+import { createSkip } from "../Utils/reusable.util";
 
 export class adminService implements IadminService {
   constructor(
@@ -115,22 +116,60 @@ export class adminService implements IadminService {
     }
   }
   //get category data to admin
-  async categoryData(): Promise<{
+  async categoryData(
+    searchQuery: string,
+    statusFilter: string,
+    sortField: string,
+    sortOrder: string,
+    page: number,
+    limit: number
+  ): Promise<{
     success: boolean;
     message: string;
     categories?: Icategory[];
+    status:number;
+    totalPage:number;
   }> {
     try {
-      const result = await this._categoryRepository.categoryData();
+      if ( !sortField ||!statusFilter|| !sortOrder || page < 1 || limit < 1) {
+        return {
+          success: false,
+          message: "Invalid pagination or missing parameters",
+          status: Status.BadRequest,
+          categories: [],
+          totalPage: 0,
+        };
+      }
+      const skipData = createSkip(page,limit);
+      
+      const limitNo = skipData?.limitNo;
+      const skip = skipData?.skip
+      const result = await this._categoryRepository.categoryData(
+        searchQuery,
+        statusFilter,
+        sortField,
+        sortOrder,
+        skip,
+        limitNo,
+      );
 
       if (!result) {
-        return { success: false, message: "No categories found" };
+        return {
+        success: false,
+        message: "No categories found",
+        status: Status.BadRequest,
+        categories: [],
+        totalPage: 0,
+        }
       }
+      const totalPage = Math.ceil(result?.totalDoc/limitNo);
 
       return {
         success: true,
         message: "Data retrieved successfully",
-        categories: result,
+        status: Status.Ok,
+        categories: result?.category,
+        totalPage
       };
     } catch (error: unknown) {
       throw new Error(
@@ -203,24 +242,56 @@ export class adminService implements IadminService {
     }
   }
 
-  async menteeData(): Promise<{
+  async menteeData(
+    search:string,
+    sortField:string,
+    sortOrder:string,
+    statusFilter:string,
+    page:number,
+    limit:number,): Promise<{
     success: boolean;
     message: string;
     status: number;
-    Data?: Imentee[];
+    Data?: Imentee[]|[];
+    totalPage:number
   }> {
     try {
-      const result = await this._menteeRepository.menteeData();
+      if ( !sortField ||!statusFilter|| !sortOrder || page < 1 || limit < 1) {
+        return {
+          success: false,
+          message: "Invalid pagination or missing parameters",
+          status: Status.BadRequest,
+          Data: [],
+          totalPage: 0,
+        };
+      }
+      const pageNo = Math.max(page,1);
+      const limitNo = Math.max(limit, 1);
+      const skip = (pageNo - 1) * limitNo;
+      const result = await this._menteeRepository.menteeData(
+        skip,
+        limitNo,
+        search,
+        sortOrder,
+        sortField,
+        statusFilter,
+      );
 
       if (!result) {
-        return { success: false, message: "Users not  found", status: 400 };
+        return { success: false,
+           message: "Users not  found",
+            status: Status?.BadRequest ,
+            totalPage:0,
+            Data:[]
+          };
       }
-
+const totalPage = Math.ceil(result?.totalDoc/limitNo)
       return {
         success: true,
         message: "Data retrieved successfully",
         status: 200,
-        Data: result,
+        Data: result?.mentees,
+        totalPage,
       };
     } catch (error: unknown) {
       throw new Error(

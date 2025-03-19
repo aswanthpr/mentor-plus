@@ -69,7 +69,7 @@ export class mentorService implements ImentorService {
           categories: [],
         };
       }
-      const categoryData = await this._categoryRepository.categoryData();
+      const categoryData = await this._categoryRepository.allCategoryData();
       if (!categoryData) {
         return {
           success: false,

@@ -68,19 +68,25 @@ export class bookingControlelr implements IbookingController {
       }`
     );
   }
-
+ 
   //in mentee retrive the booked slot
   async getBookedSlot(req: Request, res: Response): Promise<void> {
     try {
-      const { activeTab } = req.query;
-
-      const { status, message, success, slots } =
+      const { activeTab,search,page,limit,sortField,sortOrder,filter } = req.query;
+console.log( activeTab,search,page,limit,sortField,sortOrder,filter)
+      const { status, message, success, slots ,totalPage} =
         await this._bookingService.getBookedSlots(
           req.user as Express.User as ObjectId,
-          activeTab as string
+          String(activeTab),
+          String(search),
+          String(sortField),
+          String(sortOrder),
+          String(filter),
+          Number(page),
+          Number(limit), 
         );
-     
-      res.status(status).json({ success, message, slots });
+     console.log(slots.length,'kflkjsfljs')
+      res.status(status).json({ success, message, slots,totalPage });
     } catch (error: unknown) {
       throw new Error(
         `Error when fetching all the booked sessions in controller ${

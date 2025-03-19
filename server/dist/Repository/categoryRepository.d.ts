@@ -5,7 +5,11 @@ declare class categoryRespository extends baseRepository<Icategory> implements I
     constructor();
     findCategory(category: string): Promise<Icategory | null>;
     createCategory(category: string): Promise<Icategory | null>;
-    categoryData(): Promise<Icategory[]>;
+    categoryData(searchQuery: string, statusFilter: string, sortField: string, sortOrder: string, skip: number, limit: number): Promise<{
+        category: Icategory[] | [];
+        totalDoc: number;
+    }>;
+    allCategoryData(): Promise<Icategory[]>;
     editCategory(id: string, category: string): Promise<Icategory | null>;
     changeCategoryStatus(id: string): Promise<Icategory | null>;
 }

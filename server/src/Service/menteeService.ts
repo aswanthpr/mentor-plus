@@ -388,7 +388,7 @@ export class menteeService implements ImenteeService {
       //calculating total pages
       const totalPage = Math.ceil(mentorData?.count / limitNo);
       //finding categoryData
-      const categoryData = await this._categoryRepository.categoryData();
+      const categoryData = await this._categoryRepository.allCategoryData();
       if (!categoryData) {
         return {
           success: false,

@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.checkForOverlap = exports.getTodayStartTime = exports.generateSessionCode = void 0;
+exports.createSkip = exports.checkForOverlap = exports.getTodayStartTime = exports.generateSessionCode = void 0;
 exports.genOtp = genOtp;
 function genOtp() {
     return Math.floor(100000 + Math.random() * 900000).toString();
@@ -31,3 +31,10 @@ const checkForOverlap = (checkedSlots, newSlots) => {
     });
 };
 exports.checkForOverlap = checkForOverlap;
+const createSkip = (page, limit) => {
+    const pageNo = Math.max(page, 1);
+    const limitNo = Math.max(limit, 1);
+    const skip = (pageNo - 1) * limitNo;
+    return { pageNo, limitNo, skip };
+};
+exports.createSkip = createSkip;

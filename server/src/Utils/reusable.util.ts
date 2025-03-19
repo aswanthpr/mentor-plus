@@ -35,3 +35,10 @@ export const checkForOverlap = (
     return !isOverlapping; //only return non overlapping slots
   });
 };
+export const createSkip =(page:number,limit:number)=>{
+  const pageNo = Math.max(page, 1);
+  const limitNo = Math.max(limit, 1);
+  const skip = (pageNo - 1) * limitNo;
+  return {pageNo,limitNo,skip};
+
+}

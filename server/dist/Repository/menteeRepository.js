@@ -19,10 +19,52 @@ class menteeRepository extends baseRepo_1.baseRepository {
     constructor() {
         super(menteeModel_1.default);
     }
-    menteeData() {
+    menteeData(skip, limit, search, sortOrder, sortField, statusFilter) {
         return __awaiter(this, void 0, void 0, function* () {
+            var _a;
             try {
-                return yield this.find(menteeModel_1.default, { isAdmin: false });
+                const pipeline = [
+                    { $match: { isAdmin: false } },
+                ];
+                // Search
+                if (search) {
+                    pipeline.push({
+                        $match: {
+                            $or: [
+                                { name: { $regex: search, $options: "i" } },
+                                { email: { $regex: search, $options: "i" } },
+                                { phone: { $regex: search, $options: "i" } },
+                            ],
+                        },
+                    });
+                }
+                // Status Filter
+                if (statusFilter !== "all") {
+                    pipeline.push({
+                        $match: { isBlocked: statusFilter === "blocked" },
+                    });
+                }
+                // Sorting
+                if (sortField === "createdAt") {
+                    pipeline.push({ $sort: { createdAt: sortOrder === "asc" ? 1 : -1 } });
+                }
+                // Pagination
+                pipeline.push({ $skip: skip });
+                pipeline.push({ $limit: limit });
+                // Count Pipeline
+                const countPipeline = [
+                    ...JSON.parse(JSON.stringify(pipeline)).slice(0, -2),
+                    { $count: "totalDocuments" },
+                ];
+                // Execute Aggregations
+                const [mentees, totalCount] = yield Promise.all([
+                    this.aggregateData(menteeModel_1.default, pipeline),
+                    menteeModel_1.default.aggregate(countPipeline),
+                ]);
+                return {
+                    mentees,
+                    totalDoc: ((_a = totalCount === null || totalCount === void 0 ? void 0 : totalCount[0]) === null || _a === void 0 ? void 0 : _a.totalDocuments) || 0,
+                };
             }
             catch (error) {
                 throw new Error(`error while Checking mentee data ${error instanceof Error ? error.message : String(error)}`);

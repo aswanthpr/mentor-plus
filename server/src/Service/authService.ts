@@ -198,7 +198,7 @@ export class authService implements IauthService {
     categories?: Icategory[];
   }> {
     try {
-      const result = await this._categoryRepository.categoryData();
+      const result = await this._categoryRepository.allCategoryData();
       if (!result) {
         return { success: false, message: "No data found ", status: 204 };
       }

@@ -9,6 +9,7 @@ import { Status } from "../Utils/httpStatusCode";
 import { InotificationRepository } from "../Interface/Notification/InotificationRepository";
 import { socketManager } from "../index";
 import { Inotification } from "../Model/notificationModel";
+import { createSkip } from "../Utils/reusable.util";
 
 class qaService implements IqaService {
   constructor(
@@ -368,9 +369,9 @@ class qaService implements IqaService {
           totalPage: undefined,
         };
       }
-      const pageNo = Math.max(page, 1);
-      const limitNo = Math.max(limit, 6);
-      const skip = (pageNo - 1) * limitNo;
+      const skipData = createSkip(page,limit);
+      const limitNo = skipData?.limitNo;
+      const skip = skipData?.skip
 
       const response = await this.__questionRepository.allQaData(
         skip,

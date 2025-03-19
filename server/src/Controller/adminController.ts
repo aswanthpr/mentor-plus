@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import { IadminController } from "../Interface/Admin/iAdminController";
 import { IadminService } from "../Interface/Admin/iAdminService";
+import { Status } from "../Utils/httpStatusCode";
 
 export class adminController implements IadminController {
   constructor(private _adminService: IadminService) {}
@@ -56,12 +57,14 @@ export class adminController implements IadminController {
 
   async categoryData(req: Request, res: Response): Promise<void> {
     try {
-      const result = await this._adminService.categoryData();
-      if (result.success) {
-        res.status(200).json(result);
-      } else {
-        res.status(409).json(result);
-      }
+      const { searchQuery, statusFilter, sortField, sortOrder, page, limit } =
+        req.query;
+
+      const {message,success,categories,totalPage,status} = await this._adminService.categoryData(
+       String(searchQuery) , String(statusFilter) , String(sortField) ,  String(sortOrder), Number(page) , Number(limit)  
+      );
+        res.status(status).json({message,success,categories,totalPage});
+     
     } catch (error: unknown) {
       res
         .status(500)
@@ -119,12 +122,23 @@ export class adminController implements IadminController {
   //-----------------------------------------------------------------------------------------------
   async menteeData(req: Request, res: Response): Promise<void> {
     try {
-      const result = await this._adminService.menteeData();
+      const { search, sortField, sortOrder, statusFilter, page, limit } =
+        req.query;
 
-      res.status(result.status).json(result);
+      const { message, status, success, totalPage, Data } =
+        await this._adminService.menteeData(
+          String(search),
+          String(sortField),
+          String(sortOrder),
+          String(statusFilter),
+          Number(page),
+          Number(limit)
+        );
+
+      res.status(status).json({ message, success, totalPage, Data });
     } catch (error: unknown) {
       res
-        .status(500)
+        .status(Status?.InternalServerError)
         .json({ success: false, message: "Internal server error" });
 
       throw new Error(
@@ -183,7 +197,8 @@ export class adminController implements IadminController {
   //-----------------------------------------------------------
   async mentorData(req: Request, res: Response): Promise<void> {
     try {
-      const { searchQuery, sortField, sortOrder, page, limit, activeTab } =req.query;
+      const { searchQuery, sortField, sortOrder, page, limit, activeTab } =
+        req.query;
       const result = await this._adminService.mentorData(
         String(searchQuery),
         String(activeTab),
@@ -192,14 +207,12 @@ export class adminController implements IadminController {
         Number(page),
         Number(limit)
       );
-      res
-        .status(result.status)
-        .json({
-          success: result.success,
-          message: result.message,
-          mentorData: result.mentorData,
-          totalPage:result?.totalPage,
-        });
+      res.status(result.status).json({
+        success: result.success,
+        message: result.message,
+        mentorData: result.mentorData,
+        totalPage: result?.totalPage,
+      });
     } catch (error: unknown) {
       throw new Error(
         `error while get mentor Data  in controller ${
@@ -213,13 +226,11 @@ export class adminController implements IadminController {
       console.log(req.body, "lkasndflnf");
       const result = await this._adminService.mentorVerify(req.body as string);
 
-      res
-        .status(result.status)
-        .json({
-          success: result.success,
-          message: result.message,
-          metnorData: result.result,
-        });
+      res.status(result.status).json({
+        success: result.success,
+        message: result.message,
+        metnorData: result.result,
+      });
     } catch (error: unknown) {
       throw new Error(
         `error while mentor verify  in controller ${

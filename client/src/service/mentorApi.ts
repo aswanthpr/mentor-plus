@@ -116,11 +116,25 @@ export const fetchMentorStatistics = async (
   }
 };
 export const getMentorSessions = async (
-  activeTab: string
+  activeTab: string,
+  search: string,
+  sortField: string,
+  sortOrder: string,
+  filter: string,
+  page: number,
+  limit: number
 ): Promise<AxiosResponse | any> => {
   try {
     return await axiosInstance.get(`/mentor/sessions`, {
-      params: { activeTab },
+      params: { 
+        activeTab,
+        search,
+        sortField,
+        sortOrder,
+        filter,
+        page,
+        limit,
+       },
     });
   } catch (error: unknown) {
     console.log(error instanceof Error ? error.message : String(error));

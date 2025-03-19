@@ -117,11 +117,25 @@ export const ReadNotification = async (
   }
 };
 export const fetchBookingSlots = async (
-  activeTab: string
+  activeTab: string,
+  search: string,
+  sortField: string,
+  sortOrder: string,
+  filter: string,
+  page: number,
+  limit: number
 ): Promise<AxiosResponse | any> => {
   try {
     return await protectedAPI.get(`/mentee/sessions`, {
-      params: { activeTab },
+      params: {
+        activeTab,
+        search,
+        sortField,
+        sortOrder,
+        filter,
+        page,
+        limit,
+      },
     });
   } catch (error: unknown) {
     console.log(error instanceof Error ? error.message : String(error));
@@ -163,12 +177,10 @@ export const fetchEditQuestion = async (
 };
 
 export const fetchDeleteQuestion = async (
-  questionId: string,
+  questionId: string
 ): Promise<AxiosResponse | any> => {
   try {
-    return await  protectedAPI.delete(
-      `/mentee/qa/delete/${questionId}`
-    );
+    return await protectedAPI.delete(`/mentee/qa/delete/${questionId}`);
   } catch (error: unknown) {
     console.log(error instanceof Error ? error.message : String(error));
   }
@@ -180,11 +192,11 @@ export const fetchCreateAnswer = async (
   userType: string
 ): Promise<AxiosResponse | any> => {
   try {
-    return await  protectedAPI.post(`/mentee/qa/create-answer`, {
-            answer,
-            questionId,
-            userType,
-          });
+    return await protectedAPI.post(`/mentee/qa/create-answer`, {
+      answer,
+      questionId,
+      userType,
+    });
   } catch (error: unknown) {
     console.log(error instanceof Error ? error.message : String(error));
   }
@@ -192,10 +204,10 @@ export const fetchCreateAnswer = async (
 
 export const fetchEditAnswer = async (
   content: string,
-  answerId: string,
+  answerId: string
 ): Promise<AxiosResponse | any> => {
   try {
-    return await  protectedAPI.patch(`/mentee/qa/edit-answer`, {
+    return await protectedAPI.patch(`/mentee/qa/edit-answer`, {
       content,
       answerId,
     });
@@ -209,15 +221,12 @@ export const fetchSimilarMentors = async (
   mentorId: string
 ): Promise<AxiosResponse | any> => {
   try {
-    return await protectedAPI.get(
-          `/mentee/explore/similar-mentors`,
-          {
-            params: {
-              category,
-              mentorId,
-            },
-          }
-        );
+    return await protectedAPI.get(`/mentee/explore/similar-mentors`, {
+      params: {
+        category,
+        mentorId,
+      },
+    });
   } catch (error: unknown) {
     console.log(error instanceof Error ? error.message : String(error));
   }
@@ -225,61 +234,57 @@ export const fetchSimilarMentors = async (
 
 export const fetchImageChange = async (
   profileImage: Blob,
-  _id: string,
+  _id: string
 ): Promise<AxiosResponse | any> => {
   try {
-    return await protectedAPI.patch( 
-        "/mentee/profile/change_profile",
-        {profileImage,_id},
-        {
-          headers: { "Content-Type": "multipart/form-data" },
-        }
-      );
+    return await protectedAPI.patch(
+      "/mentee/profile/change_profile",
+      { profileImage, _id },
+      {
+        headers: { "Content-Type": "multipart/form-data" },
+      }
+    );
   } catch (error: unknown) {
     console.log(error instanceof Error ? error.message : String(error));
   }
 };
 
 export const fetchMenteeChangePassword = async (
-  passFormData:IChangePass
+  passFormData: IChangePass
 ): Promise<AxiosResponse | any> => {
   try {
-    return await  protectedAPI.patch(
-            "/mentee/profile/change_password",
-            passFormData
-          );
+    return await protectedAPI.patch(
+      "/mentee/profile/change_password",
+      passFormData
+    );
   } catch (error: unknown) {
     console.log(error instanceof Error ? error.message : String(error));
   }
 };
 
-export const fetchProfileData = async (
-  
-): Promise<AxiosResponse | any> => {
+export const fetchProfileData = async (): Promise<AxiosResponse | any> => {
   try {
-    return await  protectedAPI.get("/mentee/profile");
+    return await protectedAPI.get("/mentee/profile");
   } catch (error: unknown) {
     console.log(error instanceof Error ? error.message : String(error));
   }
 };
 
 export const fetchProfileEdit = async (
-menteeData:Partial<IMentee>
+  menteeData: Partial<IMentee>
 ): Promise<AxiosResponse | any> => {
   try {
-    return await protectedAPI.put(
-      "/mentee/profile/edit_profile",
-      menteeData
-    );
+    return await protectedAPI.put("/mentee/profile/edit_profile", menteeData);
   } catch (error: unknown) {
     console.log(error instanceof Error ? error.message : String(error));
   }
 };
 export const fetchMenteeEditAnswer = async (
-  content:string,answerId:string
+  content: string,
+  answerId: string
 ): Promise<AxiosResponse | any> => {
   try {
-    return await  protectedAPI.patch(`/mentee/qa/edit-answer`, {
+    return await protectedAPI.patch(`/mentee/qa/edit-answer`, {
       content,
       answerId,
     });
@@ -288,12 +293,12 @@ export const fetchMenteeEditAnswer = async (
   }
 };
 export const fetchExplorePage = async (
-search:string,
-categories:Ifilter['domain'],
-skill:Ifilter['skill'],
-sort:Ifilter["sort"],
-page:number,
-limit:number
+  search: string,
+  categories: Ifilter["domain"],
+  skill: Ifilter["skill"],
+  sort: Ifilter["sort"],
+  page: number,
+  limit: number
 ): Promise<AxiosResponse | any> => {
   try {
     return await protectedAPI.get(`/mentee/explore/`, {
@@ -303,15 +308,15 @@ limit:number
         skill,
         sort,
         page,
-        limit
-      }
+        limit,
+      },
     });
   } catch (error: unknown) {
     console.log(error instanceof Error ? error.message : String(error));
   }
 };
 export const fetchMenteeSignup = async (
-formData:Partial<IFormData>
+  formData: Partial<IFormData>
 ): Promise<AxiosResponse | any> => {
   try {
     return await unProtectedAPI.post("/auth/signup", formData);
@@ -320,32 +325,33 @@ formData:Partial<IFormData>
   }
 };
 export const fetchVerifyOtp = async (
-email:string,
-otp:string,
+  email: string,
+  otp: string
 ): Promise<AxiosResponse | any> => {
   try {
-    return await   unProtectedAPI.post('/auth/verify-otp',{email,otp,type:"signup"});
+    return await unProtectedAPI.post("/auth/verify-otp", {
+      email,
+      otp,
+      type: "signup",
+    });
   } catch (error: unknown) {
     console.log(error instanceof Error ? error.message : String(error));
   }
 };
-export const fetchResendOtp= async (
-email:string
+export const fetchResendOtp = async (
+  email: string
 ): Promise<AxiosResponse | any> => {
   try {
-    return await  unProtectedAPI.post('/auth/resend-otp',{email});
+    return await unProtectedAPI.post("/auth/resend-otp", { email });
   } catch (error: unknown) {
     console.log(error instanceof Error ? error.message : String(error));
   }
 };
 export const fetchMenteeLogin = async (
-formData:LoginFormData
+  formData: LoginFormData
 ): Promise<AxiosResponse | any> => {
   try {
-    return await protectedAPI.post(
-      `/auth/login/mentee`,
-      formData
-    );
+    return await protectedAPI.post(`/auth/login/mentee`, formData);
   } catch (error: unknown) {
     console.log(error instanceof Error ? error.message : String(error));
   }

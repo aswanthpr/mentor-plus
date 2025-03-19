@@ -11,6 +11,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 const httpStatusCode_1 = require("../Utils/httpStatusCode");
 const index_1 = require("../index");
+const reusable_util_1 = require("../Utils/reusable.util");
 class qaService {
     constructor(__questionRepository, __answerRepository, __notificationRepository) {
         this.__questionRepository = __questionRepository;
@@ -252,9 +253,9 @@ class qaService {
                         totalPage: undefined,
                     };
                 }
-                const pageNo = Math.max(page, 1);
-                const limitNo = Math.max(limit, 6);
-                const skip = (pageNo - 1) * limitNo;
+                const skipData = (0, reusable_util_1.createSkip)(page, limit);
+                const limitNo = skipData === null || skipData === void 0 ? void 0 : skipData.limitNo;
+                const skip = skipData === null || skipData === void 0 ? void 0 : skipData.skip;
                 const response = yield this.__questionRepository.allQaData(skip, search, status, limitNo, sortOrder, sortField);
                 const totalPage = Math.ceil((response === null || response === void 0 ? void 0 : response.docCount) / limitNo);
                 console.log(response === null || response === void 0 ? void 0 : response.docCount, totalPage, limit, skip, page);

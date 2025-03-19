@@ -338,36 +338,40 @@ class bookingService {
      *
      * @throws Error - Throws an error if there is an issue while fetching the booked slots.
      */
-    getBookedSlots(menteeId, currentTab) {
+    getBookedSlots(menteeId, currentTab, search, sortField, sortOrder, filter, page, limit) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                console.log(currentTab, menteeId, "098765432");
-                if (!menteeId ||
-                    !currentTab ||
-                    !mongoose_1.default.Types.ObjectId.isValid(String(menteeId))) {
+                if (!menteeId || !currentTab || !sortField || !filter || !sortOrder || page < 1 || limit < 1 || !mongoose_1.default.Types.ObjectId.isValid(String(menteeId))) {
                     return {
                         success: false,
-                        message: "credential not found",
-                        status: httpStatusCode_1.Status.NotFound,
+                        message: "missing parameters",
+                        status: httpStatusCode_1.Status.BadRequest,
                         slots: [],
+                        totalPage: 0,
                     };
                 }
+                const skipData = (0, reusable_util_1.createSkip)(page, limit);
+                const limitNo = skipData === null || skipData === void 0 ? void 0 : skipData.limitNo;
+                const skip = skipData === null || skipData === void 0 ? void 0 : skipData.skip;
                 const tabCond = currentTab == "upcoming" ? false : true;
                 console.log(tabCond, currentTab, "this si tab");
-                const response = yield this._slotScheduleRepository.getBookedSlot(menteeId, tabCond, "mentee");
-                if (!response || response.length === 0) {
+                const response = yield this._slotScheduleRepository.getBookedSlot(menteeId, tabCond, "mentee", skip, limitNo, search, sortOrder, sortField, filter);
+                if ((response === null || response === void 0 ? void 0 : response.slots.length) < 0 || (response === null || response === void 0 ? void 0 : response.totalDocs) < 0) {
                     return {
                         success: false,
                         message: "No slots found",
                         status: httpStatusCode_1.Status.Ok,
                         slots: [],
+                        totalPage: 0,
                     };
                 }
+                const totalPage = Math.ceil((response === null || response === void 0 ? void 0 : response.totalDocs) / limitNo);
                 return {
                     success: true,
                     message: "slots found",
                     status: httpStatusCode_1.Status.Ok,
-                    slots: response,
+                    slots: response === null || response === void 0 ? void 0 : response.slots,
+                    totalPage,
                 };
             }
             catch (error) {

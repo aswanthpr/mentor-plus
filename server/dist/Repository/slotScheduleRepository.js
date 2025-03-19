@@ -70,8 +70,9 @@ class slotScheduleRepository extends baseRepo_1.baseRepository {
      *
      * @throws Error - Throws an error if there is an issue during the aggregation process.
      */
-    getBookedSlot(menteeId, tabCond) {
+    getBookedSlot(userId, tabCond, userType, skip, limitNo, search, sortOrder, sortField, filter) {
         return __awaiter(this, void 0, void 0, function* () {
+            var _a;
             try {
                 const todayStart = (0, reusable_util_1.getTodayStartTime)();
                 const matchFilter = {
@@ -154,9 +155,45 @@ class slotScheduleRepository extends baseRepo_1.baseRepository {
                         },
                     });
                 }
-                const resp = yield this.aggregateData(slotSchedule_2.default, pipeLine);
-                console.log(resp, "resp", pipeLine);
-                return resp;
+                if (search) {
+                    pipeLine.push({
+                        $match: {
+                            $or: [
+                                {
+                                    status: { $regex: search, $options: "i" },
+                                },
+                                { description: { $regex: search, $options: "i" } },
+                                { "user.name": { $regex: search, $options: "i" } },
+                                { bio: { $regex: search, $options: "i" } },
+                            ],
+                        },
+                    });
+                }
+                const order = sortOrder === "asc" ? 1 : -1;
+                if (sortField === "createdAt") {
+                    pipeLine.push({ $sort: { createdAt: order } });
+                }
+                if (filter !== "all") {
+                    matchFilter["status"] = filter === "RECLAIM_REQUESTED"
+                        ? "RECLAIM_REQUESTED"
+                        : { $in: [filter] };
+                }
+                // Pagination
+                pipeLine.push({ $skip: skip });
+                pipeLine.push({ $limit: limitNo });
+                const countPipeline = [
+                    ...pipeLine.slice(0, pipeLine.length - 2),
+                    {
+                        $count: "totalDocuments",
+                    },
+                ];
+                // Execute Aggregations
+                const [slots, totalCount] = yield Promise.all([
+                    this.aggregateData(slotSchedule_2.default, pipeLine),
+                    slotSchedule_2.default.aggregate(countPipeline),
+                ]);
+                console.log(slots, "resp", totalCount);
+                return { slots: slots, totalDocs: (_a = totalCount[0]) === null || _a === void 0 ? void 0 : _a.totalDocuments };
             }
             catch (error) {
                 throw new Error(`${error instanceof Error ? error.message : String(error)}`);
@@ -651,20 +688,25 @@ class slotScheduleRepository extends baseRepo_1.baseRepository {
                         $unwind: "$slotData",
                     },
                     {
-                        $match: { "slotData.mentorId": mentorId }
+                        $match: { "slotData.mentorId": mentorId },
                     },
                     {
-                        $addFields: { "amount": { $toDouble: "$paymentAmount" } },
+                        $addFields: { amount: { $toDouble: "$paymentAmount" } },
                     },
                     {
                         $facet: {
                             monthlyRevenue: [
-                                { $match: { status: "COMPLETED", createdAt: { $gte: startOfYear } } },
-                            ]
-                        }
-                    }
+                                {
+                                    $match: {
+                                        status: "COMPLETED",
+                                        createdAt: { $gte: startOfYear },
+                                    },
+                                },
+                            ],
+                        },
+                    },
                 ]);
-                console.log(result, 'resutl');
+                console.log(result, "resutl");
             }
             catch (error) {
                 throw new Error(` error while find totalRevenue ${error instanceof Error ? error.message : String(error)}`);

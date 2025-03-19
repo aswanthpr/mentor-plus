@@ -16,7 +16,10 @@ declare class slotScheduleRepository extends baseRepository<IslotSchedule> imple
      *
      * @throws Error - Throws an error if there is an issue during the aggregation process.
      */
-    getBookedSlot(menteeId: ObjectId, tabCond: boolean): Promise<IslotSchedule[] | []>;
+    getBookedSlot(userId: ObjectId, tabCond: boolean, userType: "mentee" | "mentor", skip: number, limitNo: number, search: string, sortOrder: string, sortField: string, filter: string): Promise<{
+        slots: IslotSchedule[] | [];
+        totalDocs: number;
+    }>;
     getBookedSession(mentorId: ObjectId, tabCond: boolean): Promise<IslotSchedule[] | []>;
     cancelSlot(sessionId: string, issue: string): Promise<IslotSchedule | null>;
     mentorSlotCancel(sessionId: string, slotValule: string): Promise<IslotSchedule | null>;

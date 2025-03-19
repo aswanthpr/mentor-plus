@@ -47,11 +47,12 @@ export declare class bookingService implements IbookingService {
      *
      * @throws Error - Throws an error if there is an issue while fetching the booked slots.
      */
-    getBookedSlots(menteeId: ObjectId, currentTab: string): Promise<{
+    getBookedSlots(menteeId: ObjectId, currentTab: string, search: string, sortField: string, sortOrder: string, filter: string, page: number, limit: number): Promise<{
         success: boolean;
         message: string;
         status: number;
         slots: IslotSchedule[] | [];
+        totalPage: number;
     }>;
     getBookedSessions(mentorId: ObjectId, currentTab: string): Promise<{
         success: boolean;

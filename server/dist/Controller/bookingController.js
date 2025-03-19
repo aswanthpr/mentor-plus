@@ -59,9 +59,11 @@ class bookingControlelr {
     getBookedSlot(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const { activeTab } = req.query;
-                const { status, message, success, slots } = yield this._bookingService.getBookedSlots(req.user, activeTab);
-                res.status(status).json({ success, message, slots });
+                const { activeTab, search, page, limit, sortField, sortOrder, filter } = req.query;
+                console.log(activeTab, search, page, limit, sortField, sortOrder, filter);
+                const { status, message, success, slots, totalPage } = yield this._bookingService.getBookedSlots(req.user, String(activeTab), String(search), String(sortField), String(sortOrder), String(filter), Number(page), Number(limit));
+                console.log(slots.length, 'kflkjsfljs');
+                res.status(status).json({ success, message, slots, totalPage });
             }
             catch (error) {
                 throw new Error(`Error when fetching all the booked sessions in controller ${error instanceof Error ? error.message : String(error)}`);

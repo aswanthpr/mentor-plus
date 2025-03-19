@@ -18,10 +18,12 @@ export interface IadminService {
         result?: Icategory;
         status: number;
     }>;
-    categoryData(): Promise<{
+    categoryData(searchQuery: string, statusFilter: string, sortField: string, sortOrder: string, page: number, limit: number): Promise<{
         success: boolean;
         message: string;
         categories?: Icategory[];
+        status: number;
+        totalPage: number;
     }>;
     editCategory(id: string, category: string): Promise<{
         success: boolean;
@@ -32,11 +34,12 @@ export interface IadminService {
         message: string;
         status: number;
     }>;
-    menteeData(): Promise<{
+    menteeData(search: string, sortField: string, sortOrder: string, statusFilter: string, page: number, limit: number): Promise<{
         success: boolean;
         message: string;
         status: number;
-        Data?: Imentee[];
+        Data?: Imentee[] | [];
+        totalPage: number;
     }>;
     changeMenteeStatus(id: string): Promise<{
         success: boolean;

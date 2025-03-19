@@ -71,9 +71,16 @@ class slotScheduleRepository
    */
 
   async getBookedSlot(
-    menteeId: ObjectId,
-    tabCond: boolean
-  ): Promise<IslotSchedule[] | []> {
+    userId: ObjectId,
+    tabCond: boolean,
+    userType: "mentee" | "mentor",
+    skip: number,
+    limitNo: number,
+    search: string,
+    sortOrder: string,
+    sortField: string,
+    filter: string
+  ): Promise<{ slots: IslotSchedule[] | []; totalDocs: number }> {
     try {
       const todayStart = getTodayStartTime();
 
@@ -163,9 +170,50 @@ class slotScheduleRepository
           }
         );
       }
-      const resp = await this.aggregateData(slotSchedule, pipeLine);
-      console.log(resp, "resp", pipeLine);
-      return resp;
+      if (search) {
+        pipeLine.push({
+          $match: {
+            $or: [
+              {
+                status: { $regex: search, $options: "i" },
+              },
+              { description: { $regex: search, $options: "i" } },
+              { "user.name": { $regex: search, $options: "i" } },
+              { bio: { $regex: search, $options: "i" } },
+            ],
+          },
+        });
+      }
+      const order = sortOrder === "asc" ? 1 : -1;
+  if (sortField === "createdAt") {
+    pipeLine.push({$sort:{ createdAt: order }}) ;
+  }
+
+      if (filter !== "all") {
+        matchFilter["status"] = filter === "RECLAIM_REQUESTED"
+          ? "RECLAIM_REQUESTED"
+          : { $in: [filter] };
+      }
+
+      // Pagination
+      pipeLine.push({ $skip: skip });
+      pipeLine.push({ $limit: limitNo });
+      const countPipeline = [
+        ...pipeLine.slice(0, pipeLine.length - 2),
+
+        {
+          $count: "totalDocuments",
+        },
+      ];
+
+      // Execute Aggregations
+      const [slots, totalCount] = await Promise.all([
+        this.aggregateData(slotSchedule, pipeLine),
+        slotSchedule.aggregate(countPipeline),
+      ]);
+
+      console.log(slots, "resp", totalCount);
+      return { slots: slots, totalDocs: totalCount[0]?.totalDocuments };
     } catch (error: unknown) {
       throw new Error(
         `${error instanceof Error ? error.message : String(error)}`
@@ -709,36 +757,40 @@ class slotScheduleRepository
   async mentorChartData(mentorId: ObjectId, timeRange: string): Promise<void> {
     try {
       const startOfYear = new Date(new Date().getFullYear(), 0, 1);
-    const startOfNextYear = new Date(new Date().getFullYear() + 1, 0, 1);
-    const today = new Date();
-     const result = await this.aggregateData(slotSchedule,
-      [
+      const startOfNextYear = new Date(new Date().getFullYear() + 1, 0, 1);
+      const today = new Date();
+      const result = await this.aggregateData(slotSchedule, [
         {
-          $lookup:{
-            from :"times",
-            localField:"slotId",
-            foreignField:"_id",
-            as:"slotData",
+          $lookup: {
+            from: "times",
+            localField: "slotId",
+            foreignField: "_id",
+            as: "slotData",
           },
         },
         {
-          $unwind:"$slotData",
+          $unwind: "$slotData",
         },
         {
-          $match:{"slotData.mentorId":mentorId}
+          $match: { "slotData.mentorId": mentorId },
         },
         {
-          $addFields:{"amount":{$toDouble:"$paymentAmount"}},
+          $addFields: { amount: { $toDouble: "$paymentAmount" } },
         },
         {
-          $facet:{
-            monthlyRevenue:[
-              { $match: { status: "COMPLETED", createdAt: { $gte: startOfYear } } },
-            ]
-          }
-        }
-      ])
-      console.log(result,'resutl')
+          $facet: {
+            monthlyRevenue: [
+              {
+                $match: {
+                  status: "COMPLETED",
+                  createdAt: { $gte: startOfYear },
+                },
+              },
+            ],
+          },
+        },
+      ]);
+      console.log(result, "resutl");
     } catch (error: unknown) {
       throw new Error(
         ` error while find totalRevenue ${

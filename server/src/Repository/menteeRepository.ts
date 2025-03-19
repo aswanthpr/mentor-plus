@@ -1,4 +1,4 @@
-import { UpdateWriteOpResult } from "mongoose";
+import { PipelineStage, UpdateWriteOpResult } from "mongoose";
 import menteeModel, { Imentee } from "../Model/menteeModel";
 import { baseRepository } from "./baseRepo";
 import { ImenteeRepository } from "../Interface/Mentee/iMenteeRepository";
@@ -10,17 +10,65 @@ export class menteeRepository
   constructor() {
     super(menteeModel);
   }
+async menteeData(skip: number, limit: number, search: string, sortOrder: string, sortField: string,statusFilter:string): Promise<{ mentees: Imentee[] | []; totalDoc: number; }> {
+  try {
+    const pipeline: PipelineStage[] = [
+      { $match: { isAdmin: false } },
+    ];
 
-  async menteeData(): Promise<Imentee[] | null> {
-    try {
-      return await this.find(menteeModel, { isAdmin: false });
-    } catch (error: unknown) {
-      throw new Error(
-        `error while Checking mentee data ${error instanceof Error ? error.message : String(error)
-        }`
-      );
+    // Search
+    if (search) {
+      pipeline.push({
+        $match: {
+          $or: [
+            { name: { $regex: search, $options: "i" } },
+            { email: { $regex: search, $options: "i" } },
+            { phone: { $regex: search, $options: "i" } },
+          ],
+        },
+      });
     }
-  }
+
+    // Status Filter
+    if (statusFilter !== "all") {
+      pipeline.push({
+        $match: { isBlocked: statusFilter === "blocked" },
+      });
+    }
+
+    // Sorting
+    if (sortField === "createdAt") {
+      pipeline.push({ $sort: { createdAt: sortOrder === "asc" ? 1 : -1 } });
+    }
+
+    // Pagination
+    pipeline.push({ $skip: skip });
+    pipeline.push({ $limit: limit });
+
+    // Count Pipeline
+    const countPipeline = [
+      ...JSON.parse(JSON.stringify(pipeline)).slice(0, -2),
+      { $count: "totalDocuments" },
+    ];
+
+    // Execute Aggregations
+    const [mentees, totalCount] = await Promise.all([
+      this.aggregateData(menteeModel, pipeline),
+      menteeModel.aggregate(countPipeline),
+    ]);
+
+    return {
+      mentees,
+      totalDoc: totalCount?.[0]?.totalDocuments || 0,
+    };
+  } catch (error:unknown) {
+    throw new Error(
+            `error while Checking mentee data ${error instanceof Error ? error.message : String(error)
+            }`
+          );
+        }
+  
+}
   async changeMenteeStatus(id: string): Promise<Imentee | null> {
     try {
       return await this.find_By_Id_And_Update(menteeModel, id, [

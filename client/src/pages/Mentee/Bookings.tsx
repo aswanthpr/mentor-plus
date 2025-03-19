@@ -13,9 +13,11 @@ import { TFilter, TSort, TSortOrder } from "../../Types/type";
 import RatingModal from "../../components/Common/Bookings/RatingModal";
 import { fetchBookingSlots, fetchCanceSession, fetchSubmitRating } from "../../service/menteeApi";
 import { joinSessionHandler } from "../../service/commonApi";
+import { Pagination } from "@mui/material";
 
 const Boooking: React.FC = () => {
-  // const limit = 6;
+  const limit = 5;
+
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [activeTab, setActiveTab] = useState<"upcoming" | "history">(
@@ -26,23 +28,30 @@ const Boooking: React.FC = () => {
   const [showRatingModal, setShowRatingModal] = useState(false);
   const [selectedSession, setSelectedSession] = useState<ISession | null>(null);
   const [sessions, setSessions] = useState<ISession[] | []>([]);
-  const sessionsPerPage = 5;
-
-  const role = useSelector((state: RootState) => state?.mentee.role);
-
+  const [totalDocuments,setTotalDocuments]=useState<number>(0);;
   const [sortField, setSortField] = useState<TSort>("createdAt");
   const [sortOrder, setSortOrder] = useState<TSortOrder>("desc");
   const [statusFilter, setStatusFilter] = useState<TFilter>("all");
-
+  
+  const role = useSelector((state: RootState) => state?.mentee.role);
   useEffect(() => {
     const fetchData = async () => {
       try {
         setLoading(true);
 
-        const response = await fetchBookingSlots(activeTab);
+        const response = await fetchBookingSlots(
+          activeTab,
+          searchQuery,
+          sortField,
+          sortOrder,
+          statusFilter,
+          currentPage,
+          limit,
+        );
 
         if (response?.status == 200 && response?.data?.success) {
           setSessions(response?.data?.slots);
+          setTotalDocuments(response?.data?.totalPage);
         }
       } catch (error: unknown) {
         errorHandler(error);
@@ -51,7 +60,7 @@ const Boooking: React.FC = () => {
       }
     };
     fetchData();
-  }, [activeTab]);
+  }, [activeTab, currentPage, searchQuery, sortField, sortOrder, statusFilter]);
 
   const handleCancelSession = useCallback(
     async (sessionId: string, reason: string, customReason: string) => {
@@ -126,28 +135,6 @@ const Boooking: React.FC = () => {
     },
     [selectedSession]
   );
-
-  const filteredSessions = sessions.filter((session) => {
-    const isUpcoming =
-      session?.status === "PENDING" ||
-      session?.status === "CONFIRMED" ||
-      session?.status === "REJECTED" ||
-      session?.status === "CANCEL_REQUESTED";
-    const isHistory =
-      session?.status === "COMPLETED" || session?.status === "CANCELLED";
-    const matchesSearch =
-      session?.description
-        ?.toLowerCase()
-        .includes(searchQuery?.toLowerCase()) ||
-      session?.user?.name?.toLowerCase()?.includes(searchQuery.toLowerCase());
-    return (activeTab === "upcoming" ? isUpcoming : isHistory) && matchesSearch;
-  });
-
-  const totalPages = Math.ceil(filteredSessions.length / sessionsPerPage);
-  const paginatedSessions = filteredSessions.slice(
-    (currentPage - 1) * sessionsPerPage,
-    currentPage * sessionsPerPage
-  );
   const handleSessionJoin = useCallback(
     async (sessionId: string, sessionCode: string, role: string) => {
       console.log(sessionCode, sessionId, role);
@@ -162,6 +149,14 @@ const Boooking: React.FC = () => {
     },
     [navigate]
   );
+
+  const handlePageChange = useCallback(
+    (event: React.ChangeEvent<unknown>, value: number) => {
+      event.preventDefault();
+      setCurrentPage(value);
+    },
+    []
+  );
   return (
     <div className="space-y-6 mt-10">
       <div className=" p-1 round ">
@@ -175,7 +170,7 @@ const Boooking: React.FC = () => {
         />
       </div>
 
-      <div className="bg-white p-6 rounded-lg shadow-sm">
+      <div className="bg-white p-5 rounded-lg shadow-sm">
         {loading && <Spinner />}
         <div className="mb-6 flex">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
@@ -208,8 +203,8 @@ const Boooking: React.FC = () => {
                 {
                   activeTab=="upcoming"?(
                     <>
-                    <option value="REJECTED">Rejected</option>
-                    <option value="CONFIRMED">Confirmed</option>
+                    <option value="RECLAIM_REQUESTED">Cancel Request</option>
+                    
                     </>
                   ):(
                     <>
@@ -244,7 +239,7 @@ const Boooking: React.FC = () => {
         </div>
 
         <div className="space-y-4">
-          {paginatedSessions.map((session) => {
+          {sessions?.map((session) => {
             return (
               <SessionCard
                 handleSessionJoin={handleSessionJoin}
@@ -259,29 +254,22 @@ const Boooking: React.FC = () => {
         </div>
 
         {/* Pagination */}
-        {totalPages > 1 && (
-          <div className="mt-6 flex justify-center">
-            <div className="flex gap-2">
-              {Array.from({ length: totalPages }, (_, i) => i + 1).map(
-                (page) => (
-                  <button
-                    key={page}
-                    onClick={() => setCurrentPage(page)}
-                    className={`w-10 h-10 rounded-lg font-medium ${
-                      currentPage === page
-                        ? "bg-[#ff8800] text-white"
-                        : "text-gray-600 hover:bg-gray-100"
-                    }`}
-                  >
-                    {page}
-                  </button>
-                )
-              )}
-            </div>
-          </div>
-        )}
+        <hr className="h-px  bg-gray-200 border-0 dark:bg-gray-700 mt-1" />
+        <div className="flex justify-center mt-3">
+          <Pagination
+            count={totalDocuments}
+            page={currentPage} // Current page
+            onChange={handlePageChange} // Page change handler
+            color="standard" // Pagination color
+            shape="circular" // Rounded corners
+            size="small" // Size of pagination
+            siblingCount={1} // Number of sibling pages shown next to the current page
+            boundaryCount={1} // Number of boundary pages to show at the start and end
+          />
+        </div>
+    
 
-        {paginatedSessions.length === 0 && (
+        {sessions?.length === 0 && (
           <div className="text-center py-12">
             <User className="mx-auto h-12 w-12 text-gray-400" />
             <h3 className="mt-2 text-sm font-medium text-gray-900">

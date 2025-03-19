@@ -16,6 +16,7 @@ exports.adminService = void 0;
 const mongoose_1 = __importDefault(require("mongoose"));
 const jwt_utils_1 = require("../Utils/jwt.utils");
 const httpStatusCode_1 = require("../Utils/httpStatusCode");
+const reusable_util_1 = require("../Utils/reusable.util");
 class adminService {
     constructor(_categoryRepository, _menteeRepository, _mentorRepository, _notificationRepository, _slotScheduleRepository) {
         this._categoryRepository = _categoryRepository;
@@ -92,17 +93,38 @@ class adminService {
         });
     }
     //get category data to admin
-    categoryData() {
+    categoryData(searchQuery, statusFilter, sortField, sortOrder, page, limit) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const result = yield this._categoryRepository.categoryData();
-                if (!result) {
-                    return { success: false, message: "No categories found" };
+                if (!sortField || !statusFilter || !sortOrder || page < 1 || limit < 1) {
+                    return {
+                        success: false,
+                        message: "Invalid pagination or missing parameters",
+                        status: httpStatusCode_1.Status.BadRequest,
+                        categories: [],
+                        totalPage: 0,
+                    };
                 }
+                const skipData = (0, reusable_util_1.createSkip)(page, limit);
+                const limitNo = skipData === null || skipData === void 0 ? void 0 : skipData.limitNo;
+                const skip = skipData === null || skipData === void 0 ? void 0 : skipData.skip;
+                const result = yield this._categoryRepository.categoryData(searchQuery, statusFilter, sortField, sortOrder, skip, limitNo);
+                if (!result) {
+                    return {
+                        success: false,
+                        message: "No categories found",
+                        status: httpStatusCode_1.Status.BadRequest,
+                        categories: [],
+                        totalPage: 0,
+                    };
+                }
+                const totalPage = Math.ceil((result === null || result === void 0 ? void 0 : result.totalDoc) / limitNo);
                 return {
                     success: true,
                     message: "Data retrieved successfully",
-                    categories: result,
+                    status: httpStatusCode_1.Status.Ok,
+                    categories: result === null || result === void 0 ? void 0 : result.category,
+                    totalPage
                 };
             }
             catch (error) {
@@ -159,18 +181,36 @@ class adminService {
             }
         });
     }
-    menteeData() {
+    menteeData(search, sortField, sortOrder, statusFilter, page, limit) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const result = yield this._menteeRepository.menteeData();
-                if (!result) {
-                    return { success: false, message: "Users not  found", status: 400 };
+                if (!sortField || !statusFilter || !sortOrder || page < 1 || limit < 1) {
+                    return {
+                        success: false,
+                        message: "Invalid pagination or missing parameters",
+                        status: httpStatusCode_1.Status.BadRequest,
+                        Data: [],
+                        totalPage: 0,
+                    };
                 }
+                const pageNo = Math.max(page, 1);
+                const limitNo = Math.max(limit, 1);
+                const skip = (pageNo - 1) * limitNo;
+                const result = yield this._menteeRepository.menteeData(skip, limitNo, search, sortOrder, sortField, statusFilter);
+                if (!result) {
+                    return { success: false,
+                        message: "Users not  found",
+                        status: httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.BadRequest,
+                        totalPage: 0,
+                        Data: [] };
+                }
+                const totalPage = Math.ceil((result === null || result === void 0 ? void 0 : result.totalDoc) / limitNo);
                 return {
                     success: true,
                     message: "Data retrieved successfully",
                     status: 200,
-                    Data: result,
+                    Data: result === null || result === void 0 ? void 0 : result.mentees,
+                    totalPage,
                 };
             }
             catch (error) {

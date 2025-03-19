@@ -9,4 +9,9 @@ export declare const checkForOverlap: (checkedSlots: IcheckedSlot[], newSlots: {
     startTime: string;
     endTime: string;
 }[];
+export declare const createSkip: (page: number, limit: number) => {
+    pageNo: number;
+    limitNo: number;
+    skip: number;
+};
 //# sourceMappingURL=reusable.util.d.ts.map
