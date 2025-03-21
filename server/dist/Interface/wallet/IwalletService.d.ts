@@ -10,11 +10,12 @@ export interface IwalletService {
         session?: Stripe.Response<Stripe.Checkout.Session>;
     } | undefined>;
     walletStripeWebHook(signature: string | Buffer, bodyData: Buffer): Promise<void>;
-    getWalletData(userId: ObjectId): Promise<{
+    getWalletData(userId: ObjectId, role: string, search: string, filter: string, page: number, limit: number): Promise<{
         message: string;
         status: number;
         success: boolean;
         walletData: Iwallet | null;
+        totalPage: number;
     }>;
     withdrawMentorEarnings(amount: number, userId: ObjectId): Promise<{
         message: string;

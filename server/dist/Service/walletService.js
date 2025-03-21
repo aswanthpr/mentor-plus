@@ -17,6 +17,7 @@ const mongoose_1 = __importDefault(require("mongoose"));
 const httpStatusCode_1 = require("../Utils/httpStatusCode");
 const stripe_1 = __importDefault(require("stripe"));
 const index_1 = require("../index");
+const reusable_util_1 = require("../Utils/reusable.util");
 class walletService {
     constructor(__walletRepository, __transactionRepository, __notificationRepository, stripe = new stripe_1.default(process.env.STRIPE_SECRET_KEY, { maxNetworkRetries: 5 })) {
         this.__walletRepository = __walletRepository;
@@ -142,23 +143,30 @@ class walletService {
         });
     }
     //fetch wallet data ;
-    getWalletData(userId) {
+    getWalletData(userId, role, search, filter, page, limit) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                if (!userId) {
+                if (!userId || !role || !filter || page < 1 || limit < 1) {
                     return {
                         message: "credential not found",
                         status: httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.BadRequest,
                         success: false,
                         walletData: null,
+                        totalPage: 0
                     };
                 }
-                const result = yield this.__walletRepository.findWalletWithTransaction(userId);
+                const skipData = (0, reusable_util_1.createSkip)(page, limit);
+                const limitNo = skipData === null || skipData === void 0 ? void 0 : skipData.limitNo;
+                const skip = skipData === null || skipData === void 0 ? void 0 : skipData.skip;
+                const result = yield this.__walletRepository.findWalletWithTransaction(userId, skip, limit, search, filter);
+                const totalPage = (result === null || result === void 0 ? void 0 : result.totalDocs) > 0 ? Math.ceil((result === null || result === void 0 ? void 0 : result.totalDocs) / limitNo) : 1;
+                console.log(result === null || result === void 0 ? void 0 : result.totalDocs, totalPage);
                 return {
                     message: "successfully receive data",
                     status: httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.Ok,
                     success: true,
-                    walletData: result,
+                    walletData: result === null || result === void 0 ? void 0 : result.transaction,
+                    totalPage
                 };
             }
             catch (error) {
@@ -180,7 +188,6 @@ class walletService {
                     };
                 }
                 if (typeof amount !== 'number' && amount < 500) {
-                    console.log('haiiiiiiiiii');
                     return {
                         message: "Withdrawals below $500 are not allowed. Please enter a higher amount",
                         status: httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.BadRequest,
@@ -189,9 +196,7 @@ class walletService {
                     };
                 }
                 const result = yield this.__walletRepository.deductAmountFromWallet(amount, userId);
-                console.log(result, 'lskmdfdlkasdlfk');
                 if (!result) {
-                    console.log(result, '000000000000000000000');
                     return {
                         message: "data not found",
                         status: httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.BadRequest,

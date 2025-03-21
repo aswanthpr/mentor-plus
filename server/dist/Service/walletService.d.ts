@@ -5,7 +5,7 @@ import Stripe from "stripe";
 import { IwalletRepository } from "../Interface/wallet/IwalletRepository";
 import { Iwallet } from "../Model/walletModel";
 import { InotificationRepository } from "../Interface/Notification/InotificationRepository";
-import { Itransaction } from "src/Model/transactionModel";
+import { Itransaction } from "../Model/transactionModel";
 export declare class walletService implements IwalletService {
     private readonly __walletRepository;
     private readonly __transactionRepository;
@@ -19,11 +19,12 @@ export declare class walletService implements IwalletService {
         session?: Stripe.Response<Stripe.Checkout.Session>;
     } | undefined>;
     walletStripeWebHook(signature: string | Buffer, bodyData: Buffer): Promise<void>;
-    getWalletData(userId: ObjectId): Promise<{
+    getWalletData(userId: ObjectId, role: string, search: string, filter: string, page: number, limit: number): Promise<{
         message: string;
         status: number;
         success: boolean;
         walletData: Iwallet | null;
+        totalPage: number;
     }>;
     withdrawMentorEarnings(amount: number, userId: ObjectId): Promise<{
         message: string;

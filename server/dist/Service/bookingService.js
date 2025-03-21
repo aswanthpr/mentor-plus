@@ -341,7 +341,14 @@ class bookingService {
     getBookedSlots(menteeId, currentTab, search, sortField, sortOrder, filter, page, limit) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                if (!menteeId || !currentTab || !sortField || !filter || !sortOrder || page < 1 || limit < 1 || !mongoose_1.default.Types.ObjectId.isValid(String(menteeId))) {
+                if (!menteeId ||
+                    !currentTab ||
+                    !sortField ||
+                    !filter ||
+                    !sortOrder ||
+                    page < 1 ||
+                    limit < 1 ||
+                    !mongoose_1.default.Types.ObjectId.isValid(String(menteeId))) {
                     return {
                         success: false,
                         message: "missing parameters",
@@ -379,35 +386,47 @@ class bookingService {
             }
         });
     }
-    getBookedSessions(mentorId, currentTab) {
+    getBookedSessions(mentorId, currentTab, search, sortField, sortOrder, filter, page, limit) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 console.log(currentTab, mentorId, "098765432");
                 if (!mentorId ||
                     !currentTab ||
+                    !sortField ||
+                    !sortOrder ||
+                    !filter ||
+                    page < 1 ||
+                    limit < 1 ||
                     !mongoose_1.default.Types.ObjectId.isValid(String(mentorId))) {
                     return {
                         success: false,
                         message: "credential not found",
                         status: httpStatusCode_1.Status.NotFound,
                         slots: [],
+                        totalPage: 0,
                     };
                 }
                 const tabCond = currentTab == "upcoming" ? false : true;
-                const response = yield this._slotScheduleRepository.getBookedSession(mentorId, tabCond);
-                if (!response || response.length === 0) {
+                const skipData = (0, reusable_util_1.createSkip)(page, limit);
+                const limitNo = skipData === null || skipData === void 0 ? void 0 : skipData.limitNo;
+                const skip = skipData === null || skipData === void 0 ? void 0 : skipData.skip;
+                const response = yield this._slotScheduleRepository.getBookedSession(skip, limitNo, search, filter, sortOrder, sortField, tabCond, mentorId);
+                if ((response === null || response === void 0 ? void 0 : response.slots.length) < 0 || (response === null || response === void 0 ? void 0 : response.totalDoc) < 0) {
                     return {
                         success: false,
                         message: "No slots found",
                         status: httpStatusCode_1.Status.Ok,
                         slots: [],
+                        totalPage: 0,
                     };
                 }
+                const totalPage = Math.ceil((response === null || response === void 0 ? void 0 : response.totalDoc) / limitNo);
                 return {
                     success: true,
                     message: "slots retrieved",
                     status: httpStatusCode_1.Status.Ok,
-                    slots: response,
+                    slots: response === null || response === void 0 ? void 0 : response.slots,
+                    totalPage,
                 };
             }
             catch (error) {
@@ -582,7 +601,9 @@ class bookingService {
                     };
                 }
                 //calculate mentor cash;
-                const mentorCommision = (parseInt(response === null || response === void 0 ? void 0 : response.paymentAmount) * parseInt(process.env.MENTOR_COMMISION)) / 100;
+                const mentorCommision = (parseInt(response === null || response === void 0 ? void 0 : response.paymentAmount) *
+                    parseInt(process.env.MENTOR_COMMISION)) /
+                    100;
                 const result = yield this.__walletRepository.findWallet(mentorId);
                 let newWallet = null;
                 if (!result) {

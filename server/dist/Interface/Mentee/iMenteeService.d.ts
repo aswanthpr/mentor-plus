@@ -3,7 +3,7 @@ import { Icategory } from "../../Model/categorySchema";
 import { Imentee } from "../../Model/menteeModel";
 import { Imentor } from "../../Model/mentorModel";
 export interface ImenteeService {
-    homeData(filter: string, search: string, page: number, limit: number): Promise<{
+    homeData(filter: string, search: string, sortField: string, sortOrder: string, page: number, limit: number): Promise<{
         success: boolean;
         message: string;
         status: number;

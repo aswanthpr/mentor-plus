@@ -1,6 +1,6 @@
 import { ObjectId } from "mongoose";
 import { IslotSchedule } from "../../Model/slotSchedule";
-import { IcardData, InewSlotSchedule } from "../../Types";
+import { IcardData,ImentorChartData,InewSlotSchedule } from "../../Types";
 
 export interface IslotScheduleRepository {
   newSlotBooking(
@@ -18,10 +18,19 @@ export interface IslotScheduleRepository {
     filter: string
   ): Promise<{ slots: IslotSchedule[] | []; totalDocs: number }>;
   getBookedSession(
-    menteeId: ObjectId,
-    tabCond: boolean
-  ): Promise<IslotSchedule[] | []>;
-  cancelSlot(sessionId: string, issue: string): Promise<IslotSchedule | null>;
+    skip: number,
+    limitNo: number,
+    search: string,
+    filter: string,
+    sortOrder: string,
+    sortField: string,
+    tabCond: boolean,
+    mentorId: ObjectId,
+  ): Promise<{slots:IslotSchedule[] | [],totalDoc: number }>;
+  cancelSlot(
+    sessionId: string,
+    issue: string
+  ): Promise< IslotSchedule |null >;
   mentorSlotCancel(
     sessionId: string,
     slotValule: string
@@ -36,5 +45,5 @@ export interface IslotScheduleRepository {
     platformCommision: number,
     timeRange: string
   ): Promise<IcardData | null>;
-  mentorChartData(mentorId: ObjectId, timeRange: string): Promise<void>;
+  mentorChartData(mentorId: ObjectId, timeRange: string): Promise<{mentorChart:ImentorChartData|null}>;
 }

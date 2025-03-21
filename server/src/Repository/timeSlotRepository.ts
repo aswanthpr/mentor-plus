@@ -2,7 +2,8 @@ import timeSchema, { Itime } from "../Model/timeModel";
 import { ItimeSlotRepository } from "../Interface/Booking/iTimeSchedule";
 
 import { baseRepository } from "./baseRepo";
-import mongoose, { DeleteResult, ObjectId } from "mongoose";
+import mongoose, { DeleteResult, ObjectId, PipelineStage } from "mongoose";
+import { getTodayEndTime, getTodayStartTime } from "../Utils/reusable.util";
 
 class timeSlotRepository
   extends baseRepository<Itime>
@@ -23,10 +24,28 @@ class timeSlotRepository
     }
   }
 
-  async getTimeSlots(mentorId: ObjectId): Promise<Itime[] | []> {
+  async getTimeSlots(
+    mentorId: ObjectId,
+    limit: number,
+    skip: number,
+    search: string,
+    filter: string,
+    sortField: string,
+    sortOrder: string
+  ): Promise<{ timeSlots: Itime[] | []; totalDocs: number }> {
     try {
- 
-      const res = await this.aggregateData(timeSchema, [
+
+      const dateSearch = new Date(search);
+      const isValidDate = !isNaN(dateSearch.getTime());
+
+      console.log(
+        isValidDate,
+        dateSearch,
+        getTodayEndTime(),
+        getTodayStartTime(),
+        skip,limit
+      );
+      const pipeline: PipelineStage[] = [
         {
           $unwind: "$slots",
         },
@@ -36,7 +55,7 @@ class timeSlotRepository
             isBooked: 1,
             mentorId: 1,
             price: 1,
-            duration:1,
+            duration: 1,
             startTime: "$slots.startTime",
             endTime: "$slots.endTime",
             startStr: "$slots.startStr",
@@ -45,19 +64,57 @@ class timeSlotRepository
         },
         {
           $match: {
-            mentorId: mentorId, 
+            mentorId: mentorId,
             isBooked: false,
-            startDate: { $gte: new Date() }
+            startDate: { $gte: new Date() },
           },
         },
-        {
-          $sort: {
-            startTime: 1,
-          },
-        },
-      ]);
+      ];
 
-      return res;
+      if (search) {
+        pipeline.push({
+          $match: {
+            $or: [
+              {startDate:isValidDate ? dateSearch! : undefined},
+            ],
+          },
+        });
+
+      }
+      const order = sortOrder === "asc" ? 1 : -1;
+      if (sortField === "createdAt") {
+        pipeline.push({ $sort: { createdAt: order } });
+      } else {
+        pipeline.push({ $sort: { startTime: order } });
+      }
+
+      if (filter == "today") {
+        pipeline.push({
+          $match: {
+            startDate: {
+              $gte: getTodayStartTime(),
+              $lte: getTodayEndTime(),
+            },
+          },
+        });
+      }
+      pipeline.push({ $skip: skip });
+      pipeline.push({ $limit: limit });
+
+      const countPipeline = [
+        ...pipeline.slice(0, pipeline.length - 2),
+
+        {
+          $count: "totalDocuments",
+        },
+      ];
+
+      // Execute Aggregations
+      const [timeSlots, totalCount] = await Promise.all([
+        this.aggregateData(timeSchema, pipeline),
+        timeSchema.aggregate(countPipeline),
+      ]);
+      return { timeSlots, totalDocs: totalCount[0]?.totalDocuments };
     } catch (error: unknown) {
       throw new Error(`${"\x1b[35m%s\x1b[0m"}error while getting based on
             slot :${error instanceof Error ? error.message : String(error)}`);
@@ -79,31 +136,29 @@ class timeSlotRepository
   //mentee side for mentor booking
   async getMentorSlots(mentorId: string): Promise<Itime[] | []> {
     try {
-     
       return this.aggregateData(timeSchema, [
         {
-            $unwind: "$slots",
+          $unwind: "$slots",
+        },
+        {
+          $project: {
+            startDate: 1,
+            isBooked: 1,
+            mentorId: 1,
+            price: 1,
+            startTime: "$slots.startTime",
+            endTime: "$slots.endTime",
+            startStr: "$slots.startStr",
+            endStr: "$slots.endStr",
+            duration: 1,
           },
-          {
-            $project: {
-              startDate: 1,
-              isBooked: 1,
-              mentorId: 1,
-              price: 1,
-              startTime: "$slots.startTime",
-              endTime: "$slots.endTime",
-              startStr: "$slots.startStr", 
-              endStr: "$slots.endStr",
-              duration:1
-            },
-          },
+        },
         {
           $match: {
-           mentorId:new mongoose.Types.ObjectId( mentorId),
+            mentorId: new mongoose.Types.ObjectId(mentorId),
             startDate: { $gt: new Date() },
-            isBooked:false
+            isBooked: false,
           },
-
         },
       ]);
     } catch (error: unknown) {
@@ -116,10 +171,12 @@ class timeSlotRepository
   }
 
   //make the timeslot booked
-  async makeTimeSlotBooked(slotId:string):Promise<Itime|null>{
+  async makeTimeSlotBooked(slotId: string): Promise<Itime | null> {
     try {
-      return await this.find_By_Id_And_Update(timeSchema,slotId,{$set:{isBooked:true}})
-    } catch (error:unknown) {
+      return await this.find_By_Id_And_Update(timeSchema, slotId, {
+        $set: { isBooked: true },
+      });
+    } catch (error: unknown) {
       throw new Error(
         `${"\x1b[35m%s\x1b[0m"}error while getting editing speific mentor time slots :${
           error instanceof Error ? error.message : String(error)
@@ -128,23 +185,27 @@ class timeSlotRepository
     }
   }
 
-  async checkTimeSlots(mentorId: ObjectId, startDate: Date, endDate: Date,): Promise<Itime []| []> {
+  async checkTimeSlots(
+    mentorId: ObjectId,
+    startDate: Date,
+    endDate: Date
+  ): Promise<Itime[] | []> {
     try {
-      return await this.aggregateData(timeSchema,[
+      return await this.aggregateData(timeSchema, [
         {
-          $match:{
+          $match: {
             mentorId,
-            startDate:{$gte:startDate,$lte:endDate},
-          }
+            startDate: { $gte: startDate, $lte: endDate },
+          },
         },
         { $unwind: "$slots" },
         {
-          $project:{
-            slots:1,
-          }
-        }
-      ])
-    } catch (error:unknown) {
+          $project: {
+            slots: 1,
+          },
+        },
+      ]);
+    } catch (error: unknown) {
       throw new Error(
         `${"\x1b[35m%s\x1b[0m"}error while getting editing speific mentor time slots :${
           error instanceof Error ? error.message : String(error)

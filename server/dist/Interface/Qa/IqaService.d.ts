@@ -1,6 +1,6 @@
 import { ObjectId } from "mongoose";
 import { Iquestion } from "../../Model/questionModal";
-import { IcreateQuestion } from "src/Types";
+import { IcreateQuestion } from "../../Types";
 import { Ianswer } from "../../Model/answerModel";
 export interface IqaService {
     addQuestionService(Data: IcreateQuestion, userId: ObjectId): Promise<{
@@ -9,12 +9,13 @@ export interface IqaService {
         status: number;
         question: Iquestion | undefined;
     }>;
-    questionData(userId: ObjectId, filter: string): Promise<{
+    questionData(userId: ObjectId, filter: string, search: string, sortField: string, sortOrder: string, limit: number, page: number): Promise<{
         success: boolean;
         message: string;
         status: number;
         question: Iquestion[];
         userId?: ObjectId;
+        totalPage: number;
     }>;
     editQuestion(questionId: string, updatedQuestion: Iquestion, filter: string): Promise<{
         success: boolean;

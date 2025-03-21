@@ -3,14 +3,14 @@ import { Routes, Route, Navigate } from "react-router-dom";
 import Spinner from "../components/Common/common4All/Spinner";
 import VideoPage from "../components/Common/Bookings/VideoPage";
 import WalletPage from "../pages/Mentor/WalletPage";
-import Statistics from "../pages/Mentor/Statistics";
+import MentorHome from "../pages/Mentor/Statistics";
 
 
 const Chat  = lazy(() => import("../pages/Mentor/Chat"));
 const NotFound = lazy(() => import("../pages/Error/NotFound"));
 const Sessions = lazy(() => import("../pages/Mentor/Sessions"));
 const Schedule = lazy(() => import("../pages/Mentor/Schedule"));
-const MentorHome = lazy(() => import("../pages/Mentor/MentorHome"));
+const MentorQna = lazy(() => import("../pages/Mentor/MentorQna"));
 const Mentor_Page = lazy(() => import("../pages/Mentor/Mentor_Page"));
 const MentorProfile = lazy(() => import("../pages/Mentor/MentorProfile"));
 const InternalServer = lazy(() => import("../pages/Error/InternalServer"));
@@ -26,8 +26,8 @@ const MentorRoute: React.FC = () => (
       <Route path="/" element={<Mentor_Page />}>
         <Route index element={<Navigate to="home" />} />
         <Route
-          path="/home"
-          element={<MentorProtectLogin element={<MentorHome />} />}
+          path="/question_Answeres"
+          element={<MentorProtectLogin element={<MentorQna />} />}
         />
         ;
         <Route
@@ -50,8 +50,8 @@ const MentorRoute: React.FC = () => (
           element={<MentorProtectLogin element={<Chat />} />}
         />
         <Route
-          path="/statistics"
-          element={<MentorProtectLogin element={<Statistics />} />} 
+          path="/home"
+          element={<MentorProtectLogin element={<MentorHome />} />} 
         />
       </Route>
     </Routes>

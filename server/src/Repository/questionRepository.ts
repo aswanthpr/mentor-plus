@@ -10,7 +10,7 @@ class questionRepository
 {
   constructor() {
     super(questionSchema);
-  } 
+  }
 
   async createQuestion(
     title: string,
@@ -51,7 +51,15 @@ class questionRepository
       );
     }
   }
-  async questionData(menteeId: ObjectId, filter: string): Promise<Iquestion[]> {
+  async questionData(
+    menteeId: ObjectId,
+    filter: string,
+    search: string,
+    limit: number,
+    skip: number,
+    sortField: string,
+    sortOrder: string
+  ): Promise<{ questions: Iquestion[] | []; totalDocs: number }> {
     try {
       let matchCondition = {};
       if (filter === "answered") {
@@ -61,7 +69,7 @@ class questionRepository
       } else {
         matchCondition = { answers: 0 };
       }
-      return await this.aggregateData(questionModal, [
+      const pipeLine: PipelineStage[] = [
         {
           $match: {
             menteeId: menteeId,
@@ -141,6 +149,25 @@ class questionRepository
           },
         },
         {
+          $project: {
+            _id: 1,
+            title: 1,
+            content: 1,
+            tags: 1,
+            menteeId: 1,
+            createdAt: 1,
+            user: {
+              _id: 1,
+              name: 1,
+              profileUrl: 1,
+              linkedinUrl: 1,
+              githubUrl: 1,
+            },
+            answers: 1,
+            answerData: 1,
+          },
+        },
+        {
           $group: {
             _id: "$_id",
             title: { $first: "$title" },
@@ -161,26 +188,37 @@ class questionRepository
             },
           },
         },
-        {
-          $project: {
-            _id: 1,
-            title: 1,
-            content: 1,
-            tags: 1,
-            menteeId: 1,
-            createdAt: 1,
-            user: {
-              _id: 1,
-              name: 1,
-              profileUrl: 1,
-              linkedinUrl: 1,
-              githubUrl: 1,
-            },
-            answers: 1,
-            answerData: 1,
+      ];
+      if (search) {
+        pipeLine.push({
+          $match: {
+            $or: [
+              { title: { $regex: search, $options: "i" } },
+              { tags: { $in: [{ regex: search, $options: "i" }] } },
+              { content: { $regex: search, $options: "i" } },
+              { "user.name": { $regex: search, $options: "i" } },
+            ],
           },
-        },
+        });
+      }
+      if (sortField === "createdAt") {
+        pipeLine.push({ $sort: { createdAt: sortOrder === "asc" ? 1 : -1 } });
+      } else {
+        pipeLine.push({ $sort: { answers: -1 } });
+      }
+      pipeLine.push({ $skip: skip });
+      pipeLine.push({ $limit: limit });
+      const countPipeline: PipelineStage[] = [
+        ...pipeLine.slice(0, -2),
+        { $count: "totalDocuments" }
+      ];
+      const [questions, totalDocument] = await Promise.all([
+        this.aggregateData(questionModal, pipeLine),
+        questionModal.aggregate(countPipeline),
       ]);
+      const totalDocs = totalDocument?.[0]?.totalDocuments||0 ;
+      console.log(questions.length, totalDocs,'inshad kundan');
+      return { questions, totalDocs };
     } catch (error: unknown) {
       throw new Error(
         `Error occured while fetch  questions ${
@@ -324,9 +362,11 @@ class questionRepository
   async allQuestionData(
     filter: string,
     search: string,
+    sortOrder:string,
+    sortField:string,
     skip: number,
     limit: number
-  ): Promise<{question:Iquestion[] | [],count:number}> {
+  ): Promise<{ question: Iquestion[] | []; count: number }> {
     try {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       let matchCondition: any = {};
@@ -343,145 +383,154 @@ class questionRepository
           { title: { $regex: search, $options: "i" } },
           { content: { $regex: search, $options: "i" } },
           { tags: { $elemMatch: { $regex: search, $options: "i" } } },
-          {"user.name":{$regex:search, $options:"i"}},
+          { "user.name": { $regex: search, $options: "i" } },
         ];
       }
 
       console.log(matchCondition, "matchcondition");
 
-     const [question,count] = await Promise.all([  this.aggregateData(questionModal, [
-        {
-          $match: { isBlocked: false },
-        },
-        {
-          $sort: { createdAt: -1 },
-        },
+      const [question, count] = await Promise.all([
+        this.aggregateData(questionModal, [
+          {
+            $match: { isBlocked: false },
+          },
+          {
+            $sort: { createdAt: -1 },
+          },
 
-        {
-          $lookup: {
-            from: "mentees",
-            localField: "menteeId",
-            foreignField: "_id",
-            as: "user",
-          },
-        },
-        {
-          $unwind: {
-            path: "$user",
-            preserveNullAndEmptyArrays: true,
-          },
-        },
-
-        {
-          $lookup: {
-            from: "answers",
-            let: { questionId: "$_id" },
-            pipeline: [
-              { $match: { $expr: { $eq: ["$questionId", "$$questionId"] } } },
-              { $sort: { createdAt: -1 } },
-            ],
-            as: "answerData",
-          },
-        },
-        {
-          $unwind: {
-            path: "$answerData",
-            preserveNullAndEmptyArrays: true,
-          },
-        },
-
-        {
-          $lookup: {
-            from: "mentees",
-            localField: "answerData.authorId",
-            foreignField: "_id",
-            as: "answerData.author1",
-          },
-        },
-        {
-          $lookup: {
-            from: "mentors",
-            localField: "answerData.authorId",
-            foreignField: "_id",
-            as: "answerData.author2",
-          },
-        },
-        {
-          $match: matchCondition,
-        },
-        {
-          $addFields: {
-            "answerData.author": {
-              $cond: {
-                if: { $eq: ["$answerData.authorType", "mentee"] },
-                then: { $arrayElemAt: ["$answerData.author1", 0] },
-                else: { $arrayElemAt: ["$answerData.author2", 0] },
-              },
+          {
+            $lookup: {
+              from: "mentees",
+              localField: "menteeId",
+              foreignField: "_id",
+              as: "user",
             },
           },
-        },
-        {
-          $project: {
-            "answerData.author1": 0,
-            "answerData.author2": 0,
+          {
+            $unwind: {
+              path: "$user",
+              preserveNullAndEmptyArrays: true,
+            },
           },
-        },
-        {
-          $group: {
-            _id: "$_id",
-            title: { $first: "$title" },
-            tags: { $first: "$tags" },
-            menteeId: { $first: "$menteeId" },
-            content: { $first: "$content" },
-            createdAt: { $first: "$createdAt" },
-            user: { $first: "$user" },
-            answers: { $sum: 1 },
-            answerData: {
-              $push: {
+
+          {
+            $lookup: {
+              from: "answers",
+              let: { questionId: "$_id" },
+              pipeline: [
+                { $match: { $expr: { $eq: ["$questionId", "$$questionId"] } } },
+                { $sort: { createdAt: -1 } },
+              ],
+              as: "answerData",
+            },
+          },
+          {
+            $unwind: {
+              path: "$answerData",
+              preserveNullAndEmptyArrays: true,
+            },
+          },
+
+          {
+            $lookup: {
+              from: "mentees",
+              localField: "answerData.authorId",
+              foreignField: "_id",
+              as: "answerData.author1",
+            },
+          },
+          {
+            $lookup: {
+              from: "mentors",
+              localField: "answerData.authorId",
+              foreignField: "_id",
+              as: "answerData.author2",
+            },
+          },
+          {
+            $match: matchCondition,
+          },
+          {
+            $sort:{[sortField]:sortOrder==="asc"?1:-1}
+          },
+          {
+            $addFields: {
+              "answerData.author": {
                 $cond: {
-                  if: { $ne: ["$answerData", {}] },
-                  then: "$answerData",
-                  else: "$$REMOVE",
+                  if: { $eq: ["$answerData.authorType", "mentee"] },
+                  then: { $arrayElemAt: ["$answerData.author1", 0] },
+                  else: { $arrayElemAt: ["$answerData.author2", 0] },
                 },
               },
             },
           },
-        },
-        {
-          $skip:skip
-        },
-        {
-          $limit:limit
-        },
-        {
-          $project: {
-            _id: 1,
-            title: 1,
-            content: 1,
-            tags: 1,
-            menteeId: 1,
-            createdAt: 1,
-            user: {
-              _id: 1,
-              name: 1,
-              profileUrl: 1,
-              linkedinUrl: 1,
-              githubUrl: 1,
+          {
+            $project: {
+              "answerData.author1": 0,
+              "answerData.author2": 0,
             },
-            answers: 1,
-            answerData: 1,
-            answer: 1,
           },
-        },
-      ]),
-      this.aggregateData(questionModal, [
-        { $match: filter==="answered"?{ answers: { $gt: 0 } }:{ answers: { $lte: 0 } } },
-        { $count: "count" },
-      ]) ,
-    ]);
-     const countResult = (count.length > 0 ? count[0]?.count : 0) as number;
-    console.log(countResult,'eieieieieiiei',count)
-      return {question,count:countResult }
+          {
+            $group: {
+              _id: "$_id",
+              title: { $first: "$title" },
+              tags: { $first: "$tags" },
+              menteeId: { $first: "$menteeId" },
+              content: { $first: "$content" },
+              createdAt: { $first: "$createdAt" },
+              user: { $first: "$user" },
+              answers: { $sum: 1 },
+              answerData: {
+                $push: {
+                  $cond: {
+                    if: { $ne: ["$answerData", {}] },
+                    then: "$answerData",
+                    else: "$$REMOVE",
+                  },
+                },
+              },
+            },
+          },
+          {
+            $skip: skip,
+          },
+          {
+            $limit: limit,
+          },
+          {
+            $project: {
+              _id: 1,
+              title: 1,
+              content: 1,
+              tags: 1,
+              menteeId: 1,
+              createdAt: 1,
+              user: {
+                _id: 1,
+                name: 1,
+                profileUrl: 1,
+                linkedinUrl: 1,
+                githubUrl: 1,
+              },
+              answers: 1,
+              answerData: 1,
+              answer: 1,
+            },
+          },
+        ]),
+        this.aggregateData(questionModal, [
+          {
+            $match:
+              filter === "answered"
+                ? { answers: { $gt: 0 } }
+                : { answers: { $lte: 0 } },
+          },
+          { $count: "count" },
+        ]),
+      ]);
+      const countResult = (count.length > 0 ? count[0]?.count : 0) as number;
+     
+      return { question, count: countResult };
     } catch (error: unknown) {
       throw new Error(
         `Error occured while get all data  questions ${
@@ -540,12 +589,10 @@ class questionRepository
     sortField: string
   ): Promise<{ questions: Iquestion[]; docCount: number } | null> {
     try {
-
       const sortOptions = sortOrder === "asc" ? 1 : -1;
-  
 
       const pipeline: PipelineStage[] = [];
-
+ 
       if (search) {
         pipeline.push({
           $match: {
@@ -707,7 +754,7 @@ class questionRepository
       });
 
       pipeline.push({
-        $limit:limit,
+        $limit: limit,
       });
       //count the total no of doc
       const countPipeline = [

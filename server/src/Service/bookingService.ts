@@ -506,21 +506,30 @@ export class bookingService implements IbookingService {
   async getBookedSlots(
     menteeId: ObjectId,
     currentTab: string,
-    search:string,
-    sortField:string,
-    sortOrder:string,
-    filter:string,
-    page:number,
-    limit:number,
+    search: string,
+    sortField: string,
+    sortOrder: string,
+    filter: string,
+    page: number,
+    limit: number
   ): Promise<{
     success: boolean;
     message: string;
     status: number;
     slots: IslotSchedule[] | [];
-    totalPage:number
+    totalPage: number;
   }> {
     try {
-      if (!menteeId ||!currentTab || !sortField ||!filter || !sortOrder || page < 1 || limit < 1||!mongoose.Types.ObjectId.isValid(String(menteeId))) {
+      if (
+        !menteeId ||
+        !currentTab ||
+        !sortField ||
+        !filter ||
+        !sortOrder ||
+        page < 1 ||
+        limit < 1 ||
+        !mongoose.Types.ObjectId.isValid(String(menteeId))
+      ) {
         return {
           success: false,
           message: "missing parameters",
@@ -529,10 +538,10 @@ export class bookingService implements IbookingService {
           totalPage: 0,
         };
       }
-     const skipData = createSkip(page,limit);
-           const limitNo = skipData?.limitNo;
-           const skip = skipData?.skip
-     
+      const skipData = createSkip(page, limit);
+      const limitNo = skipData?.limitNo;
+      const skip = skipData?.skip;
+
       const tabCond = currentTab == "upcoming" ? false : true;
       console.log(tabCond, currentTab, "this si tab");
 
@@ -545,11 +554,10 @@ export class bookingService implements IbookingService {
         search,
         sortOrder,
         sortField,
-        filter,
-
+        filter
       );
 
-      if (response?.slots.length < 0||response?.totalDocs < 0) {
+      if (response?.slots.length < 0 || response?.totalDocs < 0) {
         return {
           success: false,
           message: "No slots found",
@@ -558,7 +566,7 @@ export class bookingService implements IbookingService {
           totalPage: 0,
         };
       }
-const totalPage = Math.ceil(response?.totalDocs/limitNo)
+      const totalPage = Math.ceil(response?.totalDocs / limitNo);
       return {
         success: true,
         message: "slots found",
@@ -577,18 +585,30 @@ const totalPage = Math.ceil(response?.totalDocs/limitNo)
 
   async getBookedSessions(
     mentorId: ObjectId,
-    currentTab: string
+    currentTab: string,
+    search: string,
+    sortField: string,
+    sortOrder: string,
+    filter: string,
+    page: number,
+    limit: number
   ): Promise<{
     success: boolean;
     message: string;
     status: number;
     slots: IslotSchedule[] | [];
+    totalPage: number;
   }> {
     try {
       console.log(currentTab, mentorId, "098765432");
       if (
         !mentorId ||
         !currentTab ||
+        !sortField ||
+        !sortOrder ||
+        !filter ||
+        page < 1 ||
+        limit < 1 ||
         !mongoose.Types.ObjectId.isValid(String(mentorId))
       ) {
         return {
@@ -596,28 +616,40 @@ const totalPage = Math.ceil(response?.totalDocs/limitNo)
           message: "credential not found",
           status: Status.NotFound,
           slots: [],
+          totalPage: 0,
         };
       }
       const tabCond = currentTab == "upcoming" ? false : true;
-
+      const skipData = createSkip(page, limit);
+      const limitNo = skipData?.limitNo;
+      const skip = skipData?.skip;
       const response = await this._slotScheduleRepository.getBookedSession(
+        skip,
+        limitNo,
+        search,
+        filter,
+        sortOrder,
+        sortField,
+        tabCond,
         mentorId,
-        tabCond
       );
-      if (!response || response.length === 0) {
+      if (response?.slots.length < 0 || response?.totalDoc <0 ) {
         return {
           success: false,
           message: "No slots found",
           status: Status.Ok,
           slots: [],
+          totalPage:0,
         };
       }
+      const totalPage = Math.ceil(response?.totalDoc/limitNo);
 
       return {
         success: true,
         message: "slots retrieved",
         status: Status.Ok,
-        slots: response,
+        slots: response?.slots,
+        totalPage,
       };
     } catch (error: unknown) {
       throw new Error(
@@ -854,26 +886,28 @@ const totalPage = Math.ceil(response?.totalDocs/limitNo)
           status: Status.NotFound,
           sessionStatus: null,
         };
-      } 
+      }
       //calculate mentor cash;
 
       const mentorCommision =
-        (parseInt(response?.paymentAmount) *parseInt(process.env.MENTOR_COMMISION as string))/100
-        
+        (parseInt(response?.paymentAmount) *
+          parseInt(process.env.MENTOR_COMMISION as string)) /
+        100;
 
       const result = await this.__walletRepository.findWallet(mentorId);
       let newWallet: Iwallet | null = null;
       if (!result) {
         newWallet = await this?.__walletRepository.createWallet({
           userId: mentorId as ObjectId,
-          balance:mentorCommision,
+          balance: mentorCommision,
         });
-      }else{
+      } else {
         await this.__walletRepository.updateWalletAmount(
           mentorId,
-          parseInt(response?.paymentAmount))
+          parseInt(response?.paymentAmount)
+        );
       }
-      
+
       const newTranasaction = {
         amount: mentorCommision,
         walletId: (result ? result?._id : newWallet?.["_id"]) as ObjectId,
@@ -882,26 +916,29 @@ const totalPage = Math.ceil(response?.totalDocs/limitNo)
         note: "earnings credited to account",
       };
 
-     await this.__transactionRepository.createTransaction(newTranasaction);
-    
-     const notification =  await this._notificationRepository.createNotification(
-        mentorId,
-        "Earnings credited",
-        "your earnings credited to your wallet.have a nice day",
-        "mentor",
-        `${process.env.CLIENT_ORIGIN_URL}/mentor/wallet`
-      );
-      if(notification){
-        socketManager.sendNotification(String(mentorId),notification as Inotification)
+      await this.__transactionRepository.createTransaction(newTranasaction);
+
+      const notification =
+        await this._notificationRepository.createNotification(
+          mentorId,
+          "Earnings credited",
+          "your earnings credited to your wallet.have a nice day",
+          "mentor",
+          `${process.env.CLIENT_ORIGIN_URL}/mentor/wallet`
+        );
+      if (notification) {
+        socketManager.sendNotification(
+          String(mentorId),
+          notification as Inotification
+        );
       }
-      console.log(notification)
+      console.log(notification);
       return {
         success: true,
         message: "marked as completed!",
         status: Status.Ok,
         sessionStatus: response?.status,
       };
-
     } catch (error: unknown) {
       throw new Error(
         `${

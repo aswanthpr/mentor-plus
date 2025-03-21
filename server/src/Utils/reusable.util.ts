@@ -13,6 +13,11 @@ export const getTodayStartTime = () => {
  
   return  new Date(new Date().setUTCHours(0,0,0,0));
 };
+export const getTodayEndTime = () => {
+ 
+  return  new Date(new Date().setUTCHours(23,59,59,999));
+};
+
 
 
 export const checkForOverlap = (

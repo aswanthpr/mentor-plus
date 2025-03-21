@@ -7,11 +7,14 @@ import SessionCard from "../../components/Common/Bookings/SessionCard";
 import TabNavigation from "../../components/Common/Bookings/TabNavigation";
 import InputField from "../../components/Auth/InputField";
 import { errorHandler } from "../../Utils/Reusable/Reusable";
-import Spinner from "../../components/Common/common4All/Spinner";
 import { RootState } from "../../Redux/store";
 import { TFilter, TSort, TSortOrder } from "../../Types/type";
 import RatingModal from "../../components/Common/Bookings/RatingModal";
-import { fetchBookingSlots, fetchCanceSession, fetchSubmitRating } from "../../service/menteeApi";
+import {
+  fetchBookingSlots,
+  fetchCanceSession,
+  fetchSubmitRating,
+} from "../../service/menteeApi";
 import { joinSessionHandler } from "../../service/commonApi";
 import { Pagination } from "@mui/material";
 
@@ -19,7 +22,6 @@ const Boooking: React.FC = () => {
   const limit = 5;
 
   const navigate = useNavigate();
-  const [loading, setLoading] = useState(false);
   const [activeTab, setActiveTab] = useState<"upcoming" | "history">(
     "upcoming"
   );
@@ -28,16 +30,15 @@ const Boooking: React.FC = () => {
   const [showRatingModal, setShowRatingModal] = useState(false);
   const [selectedSession, setSelectedSession] = useState<ISession | null>(null);
   const [sessions, setSessions] = useState<ISession[] | []>([]);
-  const [totalDocuments,setTotalDocuments]=useState<number>(0);;
+  const [totalDocuments, setTotalDocuments] = useState<number>(0);
   const [sortField, setSortField] = useState<TSort>("createdAt");
   const [sortOrder, setSortOrder] = useState<TSortOrder>("desc");
   const [statusFilter, setStatusFilter] = useState<TFilter>("all");
-  
+
   const role = useSelector((state: RootState) => state?.mentee.role);
   useEffect(() => {
     const fetchData = async () => {
-      try {
-        setLoading(true);
+      try {;
 
         const response = await fetchBookingSlots(
           activeTab,
@@ -46,7 +47,7 @@ const Boooking: React.FC = () => {
           sortOrder,
           statusFilter,
           currentPage,
-          limit,
+          limit
         );
 
         if (response?.status == 200 && response?.data?.success) {
@@ -55,8 +56,6 @@ const Boooking: React.FC = () => {
         }
       } catch (error: unknown) {
         errorHandler(error);
-      } finally {
-        setLoading(false);
       }
     };
     fetchData();
@@ -171,7 +170,7 @@ const Boooking: React.FC = () => {
       </div>
 
       <div className="bg-white p-5 rounded-lg shadow-sm">
-        {loading && <Spinner />}
+        {/* {loading && <Spinner />} */}
         <div className="mb-6 flex">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
             {/* Search */}
@@ -199,21 +198,17 @@ const Boooking: React.FC = () => {
                 }
                 className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-orange-200 border-orange-500"
               >
-                 <option value="all">All Status</option>
-                {
-                  activeTab=="upcoming"?(
-                    <>
+                <option value="all">All Status</option>
+                {activeTab == "upcoming" ? (
+                  <>
                     <option value="RECLAIM_REQUESTED">Cancel Request</option>
-                    
-                    </>
-                  ):(
-                    <>
+                  </>
+                ) : (
+                  <>
                     <option value="COMPLETED">Completed</option>
                     <option value="CANCELLED">Cancelled</option>
-                    
-                    </>
-                  )
-                }
+                  </>
+                )}
               </select>
             </div>
 
@@ -230,9 +225,8 @@ const Boooking: React.FC = () => {
                 }}
                 className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-orange-200 border-orange-500"
               >
-                 <option value="createdAt-desc">Newest First</option>
-                 <option value="createdAt-asc">Oldest First</option>
-              
+                <option value="createdAt-desc">Newest First</option>
+                <option value="createdAt-asc">Oldest First</option>
               </select>
             </div>
           </div>
@@ -267,7 +261,6 @@ const Boooking: React.FC = () => {
             boundaryCount={1} // Number of boundary pages to show at the start and end
           />
         </div>
-    
 
         {sessions?.length === 0 && (
           <div className="text-center py-12">

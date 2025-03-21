@@ -48,7 +48,7 @@ mentor_Router.patch(`/profile/change_password`, mentorAuthMiddleware_1.default, 
 mentor_Router.post("/refresh-token", __mentorController.mentorRefreshToken.bind(__mentorController));
 mentor_Router.patch(`/profile/image_change`, mentorAuthMiddleware_1.default, multer_util_1.default.fields([{ name: "profileImage", maxCount: 1 }]), __mentorController.mentorProfileImageChange.bind(__mentorController));
 mentor_Router.put(`/profile/edit_profile_details`, multer_util_1.default.fields([{ name: "resume", maxCount: 1 }]), __mentorController.mentorEditProfile.bind(__mentorController));
-mentor_Router.get(`/home/:filter`, mentorAuthMiddleware_1.default, __mentorController.homeData.bind(__mentorController));
+mentor_Router.get(`/home/:filter`, mentorAuthMiddleware_1.default, __mentorController.questionData.bind(__mentorController));
 mentor_Router.post(`/qa/create-new-answer`, mentorAuthMiddleware_1.default, __qaController.createNewAnswer.bind(__qaController));
 mentor_Router.patch(`/qa/edit-answer`, mentorAuthMiddleware_1.default, __qaController.editAnswer.bind(__qaController));
 //schedule

@@ -10,30 +10,53 @@ import {
   ResponsiveContainer
 } from 'recharts';
 
+// Interface for session data
+interface CumulativeSessionData {
+  revenue: number;
+  cumulativeRevenue: number;
+  month: number;
+  year?: number;
+}
+
+// Interface for transformed growth data
 interface GrowthData {
   month: string;
   revenue: number;
-  sessions: number;
+  cumulative: number;
 }
 
+// Props interface
 interface GrowthTrendProps {
-  data: GrowthData[];
+  data: CumulativeSessionData[];
 }
 
+// Month number to string conversion
+const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+
+// Component
 const GrowthTrend: React.FC<GrowthTrendProps> = React.memo(({ data }) => {
+
+  // Transform cumulative data
+  const transformedData: GrowthData[] = data?.map((item) => ({
+    month: monthNames[item?.month - 1],
+    revenue: item?.revenue,
+    cumulative: item?.cumulativeRevenue, 
+  }));
+
+
   return (
     <div className="bg-white p-6 rounded-lg shadow-sm">
-      <h3 className="text-lg font-semibold mb-6">Growth Trend</h3>
+      <h3 className="text-lg font-semibold mb-6">Cumulative Trend</h3>
       <div className="h-80">
         <ResponsiveContainer width="100%" height="100%">
-          <LineChart data={data}>
+          <LineChart data={transformedData}>
             <CartesianGrid strokeDasharray="3 3" />
             <XAxis dataKey="month" />
             <YAxis />
             <Tooltip />
             <Legend />
             <Line type="monotone" dataKey="revenue" stroke="#ff8800" activeDot={{ r: 8 }} />
-            <Line type="monotone" dataKey="sessions" stroke="#ffbb00" activeDot={{ r: 8 }} />
+            <Line type="monotone" dataKey="cumulative" stroke="#ffbb00" activeDot={{ r: 8 }} />
           </LineChart>
         </ResponsiveContainer>
       </div>

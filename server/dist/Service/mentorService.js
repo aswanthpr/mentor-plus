@@ -303,31 +303,30 @@ class mentorService {
             }
         });
     }
-    homeData(filter, search, page, limit) {
+    questionData(filter, search, sortField, sortOrder, page, limit) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 console.log(filter, search, page, limit);
-                if (!filter || !page ||
-                    !limit) {
+                if (!filter || page < 1 || limit < 1 || !sortField || !sortOrder) {
                     return {
                         success: false,
                         message: "credentials not found",
                         status: 400,
                         homeData: [],
-                        totalPage: 0
+                        totalPage: 0,
                     };
                 }
                 const pageNo = page || 1;
                 const limitNo = limit || 6;
                 const skip = (pageNo - 1) * limitNo;
-                const response = yield this._questionRepository.allQuestionData(filter, search, skip, limit);
+                const response = yield this._questionRepository.allQuestionData(filter, search, sortOrder, sortField, skip, limit);
                 const totalPage = Math.ceil((response === null || response === void 0 ? void 0 : response.count) / limitNo);
                 return {
                     success: true,
                     message: "Data successfully fetched",
                     status: 200,
                     homeData: response === null || response === void 0 ? void 0 : response.question,
-                    totalPage
+                    totalPage,
                 };
             }
             catch (error) {
@@ -362,8 +361,7 @@ class mentorService {
                     if (checkedSlots.length > 0) {
                         res = (0, reusable_util_1.checkForOverlap)(checkedSlots, slots);
                     }
-                    if (checkedSlots.length > 0 && res.length == 0) {
-                        console.log("00000000000000000000");
+                    if (checkedSlots.length < 0 && res.length == 0) {
                         return {
                             success: false,
                             message: "all time periods are  duplicates ",
@@ -419,7 +417,6 @@ class mentorService {
                             const duration = moment_1.default.duration(end.diff(start));
                             const minutesDifference = duration.asMinutes();
                             if (minutesDifference < 30 || minutesDifference > 60) {
-                                console.log("333333333333333");
                                 return {
                                     success: false,
                                     message: "The time duration must be between 30 and 60 minutes.",
@@ -428,7 +425,6 @@ class mentorService {
                                 };
                             }
                             if (end.isBefore(start)) {
-                                console.log("44444444444444");
                                 return {
                                     success: false,
                                     message: "The End Time is Befor Start Time",
@@ -467,12 +463,14 @@ class mentorService {
                                 timeSlots: [],
                             };
                         }
+                        console.log('1111111');
                         let res = [];
                         const checkedSlots = yield this._timeSlotRepository.checkTimeSlots(mentorId, new Date(`${startDate}T00:00:00.000Z`), new Date(`${startDate}T23:59:59.999Z`));
                         if (checkedSlots.length > 0) {
                             res = (0, reusable_util_1.checkForOverlap)(checkedSlots, slots);
                         }
-                        if (checkedSlots.length > 0 && res.length == 0) {
+                        console.log('222222');
+                        if (checkedSlots.length < 0 && res.length == 0) {
                             return {
                                 success: false,
                                 message: "all time periods are  duplicates ",
@@ -482,7 +480,9 @@ class mentorService {
                         }
                         const givenDate = (0, moment_1.default)(startDate, "YYYY-MM-DD");
                         const currentDate = (0, moment_1.default)().startOf("day");
+                        console.log('3333333');
                         if (givenDate.isBefore(currentDate)) {
+                            console.log('00000000');
                             return {
                                 success: false,
                                 message: " The given date is in the past.",
@@ -493,7 +493,7 @@ class mentorService {
                         const entrySlots = (res.length > 0 ? res : slots).map((slot) => {
                             const start = (0, moment_1.default)(`${startDate} ${slot === null || slot === void 0 ? void 0 : slot.startTime}`, "YYYY-MM-DD HH:mm:ss");
                             const end = (0, moment_1.default)(`${startDate} ${slot === null || slot === void 0 ? void 0 : slot.endTime}`, "YYYY-MM-DD HH:mm:ss");
-                            console.log(start, "11111111111111111111111111", end);
+                            console.log('55555');
                             const duration = moment_1.default.duration(end.diff(start));
                             if (!duration) {
                                 return {
@@ -565,23 +565,35 @@ class mentorService {
             }
         });
     }
-    getTimeSlots(mentorId) {
+    getTimeSlots(mentorId, limit, page, search, filter, sortField, sortOrder) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                if (!mentorId) {
+                if (!mentorId ||
+                    !filter ||
+                    !sortField ||
+                    !sortOrder ||
+                    limit < 1 ||
+                    page < 1) {
                     return {
                         success: false,
                         message: "credentials not found",
                         status: httpStatusCode_1.Status.BadRequest,
                         timeSlots: [],
+                        totalPage: 0,
                     };
                 }
-                const response = yield this._timeSlotRepository.getTimeSlots(mentorId);
+                const skipData = (0, reusable_util_1.createSkip)(page, limit);
+                const limitNo = skipData === null || skipData === void 0 ? void 0 : skipData.limitNo;
+                const skip = skipData === null || skipData === void 0 ? void 0 : skipData.skip;
+                console.log(limit, limitNo, page, skip, "limit,skip");
+                const response = yield this._timeSlotRepository.getTimeSlots(mentorId, limitNo, skip, search, filter, sortField, sortOrder);
+                const totalPage = Math.ceil((response === null || response === void 0 ? void 0 : response.totalDocs) / limitNo);
                 return {
                     success: true,
                     message: "Data successfully fetched",
                     status: httpStatusCode_1.Status.Ok,
-                    timeSlots: response,
+                    timeSlots: response === null || response === void 0 ? void 0 : response.timeSlots,
+                    totalPage,
                 };
             }
             catch (error) {
@@ -627,15 +639,16 @@ class mentorService {
                         success: false,
                         message: "credentials not found",
                         status: httpStatusCode_1.Status.BadRequest,
+                        result: null
                     };
                 }
-                console.log(timeRange, 'timerange');
                 const result = yield this._slotScheduleRepository.mentorChartData(mentorId, timeRange);
-                console.log(result, 'ressult');
+                console.log(result, 'this is the result');
                 return {
                     success: true,
                     message: "successfully removed",
                     status: httpStatusCode_1.Status.Ok,
+                    result: result === null || result === void 0 ? void 0 : result.mentorChart
                 };
             }
             catch (error) {

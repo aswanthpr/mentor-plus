@@ -22,10 +22,9 @@ class qaService {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 const { title, content, tags } = Data;
-                if (!Data ||
-                    !Data.title ||
-                    !Data.content ||
-                    !Array.isArray(Data.tags) ||
+                if (!title ||
+                    !content ||
+                    !Array.isArray(tags) ||
                     !userId) {
                     return {
                         success: false,
@@ -64,24 +63,30 @@ class qaService {
             }
         });
     }
-    questionData(userId, filter) {
+    questionData(userId, filter, search, sortField, sortOrder, limit, page) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                if (!userId || !filter) {
+                if (!userId || !filter || !sortField || !sortOrder || 1 > limit || 1 > page) {
                     return {
                         success: false,
                         message: "credential missing",
                         status: 400,
                         question: [],
+                        totalPage: 0,
                     };
                 }
-                const response = yield this.__questionRepository.questionData(userId, filter);
+                const skipData = (0, reusable_util_1.createSkip)(page, limit);
+                const limitNo = skipData === null || skipData === void 0 ? void 0 : skipData.limitNo;
+                const skip = skipData === null || skipData === void 0 ? void 0 : skipData.skip;
+                const response = yield this.__questionRepository.questionData(userId, filter, search, limitNo, skip, sortField, sortOrder);
+                const totalPage = Math.ceil((response === null || response === void 0 ? void 0 : response.totalDocs) / limitNo);
                 return {
                     success: true,
                     message: "Data retrieved successfully",
                     status: 200,
-                    question: response,
+                    question: response === null || response === void 0 ? void 0 : response.questions,
                     userId,
+                    totalPage
                 };
             }
             catch (error) {

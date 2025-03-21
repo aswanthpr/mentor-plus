@@ -32,9 +32,9 @@ const TransactionFilters: React.FC<TransactionFiltersProps> = ({
         className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#ff8800] focus:border-transparent"
       >
         <option value="all">All Types</option>
-        <option value="deposit">Deposits</option>
-        <option value="withdrawal">Withdrawals</option>
-        <option value="earning">Earnings</option>
+        <option value="debit">debit</option>
+        <option value="credit">credit</option>
+        <option value="paid">paid</option> 
       </select>
     </div>
   );

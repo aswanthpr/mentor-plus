@@ -1,18 +1,10 @@
 import React from 'react';
 import { Star } from 'lucide-react';
 
-interface Mentor {
-  mentorId: string;
-  mentorName: string;
-  profileUrl: string;
-  category: string;
-  totalRevenue: number;
-  averageRating: number;
-  totalSessions: number;
-}
+
 
 interface TopMentorsProps {
-  mentors: Mentor[];
+  mentors: ItopMentors[];
 }
 
 const TopMentors: React.FC<TopMentorsProps> =React.memo( ({ mentors }) => {
@@ -42,7 +34,7 @@ const TopMentors: React.FC<TopMentorsProps> =React.memo( ({ mentors }) => {
             </tr>
           </thead>
           <tbody className="bg-white divide-y divide-gray-200">
-            {mentors.map((mentor) => (
+            {mentors?.map((mentor) => (
               <tr key={mentor?.mentorId}>
                 <td className="px-6 py-4 whitespace-nowrap">
                   <div className="flex items-center">
@@ -71,18 +63,6 @@ const TopMentors: React.FC<TopMentorsProps> =React.memo( ({ mentors }) => {
                 <td className=" px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                   {mentor?.totalSessions}
                 </td>
-                {/* <td className="px-6 py-4 whitespace-nowrap">
-                  <div className={`flex items-center ${
-                    mentor.growth >= 0 ? 'text-green-600' : 'text-red-600'
-                  }`}>
-                    {mentor.growth >= 0 ? (
-                      <ArrowUp className="h-4 w-4" />
-                    ) : (
-                      <ArrowDown className="h-4 w-4" />
-                    )}
-                    <span className="ml-1 text-sm">{Math.abs(mentor.growth)}%</span>
-                  </div>
-                </td> */}
               </tr>
             ))}
           </tbody>

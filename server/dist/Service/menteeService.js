@@ -337,11 +337,11 @@ class menteeService {
         });
     }
     //this is for getting mentee home question data
-    homeData(filter, search, page, limit) {
+    homeData(filter, search, sortField, sortOrder, page, limit) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 console.log(filter, search, page, limit);
-                if (!filter || !page || !limit) {
+                if (!filter || page < 1 || limit < 1 || !sortField || !sortOrder) {
                     return {
                         success: false,
                         message: "credentials not found",
@@ -353,7 +353,7 @@ class menteeService {
                 const pageNo = page || 1;
                 const limitNo = limit || 6;
                 const skip = (pageNo - 1) * limitNo;
-                const response = yield this._questionRepository.allQuestionData(filter, search, skip, limit);
+                const response = yield this._questionRepository.allQuestionData(filter, search, sortOrder, sortField, skip, limit);
                 if (!response) {
                     return {
                         success: false,

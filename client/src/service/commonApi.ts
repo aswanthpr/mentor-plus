@@ -27,10 +27,10 @@ export const joinSessionHandler = async (
     console.log(error instanceof Error ? error.message : String(error));
   }
 };
-export const fetchWalletData = async (role: string) => {
+export const fetchWalletData = async (role: string,search:string,filter:string,page:number,limit:number) => {
   try {
     const apiClient = role === "mentee" ? protectedAPI : axiosInstance;
-    return await apiClient.get(`/${role}/wallet`, { params: { role } });
+    return await apiClient.get(`/${role}/wallet`, { params: { role,search,filter,page,limit } });
   } catch (error: unknown) {
     console.log(error instanceof Error ? error.message : String(error));
   }

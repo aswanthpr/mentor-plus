@@ -3,6 +3,7 @@ import { Icategory } from "../../Model/categorySchema";
 import { Imentor } from "../../Model/mentorModel"
 import { Itime } from "../../Model/timeModel";
 import { ObjectId } from "mongoose";
+import { ImentorChartData } from "src/Types";
 
 export interface ImentorService {
 
@@ -11,9 +12,9 @@ export interface ImentorService {
     passwordChange(currentPassword: string, newPassword: string, id: string): Promise<{ success: boolean, message: string, status: number }>;
     mentorProfileImageChange(image: Express.Multer.File | null, id: string): Promise<{ success: boolean; message: string; status: number; profileUrl?: string }>;
     mentorEditProfile(mentorData: Imentor, resume: Express.Multer.File | null): Promise<{ success: boolean, message: string, status: number, result: Imentor | null }>
-    homeData(filter: string,search:string,page:number,limit:number): Promise<{ success: boolean; message: string; status: number; homeData: Iquestion[] |[],totalPage:number }>
+    questionData(filter: string,search:string,sortField:string,sortOrder:string,page:number,limit:number): Promise<{ success: boolean; message: string; status: number; homeData: Iquestion[] |[],totalPage:number }>
     createTimeSlots(type:string,schedule:unknown,mentorId:ObjectId):Promise<{success: boolean; message: string; status: number; timeSlots:Itime[]|[] }>;
-   getTimeSlots(mentorId:ObjectId):Promise<{success: boolean; message: string; status: number; timeSlots:Itime[]|[]}> ;
+   getTimeSlots(mentorId:ObjectId,limit:number,page:number,search:string,filter:string,sortField:string,sortOrder:string):Promise<{success: boolean; message: string; status: number; timeSlots:Itime[]|[],totalPage:number}> ;
    removeTimeSlot(slotId:string):Promise<{success: boolean; message: string; status: number;}>;
-   mentorChartData(mentorId:ObjectId,timeRange:string):Promise<{success: boolean; message: string; status: number}>
+   mentorChartData(mentorId:ObjectId,timeRange:string):Promise<{success: boolean; message: string; status: number,result:ImentorChartData|null}>
 }

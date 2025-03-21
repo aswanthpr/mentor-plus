@@ -19,9 +19,19 @@ class qaController implements IqaController {
   }
   async questionData(req: Request, res: Response): Promise<void> {
     try {
-      const { filter } = req.params;
+      const { filter,search,limit,page,sortField,sortOrder } = req.query;
+      console.log(filter,search, limit ,page, sortField,sortOrder,'sdfsdf')
       const { success, message, question, status, userId } =
-        await this._qaService.questionData(req.user as ObjectId, filter);
+        await this._qaService.questionData(req.user as ObjectId,
+          String( filter),
+          String( search),
+          String(sortField),
+          String(sortOrder),
+          Number(limit),
+          Number(page),
+
+
+      );
 
       res.status(status).json({ message, success, status, question, userId });
     } catch (error: unknown) {

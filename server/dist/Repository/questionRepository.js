@@ -49,8 +49,9 @@ class questionRepository extends baseRepo_1.baseRepository {
             }
         });
     }
-    questionData(menteeId, filter) {
+    questionData(menteeId, filter, search, limit, skip, sortField, sortOrder) {
         return __awaiter(this, void 0, void 0, function* () {
+            var _a;
             try {
                 let matchCondition = {};
                 if (filter === "answered") {
@@ -61,7 +62,7 @@ class questionRepository extends baseRepo_1.baseRepository {
                 else {
                     matchCondition = { answers: 0 };
                 }
-                return yield this.aggregateData(questionModal_2.default, [
+                const pipeLine = [
                     {
                         $match: {
                             menteeId: menteeId,
@@ -138,6 +139,25 @@ class questionRepository extends baseRepo_1.baseRepository {
                         },
                     },
                     {
+                        $project: {
+                            _id: 1,
+                            title: 1,
+                            content: 1,
+                            tags: 1,
+                            menteeId: 1,
+                            createdAt: 1,
+                            user: {
+                                _id: 1,
+                                name: 1,
+                                profileUrl: 1,
+                                linkedinUrl: 1,
+                                githubUrl: 1,
+                            },
+                            answers: 1,
+                            answerData: 1,
+                        },
+                    },
+                    {
                         $group: {
                             _id: "$_id",
                             title: { $first: "$title" },
@@ -158,26 +178,38 @@ class questionRepository extends baseRepo_1.baseRepository {
                             },
                         },
                     },
-                    {
-                        $project: {
-                            _id: 1,
-                            title: 1,
-                            content: 1,
-                            tags: 1,
-                            menteeId: 1,
-                            createdAt: 1,
-                            user: {
-                                _id: 1,
-                                name: 1,
-                                profileUrl: 1,
-                                linkedinUrl: 1,
-                                githubUrl: 1,
-                            },
-                            answers: 1,
-                            answerData: 1,
+                ];
+                if (search) {
+                    pipeLine.push({
+                        $match: {
+                            $or: [
+                                { title: { $regex: search, $options: "i" } },
+                                { tags: { $in: [{ regex: search, $options: "i" }] } },
+                                { content: { $regex: search, $options: "i" } },
+                                { "user.name": { $regex: search, $options: "i" } },
+                            ],
                         },
-                    },
+                    });
+                }
+                if (sortField === "createdAt") {
+                    pipeLine.push({ $sort: { createdAt: sortOrder === "asc" ? 1 : -1 } });
+                }
+                else {
+                    pipeLine.push({ $sort: { answers: -1 } });
+                }
+                pipeLine.push({ $skip: skip });
+                pipeLine.push({ $limit: limit });
+                const countPipeline = [
+                    ...pipeLine.slice(0, -2),
+                    { $count: "totalDocuments" }
+                ];
+                const [questions, totalDocument] = yield Promise.all([
+                    this.aggregateData(questionModal_2.default, pipeLine),
+                    questionModal_2.default.aggregate(countPipeline),
                 ]);
+                const totalDocs = ((_a = totalDocument === null || totalDocument === void 0 ? void 0 : totalDocument[0]) === null || _a === void 0 ? void 0 : _a.totalDocuments) || 0;
+                console.log(questions.length, totalDocs, 'inshad kundan');
+                return { questions, totalDocs };
             }
             catch (error) {
                 throw new Error(`Error occured while fetch  questions ${error instanceof Error ? error.message : String(error)}`);
@@ -302,7 +334,7 @@ class questionRepository extends baseRepo_1.baseRepository {
             }
         });
     }
-    allQuestionData(filter, search, skip, limit) {
+    allQuestionData(filter, search, sortOrder, sortField, skip, limit) {
         return __awaiter(this, void 0, void 0, function* () {
             var _a;
             try {
@@ -325,7 +357,8 @@ class questionRepository extends baseRepo_1.baseRepository {
                     ];
                 }
                 console.log(matchCondition, "matchcondition");
-                const [question, count] = yield Promise.all([this.aggregateData(questionModal_2.default, [
+                const [question, count] = yield Promise.all([
+                    this.aggregateData(questionModal_2.default, [
                         {
                             $match: { isBlocked: false },
                         },
@@ -383,6 +416,9 @@ class questionRepository extends baseRepo_1.baseRepository {
                             $match: matchCondition,
                         },
                         {
+                            $sort: { [sortField]: sortOrder === "asc" ? 1 : -1 }
+                        },
+                        {
                             $addFields: {
                                 "answerData.author": {
                                     $cond: {
@@ -421,10 +457,10 @@ class questionRepository extends baseRepo_1.baseRepository {
                             },
                         },
                         {
-                            $skip: skip
+                            $skip: skip,
                         },
                         {
-                            $limit: limit
+                            $limit: limit,
                         },
                         {
                             $project: {
@@ -448,12 +484,15 @@ class questionRepository extends baseRepo_1.baseRepository {
                         },
                     ]),
                     this.aggregateData(questionModal_2.default, [
-                        { $match: filter === "answered" ? { answers: { $gt: 0 } } : { answers: { $lte: 0 } } },
+                        {
+                            $match: filter === "answered"
+                                ? { answers: { $gt: 0 } }
+                                : { answers: { $lte: 0 } },
+                        },
                         { $count: "count" },
                     ]),
                 ]);
                 const countResult = (count.length > 0 ? (_a = count[0]) === null || _a === void 0 ? void 0 : _a.count : 0);
-                console.log(countResult, 'eieieieieiiei', count);
                 return { question, count: countResult };
             }
             catch (error) {

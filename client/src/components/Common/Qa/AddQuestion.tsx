@@ -10,8 +10,6 @@ export interface Answer {
   createdAt: string;
 }
 
-
-
 interface AddQuestionModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -67,6 +65,10 @@ const AddQuestion: React.FC<AddQuestionModalProps> = ({
       title,
       content,
       tags,
+      menteeId: '',
+      createdAt: '',
+      updatedAt: '',
+      isBlocked: false
     };
 
     onAdd(question);

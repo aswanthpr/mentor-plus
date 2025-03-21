@@ -2,7 +2,7 @@ import { toast } from "react-toastify";
 import { Outlet } from "react-router-dom";
 import React, { useCallback, useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { Home, MessageSquare, Calendar, Video, Wallet, SquareActivity } from "lucide-react";
+import { Home, MessageSquare, Calendar, Video, Wallet, MessageCircleQuestion,  } from "lucide-react";
 
 import { RootState } from "../../Redux/store";
 import { markAsRead, setNotification } from "../../Redux/notificationSlice";
@@ -20,10 +20,10 @@ interface INavItem {
 const navItems: INavItem[] = [
   { name: "Home", path: "/mentor/home", icon: Home },
   { name: "Session", path: "/mentor/session", icon: Video },
-  { name: "Messages", path: "/mentor/messages", icon: MessageSquare },
   { name: "Schedule", path: "/mentor/Schedule", icon: Calendar },
+  { name: "Messages", path: "/mentor/messages", icon: MessageSquare },
   { name: "Wallet", path: "/mentor/wallet", icon: Wallet },
-  { name: "Statistics", path: "/mentor/Statistics", icon: SquareActivity },
+  { name: "Q&A", path: "/mentor/question_Answeres", icon: MessageCircleQuestion },
 ];
 
 

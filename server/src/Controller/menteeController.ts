@@ -207,12 +207,14 @@ export class menteeController implements ImenteeController {
   async homeData(req: Request, res: Response): Promise<void> {
     try {
       const { filter } = req.params;
-      const { page = 1, search, limit } = req.query;
+      const { page = 1, search, limit ,sortOrder,sortField} = req.query;
 
       const { status, success, message, homeData,totalPage } =
         await this._menteeService.homeData(
           filter as string,
           String(search),
+          String(sortField),
+          String(sortOrder),
           Number(page),
           Number(limit)
         );

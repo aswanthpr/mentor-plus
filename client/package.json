@@ -29,6 +29,7 @@
     "date-fns": "^4.1.0",
     "dayjs": "^1.11.13",
     "email-validator": "^2.0.4",
+    "emoji-picker-react": "^4.12.2",
     "js-cookie": "^3.0.5",
     "lucide-react": "^0.465.0",
     "moment": "^2.30.1",

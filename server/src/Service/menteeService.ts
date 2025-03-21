@@ -427,7 +427,8 @@ export class menteeService implements ImenteeService {
     }
   }
   //this is for getting mentee home question data
-  async homeData(filter: string,search:string,page:number,limit:number): Promise<{
+  async homeData(filter: string,search:string,sortField:string,
+    sortOrder:string,page:number,limit:number): Promise<{
     success: boolean;
     message: string;
     status: number;
@@ -436,7 +437,7 @@ export class menteeService implements ImenteeService {
   }> {
     try {
       console.log(filter,search,page,limit)
-      if (!filter||!page||!limit) {
+      if (!filter||page <1|| limit<1|| !sortField|| !sortOrder) {
         return {
           success: false,
           message: "credentials not found",
@@ -452,7 +453,7 @@ export class menteeService implements ImenteeService {
       
      
 
-      const response = await this._questionRepository.allQuestionData(filter,search,skip,limit);
+      const response = await this._questionRepository.allQuestionData(filter,search,sortOrder,sortField,skip,limit);
       if (!response) {
         return {
           success: false,

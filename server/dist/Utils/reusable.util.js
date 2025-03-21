@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.createSkip = exports.checkForOverlap = exports.getTodayStartTime = exports.generateSessionCode = void 0;
+exports.createSkip = exports.checkForOverlap = exports.getTodayEndTime = exports.getTodayStartTime = exports.generateSessionCode = void 0;
 exports.genOtp = genOtp;
 function genOtp() {
     return Math.floor(100000 + Math.random() * 900000).toString();
@@ -15,6 +15,10 @@ const getTodayStartTime = () => {
     return new Date(new Date().setUTCHours(0, 0, 0, 0));
 };
 exports.getTodayStartTime = getTodayStartTime;
+const getTodayEndTime = () => {
+    return new Date(new Date().setUTCHours(23, 59, 59, 999));
+};
+exports.getTodayEndTime = getTodayEndTime;
 const checkForOverlap = (checkedSlots, newSlots) => {
     return newSlots.filter(({ startTime, endTime }) => {
         //here checking the slot is exist in db slot 

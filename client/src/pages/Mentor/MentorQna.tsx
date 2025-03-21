@@ -1,45 +1,44 @@
+import { ArrowUpDown, CircleAlertIcon, Filter, Search } from "lucide-react";
 import React, { useCallback, useEffect, useState } from "react";
-import { ArrowUpDown, CircleAlertIcon, Filter, HandshakeIcon, Search } from "lucide-react";
-import QuestionsList from "../../components/Common/Qa/QuestionsList";
-import AnswerModal from "../../components/Common/Qa/AnswerInputModal";
 import InputField from "../../components/Auth/InputField";
-import { errorHandler } from "../../Utils/Reusable/Reusable";
-import { toast } from "react-toastify";
-import ConfirmToast from "../../components/Common/common4All/ConfirmToast";
+import AnswerModal from "../../components/Common/Qa/AnswerInputModal";
+import QuestionList from "../../components/Common/Qa/QuestionsList";
 import Spinner from "../../components/Common/common4All/Spinner";
 import AnswerInputModal from "../../components/Common/Qa/AnswerInputModal";
+import { errorHandler } from "../../Utils/Reusable/Reusable";
 import InfiniteScroll from "react-infinite-scroll-component";
 import {
-  fetchCreateAnswer,
-  fetchDeleteQuestion,
-  fetchEditQuestion,
-  fetchHomeData,
-  fetchMenteeEditAnswer,
-} from "../../service/menteeApi";
+  fetchCreateNewAnsweres,
+  fetchMentorEditAnswer,
+  fetchMentorHomeData,
+} from "../../service/mentorApi";
+import { toast } from "react-toastify";
 import { TSortOrder } from "../../Types/type";
 
-const Home: React.FC = () => {
-  const page_limit = 6;
+const MentorQna: React.FC = () => {
+  const limit = 6;
   const [filter, setFilter] = useState<"answered" | "unanswered">("answered");
+  const [questions, setQuestions] = useState<IQuestion[] | []>([]);
   const [selectedQuestion, setSelectedQuestion] = useState<IQuestion | null>(
     null
   );
-  const [isAnswerModalOpen, setIsAnswerModalOpen] = useState<boolean>(false);
   const [showAnswerModal, setShowAnswerModal] = useState(false);
-  const [currentPage, setCurrentPage] = useState<number>(1);
-  const [questions, setQuestions] = useState<IQuestion[] | []>([]);
-  const [searchQuery, setSearchQuery] = useState<string>("");
-  const [userId, setUserId] = useState<string>("");
+  const [currentPage, setCurrentPage] = useState(1);
+  const [searchQuery, setSearchQuery] = useState("");
   const [loading, setLoading] = useState<boolean>(false);
+  const [answerInputModalOpen, setAnswerInputModalOpen] =
+    useState<boolean>(false);
   const [answerQuestionId, setAnswerQuestionId] = useState<string>("");
-  const [editAnswerModalOpen, setEditAnswerModalOpen] = useState(false);
-  const [editingAnswer, setEditingAnswer] = useState<string | null>(null);
-  const [editingAnswerId, setEditingAnswerId] = useState<string | null>(null);
-  const [hasMore, setHasMore] = useState<boolean>(true);
+  const [mentorId, setMentorId] = useState<string>("");
+  const [answer, setEditAnswer] = useState<string>("");
+  const [answerId, setAnswerId] = useState<string>("");
+  const [editAnswerModalOpen, setEditAnswerModalOpen] =
+    useState<boolean>(false);
   const [sortField, setSortField] = useState<"createdAt" | "mostAnswered">(
     "createdAt"
   );
   const [sortOrder, setSortOrder] = useState<TSortOrder>("desc");
+  const [hasMore, setHasMore] = useState<boolean>(true);
   const [editData, setEditData] = useState<{
     content: string;
     answerId: string;
@@ -47,26 +46,25 @@ const Home: React.FC = () => {
     content: "",
     answerId: "",
   });
-  const [newAns, setNewAns] = useState<Ianswer | null>(null);
 
   const fetchData = useCallback(
     async (page: number, isNewSearch = false) => {
       try {
         setLoading(false);
-        const response = await fetchHomeData(
+        const response = await fetchMentorHomeData(
           filter,
           searchQuery,
           sortField,
           sortOrder,
           page,
-          page_limit
+          limit
         );
 
         if (response?.status === 200 && response?.data?.success) {
-          setUserId(response.data.userId);
-          const newQuestion = response?.data.homeData;
+          setMentorId(response.data?.userId);
+          const newQustion = response?.data.homeData;
           setQuestions((pre) =>
-            isNewSearch ? newQuestion : [...pre, ...newQuestion]
+            isNewSearch ? newQustion : [...pre, ...newQustion]
           );
           setHasMore(page < response?.data?.totalPage);
           setCurrentPage(page);
@@ -84,11 +82,13 @@ const Home: React.FC = () => {
   useEffect(() => {
     fetchData(1, true);
   }, [fetchData, filter, searchQuery]);
+
   const fetchMoreQuestion = useCallback(() => {
     if (hasMore) {
       fetchData(currentPage + 1);
     }
   }, [currentPage, fetchData, hasMore]);
+
   const handleShowAnswers = useCallback(
     (questionId: string): void => {
       const question = questions.find((q) => q._id === questionId);
@@ -99,134 +99,41 @@ const Home: React.FC = () => {
     },
     [questions]
   );
-
-  const handleEditQuestion = useCallback(
-    async (questionId: string, updatedQuestion: IQuestion) => {
-      // Update the question in the state
-
-      const originalQuestion = questions.find((q) => q._id === questionId);
- 
-      if (!originalQuestion) {
-        toast.error("Unexpected error occured");
-        console.error(`Question with ID ${questionId} not found.`);
-        return;
-      }
-
-      // Check if any field has changed
-      const isChanged = Object.keys(updatedQuestion).some((key) => {
-        console.log(
-          typeof JSON.stringify(updatedQuestion),
-          "this is the quesion where error occure"
-        );
-        return (
-          JSON.stringify(updatedQuestion[key as keyof IQuestion]) !==
-          JSON.stringify(originalQuestion[key as keyof IQuestion])
-        );
-      });
-
-      if (!isChanged) {
-        toast.info(
-          "No changes detected. Please modify the question before updating."
-        );
-        return;
-      }
-
-      try {
-        setLoading(true);
-        const { status, data } = await fetchEditQuestion(
-          questionId,
-          updatedQuestion,
-          filter
-        );
-
-        if (status == 200 && data.success) {
-          setQuestions(
-            questions.map((q) => (q._id === questionId ? data?.question : q))
-          );
-          toast.success(data.message);
-        }
-      } catch (error: unknown) {
-        errorHandler(error);
-      } finally {
-        setInterval(() => {
-          setLoading(false);
-        }, 500);
-      }
-    },
-    [filter, questions]
-  );
-
   const filterQuestions = questions.filter((question) => {
-    const search = searchQuery.toLowerCase();
+    // Safely check if title, content, and tags exist before calling toLowerCase
     const title = question.title?.toLowerCase() || "";
     const content = question.content?.toLowerCase() || "";
     const tags = question.tags?.map((tag) => tag.toLowerCase()) || [];
 
     return (
-      title.includes(search) ||
-      content.includes(search) ||
-      tags.some((tag) => tag.includes(search))
+      title.includes(searchQuery.toLowerCase()) ||
+      content.includes(searchQuery.toLowerCase()) ||
+      tags.some((tag) => tag.includes(searchQuery.toLowerCase()))
     );
   });
-
-  const handleDeleteQuestion = useCallback((questionId: string) => {
-    toast(
-      <ConfirmToast
-        message="Confirm Deletion"
-        description="Are you sure you want to delete this question? This action cannot be undone."
-        onReply={() => handleDel(questionId as string)}
-        onIgnore={() => toast.dismiss()}
-        ariaLabel="delete question confirmation"
-      />,
-      {
-        closeButton: false,
-        className: "p-0  border border-purple-600/40 ml-0",
-        autoClose: false,
-      }
-    );
-    const handleDel = async (questId: string) => {
-      toast.dismiss();
-      try {
-        setLoading(true);
-        const response = await fetchDeleteQuestion(questId);
-
-        if (response.status === 200 && response.data.success) {
-          setQuestions((prevQuestions) =>
-            prevQuestions.filter((question) => question._id !== questId)
-          );
-          setSelectedQuestion(null);
-          toast.success("Question deleted successfully");
-        }
-      } catch (error: unknown) {
-        errorHandler(error);
-      } finally {
-        setLoading(false);
-      }
-    };
-  }, []);
-
   const handleAnswerSubmit = useCallback(
-    async (content: string) => {
-      console.log(answerQuestionId, "thsi sit he question id ");
+    async (answer: string) => {
       try {
         setLoading(true);
-        const { status, data } = await fetchCreateAnswer(
-          content,
+        const response = await fetchCreateNewAnsweres(
+          answer,
           answerQuestionId,
-          "mentee"
+          "mentor"
         );
 
-        console.log(data.answers);
-        if (status === 200 && data.success) {
-          toast.success(data.message);
-          setIsAnswerModalOpen(false);
-          setNewAns(data?.answers);
+        if (response?.status === 200 && response?.data.success) {
+          // setEditData({ content: data?.answers, answerId: answerQuestionId });
+          toast.success(response?.data?.message);
+
           setQuestions((prevQuestions) =>
             prevQuestions.map((question) =>
               question._id === answerQuestionId
                 ? {
                     ...question,
-                    answerData: [...(question.answerData || []), data?.answers],
+                    answerData: [
+                      ...(question.answerData || []),
+                      response?.data.answers,
+                    ],
                   }
                 : question
             )
@@ -239,22 +146,16 @@ const Home: React.FC = () => {
             );
           }
         }
+        setAnswerInputModalOpen(false);
       } catch (error: unknown) {
         errorHandler(error);
+        console.log(error, "unexpected error");
       } finally {
-        setTimeout(() => {
-          setLoading(false);
-        });
+        setLoading(false);
       }
     },
     [answerQuestionId, filter]
   );
-
-  const handleEditAnswer = useCallback((content: string, answerId: string) => {
-    setEditingAnswer(content);
-    setEditingAnswerId(answerId);
-    setEditAnswerModalOpen(true);
-  }, []);
 
   const handleEditAnswerSubmit = useCallback(
     async (content: string, answerId?: string) => {
@@ -264,7 +165,7 @@ const Home: React.FC = () => {
 
       try {
         setLoading(true);
-        const response = await fetchMenteeEditAnswer(content, answerId);
+        const response = await fetchMentorEditAnswer(content, answerId);
 
         if (response.status === 200 && response.data.success) {
           setEditData({ content: response.data?.answer, answerId: answerId });
@@ -289,22 +190,18 @@ const Home: React.FC = () => {
     },
     []
   );
-
+  const handleEditAnswer = useCallback((content: string, answerId: string) => {
+    setEditAnswer(content);
+    setAnswerId(answerId);
+    setEditAnswerModalOpen(true);
+  }, []);
   return (
     <div>
-      <div className="mb-6 mt-8 ">
-        {loading && <Spinner />}
-        <div className="flex items-center gap-3 mb-2  justify-center">
-          <h1 className="text-3xl font-bold text-gray-900  xs:text-xl sm:ml-0 ">
-            Welcome
-          </h1>
-          <HandshakeIcon className="w-6 h-6 text-[#ff8800] mt-1" />
-        </div>
-        <div className="h-0.5 bg-gray-200 w-full" />
-        <div className="bg-white p-6 rounded-lg shadow-sm">
-        <section className="flex items-center justify-between mb-2 sm:mb-2 sm:flex-col lg:flex-row  xss:flex-col">
+      {loading && <Spinner />}
 
-        <div className=" flex">
+      <div className="bg-white p-6 rounded-lg shadow-sm mt-16">
+        <section className="flex items-center justify-en mb-6 sm:mb-4  sm:flex-col lg:flex-row  xss:flex-col">
+          <div className=" flex">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
               {/* Search */}
               <div className="relative">
@@ -355,19 +252,9 @@ const Home: React.FC = () => {
               </div>
             </div>
           </div>
-          <div className="w-96 mt-1 xss:w-auto">
-            <InputField
-              type="search"
-              name="search"
-              value={searchQuery}
-              placeholder="Search questions..."
-              className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#ff8800] focus:border-transparent"
-              onChange={(e) => setSearchQuery(e.target.value)}
-            />
-          </div>
         </section>
-     
-      
+        <div className="h-0.5 bg-gray-200 w-full mb-2" />
+
         <InfiniteScroll
           dataLength={questions?.length}
           next={fetchMoreQuestion}
@@ -376,54 +263,52 @@ const Home: React.FC = () => {
             <h4 className="text-center my-4">Loading more Questions...</h4>
           }
           endMessage={
-            <p className=" flex justify-center text-center my-4 text-gray-500">
-              <CircleAlertIcon className="w-6 mr-1" /> No more Questions to
-              load.{" "}
-            </p>
+            questions.length > 0 ? (
+              <p className=" flex justify-center text-center my-4 text-gray-500">
+                <CircleAlertIcon className="w-6 mr-1" /> No more Questions to
+                load.{" "}
+              </p>
+            ) : (
+              ""
+            )
           }
         >
-          <QuestionsList
-            onDeleteQestion={handleDeleteQuestion}
-            currentUserId={userId}
+          <QuestionList
             questions={filterQuestions}
             onShowAnswers={handleShowAnswers}
-            setIsAnswerModalOpen={setIsAnswerModalOpen}
             setAnswerQuestionId={setAnswerQuestionId}
-            onEditQuestion={handleEditQuestion}
-            onEditAnswer={handleEditAnswer}
+            setIsAnswerModalOpen={setAnswerInputModalOpen}
+            currentUserId={mentorId}
             EditedData={editData}
-            newAns={newAns}
+            onEditAnswer={handleEditAnswer}
           />
         </InfiniteScroll>
-        </div>
       </div>
-
       {selectedQuestion && (
         <AnswerModal
-          onSubmit={() => selectedQuestion.content}
           isOpen={showAnswerModal}
           onClose={() => setShowAnswerModal(false)}
+          onSubmit={() => selectedQuestion.content}
         />
       )}
-      {isAnswerModalOpen && (
+      {answerInputModalOpen && (
         <AnswerInputModal
-          isOpen={isAnswerModalOpen}
-          onClose={() => setIsAnswerModalOpen(false)}
+          isOpen={answerInputModalOpen}
+          onClose={() => setAnswerInputModalOpen(false)}
           onSubmit={handleAnswerSubmit}
         />
       )}
-
       {editAnswerModalOpen && (
         <AnswerInputModal
           isOpen={editAnswerModalOpen}
           onClose={() => setEditAnswerModalOpen(false)}
           onSubmit={handleEditAnswerSubmit}
-          receiveAnswer={editingAnswer || ""}
-          answerId={editingAnswerId || undefined}
+          receiveAnswer={answer}
+          answerId={answerId}
         />
       )}
     </div>
   );
 };
 
-export default Home;
+export default MentorQna;

@@ -17,12 +17,13 @@ declare class qaService implements IqaService {
         status: number;
         question: Iquestion | undefined;
     }>;
-    questionData(userId: ObjectId, filter: string): Promise<{
+    questionData(userId: ObjectId, filter: string, search: string, sortField: string, sortOrder: string, limit: number, page: number): Promise<{
         success: boolean;
         message: string;
         status: number;
         question: Iquestion[];
         userId?: ObjectId;
+        totalPage: number;
     }>;
     editQuestion(questionId: string, updatedQuestion: Iquestion, filter: string): Promise<{
         success: boolean;

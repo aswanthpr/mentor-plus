@@ -49,7 +49,7 @@ const transactionSchema = new mongoose_1.Schema({
         type: String,
         enum: ["credit", "debit", "paid"],
         required: true,
-        default: "payment",
+        default: "paid",
     },
     status: {
         type: String,

@@ -6,9 +6,12 @@ declare class questionRepository extends baseRepository<Iquestion> implements Iq
     constructor();
     createQuestion(title: string, content: string, tags: string[], menteeId: ObjectId): Promise<Iquestion | null>;
     isQuestionExist(field1: string, field2: string): Promise<Iquestion[] | null>;
-    questionData(menteeId: ObjectId, filter: string): Promise<Iquestion[]>;
+    questionData(menteeId: ObjectId, filter: string, search: string, limit: number, skip: number, sortField: string, sortOrder: string): Promise<{
+        questions: Iquestion[] | [];
+        totalDocs: number;
+    }>;
     editQuestions(questionId: string, updatedQuestion: Iquestion, filter: string): Promise<Iquestion[] | null>;
-    allQuestionData(filter: string, search: string, skip: number, limit: number): Promise<{
+    allQuestionData(filter: string, search: string, sortOrder: string, sortField: string, skip: number, limit: number): Promise<{
         question: Iquestion[] | [];
         count: number;
     }>;

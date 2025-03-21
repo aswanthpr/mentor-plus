@@ -29,12 +29,11 @@ class qaService implements IqaService {
   }> {
     try {
       const { title, content, tags } = Data;
-
+      
       if (
-        !Data ||
-        !Data.title ||
-        !Data.content ||
-        !Array.isArray(Data.tags) ||
+        !title ||
+        !content ||
+        !Array.isArray(tags) ||
         !userId
       ) {
         return {
@@ -87,35 +86,53 @@ class qaService implements IqaService {
   }
 
   async questionData(
-    userId: ObjectId,
-    filter: string
+
+     userId: ObjectId,
+        filter: string,
+        search: string,
+        sortField: string,
+        sortOrder: string,
+        limit: number,
+        page: number
   ): Promise<{
     success: boolean;
     message: string;
     status: number;
     question: Iquestion[];
     userId?: ObjectId;
+    totalPage: number;
   }> {
     try {
-      if (!userId || !filter) {
+      if (!userId || !filter|| !sortField|| !sortOrder|| 1>limit|| 1>page) {
         return {
           success: false,
           message: "credential missing",
           status: 400,
           question: [],
+          totalPage:0,
         };
       }
+      const skipData = createSkip(page,limit);
+      const limitNo = skipData?.limitNo;
+      const skip = skipData?.skip;
       const response = await this.__questionRepository.questionData(
         userId,
-        filter
-      );
+        filter,
+        search,
+        limitNo,
+        skip,
+        sortField,
+        sortOrder,
 
+      );
+      const totalPage = Math.ceil(response?.totalDocs/limitNo);
       return {
         success: true,
         message: "Data retrieved successfully",
         status: 200,
-        question: response,
+        question: response?.questions,
         userId,
+        totalPage
       };
     } catch (error: unknown) {
       throw new Error(

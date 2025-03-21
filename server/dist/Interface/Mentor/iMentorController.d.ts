@@ -6,7 +6,7 @@ export interface ImentorController {
     mentorEditProfile(req: Request, res: Response): Promise<void>;
     profilePasswordChange(req: Request, res: Response): Promise<void>;
     mentorProfileImageChange(req: Request, res: Response): Promise<void>;
-    homeData(req: Request, res: Response): Promise<void>;
+    questionData(req: Request, res: Response): Promise<void>;
     createTimeSlots(req: Request, res: Response): Promise<void>;
     getTimeSlots(req: Request, res: Response): Promise<void>;
     removeTimeSlot(req: Request, res: Response): Promise<void>;

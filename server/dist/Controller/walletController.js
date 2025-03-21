@@ -44,8 +44,10 @@ class walletController {
     getWalletData(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const { status, message, walletData, success } = yield this.__walletService.getWalletData(req.user);
-                res.status(status).json({ message, success, walletData });
+                const { role, search, filter, page, limit } = req.query;
+                console.log(role, search, filter, page, limit);
+                const { status, message, walletData, success, totalPage } = yield this.__walletService.getWalletData(req.user, String(role), String(search), String(filter), Number(page), Number(limit));
+                res.status(status).json({ message, success, walletData, totalPage });
             }
             catch (error) {
                 throw new Error(`Error while fetch walletData ${error instanceof Error ? error.message : String(error)}`);

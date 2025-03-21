@@ -54,11 +54,12 @@ export declare class bookingService implements IbookingService {
         slots: IslotSchedule[] | [];
         totalPage: number;
     }>;
-    getBookedSessions(mentorId: ObjectId, currentTab: string): Promise<{
+    getBookedSessions(mentorId: ObjectId, currentTab: string, search: string, sortField: string, sortOrder: string, filter: string, page: number, limit: number): Promise<{
         success: boolean;
         message: string;
         status: number;
         slots: IslotSchedule[] | [];
+        totalPage: number;
     }>;
     cancelSlot(sessionId: string, reason: string, customReason: string): Promise<{
         success: boolean;

@@ -1,14 +1,13 @@
 import React, { useState, useRef, useEffect, useCallback } from "react";
-import { Search, Send, Paperclip, X } from "lucide-react";
+import { Search, Send, Paperclip, X, Smile } from "lucide-react";
 import moment from "moment";
 import { Socket } from "socket.io-client";
-
 import { errorHandler } from "../../Utils/Reusable/Reusable";
 import { connectToChat } from "../../Socket/connect";
 import { uploadFile } from "../../Utils/Reusable/cloudinary";
 import chatBg from "../../Asset/bgChat.jpg";
 import { fetchChats } from "../../service/commonApi";
-
+import EmojiPicker, { EmojiClickData } from "emoji-picker-react";
 const Message: React.FC = () => {
   const [selectedUser, setSelectedUser] = useState<Ichat | null>(null);
   // const [selectedChat,setSelectedChat] = useState<Imessage[]|[]>([]);
@@ -25,11 +24,13 @@ const Message: React.FC = () => {
   const [currentUser, setCurrentUser] = useState<string>("");
   const [btnDisable, setBtnDisable] = useState(false);
   const [messages, setMessages] = useState<Imessage[] | []>([]);
+  const [showPicker,setShowPicker] =useState<boolean>(false)
   // const chunksRef = useRef<Blob[]>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const userId = useRef<string>("");
   const chatSocket = useRef<Socket | null>(null);
+
 
   const usr = location.pathname.split("/")![1];
   useEffect(() => {
@@ -38,7 +39,7 @@ const Message: React.FC = () => {
     const fetchChat = async () => {
       try {
         const response = await fetchChats(usr);
-      
+
         if (flag && response?.status == 200 && response?.data) {
           setUsers([...response.data.result]);
           userId.current = response?.data?.userId;
@@ -159,7 +160,7 @@ const Message: React.FC = () => {
     if (chatSocket.current) {
       chatSocket.current.emit("join-room", { roomId: user["_id"] });
     }
-  },[]);
+  }, []);
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const handleFileSelect = (e: any) => {
@@ -177,7 +178,7 @@ const Message: React.FC = () => {
     }
   };
 
-  const handleSendMessage =useCallback( async () => {
+  const handleSendMessage = useCallback(async () => {
     setBtnDisable(true);
 
     if (!selectedFile && !messageInput.trim()) {
@@ -229,7 +230,14 @@ const Message: React.FC = () => {
     setPreviewUrl(null);
     setBtnDisable(false);
     // setAudioBlob(null);
-  },[currentUser, messageInput, selectedFile, selectedUser?._id, selectedUser?.menteeId, selectedUser?.mentorId]);
+  }, [
+    currentUser,
+    messageInput,
+    selectedFile,
+    selectedUser?._id,
+    selectedUser?.menteeId,
+    selectedUser?.mentorId,
+  ]);
 
   // const handleStartRecording = async () => {
   //   try {
@@ -278,7 +286,10 @@ const Message: React.FC = () => {
   //   const secs = seconds % 60;
   //   return `${mins}:${secs.toString().padStart(2, "0")}`;
   // };
-
+  const handleEmojiClick = (emojiObject: EmojiClickData) => {
+    setMessageInput((prev) => prev + emojiObject.emoji);
+    setShowPicker((pre)=>!pre)
+  };
   return (
     <div className="h-[calc(100vh-3rem)] pt-14 flex">
       {/* Users List */}
@@ -298,51 +309,53 @@ const Message: React.FC = () => {
         <div className="h-0.5 bg-gray-100 w-full " />
         <div className="overflow-y-auto h-[calc(100%-5rem)]">
           {filteredUsers.map((user) => (
-            <button
-              key={user?.users?._id}
-              onClick={() => handleSelectedUser(user as Ichat)}
-              className={`w-full p-4 flex items-center gap-4 hover:bg-gray-100 ${
-                (usr == "mentee"
-                  ? selectedUser?.mentorId
-                  : selectedUser?.menteeId) == user?.users?._id
-                  ? "bg-gray-100"
-                  : ""
-              }`}
-            >
-              <div className="relative">
-                <img
-                  src={user?.users?.profileUrl}
-                  alt={user?.users?.name}
-                  className="w-12 h-12 rounded-full"
-                />
-
-                {user?.users?.online && (
-                  <span
-                    className={`absolute bottom-0 right-0 w-3 h-3 bg-green-500 rounded-full border-2 border-white`}
+            <>
+              <button
+                key={user?.users?._id}
+                onClick={() => handleSelectedUser(user as Ichat)}
+                className={`w-full p-4 flex items-center gap-4 hover:bg-gray-100 ${
+                  (usr == "mentee"
+                    ? selectedUser?.mentorId
+                    : selectedUser?.menteeId) == user?.users?._id
+                    ? "bg-gray-100"
+                    : ""
+                }`}
+              >
+                <div className="relative">
+                  <img
+                    src={user?.users?.profileUrl}
+                    alt={user?.users?.name}
+                    className="w-12 h-12 rounded-full"
                   />
-                )}
-              </div>
-              <div className="flex-1 min-w-0 ">
-                <div className="flex justify-between items-end">
-                  <p className="font-medium text-gray-900 truncate">
-                    {user?.users?.name}
-                  </p>
-                  <span className="text-xs text-gray-600 justify-end ">
-                    {moment(user?.updatedAt).format("HH-mm")}
-                  </span>
+
+                  {user?.users?.online && (
+                    <span
+                      className={`absolute bottom-0 right-0 w-3 h-3 bg-green-500 rounded-full border-2 border-white`}
+                    />
+                  )}
                 </div>
-                <p className="text-sm text-gray-500 truncate  ">
-                  {user?.lastMessage?.slice(0, 10)}
-                </p>
-              </div>
-              {/* {user.unreadCount > 0 && (
+                <div className="flex-1 min-w-0 ">
+                  <div className="flex justify-between items-end">
+                    <p className="font-medium text-gray-900 truncate">
+                      {user?.users?.name}
+                    </p>
+                    <span className="text-xs text-gray-600 justify-end ">
+                      {moment(user?.updatedAt).format("HH-mm")}
+                    </span>
+                  </div>
+                  <p className="text-sm text-gray-500 truncate  ">
+                    {user?.lastMessage?.slice(0, 10)}
+                  </p>
+                </div>
+                {/* {user.unreadCount > 0 && (
                 <span className="bg-[#ff8800] text-white text-xs font-medium px-2 py-1 rounded-full">
                   {user.unreadCount}
                 </span>
               )} */}
-            </button>
+              </button>
+              <div className="h-0.5 bg-gray-100 w-full " />
+            </>
           ))}
-          <div className="h-0.5 bg-gray-100 w-full " />
         </div>
       </div>
 
@@ -429,7 +442,9 @@ const Message: React.FC = () => {
                               }`}
                             >
                               <span
-                               onClick={()=>window.location.href=message?.content}
+                                onClick={() =>
+                                  (window.location.href = message?.content)
+                                }
                                 // target="_blank"
                                 rel="noopener noreferrer"
                                 className="flex items-center gap-2"
@@ -524,7 +539,28 @@ const Message: React.FC = () => {
                 </div>
               )} */}
 
-              <div className="flex items-center gap-4">
+              <div className="flex items-center gap-4" >
+                <button
+                onClick={()=>setShowPicker((pre)=>!pre)}
+                >
+                  <Smile/>
+                </button>
+                {
+                  showPicker&&(
+                    <div className="absolute bottom-32  z-10">
+                      <EmojiPicker
+                   onEmojiClick={handleEmojiClick}
+                   skinTonesDisabled={false}
+                   previewConfig={{ showPreview: false }}
+                   searchDisabled={false}
+                   
+                   
+                 />
+
+                    </div>
+                  )
+                }
+               
                 <input
                   type="text"
                   value={messageInput}
@@ -585,8 +621,9 @@ const Message: React.FC = () => {
             </div>
           </>
         ) : (
-          <div className="flex-1 flex-col flex items-center justify-center text-gray-500">
-            <Send className="mb-3 w-10  " /> Select a user to start chatting
+          <div className="flex-1 flex-col flex items-center justify-center text-gray-500 text-lg">
+            <Send className="mb-3 w-14 h-14  " /> Select a user to start
+            chatting
           </div>
         )}
       </div>

@@ -32,8 +32,9 @@ class qaController {
     questionData(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const { filter } = req.params;
-                const { success, message, question, status, userId } = yield this._qaService.questionData(req.user, filter);
+                const { filter, search, limit, page, sortField, sortOrder } = req.query;
+                console.log(filter, search, limit, page, sortField, sortOrder, 'sdfsdf');
+                const { success, message, question, status, userId } = yield this._qaService.questionData(req.user, String(filter), String(search), String(sortField), String(sortOrder), Number(limit), Number(page));
                 res.status(status).json({ message, success, status, question, userId });
             }
             catch (error) {

@@ -3,6 +3,7 @@ import { Icategory } from "../../Model/categorySchema";
 import { Imentor } from "../../Model/mentorModel";
 import { Itime } from "../../Model/timeModel";
 import { ObjectId } from "mongoose";
+import { ImentorChartData } from "src/Types";
 export interface ImentorService {
     mentorProfile(token: string): Promise<{
         success: boolean;
@@ -35,7 +36,7 @@ export interface ImentorService {
         status: number;
         result: Imentor | null;
     }>;
-    homeData(filter: string, search: string, page: number, limit: number): Promise<{
+    questionData(filter: string, search: string, sortField: string, sortOrder: string, page: number, limit: number): Promise<{
         success: boolean;
         message: string;
         status: number;
@@ -48,11 +49,12 @@ export interface ImentorService {
         status: number;
         timeSlots: Itime[] | [];
     }>;
-    getTimeSlots(mentorId: ObjectId): Promise<{
+    getTimeSlots(mentorId: ObjectId, limit: number, page: number, search: string, filter: string, sortField: string, sortOrder: string): Promise<{
         success: boolean;
         message: string;
         status: number;
         timeSlots: Itime[] | [];
+        totalPage: number;
     }>;
     removeTimeSlot(slotId: string): Promise<{
         success: boolean;
@@ -63,6 +65,7 @@ export interface ImentorService {
         success: boolean;
         message: string;
         status: number;
+        result: ImentorChartData | null;
     }>;
 }
 //# sourceMappingURL=iMentorService.d.ts.map

@@ -54,7 +54,7 @@ mentee_Router.get(`/profile`, menteeAuthMiddleware_1.default, __menteeController
 mentee_Router.put(`/profile/edit_profile`, menteeAuthMiddleware_1.default, __menteeController.menteeProfileEdit.bind(__menteeController));
 mentee_Router.patch(`/profile/change_password`, menteeAuthMiddleware_1.default, __menteeController.passwordChange.bind(__menteeController));
 mentee_Router.patch(`/profile/change_profile`, menteeAuthMiddleware_1.default, multer_util_1.default.fields([{ name: "profileImage", maxCount: 1 }]), __menteeController.profileChange.bind(__menteeController));
-mentee_Router.get(`/qa/:filter`, menteeAuthMiddleware_1.default, __qaController.questionData.bind(__qaController));
+mentee_Router.get(`/qa`, menteeAuthMiddleware_1.default, __qaController.questionData.bind(__qaController));
 mentee_Router.post(`/qa/add-question`, menteeAuthMiddleware_1.default, __qaController.addQuestion.bind(__qaController));
 mentee_Router.patch(`/qa/edit-question`, menteeAuthMiddleware_1.default, __qaController.editQuestion.bind(__qaController));
 mentee_Router.get(`/home/:filter`, menteeAuthMiddleware_1.default, __menteeController.homeData.bind(__menteeController));

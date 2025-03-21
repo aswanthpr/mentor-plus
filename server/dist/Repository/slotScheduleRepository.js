@@ -174,9 +174,10 @@ class slotScheduleRepository extends baseRepo_1.baseRepository {
                     pipeLine.push({ $sort: { createdAt: order } });
                 }
                 if (filter !== "all") {
-                    matchFilter["status"] = filter === "RECLAIM_REQUESTED"
-                        ? "RECLAIM_REQUESTED"
-                        : { $in: [filter] };
+                    matchFilter["status"] =
+                        filter === "RECLAIM_REQUESTED"
+                            ? "RECLAIM_REQUESTED"
+                            : { $in: [filter] };
                 }
                 // Pagination
                 pipeLine.push({ $skip: skip });
@@ -200,8 +201,9 @@ class slotScheduleRepository extends baseRepo_1.baseRepository {
             }
         });
     }
-    getBookedSession(mentorId, tabCond) {
+    getBookedSession(skip, limitNo, search, filter, sortOrder, sortField, tabCond, mentorId) {
         return __awaiter(this, void 0, void 0, function* () {
+            var _a;
             try {
                 const todayStart = (0, reusable_util_1.getTodayStartTime)();
                 const matchFilter = {
@@ -261,12 +263,46 @@ class slotScheduleRepository extends baseRepo_1.baseRepository {
                         },
                     },
                 ];
-                pipeLine.push({
-                    $sort: {
-                        "slotDetails.startDate": -1,
+                if (search) {
+                    pipeLine.push({
+                        $match: {
+                            $or: [
+                                {
+                                    status: { $regex: search, $options: "i" },
+                                },
+                                { description: { $regex: search, $options: "i" } },
+                                { "user.name": { $regex: search, $options: "i" } },
+                                { bio: { $regex: search, $options: "i" } },
+                            ],
+                        },
+                    });
+                }
+                const order = sortOrder === "asc" ? 1 : -1;
+                if (sortField === "createdAt") {
+                    pipeLine.push({ $sort: { createdAt: order } });
+                }
+                if (filter !== "all") {
+                    matchFilter["status"] =
+                        filter === "RECLAIM_REQUESTED"
+                            ? "RECLAIM_REQUESTED"
+                            : { $in: [filter] };
+                }
+                // Pagination
+                pipeLine.push({ $skip: skip });
+                pipeLine.push({ $limit: limitNo });
+                const countPipeline = [
+                    ...pipeLine.slice(0, pipeLine.length - 2),
+                    {
+                        $count: "totalDocuments",
                     },
-                });
-                return yield this.aggregateData(slotSchedule_2.default, pipeLine);
+                ];
+                // Execute Aggregations
+                const [slots, totalCount] = yield Promise.all([
+                    this.aggregateData(slotSchedule_2.default, pipeLine),
+                    slotSchedule_2.default.aggregate(countPipeline),
+                ]);
+                console.log(slots, "resp", totalCount);
+                return { slots: slots, totalDoc: (_a = totalCount[0]) === null || _a === void 0 ? void 0 : _a.totalDocuments };
             }
             catch (error) {
                 throw new Error(`${error instanceof Error ? error.message : String(error)}`);
@@ -378,7 +414,7 @@ class slotScheduleRepository extends baseRepo_1.baseRepository {
                                     $match: {
                                         createdAt: { $gte: startOfYear, $lt: startOfNextYear },
                                         status: {
-                                            $in: ["CONFIRMED", "REJECTED", "COMPLETED", "CANCELLED"],
+                                            $in: ["CONFIRMED", "REJECTED", "COMPLETED"],
                                         },
                                     },
                                 },
@@ -625,7 +661,7 @@ class slotScheduleRepository extends baseRepo_1.baseRepository {
                             as: "ratings",
                         },
                     },
-                    { $unwind: "$ratings" },
+                    { $unwind: { path: "$ratings", preserveNullAndEmptyArrays: true } },
                     {
                         $addFields: { paymentAmountNumeric: { $toDouble: "$paymentAmount" } },
                     },
@@ -647,8 +683,8 @@ class slotScheduleRepository extends baseRepo_1.baseRepository {
                             averageRating: { $avg: "$ratings.rating" },
                         },
                     },
-                    { $sort: { totalSessions: -1 } }, // Sort by total sessions (highest first)
-                    { $limit: 5 }, // Get top 5 mentors
+                    { $sort: { totalSessions: -1 } },
+                    { $limit: 5 },
                     {
                         $project: {
                             _id: 0,
@@ -669,13 +705,23 @@ class slotScheduleRepository extends baseRepo_1.baseRepository {
             }
         });
     }
+    //mentor chart data
     mentorChartData(mentorId, timeRange) {
         return __awaiter(this, void 0, void 0, function* () {
+            var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k, _l, _m, _o, _p, _q, _r, _s;
             try {
                 const startOfYear = new Date(new Date().getFullYear(), 0, 1);
                 const startOfNextYear = new Date(new Date().getFullYear() + 1, 0, 1);
+                const startOfMonth = new Date(new Date().getFullYear(), new Date().getMonth(), 1);
+                const startOfNextMonth = new Date(new Date().getFullYear(), (new Date().getMonth() + 1) % 12, 1);
+                const startOfDay = new Date(new Date().setHours(0, 0, 0, 0));
+                const endOfDay = new Date(new Date().setHours(23, 59, 59, 999));
                 const today = new Date();
-                const result = yield this.aggregateData(slotSchedule_2.default, [
+                const startOfWeek = new Date(today);
+                startOfWeek.setDate(today.getDate() - today.getDay()); // Start of the current week
+                const startOfNextWeek = new Date(startOfWeek.getDate());
+                startOfNextWeek.setDate(startOfWeek.getDate() + 7);
+                const cardResult = (yield this.aggregateData(slotSchedule_2.default, [
                     {
                         $lookup: {
                             from: "times",
@@ -688,25 +734,360 @@ class slotScheduleRepository extends baseRepo_1.baseRepository {
                         $unwind: "$slotData",
                     },
                     {
-                        $match: { "slotData.mentorId": mentorId },
+                        $match: {
+                            "slotData.mentorId": mentorId,
+                        },
                     },
                     {
-                        $addFields: { amount: { $toDouble: "$paymentAmount" } },
+                        $addFields: {
+                            paymentAmountNumeric: { $toDouble: "$paymentAmount" },
+                        },
                     },
                     {
                         $facet: {
-                            monthlyRevenue: [
+                            // Month Revenue
+                            currentMonthRevenue: [
                                 {
                                     $match: {
                                         status: "COMPLETED",
-                                        createdAt: { $gte: startOfYear },
+                                        createdAt: { $gte: startOfMonth, $lt: startOfNextMonth },
+                                    },
+                                },
+                                {
+                                    $group: {
+                                        _id: null,
+                                        totalRevenue: {
+                                            $sum: {
+                                                $multiply: [
+                                                    "$paymentAmountNumeric",
+                                                    Number(process.env.MENTOR_COMMISION),
+                                                ],
+                                            },
+                                        },
+                                    },
+                                },
+                                {
+                                    $project: {
+                                        _id: 0,
+                                        totalRevenue: 1,
+                                    },
+                                },
+                            ],
+                            // Current Month Total Bookings
+                            currentMonthTotalBookings: [
+                                {
+                                    $match: {
+                                        createdAt: { $gte: startOfMonth, $lt: startOfNextMonth },
+                                        status: { $in: ["CONFIRMED", "COMPLETED"] },
+                                    },
+                                },
+                                {
+                                    $group: {
+                                        _id: null,
+                                        totalBookings: { $sum: 1 },
+                                    },
+                                },
+                                {
+                                    $project: {
+                                        _id: 0,
+                                        totalBookings: 1,
+                                    },
+                                },
+                            ],
+                            // Current Month Cancelled Bookings
+                            currentMonthCancelledBookings: [
+                                {
+                                    $match: {
+                                        createdAt: { $gte: startOfMonth, $lt: startOfNextMonth },
+                                        status: "CANCELLED",
+                                    },
+                                },
+                                {
+                                    $group: {
+                                        _id: null,
+                                        totalCancelledBookings: { $sum: 1 },
+                                    },
+                                },
+                                {
+                                    $project: {
+                                        _id: 0,
+                                        totalCancelledBookings: 1,
+                                    },
+                                },
+                            ],
+                            // Current Day Sessions to Attend
+                            currentDaySessionsToAttend: [
+                                {
+                                    $match: {
+                                        createdAt: { $gte: startOfDay, $lt: endOfDay },
+                                        status: "CONFIRMED",
+                                    },
+                                },
+                                {
+                                    $group: {
+                                        _id: null,
+                                        totalSessionsToAttend: { $sum: 1 },
+                                    },
+                                },
+                                {
+                                    $project: {
+                                        _id: 0,
+                                        totalSessionsToAttend: 1,
                                     },
                                 },
                             ],
                         },
                     },
-                ]);
-                console.log(result, "resutl");
+                ]));
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                const timeFacets = {};
+                if (timeRange === "week") {
+                    timeFacets.period = [
+                        {
+                            $addFields: {
+                                week: { $week: "$createdAt" },
+                                year: { $year: "$createdAt" },
+                            },
+                        },
+                        {
+                            $group: {
+                                _id: { week: "$week", year: "$year" },
+                                totalRevenue: {
+                                    $sum: {
+                                        $multiply: [
+                                            "$paymentAmountNumeric",
+                                            Number(process.env.MENTOR_COMMISION),
+                                        ],
+                                    },
+                                },
+                                totalBookings: { $sum: 1 },
+                            },
+                        },
+                        { $sort: { "_id.year": 1, "_id.week": 1 } },
+                        {
+                            $project: {
+                                _id: 0,
+                                week: "$_id.week",
+                                year: "$_id.year",
+                                revenue: "$totalRevenue",
+                                sessions: "$totalBookings",
+                            },
+                        },
+                    ];
+                }
+                else if (timeRange === "month") {
+                    timeFacets.period = [
+                        {
+                            $addFields: {
+                                month: { $month: "$createdAt" },
+                                year: { $year: "$createdAt" },
+                            },
+                        },
+                        {
+                            $group: {
+                                _id: { month: "$month", year: "$year" },
+                                totalRevenue: {
+                                    $sum: {
+                                        $multiply: [
+                                            "$paymentAmountNumeric",
+                                            Number(process.env.MENTOR_COMMISION),
+                                        ],
+                                    },
+                                },
+                                totalBookings: { $sum: 1 },
+                            },
+                        },
+                        { $sort: { "_id.year": 1, "_id.month": 1 } },
+                        {
+                            $project: {
+                                _id: 0,
+                                month: "$_id.month",
+                                year: "$_id.year",
+                                revenue: "$totalRevenue",
+                                sessions: "$totalBookings",
+                            },
+                        },
+                    ];
+                }
+                else {
+                    timeFacets.period = [
+                        { $addFields: { year: { $year: "$createdAt" } } },
+                        {
+                            $group: {
+                                _id: "$year",
+                                totalRevenue: {
+                                    $sum: {
+                                        $multiply: [
+                                            "$paymentAmountNumeric",
+                                            Number(process.env.MENTOR_COMMISION),
+                                        ],
+                                    },
+                                },
+                                totalBookings: { $sum: 1 },
+                            },
+                        },
+                        { $sort: { _id: 1 } },
+                        {
+                            $project: {
+                                _id: 0,
+                                year: "$_id",
+                                revenue: "$totalRevenue",
+                                sessions: "$totalBookings",
+                            },
+                        },
+                    ];
+                }
+                timeFacets.cumulativeSession = [
+                    {
+                        $addFields: {
+                            month: { $month: "$createdAt" },
+                            year: { $year: "$createdAt" },
+                        },
+                    },
+                    {
+                        $group: {
+                            _id: { month: "$month", year: "$year" },
+                            revenue: {
+                                $sum: {
+                                    $multiply: [
+                                        "$paymentAmountNumeric",
+                                        Number(process.env.MENTOR_COMMISION),
+                                    ],
+                                },
+                            },
+                        },
+                    },
+                    { $sort: { "_id.year": 1, "_id.month": 1 } },
+                    {
+                        $setWindowFields: {
+                            partitionBy: "$_id.year",
+                            sortBy: { "_id.month": 1 },
+                            output: {
+                                cumulativeRevenue: {
+                                    $sum: "$revenue",
+                                    window: {
+                                        documents: ["unbounded", "current"],
+                                    },
+                                },
+                            },
+                        },
+                    },
+                    {
+                        $project: {
+                            month: "$_id.month",
+                            year: "$_id.year",
+                            revenue: 1,
+                            cumulativeRevenue: 1,
+                            _id: 0,
+                        },
+                    },
+                ];
+                const timeData = (yield this.aggregateData(slotSchedule_2.default, [
+                    {
+                        $lookup: {
+                            from: "times",
+                            localField: "slotId",
+                            foreignField: "_id",
+                            as: "slotData",
+                        },
+                    },
+                    {
+                        $unwind: "$slotData",
+                    },
+                    {
+                        $match: {
+                            "slotData.mentorId": mentorId,
+                            status: "COMPLETED",
+                            "slotData.startDate": { $gte: startOfYear },
+                        },
+                    },
+                    {
+                        $addFields: {
+                            paymentAmountNumeric: { $toDouble: "$paymentAmount" },
+                        },
+                    },
+                    { $facet: timeFacets },
+                ]));
+                const topMentors = (yield this.aggregateData(slotSchedule_2.default, [
+                    {
+                        $match: {
+                            status: { $in: ["CONFIRMED", "COMPLETED", "REJECTED"] },
+                            createdAt: { $gte: startOfYear, $lt: startOfNextYear },
+                        },
+                    },
+                    {
+                        $lookup: {
+                            from: "times",
+                            localField: "slotId",
+                            foreignField: "_id",
+                            as: "slotData",
+                        },
+                    },
+                    { $unwind: "$slotData" },
+                    {
+                        $lookup: {
+                            from: "mentors",
+                            localField: "slotData.mentorId",
+                            foreignField: "_id",
+                            as: "mentorData",
+                        },
+                    },
+                    { $unwind: "$mentorData" },
+                    {
+                        $lookup: {
+                            from: "reviews",
+                            localField: "slotData.mentorId",
+                            foreignField: "mentorId",
+                            as: "ratings",
+                        },
+                    },
+                    { $unwind: { path: "$ratings", preserveNullAndEmptyArrays: true } },
+                    {
+                        $addFields: { paymentAmountNumeric: { $toDouble: "$paymentAmount" } },
+                    },
+                    {
+                        $group: {
+                            _id: "$slotData.mentorId",
+                            mentorName: { $first: "$mentorData.name" },
+                            category: { $first: "$mentorData.category" },
+                            totalSessions: { $sum: 1 },
+                            profileUrl: { $first: "$mentorData.profileUrl" },
+                            totalRevenue: {
+                                $sum: {
+                                    $multiply: [
+                                        "$paymentAmountNumeric",
+                                        Number((_a = process.env) === null || _a === void 0 ? void 0 : _a.MENTOR_COMMISION),
+                                    ],
+                                },
+                            },
+                            averageRating: { $avg: "$ratings.rating" },
+                        },
+                    },
+                    { $sort: { totalSessions: -1 } },
+                    { $limit: 5 },
+                    {
+                        $project: {
+                            _id: 0,
+                            mentorId: "$_id",
+                            mentorName: 1,
+                            totalSessions: 1,
+                            totalRevenue: 1,
+                            category: 1,
+                            averageRating: 1,
+                            profileUrl: 1,
+                        },
+                    },
+                ]));
+                const mentorChart = {
+                    currentMonthRevenue: (_d = (_c = (_b = cardResult[0]) === null || _b === void 0 ? void 0 : _b.currentMonthRevenue[0]) === null || _c === void 0 ? void 0 : _c.totalRevenue) !== null && _d !== void 0 ? _d : 0,
+                    currentMonthTotalBookings: (_g = (_f = (_e = cardResult[0]) === null || _e === void 0 ? void 0 : _e.currentMonthTotalBookings[0]) === null || _f === void 0 ? void 0 : _f.totalBookings) !== null && _g !== void 0 ? _g : 0,
+                    currentMonthCancelledBookings: (_k = (_j = (_h = cardResult[0]) === null || _h === void 0 ? void 0 : _h.currentMonthCancelledBookings[0]) === null || _j === void 0 ? void 0 : _j.totalCancelledBookings) !== null && _k !== void 0 ? _k : 0,
+                    currentDaySessionsToAttend: (_o = (_m = (_l = cardResult[0]) === null || _l === void 0 ? void 0 : _l.currentDaySessionsToAttend[0]) === null || _m === void 0 ? void 0 : _m.totalSessionsToAttend) !== null && _o !== void 0 ? _o : 0,
+                    period: (_q = (_p = timeData[0]) === null || _p === void 0 ? void 0 : _p.period) !== null && _q !== void 0 ? _q : [],
+                    cumulativeSession: (_s = (_r = timeData === null || timeData === void 0 ? void 0 : timeData[0]) === null || _r === void 0 ? void 0 : _r.cumulativeSession) !== null && _s !== void 0 ? _s : [],
+                    topMentors: topMentors !== null && topMentors !== void 0 ? topMentors : []
+                };
+                return { mentorChart };
             }
             catch (error) {
                 throw new Error(` error while find totalRevenue ${error instanceof Error ? error.message : String(error)}`);

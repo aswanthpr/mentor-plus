@@ -6,7 +6,7 @@ import {
   genRefreshToken,
   verifyRefreshToken,
 } from "../Utils/jwt.utils";
-import { IcheckedSlot, ISchedule, ISlots } from "../Types";
+import { IcheckedSlot, ImentorChartData, ISchedule, ISlots } from "../Types";
 import { Itime, slot } from "../Model/timeModel";
 import { Imentor } from "../Model/mentorModel";
 import hash_pass from "../Utils/hashPass.util";
@@ -22,7 +22,7 @@ import { ObjectId } from "mongoose";
 import { ItimeSlotRepository } from "../Interface/Booking/iTimeSchedule";
 import { Status } from "../Utils/httpStatusCode";
 import moment from "moment";
-import { checkForOverlap } from "../Utils/reusable.util";
+import { checkForOverlap, createSkip } from "../Utils/reusable.util";
 import { IslotScheduleRepository } from "../Interface/Booking/iSlotScheduleRepository";
 
 export class mentorService implements ImentorService {
@@ -31,7 +31,7 @@ export class mentorService implements ImentorService {
     private _categoryRepository: IcategoryRepository,
     private _questionRepository: IquestionRepository,
     private _timeSlotRepository: ItimeSlotRepository,
-    private readonly _slotScheduleRepository:IslotScheduleRepository,
+    private readonly _slotScheduleRepository: IslotScheduleRepository
   ) {}
 
   async mentorProfile(token: string): Promise<{
@@ -124,10 +124,14 @@ export class mentorService implements ImentorService {
       }
       const { userId } = decode;
 
-      const accessToken: string | undefined = genAccesssToken(userId as string,"mentor");
+      const accessToken: string | undefined = genAccesssToken(
+        userId as string,
+        "mentor"
+      );
 
       const refreshToken: string | undefined = genRefreshToken(
-        userId as string,"mentor"
+        userId as string,
+        "mentor"
       );
 
       return {
@@ -384,39 +388,50 @@ export class mentorService implements ImentorService {
       );
     }
   }
-  async homeData(filter: string,search:string,page:number,limit:number): Promise<{
+  async questionData(
+    filter: string,
+    search: string,
+    sortField:string,
+    sortOrder:string,
+    page: number,
+    limit: number
+  ): Promise<{
     success: boolean;
     message: string;
     status: number;
-    homeData: Iquestion[] | [],
-    totalPage:number
-    ;
+    homeData: Iquestion[] | [];
+    totalPage: number;
   }> {
     try {
-      console.log(filter,search,page,limit)
-      if (!filter||!page||
-        !limit
-      ) {
+      console.log(filter, search, page, limit);
+      if (!filter || page <1|| limit<1|| !sortField|| !sortOrder) {
         return {
           success: false,
           message: "credentials not found",
           status: 400,
           homeData: [],
-          totalPage:0
+          totalPage: 0,
         };
       }
-      const pageNo = page||1;
-      const limitNo = limit||6;
-      const skip = (pageNo-1)*limitNo;
+      const pageNo = page || 1;
+      const limitNo = limit || 6;
+      const skip = (pageNo - 1) * limitNo;
 
-      const response = await this._questionRepository.allQuestionData(filter,search,skip,limit);
+      const response = await this._questionRepository.allQuestionData(
+        filter,
+        search,
+        sortOrder,
+        sortField,
+        skip,
+        limit
+      );
       const totalPage = Math.ceil(response?.count / limitNo);
       return {
         success: true,
         message: "Data successfully fetched",
         status: 200,
         homeData: response?.question,
-        totalPage
+        totalPage,
       };
     } catch (error: unknown) {
       throw new Error(
@@ -452,7 +467,7 @@ export class mentorService implements ImentorService {
           !endDate ||
           selectedDays?.length == 0
         ) {
-          console.log("haiiiii")
+          console.log("haiiiii");
           return {
             success: false,
             message: "crdential not found",
@@ -466,12 +481,12 @@ export class mentorService implements ImentorService {
           new Date(startDate),
           new Date(endDate)
         );
-        console.log(checkedSlots)
+        console.log(checkedSlots);
         if (checkedSlots.length > 0) {
           res = checkForOverlap(checkedSlots as IcheckedSlot[], slots);
         }
-        if (checkedSlots.length>0&&res.length == 0) {
-          console.log("00000000000000000000")
+        if (checkedSlots.length < 0 && res.length == 0) {
+        
           return {
             success: false,
             message: "all time periods are  duplicates ",
@@ -485,7 +500,7 @@ export class mentorService implements ImentorService {
         const endDateStr = new Date(endDate!);
 
         if (startDateStr < today) {
-          console.log("1111111111111111111")
+          console.log("1111111111111111111");
           return {
             success: false,
             message: "Start date cannot be in the past.",
@@ -496,7 +511,7 @@ export class mentorService implements ImentorService {
 
         // Ensure endDate is after startDate
         if (endDateStr.getTime() <= startDateStr.getTime()) {
-          console.log("2222222222222222")
+          console.log("2222222222222222");
           return {
             success: false,
             message: "The time duration must be between 30 and 60 minutes.",
@@ -529,7 +544,7 @@ export class mentorService implements ImentorService {
         const recurringDates = rrule.all();
 
         recurringDates.forEach((date) => {
-          (res.length>0? res: slots).forEach((slot) => {
+          (res.length > 0 ? res : slots).forEach((slot) => {
             const dateStr = date.toISOString();
 
             const start = moment(
@@ -544,7 +559,7 @@ export class mentorService implements ImentorService {
             const minutesDifference = duration.asMinutes();
 
             if (minutesDifference < 30 || minutesDifference > 60) {
-              console.log("333333333333333")
+             
               return {
                 success: false,
                 message: "The time duration must be between 30 and 60 minutes.",
@@ -553,7 +568,7 @@ export class mentorService implements ImentorService {
               };
             }
             if (end.isBefore(start)) {
-              console.log("44444444444444")
+             
               return {
                 success: false,
                 message: "The End Time is Befor Start Time",
@@ -584,10 +599,17 @@ export class mentorService implements ImentorService {
           timeSlotsToInsert
         );
       } else {
-
         for (const entry of schedule as ISchedule[]) {
           const { slots, price, startDate } = entry;
-console.log("slot:",slots,"price",price,"strtDAte",startDate,entry)
+          console.log(
+            "slot:",
+            slots,
+            "price",
+            price,
+            "strtDAte",
+            startDate,
+            entry
+          );
           if (!price || !startDate || !mentorId) {
             return {
               success: false,
@@ -596,16 +618,18 @@ console.log("slot:",slots,"price",price,"strtDAte",startDate,entry)
               timeSlots: [],
             };
           }
+          console.log('1111111')
           let res: slot[] = [];
           const checkedSlots = await this._timeSlotRepository.checkTimeSlots(
             mentorId,
             new Date(`${startDate}T00:00:00.000Z`),
-            new Date(`${startDate}T23:59:59.999Z`),
+            new Date(`${startDate}T23:59:59.999Z`)
           );
           if (checkedSlots.length > 0) {
             res = checkForOverlap(checkedSlots as IcheckedSlot[], slots);
           }
-          if (checkedSlots.length>0&&res.length == 0) {
+          console.log('222222')
+          if (checkedSlots.length < 0 && res.length == 0) {
             return {
               success: false,
               message: "all time periods are  duplicates ",
@@ -616,8 +640,10 @@ console.log("slot:",slots,"price",price,"strtDAte",startDate,entry)
 
           const givenDate = moment(startDate, "YYYY-MM-DD");
           const currentDate = moment().startOf("day");
-
+          console.log('3333333')
           if (givenDate.isBefore(currentDate)) {
+            
+            console.log('00000000')
             return {
               success: false,
               message: " The given date is in the past.",
@@ -626,90 +652,93 @@ console.log("slot:",slots,"price",price,"strtDAte",startDate,entry)
             };
           }
 
-          const entrySlots = (res.length>0? res: slots).map((slot: slot) => {
-            const start = moment(
-              `${startDate} ${slot?.startTime}`,
-              "YYYY-MM-DD HH:mm:ss"
-            );
-            const end = moment(
-              `${startDate} ${slot?.endTime}`,
-              "YYYY-MM-DD HH:mm:ss"
-            );
-            console.log(start, "11111111111111111111111111", end);
-            const duration = moment.duration(end.diff(start));
-            if (!duration) {
+          const entrySlots = (res.length > 0 ? res : slots).map(
+            (slot: slot) => {
+              const start = moment(
+                `${startDate} ${slot?.startTime}`,
+                "YYYY-MM-DD HH:mm:ss"
+              );
+              const end = moment(
+                `${startDate} ${slot?.endTime}`,
+                "YYYY-MM-DD HH:mm:ss"
+              );
+              console.log('55555')
+              const duration = moment.duration(end.diff(start));
+              if (!duration) {
+                return {
+                  success: false,
+                  message: "Time difference is not in between 20 to 60.",
+                  status: Status.BadRequest,
+                  timeSlots: [],
+                };
+              }
+
+              const minutesDifference = duration.asMinutes();
+              console.log(
+                start,
+                "start",
+                "end:",
+                end,
+                "minutesDifference:",
+                minutesDifference
+              );
+
+              if (minutesDifference < 30 || minutesDifference > 60) {
+                return {
+                  success: false,
+                  message:
+                    "The time duration must be between 30 and 60 minutes.",
+                  status: Status.Ok,
+                  timeSlots: [],
+                };
+              }
+
+              if (end.isBefore(start)) {
+                return {
+                  success: false,
+                  message: "The End Time is Befor Start Time",
+                  status: Status.Ok,
+                  timeSlots: [],
+                };
+              }
+
+              // Create a date string in ISO format
+
+              const startStr = start.format("YYYY-MM-DDTHH:mm:ss");
+              const endStr = end.format("YYYY-MM-DDTHH:mm:ss");
+
+              console.log(
+                start.format("YYYY-MM-DDTHH:mm:ss"),
+                end.format("YYYY-MM-DDTHH:mm:ss"),
+
+                end.toISOString(),
+                "this is the time i converted",
+                startStr,
+                endStr
+              );
+              const startDateInDate = new Date(startDate);
+
               return {
-                success: false,
-                message: "Time difference is not in between 20 to 60.",
-                status: Status.BadRequest,
-                timeSlots: [],
+                startDate: startDateInDate,
+                slots: [
+                  {
+                    startTime: startStr,
+                    endTime: endStr,
+                  },
+                ],
+                price,
+                mentorId,
+                duration: minutesDifference,
               };
             }
-
-            const minutesDifference = duration.asMinutes();
-            console.log(
-              start,
-              "start",
-              "end:",
-              end,
-              "minutesDifference:",
-              minutesDifference
-            );
-
-            if (minutesDifference < 30 || minutesDifference > 60) {
-              return {
-                success: false,
-                message: "The time duration must be between 30 and 60 minutes.",
-                status: Status.Ok,
-                timeSlots: [],
-              };
-            }
-
-            if (end.isBefore(start)) {
-              return {
-                success: false,
-                message: "The End Time is Befor Start Time",
-                status: Status.Ok,
-                timeSlots: [],
-              };
-            }
-
-            // Create a date string in ISO format
-
-            const startStr = start.format("YYYY-MM-DDTHH:mm:ss");
-            const endStr = end.format("YYYY-MM-DDTHH:mm:ss");
-
-            console.log(
-              start.format("YYYY-MM-DDTHH:mm:ss"),
-              end.format("YYYY-MM-DDTHH:mm:ss"),
-
-              end.toISOString(),
-              "this is the time i converted",
-              startStr,
-              endStr
-            );
-            const startDateInDate = new Date(startDate);
-
-            return {
-              startDate: startDateInDate,
-              slots: [
-                {
-                  startTime: startStr,
-                  endTime: endStr,
-                },
-              ],
-              price,
-              mentorId,
-              duration: minutesDifference,
-            };
-          });
+          );
           timeSlotsToInsert.push(...(entrySlots as unknown as Itime[]));
         }
       }
       result = await this._timeSlotRepository.createTimeSlot(timeSlotsToInsert);
       console.log(result, "thsi is the result ");
       if (!result) {
-        console.log("555555555555")
+        console.log("555555555555");
         return {
           success: false,
           message: "error while slot creating ",
@@ -731,27 +760,59 @@ console.log("slot:",slots,"price",price,"strtDAte",startDate,entry)
       );
     }
   }
-  async getTimeSlots(mentorId: ObjectId): Promise<{
+  async getTimeSlots(
+    mentorId: ObjectId,
+    limit: number,
+    page: number,
+    search: string,
+    filter: string,
+    sortField: string,
+    sortOrder: string
+  ): Promise<{
     success: boolean;
     message: string;
     status: number;
     timeSlots: Itime[] | [];
+    totalPage: number;
   }> {
     try {
-      if (!mentorId) {
+      if (
+        !mentorId ||
+        !filter ||
+        !sortField ||
+        !sortOrder ||
+        limit < 1 ||
+        page < 1
+      ) {
         return {
           success: false,
           message: "credentials not found",
           status: Status.BadRequest,
           timeSlots: [],
+          totalPage: 0,
         };
       }
-      const response = await this._timeSlotRepository.getTimeSlots(mentorId);
+
+      const skipData = createSkip(page, limit);
+      const limitNo = skipData?.limitNo;
+      const skip = skipData?.skip;
+      console.log(limit, limitNo, page, skip, "limit,skip");
+      const response = await this._timeSlotRepository.getTimeSlots(
+        mentorId,
+        limitNo,
+        skip,
+        search,
+        filter,
+        sortField,
+        sortOrder
+      );
+      const totalPage = Math.ceil(response?.totalDocs/limitNo);
       return {
         success: true,
         message: "Data successfully fetched",
         status: Status.Ok,
-        timeSlots: response,
+        timeSlots: response?.timeSlots,
+        totalPage,
       };
     } catch (error: unknown) {
       throw new Error(
@@ -795,23 +856,29 @@ console.log("slot:",slots,"price",price,"strtDAte",startDate,entry)
     }
   }
   async mentorChartData(
-    mentorId:ObjectId,timeRange: string
-  ): Promise<{ success: boolean; message: string; status: number }> {
+    mentorId: ObjectId,
+    timeRange: string
+  ): Promise<{ success: boolean; message: string; status: number,result:ImentorChartData|null }> {
     try {
       if (!timeRange) {
         return {
           success: false,
           message: "credentials not found",
           status: Status.BadRequest,
+          result:null
         };
       }
-     console.log(timeRange,'timerange');
-     const result  = await  this._slotScheduleRepository.mentorChartData(mentorId,timeRange);
-     console.log(result,'ressult')
+      
+      const result = await this._slotScheduleRepository.mentorChartData(
+        mentorId,
+        timeRange
+      );
+     console.log(result,'this is the result')
       return {
         success: true,
         message: "successfully removed",
         status: Status.Ok,
+        result:result?.mentorChart
       };
     } catch (error: unknown) {
       throw new Error(

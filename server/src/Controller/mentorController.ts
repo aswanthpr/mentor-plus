@@ -159,20 +159,24 @@ export class mentorController implements ImentorController {
   }
   //fetch mentor home data
   // /mentor/home/:filter
-  async homeData(req: Request, res: Response): Promise<void> {
+  async questionData(req: Request, res: Response): Promise<void> {
     try {
       const { filter } = req.params;
-      const { search, page, limit } = req.query;
+      const { search, page=1, limit ,sortOrder,sortField} = req.query;
 
-      const { status, success, message, homeData,totalPage } =
-        await this._mentorService.homeData(
+      const { status, success, message, homeData, totalPage } =
+        await this._mentorService.questionData(
           filter as string,
           String(search),
+          String(sortField),
+          String(sortOrder),
           Number(page),
           Number(limit)
         );
       const userId = req.user as Express.User;
-      res.status(status).json({ success, message, homeData, userId ,totalPage});
+      res
+        .status(status)
+        .json({ success, message, homeData, userId, totalPage });
     } catch (error: unknown) {
       throw new Error(
         `error while mentor profile Edit ${
@@ -183,7 +187,7 @@ export class mentorController implements ImentorController {
   }
   //create time slots in mentor side
   // /mentor/schedule/create-slots
-  // get the scheule time in the req.body
+  // get the scheule time in the req.body 
   async createTimeSlots(req: Request, res: Response): Promise<void> {
     try {
       const { type, schedule } = req.body;
@@ -207,9 +211,21 @@ export class mentorController implements ImentorController {
   //schedule getting data.  /schedule/get-time-slots
   async getTimeSlots(req: Request, res: Response): Promise<void> {
     try {
-      const { success, status, message, timeSlots } =
-        await this._mentorService.getTimeSlots(req.user as ObjectId);
-      res.status(status).json({ success, message, status, timeSlots });
+      const { search, filter, sortField, sortOrder, page, limit } = req.query;
+      console.log( search, filter, sortField, sortOrder, page, limit)
+      const { success, status, message, timeSlots, totalPage } =
+        await this._mentorService.getTimeSlots(
+          req.user as ObjectId,
+          Number(limit),
+          Number(page),
+          String(search),
+          String(filter),
+          String(sortField),
+          String(sortOrder)
+        );
+      res 
+        .status(status)
+        .json({ success, message, status, timeSlots, totalPage });
     } catch (error: unknown) {
       throw new Error(
         `error while mentor getting time slots  ${
@@ -234,14 +250,18 @@ export class mentorController implements ImentorController {
       );
     }
   }
-  async chartData(req:Request,res:Response):Promise<void>{
+  async chartData(req: Request, res: Response): Promise<void> {
     try {
-      const {timeRange} =req.query;
+      const { timeRange } = req.query;
       console.log(timeRange);
-      const {success, message, status} =await  this._mentorService.mentorChartData(req.user as Express.User as ObjectId,String(timeRange));
-      
-      res.status(status).json({message,success});
-    } catch (error:unknown) {
+      const { success, message, status,result } =
+        await this._mentorService.mentorChartData(
+          req.user as Express.User as ObjectId,
+          String(timeRange)
+        );
+
+      res.status(status).json({ message, success ,result});
+    } catch (error: unknown) {
       throw new Error(
         `error while mentor getting time slots  ${
           error instanceof Error ? error.message : String(error)

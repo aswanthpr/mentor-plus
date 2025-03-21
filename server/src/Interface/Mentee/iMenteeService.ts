@@ -6,7 +6,7 @@ import { Imentor } from "../../Model/mentorModel";
 
 export interface ImenteeService {
 
-    homeData(filter: string,search:string,page:number,limit:number): Promise<{ success: boolean, message: string, status: number, homeData: Iquestion[] | [],totalPage:number }>
+    homeData(filter: string,search:string,sortField:string,sortOrder:string,page:number,limit:number): Promise<{ success: boolean, message: string, status: number, homeData: Iquestion[] | [],totalPage:number }>
     menteeProfile(refreshToken: string): Promise<{ success: boolean, message: string, result: Imentee | null, status: number }>;
     profileChange(image: Express.Multer.File | null, id: string): Promise<{ success: boolean, message: string, status: number }>;
     editMenteeProfile(formData: Partial<Imentee>): Promise<{ success: boolean, message: string, result: Imentee | null, status: number }>;

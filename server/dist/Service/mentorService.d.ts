@@ -1,3 +1,4 @@
+import { ImentorChartData } from "../Types";
 import { Itime } from "../Model/timeModel";
 import { Imentor } from "../Model/mentorModel";
 import { Iquestion } from "../Model/questionModal";
@@ -47,7 +48,7 @@ export declare class mentorService implements ImentorService {
         status: number;
         result: Imentor | null;
     }>;
-    homeData(filter: string, search: string, page: number, limit: number): Promise<{
+    questionData(filter: string, search: string, sortField: string, sortOrder: string, page: number, limit: number): Promise<{
         success: boolean;
         message: string;
         status: number;
@@ -60,11 +61,12 @@ export declare class mentorService implements ImentorService {
         status: number;
         timeSlots: Itime[] | [];
     }>;
-    getTimeSlots(mentorId: ObjectId): Promise<{
+    getTimeSlots(mentorId: ObjectId, limit: number, page: number, search: string, filter: string, sortField: string, sortOrder: string): Promise<{
         success: boolean;
         message: string;
         status: number;
         timeSlots: Itime[] | [];
+        totalPage: number;
     }>;
     removeTimeSlot(slotId: string): Promise<{
         success: boolean;
@@ -75,6 +77,7 @@ export declare class mentorService implements ImentorService {
         success: boolean;
         message: string;
         status: number;
+        result: ImentorChartData | null;
     }>;
 }
 //# sourceMappingURL=mentorService.d.ts.map

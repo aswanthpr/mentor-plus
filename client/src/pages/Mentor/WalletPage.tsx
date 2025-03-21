@@ -4,12 +4,13 @@ import WalletCard from "../../components/Common/wallet/WalletCard";
 import WithdrawModal from "../../components/Common/wallet/WithdrawModal";
 import TransactionList from "../../components/Common/wallet/TransactionList";
 import TransactionFilters from "../../components/Common/wallet/TransactionFilter";
-import { Pagination } from "../../components/Common/common4All/Pagination";
+import { Pagination } from "@mui/material";
 import { toast } from "react-toastify";
 import { fetchWalletData } from "../../service/commonApi";
 import { fetchHandleWithdraw } from "../../service/mentorApi";
 
 const WalletPage: React.FC = () => {
+  const limit = 10;
   const [walletData, setWalletData] = useState<Iwallet>({
     _id: "",
     userId: "",
@@ -17,19 +18,26 @@ const WalletPage: React.FC = () => {
     transaction: [],
   });
   const [searchQuery, setSearchQuery] = useState("");
+  const [totalDoc, setTotalDoc] = useState(0);
   const [showWithdraw, setShowWithdraw] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [typeFilter, setTypeFilter] = useState<
     "all" | "deposit" | "withdrawal" | "earning"
   >("all");
-  const itemsPerPage = 5;
+
 
   useEffect(() => {
     let flag: boolean = true;
     const wallet_Data = async () => {
-      const response = await fetchWalletData("mentor");
+      const response = await fetchWalletData("mentor",
+        searchQuery,
+        typeFilter,
+        currentPage,
+        limit,
+      );
       if (response?.status == 200 && response?.data?.success && flag) {
         setWalletData(response?.data?.walletData);
+        setTotalDoc(response?.data?.totalPage)
       }
     };
     if (flag) {
@@ -38,7 +46,7 @@ const WalletPage: React.FC = () => {
     return () => {
       flag = false;
     };
-  }, []);
+  }, [currentPage, searchQuery, typeFilter]);
 
   const handleWithdraw = useCallback(async (amount: number) => {
     if (Number(amount) < 500 || !amount) {
@@ -55,21 +63,13 @@ const WalletPage: React.FC = () => {
       }));
     }
   }, []);
-
-  // const filteredTransactions = transactions.filter(transaction => {
-  //   const matchesSearch =
-  //     transaction.note.toLowerCase().includes(searchQuery.toLowerCase()) ||
-  //     transaction.transactionType.toLowerCase().includes(searchQuery.toLowerCase());
-  //   // const matchesType = typeFilter === 'all' || transaction.type === typeFilter;
-  //   // return matchesSearch && matchesType;
-  // });
-
-  const totalPages = Math.ceil(walletData?.transaction?.length / itemsPerPage);
-  const paginatedTransactions = walletData?.transaction?.slice(
-    (currentPage - 1) * itemsPerPage,
-    currentPage * itemsPerPage
-  );
-
+    const handlePageChange = useCallback(
+      (event: React.ChangeEvent<unknown>, value: number) => {
+        event.preventDefault();
+        setCurrentPage(value);
+      },
+      []
+    );
   return (
     <div className="space-y-6  mt-16  ">
       <div className="grid grid-cols-1 md:grid-cols-1 gap-6">
@@ -84,8 +84,8 @@ const WalletPage: React.FC = () => {
         />
       </div>
 
-      <div className="bg-white p-6 rounded-lg shadow-sm">
-        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
+      <div className="bg-white p-5 rounded-lg shadow-sm">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-3">
           <h2 className="text-xl font-bold">Transaction History</h2>
           <TransactionFilters
             searchQuery={searchQuery}
@@ -97,18 +97,22 @@ const WalletPage: React.FC = () => {
         </div>
 
         <div className="overflow-x-auto">
-          <TransactionList transactions={paginatedTransactions} />
+          <TransactionList transactions={walletData?.transaction} />
         </div>
 
-        {totalPages > 1 && (
-          <div className="mt-6">
-            <Pagination
-              currentPage={currentPage}
-              totalPages={totalPages}
-              onPageChange={setCurrentPage}
-            />
-          </div>
-        )}
+       <hr className="h-px  bg-gray-200 border-0 dark:bg-gray-700" />
+              <div className="flex justify-center mt-2">
+                <Pagination
+                  count={totalDoc}
+                  page={currentPage} // Current page
+                  onChange={handlePageChange} // Page change handler
+                  color="standard" // Pagination color
+                  shape="circular" // Rounded corners
+                  size="small" // Size of pagination
+                  siblingCount={1} // Number of sibling pages shown next to the current page
+                  boundaryCount={1} // Number of boundary pages to show at the start and end
+                />
+              </div>
       </div>
       <WithdrawModal
         isOpen={showWithdraw}

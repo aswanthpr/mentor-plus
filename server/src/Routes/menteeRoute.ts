@@ -111,7 +111,7 @@ mentee_Router.patch(
 );
 
 mentee_Router.get(
-  `/qa/:filter`,
+  `/qa`,
   authorize,
   __qaController.questionData.bind(__qaController)
 );

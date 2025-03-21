@@ -8,13 +8,23 @@ export interface IquestionRepository {
     tags: string[],
     userId: ObjectId
   ): Promise<Iquestion | null>;
-  questionData(menteeId: ObjectId, filter: string): Promise<Iquestion[]>;
+
+
+  questionData(
+    menteeId: ObjectId,
+     filter: string,
+     search:string,
+     limit:number,
+     skip:number,
+    sortField:string,
+    sortOrder:string,
+    ): Promise<{questions:Iquestion[]|[],totalDocs:number}>;
   editQuestions(
     questionId: string,
     updatedQuestion: Iquestion,
     filter:string
   ): Promise<Iquestion[] | null>;
-  allQuestionData(filter: string,search:string,skip:number,limit:number): Promise<{question:Iquestion[] | [],count:number}>;
+  allQuestionData(filter: string,search:string,sortOrder:string,sortField:string,skip:number,limit:number): Promise<{question:Iquestion[] | [],count:number}>;
   deleteQuestion(questionId: string): Promise<DeleteResult | undefined>;
   countAnswer(questionId:string):Promise<Iquestion|null>
   reduceAnswerCount(questionId: string): Promise<Iquestion | null>

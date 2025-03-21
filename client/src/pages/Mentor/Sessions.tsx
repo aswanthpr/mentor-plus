@@ -3,7 +3,6 @@ import TabNavigation from "../../components/Common/Bookings/TabNavigation";
 import { ArrowUpDown, Filter, Search, User } from "lucide-react";
 import { errorHandler } from "../../Utils/Reusable/Reusable";
 import SessionCard from "../../components/Common/Bookings/SessionCard";
-import Spinner from "../../components/Common/common4All/Spinner";
 import { useSelector } from "react-redux";
 import { RootState } from "../../Redux/store";
 import ConfirmToast from "../../components/Common/common4All/ConfirmToast";
@@ -19,7 +18,7 @@ import { Pagination } from "@mui/material";
 const Sessions: React.FC = () => {
   const limit = 5;
   const navigate = useNavigate();
-  const [loading, setLoading] = useState(false);
+
   const [activeTab, setActiveTab] = useState<"upcoming" | "history">(
     "upcoming"
   );
@@ -35,7 +34,7 @@ const Sessions: React.FC = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        setLoading(true);
+
 
         const response = await getMentorSessions(
           activeTab,
@@ -53,9 +52,7 @@ const Sessions: React.FC = () => {
         }
       } catch (error: unknown) {
         errorHandler(error);
-      } finally {
-        setLoading(false);
-      }
+      } 
     };
     fetchData();
   }, [activeTab, currentPage, searchQuery, sortField, sortOrder, statusFilter]);
@@ -106,11 +103,6 @@ const Sessions: React.FC = () => {
     [sessions]
   );
 
-  // const totalPages = Math.ceil(filteredSessions.length / sessionsPerPage);
-  // const paginatedSessions = filteredSessions.slice(
-  //   (currentPage - 1) * sessionsPerPage,
-  //   currentPage * sessionsPerPage
-  // );
 
   const crerateSessionCode = useCallback(async (_id: string) => {
     const resp = await createSessionCodeApi(_id);
@@ -183,9 +175,8 @@ const Sessions: React.FC = () => {
   );
   return (
     <div>
-      <div className=" mt-12 ">
-        {loading && <Spinner />}
-        <h1 className="text-2xl font-bold mb-4">Sessions</h1>
+      <div className=" mt-16 ">
+
 
         <TabNavigation
           activeTab={activeTab}
@@ -194,7 +185,7 @@ const Sessions: React.FC = () => {
           onTabChange={(tab) => setActiveTab(tab as "upcoming" | "history")}
         />
       </div>
-      <div className="bg-white mt-2 p-4 rounded-lg shadow-sm">
+      <div className="bg-white mt-2 p-4 rounded-lg shadow-sm h-[86vh]">
         <div className="mb-6 flex">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
             {/* Search */}
@@ -223,8 +214,20 @@ const Sessions: React.FC = () => {
                 className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-orange-200 border-orange-500"
               >
                 <option value="all">All Status</option>
-                <option value="active">Active</option>
-                <option value="blocked">Blocked</option>
+                {
+                  activeTab=="upcoming"?(
+                    <>
+                    <option value="RECLAIM_REQUESTED">Cancel Request</option>
+                    
+                    </>
+                  ):(
+                    <>
+                    <option value="COMPLETED">Completed</option>
+                    <option value="CANCELLED">Cancelled</option>
+                    
+                    </>
+                  )
+                }
               </select>
             </div>
 
@@ -241,12 +244,8 @@ const Sessions: React.FC = () => {
                 }}
                 className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-orange-200 border-orange-500"
               >
-               <option value="createdAt-desc">Newest First</option>
+                <option value="createdAt-desc">Newest First</option>
                 <option value="createdAt-asc">Oldest First</option>
-                <option value="COMPLETED">completed</option>
-                <option value="CANCELLED">cancelled</option>
-                <option value="REJECTED">rejected</option>
-                <option value="CONFIRMED">confirmed</option>
               </select>
             </div>
           </div>
@@ -265,8 +264,8 @@ const Sessions: React.FC = () => {
           ))}
         </div>
  {/* Pagination */}
-<hr className="h-px  bg-gray-200 border-0 dark:bg-gray-700 mt-1" />
-        <div className="flex justify-center mt-3">
+<hr className="h-px  bg-gray-200 border-0 dark:bg-gray-700 mt-2 " />
+        <div className="flex justify-center mt-2">
           <Pagination
             count={totalDocuments}
             page={currentPage} // Current page

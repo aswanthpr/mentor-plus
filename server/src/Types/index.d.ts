@@ -110,17 +110,61 @@ interface IcardData {
   totalBookings: number;
   totalCancelledBookings: number;
   uniqueMentorsThisMonth: number;
-  yearly?:{year:number,revenue:number,session:number}[];
-  monthly?:{month:number,revenue:number,session:number}[];
-  weekly?:{week:number,revenue:number,session:number}[];
-  categoryDistribution: { category: string, value:number }[],
-  topMentors:{
-    mentorId: string,
-    mentorName:string,
-    totalSessions:number,
-    totalRevenue:number,
-    category:string,
-    averageRating:number,
-    profileUrl:string
-  }
+  yearly?: { year: number; revenue: number; session: number }[];
+  monthly?: { month: number; revenue: number; session: number }[];
+  weekly?: { week: number; revenue: number; session: number }[];
+  categoryDistribution: { category: string; value: number }[];
+  topMentors: {
+    mentorId: string;
+    mentorName: string;
+    totalSessions: number;
+    totalRevenue: number;
+    category: string;
+    averageRating: number;
+    profileUrl: string;
+  };
+}
+
+interface IcardResult {
+  currentMonthRevenue: { totalRevenue: number }[];
+  currentMonthTotalBookings: { totalBookings: number }[];
+  currentMonthCancelledBookings: { totalCancelledBookings: number }[];
+  currentDaySessionsToAttend: { totalSessionsToAttend: number }[];
+}
+interface RevenueData {
+  month?: string;
+  revenue: number;
+  sessions: number;
+  year?: string;
+  week?: string;
+}
+
+interface CumulativeSessionData {
+  revenue: number;
+  cumulativeRevenue: number;
+  month: number;
+  year: number;
+}
+
+interface TimeData {
+  period: PeriodData[];
+  cumulativeSession: CumulativeSessionData[];
+}
+interface ItopMentors{
+  mentorId: string,
+  mentorName:string,
+  totalSessions:number,
+  totalRevenue:number,
+  category:string,
+  averageRating:number,
+  profileUrl:string
+}
+interface ImentorChartData{
+  currentMonthRevenue:number;
+  currentMonthTotalBookings: number;
+  currentMonthCancelledBookings: number;
+  currentDaySessionsToAttend:number;
+  period: RevenueData[];
+  cumulativeSession: CumulativeSessionData[],
+  topMentors:ItopMentors[]|[]
 }

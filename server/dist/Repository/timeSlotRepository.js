@@ -15,6 +15,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const timeModel_1 = __importDefault(require("../Model/timeModel"));
 const baseRepo_1 = require("./baseRepo");
 const mongoose_1 = __importDefault(require("mongoose"));
+const reusable_util_1 = require("../Utils/reusable.util");
 class timeSlotRepository extends baseRepo_1.baseRepository {
     constructor() {
         super(timeModel_1.default);
@@ -29,10 +30,14 @@ class timeSlotRepository extends baseRepo_1.baseRepository {
             }
         });
     }
-    getTimeSlots(mentorId) {
+    getTimeSlots(mentorId, limit, skip, search, filter, sortField, sortOrder) {
         return __awaiter(this, void 0, void 0, function* () {
+            var _a;
             try {
-                const res = yield this.aggregateData(timeModel_1.default, [
+                const dateSearch = new Date(search);
+                const isValidDate = !isNaN(dateSearch.getTime());
+                console.log(isValidDate, dateSearch, (0, reusable_util_1.getTodayEndTime)(), (0, reusable_util_1.getTodayStartTime)(), skip, limit);
+                const pipeline = [
                     {
                         $unwind: "$slots",
                     },
@@ -53,16 +58,50 @@ class timeSlotRepository extends baseRepo_1.baseRepository {
                         $match: {
                             mentorId: mentorId,
                             isBooked: false,
-                            startDate: { $gte: new Date() }
+                            startDate: { $gte: new Date() },
                         },
                     },
+                ];
+                if (search) {
+                    pipeline.push({
+                        $match: {
+                            $or: [
+                                { startDate: isValidDate ? dateSearch : undefined },
+                            ],
+                        },
+                    });
+                }
+                const order = sortOrder === "asc" ? 1 : -1;
+                if (sortField === "createdAt") {
+                    pipeline.push({ $sort: { createdAt: order } });
+                }
+                else {
+                    pipeline.push({ $sort: { startTime: order } });
+                }
+                if (filter == "today") {
+                    pipeline.push({
+                        $match: {
+                            startDate: {
+                                $gte: (0, reusable_util_1.getTodayStartTime)(),
+                                $lte: (0, reusable_util_1.getTodayEndTime)(),
+                            },
+                        },
+                    });
+                }
+                pipeline.push({ $skip: skip });
+                pipeline.push({ $limit: limit });
+                const countPipeline = [
+                    ...pipeline.slice(0, pipeline.length - 2),
                     {
-                        $sort: {
-                            startTime: 1,
-                        },
+                        $count: "totalDocuments",
                     },
+                ];
+                // Execute Aggregations
+                const [timeSlots, totalCount] = yield Promise.all([
+                    this.aggregateData(timeModel_1.default, pipeline),
+                    timeModel_1.default.aggregate(countPipeline),
                 ]);
-                return res;
+                return { timeSlots, totalDocs: (_a = totalCount[0]) === null || _a === void 0 ? void 0 : _a.totalDocuments };
             }
             catch (error) {
                 throw new Error(`${"\x1b[35m%s\x1b[0m"}error while getting based on
@@ -98,14 +137,14 @@ class timeSlotRepository extends baseRepo_1.baseRepository {
                             endTime: "$slots.endTime",
                             startStr: "$slots.startStr",
                             endStr: "$slots.endStr",
-                            duration: 1
+                            duration: 1,
                         },
                     },
                     {
                         $match: {
                             mentorId: new mongoose_1.default.Types.ObjectId(mentorId),
                             startDate: { $gt: new Date() },
-                            isBooked: false
+                            isBooked: false,
                         },
                     },
                 ]);
@@ -119,7 +158,9 @@ class timeSlotRepository extends baseRepo_1.baseRepository {
     makeTimeSlotBooked(slotId) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                return yield this.find_By_Id_And_Update(timeModel_1.default, slotId, { $set: { isBooked: true } });
+                return yield this.find_By_Id_And_Update(timeModel_1.default, slotId, {
+                    $set: { isBooked: true },
+                });
             }
             catch (error) {
                 throw new Error(`${"\x1b[35m%s\x1b[0m"}error while getting editing speific mentor time slots :${error instanceof Error ? error.message : String(error)}`);
@@ -134,14 +175,14 @@ class timeSlotRepository extends baseRepo_1.baseRepository {
                         $match: {
                             mentorId,
                             startDate: { $gte: startDate, $lte: endDate },
-                        }
+                        },
                     },
                     { $unwind: "$slots" },
                     {
                         $project: {
                             slots: 1,
-                        }
-                    }
+                        },
+                    },
                 ]);
             }
             catch (error) {

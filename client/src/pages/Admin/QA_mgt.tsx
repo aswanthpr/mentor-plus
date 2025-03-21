@@ -1,7 +1,5 @@
-import React, { useState, useEffect, useCallback } from "react";
-import { Table } from "../../components/Admin/Table";
-import Modal from "../../components/Common/common4All/Modal";
-import { StatusBadge } from "../../components/Admin/StatusBadge";
+import React, { useCallback, useEffect, useState } from "react";
+
 import {
   Eye,
   XCircle,
@@ -15,16 +13,20 @@ import Spinner from "../../components/Common/common4All/Spinner";
 import { Pagination, Tooltip } from "@mui/material";
 import { errorHandler } from "../../Utils/Reusable/Reusable";
 import { toast } from "react-toastify";
-import { TFilter, TSort, TSortOrder } from "../../Types/type";
+
 import {
   changeQuestionStatus,
   fetchChangeAnswerStatus,
   fetchQuestionMangement,
 } from "../../service/adminApi";
-
-const QUESTIONS_PER_PAGE = 8;
+import { TFilter, TSort, TSortOrder } from "../../Types/type";
+import { Table } from "../../components/Admin/Table";
+import { StatusBadge } from "../../components/Admin/StatusBadge";
+import Modal from "../../components/Common/common4All/Modal";
 
 const QA_mgt: React.FC = () => {
+ const  QUESTIONS_PER_PAGE=8;
+
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedQuestion, setSelectedQuestion] = useState<
     IQuestion | undefined
@@ -37,7 +39,6 @@ const QA_mgt: React.FC = () => {
   const [questions, setQuestions] = useState<IQuestion[]>([]);
   const [loading, setLoading] = useState(false);
   const [totalDocuments, setTotalDocuments] = useState<number>(0);
-
 
   // Fetch questions from API
   const fetchQuestions = useCallback(async () => {
@@ -172,8 +173,6 @@ const QA_mgt: React.FC = () => {
   );
   return (
     <div className="p-6 mt-16  ">
- 
-
       <div className="bg-white rounded-lg shadow-md p-6 h-[87vh]">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
           {/* Search */}
@@ -186,7 +185,7 @@ const QA_mgt: React.FC = () => {
               type={"search"}
               placeholder="Search questions or authors..."
               value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
+              onChange={(e:React.ChangeEvent<HTMLInputElement>) => setSearchQuery(e.target.value)}
               className="pl-10"
             />
           </div>

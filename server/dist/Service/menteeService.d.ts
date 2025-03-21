@@ -60,7 +60,7 @@ export declare class menteeService implements ImenteeService {
         currentPage?: number;
         totalPage?: number;
     }>;
-    homeData(filter: string, search: string, page: number, limit: number): Promise<{
+    homeData(filter: string, search: string, sortField: string, sortOrder: string, page: number, limit: number): Promise<{
         success: boolean;
         message: string;
         status: number;

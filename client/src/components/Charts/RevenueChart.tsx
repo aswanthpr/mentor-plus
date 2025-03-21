@@ -10,13 +10,7 @@ import {
   ResponsiveContainer
 } from 'recharts';
 
-interface RevenueData {
-  month?: string;
-  revenue: number;
-  sessions: number;
-  year?: string;
-  week?: string;
-}
+
 
 
 interface RevenueChartProps {

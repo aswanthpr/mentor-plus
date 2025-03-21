@@ -1,7 +1,7 @@
 import walletSchema, { Iwallet } from "../Model/walletModel";
 import { IwalletRepository } from "../Interface/wallet/IwalletRepository";
 import { baseRepository } from "./baseRepo";
-import { ObjectId } from "mongoose";
+import { ObjectId, PipelineStage } from "mongoose";
 
 class walletRepository
   extends baseRepository<Iwallet>
@@ -49,9 +49,16 @@ class walletRepository
     }
   }
 
-  async findWalletWithTransaction(userId: ObjectId): Promise<Iwallet | null> {
+  async findWalletWithTransaction(
+    userId: ObjectId,
+    skip: number,
+    limit: number,
+    search: string,
+    filter: string
+  ): Promise<{transaction:Iwallet |null,totalDocs:number}> {
     try {
-      const resp = await this.aggregateData(walletSchema, [
+      const pipeline:PipelineStage[] = [
+
         {
           $match: {
             userId,
@@ -71,19 +78,70 @@ class walletRepository
             preserveNullAndEmptyArrays: true,
           },
         },
-        { $sort: { "transaction.createdAt": -1 } }, 
-        {
-          $group: {
-            _id: "$_id",
-            userId: { $first: "$userId" },
-            balance: { $first: "$balance" },
-            createdAt: { $first: "$createdAt" },
-            updatedAt: { $first: "$updatedAt" },
-            transaction: { $push: "$transaction" }, 
+      ]
+      if(filter !="all"){
+        pipeline.push({
+          $match:{
+            "transaction.transactionType":{$eq:filter},
+          }
+        });
+      }
+      if (search) {
+        const searchNumber = Number(search);
+
+        pipeline.push({
+          $match: {
+            $or: [
+              { "transaction.note": { $regex: search, $options: "i" } },
+              { "transaction.transactionType": { $regex: search, $options: "i" } },
+              ...(isNaN(searchNumber)
+                ? []
+                : [{ ["transaction.amount"]: searchNumber }]),
+            ],
           },
+        });
+      }
+      pipeline.push({ $sort: { "transaction.createdAt": -1 } });
+ 
+      pipeline.push({
+        $group: {
+          _id: "$_id",
+          userId: { $first: "$userId" },
+          balance: { $first: "$balance" },
+          createdAt: { $first: "$createdAt" },
+          updatedAt: { $first: "$updatedAt" },
+          transaction: { $push: "$transaction" },
         },
+      });
+      
+      pipeline.push({
+        $project: {
+          _id: 1,
+          userId: 1,
+          balance: 1,
+          createdAt: 1,
+          updatedAt: 1,
+          transaction: {
+            $slice: ["$transaction", skip, limit]
+          }
+        }
+      });
+      const countPipeline = [
+        ...pipeline.slice(0, -2),
+        {
+          $count: "totalDocuments",
+        },
+      ];
+
+      const [data, count] = await Promise.all([
+        this.aggregateData(walletSchema, pipeline),
+        walletSchema.aggregate(countPipeline),
       ]);
-      return resp?.[0];
+  
+      return {
+        transaction: data?.[0] || null,
+        totalDocs: count?.[0]?.totalDocuments || 0,
+      };
     } catch (error: unknown) {
       throw new Error(
         `${error instanceof Error ? error.message : String(error)}`
@@ -112,7 +170,6 @@ class walletRepository
       );
     }
   }
- 
 }
 
 export default new walletRepository();

@@ -99,7 +99,7 @@ mentor_Router.put(
 mentor_Router.get(
   `/home/:filter`,
   mentorAuthorize,
-  __mentorController.homeData.bind(__mentorController)
+  __mentorController.questionData.bind(__mentorController)
 );
 mentor_Router.post(
   `/qa/create-new-answer`,

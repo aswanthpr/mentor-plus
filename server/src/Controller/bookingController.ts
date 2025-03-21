@@ -68,13 +68,14 @@ export class bookingControlelr implements IbookingController {
       }`
     );
   }
- 
+
   //in mentee retrive the booked slot
   async getBookedSlot(req: Request, res: Response): Promise<void> {
     try {
-      const { activeTab,search,page,limit,sortField,sortOrder,filter } = req.query;
-console.log( activeTab,search,page,limit,sortField,sortOrder,filter)
-      const { status, message, success, slots ,totalPage} =
+      const { activeTab, search, page, limit, sortField, sortOrder, filter } =
+        req.query;
+      console.log(activeTab, search, page, limit, sortField, sortOrder, filter);
+      const { status, message, success, slots, totalPage } =
         await this._bookingService.getBookedSlots(
           req.user as Express.User as ObjectId,
           String(activeTab),
@@ -83,10 +84,10 @@ console.log( activeTab,search,page,limit,sortField,sortOrder,filter)
           String(sortOrder),
           String(filter),
           Number(page),
-          Number(limit), 
+          Number(limit)
         );
-     console.log(slots.length,'kflkjsfljs')
-      res.status(status).json({ success, message, slots,totalPage });
+      console.log(slots.length, "kflkjsfljs");
+      res.status(status).json({ success, message, slots, totalPage });
     } catch (error: unknown) {
       throw new Error(
         `Error when fetching all the booked sessions in controller ${
@@ -98,16 +99,31 @@ console.log( activeTab,search,page,limit,sortField,sortOrder,filter)
   //in mentor side to get show the sessions
   async getBookedSession(req: Request, res: Response): Promise<void> {
     try {
-      const { activeTab } = req.query;
-      console.log(activeTab, "activeTab aane");
-      const { status, message, success, slots } =
+      const { activeTab, search, sortField, sortOrder, filter, page, limit } =
+        req.query;
+      console.log(
+        activeTab,
+        "activeTab aane",
+        search,
+        sortField,
+        sortOrder,
+        filter,
+        page,
+        limit
+      );
+      const { status, message, success, slots,totalPage } =
         await this._bookingService.getBookedSessions(
           req.user as Express.User as ObjectId,
-          activeTab as string
+          String(activeTab),
+          String(search),
+          String(sortField),
+          String(sortOrder),
+          String(filter),
+          Number(page),
+          Number(limit)
         );
 
-    
-      res.status(status).json({ success, message, slots });
+      res.status(status).json({ success, message, slots,totalPage });
     } catch (error: unknown) {
       throw new Error(
         `Error when fetching all the booked sessions in controller ${
@@ -135,13 +151,13 @@ console.log( activeTab,search,page,limit,sortField,sortOrder,filter)
     }
   }
   //mentor side cancel request handle
-  async mentorSlotCancel(req: Request, res: Response): Promise<void>{
+  async mentorSlotCancel(req: Request, res: Response): Promise<void> {
     try {
-console.log( req.params.sessionId,req.body?.value)
+      console.log(req.params.sessionId, req.body?.value);
       const { success, result, message, status } =
         await this._bookingService.mentorSlotCancel(
           req.params.sessionId as string,
-          req.body?.value,
+          req.body?.value
         );
 
       res.status(status).json({ success, result, message });
@@ -154,50 +170,54 @@ console.log( req.params.sessionId,req.body?.value)
     }
   }
 
-   //create sessionCode in MentorSide
-   async createSessionCode(req: Request, res: Response): Promise<void> {
-     try {
-    const {bookingId} = req.body;
-    const{message,status,sessionCode,success} = await this._bookingService.createSessionCode(bookingId);
-    res.status(status).json({message,success,sessionCode});
-   
-     } catch (error:unknown) {
+  //create sessionCode in MentorSide
+  async createSessionCode(req: Request, res: Response): Promise<void> {
+    try {
+      const { bookingId } = req.body;
+      const { message, status, sessionCode, success } =
+        await this._bookingService.createSessionCode(bookingId);
+      res.status(status).json({ message, success, sessionCode });
+    } catch (error: unknown) {
       throw new Error(
         `Error when mentor handle cancel  booked sessions in controller ${
           error instanceof Error ? error.message : String(error)
         }`
       );
-     }
-   }
+    }
+  }
 
-   //mentor marking session completed
-   async sessionCompleted(req: Request, res: Response): Promise<void> {
-     try {
-      const {bookingId} =req.body;
-     const {message,sessionStatus,status,success} = await this._bookingService.sessionCompleted(bookingId,req.user as Express.User as ObjectId);
-     res.status(status).json({message,sessionStatus,success});
-     } catch (error:unknown) {
+  //mentor marking session completed
+  async sessionCompleted(req: Request, res: Response): Promise<void> {
+    try {
+      const { bookingId } = req.body;
+      const { message, sessionStatus, status, success } =
+        await this._bookingService.sessionCompleted(
+          bookingId,
+          req.user as Express.User as ObjectId
+        );
+      res.status(status).json({ message, sessionStatus, success });
+    } catch (error: unknown) {
       throw new Error(
         `Error when mentor marking session completed in controller ${
           error instanceof Error ? error.message : String(error)
         }`
       );
-     }
-   }
-   //check user is alloweded to join the sessin
-   async validateSessionJoin(req: Request, res: Response): Promise<void> {
+    }
+  }
+  //check user is alloweded to join the sessin
+  async validateSessionJoin(req: Request, res: Response): Promise<void> {
     try {
+      const { sessionId, sessionCode } = req.body;
 
-      const {sessionId,sessionCode} =req.body;
-
-     const {message,status,success,session_Code} = await this._bookingService.validateSessionJoin(sessionId,sessionCode);
-     res.status(status).json({message,success,session_Code});
-     } catch (error:unknown) {
+      const { message, status, success, session_Code } =
+        await this._bookingService.validateSessionJoin(sessionId, sessionCode);
+      res.status(status).json({ message, success, session_Code });
+    } catch (error: unknown) {
       throw new Error(
         `Error when user is alloweded to join this session ${
           error instanceof Error ? error.message : String(error)
         }`
       );
-     }
-   }
+    }
+  }
 }

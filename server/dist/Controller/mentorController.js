@@ -134,14 +134,16 @@ class mentorController {
     }
     //fetch mentor home data
     // /mentor/home/:filter
-    homeData(req, res) {
+    questionData(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 const { filter } = req.params;
-                const { search, page, limit } = req.query;
-                const { status, success, message, homeData, totalPage } = yield this._mentorService.homeData(filter, String(search), Number(page), Number(limit));
+                const { search, page = 1, limit, sortOrder, sortField } = req.query;
+                const { status, success, message, homeData, totalPage } = yield this._mentorService.questionData(filter, String(search), String(sortField), String(sortOrder), Number(page), Number(limit));
                 const userId = req.user;
-                res.status(status).json({ success, message, homeData, userId, totalPage });
+                res
+                    .status(status)
+                    .json({ success, message, homeData, userId, totalPage });
             }
             catch (error) {
                 throw new Error(`error while mentor profile Edit ${error instanceof Error ? error.message : String(error)}`);
@@ -150,7 +152,7 @@ class mentorController {
     }
     //create time slots in mentor side
     // /mentor/schedule/create-slots
-    // get the scheule time in the req.body
+    // get the scheule time in the req.body 
     createTimeSlots(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
@@ -168,8 +170,12 @@ class mentorController {
     getTimeSlots(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const { success, status, message, timeSlots } = yield this._mentorService.getTimeSlots(req.user);
-                res.status(status).json({ success, message, status, timeSlots });
+                const { search, filter, sortField, sortOrder, page, limit } = req.query;
+                console.log(search, filter, sortField, sortOrder, page, limit);
+                const { success, status, message, timeSlots, totalPage } = yield this._mentorService.getTimeSlots(req.user, Number(limit), Number(page), String(search), String(filter), String(sortField), String(sortOrder));
+                res
+                    .status(status)
+                    .json({ success, message, status, timeSlots, totalPage });
             }
             catch (error) {
                 throw new Error(`error while mentor getting time slots  ${error instanceof Error ? error.message : String(error)}`);
@@ -194,8 +200,8 @@ class mentorController {
             try {
                 const { timeRange } = req.query;
                 console.log(timeRange);
-                const { success, message, status } = yield this._mentorService.mentorChartData(req.user, String(timeRange));
-                res.status(status).json({ message, success });
+                const { success, message, status, result } = yield this._mentorService.mentorChartData(req.user, String(timeRange));
+                res.status(status).json({ message, success, result });
             }
             catch (error) {
                 throw new Error(`error while mentor getting time slots  ${error instanceof Error ? error.message : String(error)}`);

@@ -182,8 +182,8 @@ class menteeController {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 const { filter } = req.params;
-                const { page = 1, search, limit } = req.query;
-                const { status, success, message, homeData, totalPage } = yield this._menteeService.homeData(filter, String(search), Number(page), Number(limit));
+                const { page = 1, search, limit, sortOrder, sortField } = req.query;
+                const { status, success, message, homeData, totalPage } = yield this._menteeService.homeData(filter, String(search), String(sortField), String(sortOrder), Number(page), Number(limit));
                 const userId = req.user;
                 res.status(status).json({ success, message, homeData, userId, totalPage });
             }

@@ -7,7 +7,8 @@ import { IwalletRepository } from "../Interface/wallet/IwalletRepository";
 import { Iwallet } from "../Model/walletModel";
 import { InotificationRepository } from "../Interface/Notification/InotificationRepository";
 import { socketManager } from "../index";
-import { Itransaction } from "src/Model/transactionModel";
+import { Itransaction } from "../Model/transactionModel";
+import { createSkip } from "../Utils/reusable.util";
 
 export class walletService implements IwalletService {
   constructor(
@@ -178,30 +179,49 @@ export class walletService implements IwalletService {
     }
   }
   //fetch wallet data ;
-  async getWalletData(userId: ObjectId): Promise<{
+  async getWalletData(
+    userId: ObjectId,
+    role: string,
+    search: string,
+    filter: string,
+    page: number,
+    limit: number): Promise<{
     message: string;
     status: number;
     success: boolean;
     walletData: Iwallet | null;
+    totalPage:number;
   }> {
     try {
-      if (!userId) {
+      if (!userId||!role||!filter||page<1||limit<1) {
         return {
           message: "credential not found",
           status: Status?.BadRequest,
           success: false,
           walletData: null,
+          totalPage:0
         };
       }
+const skipData = createSkip(page,limit);
+const limitNo = skipData?.limitNo;
+const skip = skipData?.skip;
+
 
       const result = await this.__walletRepository.findWalletWithTransaction(
-        userId
+        userId,
+        skip,
+        limit,
+        search,
+        filter,
       );
+      const totalPage = result?.totalDocs > 0 ? Math.ceil(result?.totalDocs / limitNo) : 1;
+      console.log(result?.totalDocs,totalPage)
       return {
         message: "successfully receive data",
         status: Status?.Ok,
         success: true,
-        walletData: result,
+        walletData: result?.transaction,
+        totalPage
       };
     } catch (error: unknown) {
       throw new Error(
@@ -232,7 +252,7 @@ export class walletService implements IwalletService {
         };
       }
       if(typeof amount !== 'number'&& amount < 500){
-        console.log('haiiiiiiiiii')
+   
         return {
           message:"Withdrawals below $500 are not allowed. Please enter a higher amount",
           status: Status?.BadRequest,
@@ -245,9 +265,9 @@ export class walletService implements IwalletService {
         amount,
         userId
       );
-      console.log(result,'lskmdfdlkasdlfk')
+
       if (!result) {
-        console.log(result,'000000000000000000000')
+
         return {
           message: "data not found",
           status: Status?.BadRequest,

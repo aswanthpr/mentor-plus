@@ -51,10 +51,11 @@ class walletRepository extends baseRepo_1.baseRepository {
             }
         });
     }
-    findWalletWithTransaction(userId) {
+    findWalletWithTransaction(userId, skip, limit, search, filter) {
         return __awaiter(this, void 0, void 0, function* () {
+            var _a;
             try {
-                const resp = yield this.aggregateData(walletModel_1.default, [
+                const pipeline = [
                     {
                         $match: {
                             userId,
@@ -74,19 +75,65 @@ class walletRepository extends baseRepo_1.baseRepository {
                             preserveNullAndEmptyArrays: true,
                         },
                     },
-                    { $sort: { "transaction.createdAt": -1 } },
-                    {
-                        $group: {
-                            _id: "$_id",
-                            userId: { $first: "$userId" },
-                            balance: { $first: "$balance" },
-                            createdAt: { $first: "$createdAt" },
-                            updatedAt: { $first: "$updatedAt" },
-                            transaction: { $push: "$transaction" },
+                ];
+                if (filter != "all") {
+                    pipeline.push({
+                        $match: {
+                            "transaction.transactionType": { $eq: filter },
+                        }
+                    });
+                }
+                if (search) {
+                    const searchNumber = Number(search);
+                    pipeline.push({
+                        $match: {
+                            $or: [
+                                { "transaction.note": { $regex: search, $options: "i" } },
+                                { "transaction.transactionType": { $regex: search, $options: "i" } },
+                                ...(isNaN(searchNumber)
+                                    ? []
+                                    : [{ ["transaction.amount"]: searchNumber }]),
+                            ],
                         },
+                    });
+                }
+                pipeline.push({ $sort: { "transaction.createdAt": -1 } });
+                pipeline.push({
+                    $group: {
+                        _id: "$_id",
+                        userId: { $first: "$userId" },
+                        balance: { $first: "$balance" },
+                        createdAt: { $first: "$createdAt" },
+                        updatedAt: { $first: "$updatedAt" },
+                        transaction: { $push: "$transaction" },
                     },
+                });
+                pipeline.push({
+                    $project: {
+                        _id: 1,
+                        userId: 1,
+                        balance: 1,
+                        createdAt: 1,
+                        updatedAt: 1,
+                        transaction: {
+                            $slice: ["$transaction", skip, limit]
+                        }
+                    }
+                });
+                const countPipeline = [
+                    ...pipeline.slice(0, -2),
+                    {
+                        $count: "totalDocuments",
+                    },
+                ];
+                const [data, count] = yield Promise.all([
+                    this.aggregateData(walletModel_1.default, pipeline),
+                    walletModel_1.default.aggregate(countPipeline),
                 ]);
-                return resp === null || resp === void 0 ? void 0 : resp[0];
+                return {
+                    transaction: (data === null || data === void 0 ? void 0 : data[0]) || null,
+                    totalDocs: ((_a = count === null || count === void 0 ? void 0 : count[0]) === null || _a === void 0 ? void 0 : _a.totalDocuments) || 0,
+                };
             }
             catch (error) {
                 throw new Error(`${error instanceof Error ? error.message : String(error)}`);

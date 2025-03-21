@@ -291,6 +291,15 @@ _id:string;
   createdAt?:string;
   updatedAt?:string;
 }
+interface ItopMentors{
+  mentorId: string,
+  mentorName:string,
+  totalSessions:number,
+  totalRevenue:number,
+  category:string,
+  averageRating:number,
+  profileUrl:string
+}
 interface IcardData{
   totalRevenue:number,
   totalBookings: number,
@@ -300,16 +309,9 @@ interface IcardData{
   monthly?:{month:number,revenue:number,sessions:number}[];
   weekly?:{week:number,revenue:number,sessions:number}[];
   categoryDistribution: { category: string, value:number }[],
-  topMentors:{
-    mentorId: string,
-    mentorName:string,
-    totalSessions:number,
-    totalRevenue:number,
-    category:string,
-    averageRating:number,
-    profileUrl:string
-  }[]
+  topMentors:ItopMentors[]
 }
+
 
 interface IChangePass{
   currentPassword:string,
@@ -325,4 +327,28 @@ interface LoginFormData {
 interface LoginFormError {
   email?: string;
   password?: string;
+}
+//mentorChart Data;
+interface RevenueData {
+  month?: string;
+  revenue: number;
+  sessions: number;
+  year?: string;
+  week?: string;
+}
+interface CumulativeSessionData {
+  revenue: number;
+  cumulativeRevenue: number;
+  month: number;
+  year?: number;
+}
+
+interface ImentorChartData{
+  currentMonthRevenue:number;
+  currentMonthTotalBookings: number;
+  currentMonthCancelledBookings: number;
+  currentDaySessionsToAttend:number;
+  period: RevenueData[];
+  cumulativeSession: CumulativeSessionData[];
+  topMentors:ItopMentors[]
 }

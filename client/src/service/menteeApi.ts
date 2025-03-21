@@ -78,6 +78,8 @@ export const fetchSubmitRating = async (
 export const fetchHomeData = async (
   filter: string,
   search: string,
+  sortField: string,
+  sortOrder: string,
   page: number,
   limit: number
 ): Promise<AxiosResponse | any> => {
@@ -85,6 +87,8 @@ export const fetchHomeData = async (
     return await protectedAPI.get(`/mentee/home/${filter}`, {
       params: {
         search,
+        sortField,
+        sortOrder,
         page,
         limit,
       },
@@ -143,19 +147,32 @@ export const fetchBookingSlots = async (
 };
 
 export const fetchMenteeQuestions = async (
-  filter: string
+  search: string,
+  filter: string,
+  sortField: string,
+  sortOrder: string,
+  page: number,
+  limit: number
 ): Promise<AxiosResponse | any> => {
   try {
-    return await protectedAPI.get(`/mentee/qa/${filter}`);
+    return await protectedAPI.get(`/mentee/qa`,{params:{
+      search,
+      filter,
+      sortField,
+      sortOrder,
+      page,
+      limit,
+    }});
   } catch (error: unknown) {
     console.log(error instanceof Error ? error.message : String(error));
   }
 };
 export const fetchCreateQuestion = async (
-  question: IQuestion
+  question: IQuestion,
+
 ): Promise<AxiosResponse | any> => {
   try {
-    return await protectedAPI.post(`/mentee/qa/add-question/`, question);
+    return await protectedAPI.post(`/mentee/qa/add-question/`,question);
   } catch (error: unknown) {
     console.log(error instanceof Error ? error.message : String(error));
   }
