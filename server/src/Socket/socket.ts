@@ -8,7 +8,7 @@ import chatRepository from "../Repository/chatRepository";
 import chatSchema from "../Model/chatSchema";
 
 const chatMap = new Map();
-const rooms = new Map();//webrtc
+const rooms = new Map(); //webrtc
 export class SocketManager {
   private io: Server;
 
@@ -16,12 +16,11 @@ export class SocketManager {
     this.io = io;
   }
   public initialize() {
-    this.setupChat(); 
+    this.setupChat();
     this.setupNotifications();
     this.setupWebRTC();
- 
   }
-//Notification============================================================
+  //Notification============================================================
 
   private setupNotifications() {
     //notificatin namespace set
@@ -34,20 +33,20 @@ export class SocketManager {
         socket.join(userId);
         console.log(`User ${userId} joined their notification room`);
       });
-    //disconnect user
+      //disconnect user
       socket.on("disconnect", () => {
         console.log(`Notification user disconnected: ${socket.id}`);
       });
     });
   }
-  // for emitting new notification 
+  // for emitting new notification
   public sendNotification = (userId: string, message: Inotification) => {
     this.io
       .of("/notifications")
       .to(userId)
       .emit("receive-notification", message);
   };
-  
+
   //chat=====================================================================
 
   private setupChat() {
@@ -62,7 +61,7 @@ export class SocketManager {
         socket.disconnect();
         return;
       }
-    //verify connection and inserting online user to the map
+      //verify connection and inserting online user to the map
       if (socket.connected) {
         console.log(`ChatSocket with ID ${socket.id} is connected`);
       }
@@ -70,20 +69,20 @@ export class SocketManager {
 
       // user emit online status
       chatNsp.emit("userOnline", [...chatMap.keys()]);
-      console.log([...chatMap.keys()])
+      console.log([...chatMap.keys()]);
       //join the user to a specific room
       socket.on("join-room", async (data) => {
         if (!data?.roomId) return;
         console.log(`user joined in the room`, data?.roomId);
         socket.join(data?.roomId);
         try {
-          //fetch all specific roomid message 
+          //fetch all specific roomid message
           const result = await messageRepository.getMessage(
             new mongoose.Types.ObjectId(
               data?.roomId as string
             ) as unknown as mongoose.Schema.Types.ObjectId
           );
-          //send all  messages to the chatnamespace's specific  users roomId 
+          //send all  messages to the chatnamespace's specific  users roomId
           chatNsp
             .to(data?.roomId)
             .emit("all-message", { result, roomId: data?.roomId });
@@ -95,7 +94,7 @@ export class SocketManager {
       });
       //geting new message
       socket.on("new-message", async ({ roomId, message }) => {
-        
+        console.log('mesage vannu ttoh 0000000000000000000')
         try {
           if (!roomId) {
             console.log("no room");
@@ -110,9 +109,10 @@ export class SocketManager {
             !message?.senderType ||
             !message?.messageType
           ) {
-          
             throw new Error("Message cannot be empty.");
           }
+          
+         
           //create new message
           const result = await messageRepository.createMessage(message);
 
@@ -121,10 +121,10 @@ export class SocketManager {
               .to(roomId)
               .emit("errorMessage", { error: "message not created " });
           }
-          //send back the  new  message 
+          //send back the  new  message
           chatNsp.to(roomId).emit("receive-message", { result, roomId });
 
-          //decode the %$like code from the file name 
+          //decode the %$like code from the file name
           const messageContent =
             message?.messageType == "text"
               ? message?.content
@@ -136,9 +136,7 @@ export class SocketManager {
             message?.chatId as string,
             { $set: { lastMessage: String(messageContent) } }
           );
-
         } catch (error: unknown) {
-
           console.error(
             "Error in sendMessageToRoom:",
             error instanceof Error ? error.message : String(error)
@@ -150,7 +148,6 @@ export class SocketManager {
       });
 
       socket.on("disconnect", () => {
-
         console.log(`chatSocket with ID ${socket.id} is disconnected`);
         //remove the disconnected user
         chatMap.delete(userId);
@@ -161,26 +158,26 @@ export class SocketManager {
 
         //emit if user is goes to offline
         chatNsp.emit("userOffline", userId); // Notify  user went offline
-         chatNsp.emit("userOnline", [...chatMap.keys()]); 
+        chatNsp.emit("userOnline", [...chatMap.keys()]);
       });
     });
   }
   //============================================================================
   private setupWebRTC() {
     const webrtcNamespace = this.io.of("/webrtc");
-  
+
     webrtcNamespace.on("connection", (socket: Socket) => {
       console.log(`WebRTC user connected: ${socket.id}`);
 
       socket.on("join-call", (roomId) => {
         socket.join(roomId);
         console.log(`User ${socket.id} joined room: ${roomId}`);
-    
+
         if (!rooms.has(roomId)) {
           rooms.set(roomId, new Set());
         }
         rooms.get(roomId).add(socket.id);
-    
+
         socket.to(roomId).emit("user-joined", socket.id);
       });
 
@@ -200,8 +197,10 @@ export class SocketManager {
       });
 
       socket.on("video:toggle", ({ isMuted, roomId }) => {
-        console.log(`Video toggle received from ${socket.id} in room ${roomId}`);
-        
+        console.log(
+          `Video toggle received from ${socket.id} in room ${roomId}`
+        );
+
         // Notify all other users in the room
         socket.to(roomId).emit("video:toggle", { userId: socket.id, isMuted });
       });
@@ -220,6 +219,4 @@ export class SocketManager {
       });
     });
   }
-
-
 }

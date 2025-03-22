@@ -13,6 +13,7 @@ import { ImentorApplyData } from "../Types";
 import { InotificationRepository } from "../Interface/Notification/InotificationRepository";
 import { ObjectId } from "mongoose";
 import {socketManager } from "../index";
+import { Status } from "../Utils/httpStatusCode";
 
 
 export class authService implements IauthService {
@@ -62,8 +63,6 @@ export class authService implements IauthService {
       );
       if ( response?.id && notfi) {
         socketManager.sendNotification(response?._id as string, notfi)
-        
-     
       }
       return { success: true, message: "signup successfull" };
     } catch (error: unknown) {
@@ -82,46 +81,48 @@ export class authService implements IauthService {
   ): Promise<{
     success: boolean;
     message: string;
+    status:number;
     refreshToken?: string;
     accessToken?: string;
   }> {
     try {
-      console.log(email, password);
+     
 
-      console.log(email, password, "logic");
       if (!email || !password) {
-        return { success: false, message: "login credencial is missing" };
+        return { success: false, message: "login credencial is missing",status:Status?.BadRequest };
       }
       const result: Imentee | null = await this._MenteeRepository.mainLogin(
         email
       );
 
       if (!result || result?.email != email) {
-        return { success: false, message: "user not exist.Please signup" };
+        return { success: false, message: "user not exist.Please signup",status:Status?.BadRequest };
       }
       if (result?.isAdmin) {
-        return { success: false, message: "Admin is not allowed ,sorry.." };
+        return { success: false, message: "Admin is not allowed ,sorry..",status:Status?.Unauthorized };
       }
+
       if (result?.isBlocked) {
-        return { success: false, message: "user blocked .sorry.." };
+        return { success: false, message: "user blocked .sorry..",status:Status?.Unauthorized };
       }
-      console.log(password, result.password);
+
       const checkUser = await bcrypt.compare(password, result.password!);
 
       if (!checkUser) {
-        return { success: false, message: "password not matching" };
+        return { success: false, message: "password not matching" ,status:Status.BadRequest};
       }
+
       const userId: string = result._id as string;
      
       const accessToken = genAccesssToken(userId as string,"mentee");
       const refreshToken = genRefreshToken(userId as string,"mentee");
-      console.log(accessToken, refreshToken, "access refrsh");
-
+      
       return {
         success: true,
         message: "Login Successfull",
         refreshToken,
         accessToken,
+        status:Status?.Ok
       };
     } catch (error: unknown) {
       throw new Error(
@@ -200,12 +201,12 @@ export class authService implements IauthService {
     try {
       const result = await this._categoryRepository.allCategoryData();
       if (!result) {
-        return { success: false, message: "No data found ", status: 204 };
+        return { success: false, message: "No data found ", status:  Status?.NoContent };
       }
       return {
         success: true,
         message: "data found",
-        status: 200,
+        status:  Status?.Ok,
         categories: result,
       };
     } catch (error: unknown) {
@@ -277,7 +278,7 @@ export class authService implements IauthService {
         return {
           success: false,
           message: "credential is missing",
-          status: 400,
+          status:  Status?.BadRequest,
         };
       }
       const response = await this._MentorRepository.findMentor(email, phone);
@@ -331,14 +332,14 @@ export class authService implements IauthService {
       return {
         success: true,
         message: "Mentor application submitted!",
-        status: 200,
+        status:  Status?.Ok,
       };
     } catch (error: unknown) {
       console.error("Error while mentor appling", error);
       return {
         success: false,
         message: "unexpected error occured",
-        status: 500,
+        status:  Status?.InternalServerError,
       };
     }
   }
@@ -358,18 +359,16 @@ export class authService implements IauthService {
         return {
           success: false,
           message: `${!email ? "email is required" : "password is required"}`,
-          status: 400,
+          status:  Status?.BadRequest,
         };
       }
 
       const result = await this._MentorRepository.findMentor(email);
-
-      console.log(result, "111111111111");
       if (!result) {
         return {
           success: false,
           message: "user with the provided email not found",
-          status: 404,
+          status: Status?.NotFound,
         };
       }
       if (!result?.verified) {
@@ -378,16 +377,17 @@ export class authService implements IauthService {
           message: `You're on our waitlist!
                    Thanks for signing up for MentorPlus.
                     We're focused on creating the best experience possible for everyone on the site.`,
-          status: 401,
+          status: Status?.Unauthorized,
         };
       }
       if (result?.isBlocked) {
-        return { success: false, message: "User is  Blocked!", status: 401 };
+        return { success: false, message: "User is  Blocked!", status: Status?.Unauthorized };
       }
 
       const checkPass = await bcrypt.compare(password, result?.password);
+      console.log(checkPass)
       if (!checkPass) {
-        return { success: false, message: "Incorrect password", status: 400 };
+        return { success: false, message: "Incorrect password", status: Status?.BadRequest };
       }
       const mentorId = `${result._id}`;
       console.log(mentorId, "userid");
@@ -398,7 +398,7 @@ export class authService implements IauthService {
       return {
         success: true,
         message: "login successfull!",
-        status: 200,
+        status:  Status?.Ok,
         accessToken,
         refreshToken,
       };
@@ -469,17 +469,18 @@ export class authService implements IauthService {
     refreshToken?: string;
   }> {
     try {
+
       if (!user) {
         throw new Error("user deailes not found");
       }
-      console.log(user, "this is the user");
+
       const accessToken = genAccesssToken(user?._id as string,"mentee");
       const refreshToken = genRefreshToken(user?._id as string,"mentee");
-
+console.log(refreshToken,'sfkasdsdfjsjflkslfkjskldjflaskdfjlkasjd',accessToken)
       return {
         success: true,
         message: "login successfull!",
-        status: 200,
+        status:  Status?.Ok,
         accessToken,
         refreshToken,
       };

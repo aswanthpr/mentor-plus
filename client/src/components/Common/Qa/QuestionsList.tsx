@@ -16,7 +16,7 @@ import falseLogo from "../../../Asset/images.png";
 
 interface QuestionListProps {
   questions: IQuestion[];
-  onEditQuestion?: (questionId: string, question: IQuestion) => void;
+  onEditQuestion?: (questionId: string, question: IeditQuestion) => void;
   currentUserId?: string;
   onShowAnswers: (questionId: string) => void;
   onDeleteQestion?: (questionId: string) => void;
@@ -24,11 +24,12 @@ interface QuestionListProps {
   setAnswerQuestionId: React.Dispatch<React.SetStateAction<string>>;
   onEditAnswer: (content: string, answerId: string) => void;
   EditedData: { content: string; answerId: string };
-  newAns?:Ianswer|null;
+  newAnswer?:Ianswer|null;
 
 }
 const QuestionList: React.FC<QuestionListProps> = ({
   questions,
+  newAnswer,
   EditedData,
   onEditAnswer,
   currentUserId,
@@ -71,9 +72,23 @@ const QuestionList: React.FC<QuestionListProps> = ({
         return prev;
       });
     }
-
+    
     
   }, [questions, EditedData]);
+  useEffect(()=>{
+    if (newAnswer&&Object.values(newAnswer).length) {
+      setPickedQuestion((prev) => {
+        if (!prev) return prev;
+    
+        return {
+          ...prev,
+          answerData: prev.answerData && prev.answerData.length > 0 
+            ? [newAnswer, ...prev.answerData] 
+            : [newAnswer],
+        };
+      });
+    } 
+  },[newAnswer])
   return (
     <>
       {questions.length === 0 ? (
@@ -258,7 +273,7 @@ const QuestionList: React.FC<QuestionListProps> = ({
             </div>
 
             <div className="p-4 overflow-y-auto overflow-x-hidden flex-1">
-              {pickedQuestion?.answerData &&
+              {pickedQuestion?.answerData?.[0] &&
               (pickedQuestion.answerData?.length ?? 0) > 0 ? (
                 <div  key={pickedQuestion?._id} className="space-y-6">
                   {pickedQuestion.answerData.map((answer) => (
@@ -376,7 +391,7 @@ const QuestionList: React.FC<QuestionListProps> = ({
             if (onEditQuestion) {
               onEditQuestion(
                 editingQuestion?._id as string,
-                updatedQuestion as IQuestion
+                updatedQuestion
               );
             }
             setEditingQuestion(undefined);

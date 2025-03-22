@@ -6,9 +6,9 @@ import {
 } from "passport-google-oauth20";
 import menteeRepository from "../Repository/menteeRepository";
 import "express-session";
-import { Imentee } from "src/Model/menteeModel";
+import { Imentee } from "../Model/menteeModel";
 
-passport.use(
+passport.use( 
   new GoogleStrategy(
     {
       clientID: process.env?.GOOGLE_CLIENT_ID as string,
@@ -26,6 +26,7 @@ passport.use(
       try {
         const email: string | undefined = profile.emails?.[0]?.value;
         const profileUrl: string | undefined = profile.photos?.[0]?.value;
+        const name: string = profile?.displayName || "Unnamed User";
         if (!email) {
 
           return done(
@@ -48,7 +49,7 @@ passport.use(
           user = existingUser;
         } else {
           user = (await menteeRepository.createDocument({
-            name: profile.displayName,
+            name,
             email,
             profileUrl,
             verified: true,
@@ -71,6 +72,9 @@ passport.serializeUser((user: Express.User, done: DoneCallback) => {
 
 passport.deserializeUser(async (user: Imentee, done: DoneCallback) => {
   try {
+    if (!user?._id) {
+      throw new Error("User ID is missing during deserialization.");
+    }
     const User = await menteeRepository.findById(user?._id as string);
 
     done(null, User);

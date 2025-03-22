@@ -168,7 +168,7 @@ export const fetchMenteeQuestions = async (
   }
 };
 export const fetchCreateQuestion = async (
-  question: IQuestion,
+  question: IeditQuestion,
 
 ): Promise<AxiosResponse | any> => {
   try {
@@ -179,7 +179,7 @@ export const fetchCreateQuestion = async (
 };
 export const fetchEditQuestion = async (
   questionId: string,
-  updatedQuestion: IQuestion,
+  updatedQuestion: Partial<IQuestion>,
   filter: string
 ): Promise<AxiosResponse | any> => {
   try {
@@ -368,38 +368,9 @@ export const fetchMenteeLogin = async (
   formData: LoginFormData
 ): Promise<AxiosResponse | any> => {
   try {
-    return await protectedAPI.post(`/auth/login/mentee`, formData);
+  const response = await unProtectedAPI.post(`/auth/login/mentee`, formData);
+  return response
   } catch (error: unknown) {
     console.log(error instanceof Error ? error.message : String(error));
   }
 };
-// export const fetchEditQuestion = async (
-//   questionId: string,
-//   updatedQuestion: IQuestion,
-//   filter: string
-// ): Promise<AxiosResponse | any> => {
-//   try {
-//     return await protectedAPI.patch(`/mentee/qa/edit-question`, {
-//       questionId,
-//       updatedQuestion,
-//       filter,
-//     });
-//   } catch (error: unknown) {
-//     console.log(error instanceof Error ? error.message : String(error));
-//   }
-// };
-// export const fetchEditQuestion = async (
-//   questionId: string,
-//   updatedQuestion: IQuestion,
-//   filter: string
-// ): Promise<AxiosResponse | any> => {
-//   try {
-//     return await protectedAPI.patch(`/mentee/qa/edit-question`, {
-//       questionId,
-//       updatedQuestion,
-//       filter,
-//     });
-//   } catch (error: unknown) {
-//     console.log(error instanceof Error ? error.message : String(error));
-//   }
-// };

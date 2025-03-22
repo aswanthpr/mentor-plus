@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useState } from "react";
-import { DollarSign } from "lucide-react";
+import { DollarSign, Frown } from "lucide-react";
 import WalletCard from "../../components/Common/wallet/WalletCard";
 import WithdrawModal from "../../components/Common/wallet/WithdrawModal";
 import TransactionList from "../../components/Common/wallet/TransactionList";
@@ -16,7 +16,7 @@ const WalletPage: React.FC = () => {
     userId: "",
     balance: "",
     transaction: [],
-  });
+  }); 
   const [searchQuery, setSearchQuery] = useState("");
   const [totalDoc, setTotalDoc] = useState(0);
   const [showWithdraw, setShowWithdraw] = useState(false);
@@ -95,10 +95,19 @@ const WalletPage: React.FC = () => {
             onTypeFilterChange={(type) => setTypeFilter(type as any)}
           />
         </div>
+        <hr className="h-px  bg-gray-200 border-0 dark:bg-gray-400" />
 
+        {
+  walletData?.transaction.length > 0 ?(
         <div className="overflow-x-auto">
           <TransactionList transactions={walletData?.transaction} />
         </div>
+      ):(
+        <div className="text-center text-gray-500 mt-4  mb-8 flex justify-center items-center ">
+        < Frown className="w-5 mr-4"/> <span>No Data Available</span> 
+        </div>
+  )
+}
 
        <hr className="h-px  bg-gray-200 border-0 dark:bg-gray-700" />
               <div className="flex justify-center mt-2">

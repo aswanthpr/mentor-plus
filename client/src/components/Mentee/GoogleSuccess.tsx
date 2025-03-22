@@ -7,15 +7,16 @@ import { toast } from 'react-toastify';
 
 
 const GoogleSuccess: React.FC = () => {
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(true); 
   const navigate = useNavigate();
   const location = useLocation();
   const dispatch = useDispatch()
 
   useEffect(() => {
     const params = new URLSearchParams(location.search);
+
     const token = params.get('token');
-    console.log(location.search)
+ 
 
     if (token) {
 

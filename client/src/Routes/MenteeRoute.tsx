@@ -43,30 +43,46 @@ const MenteeRoute: React.FC = () => (
         ;
         <Route path="explore">
           <Route index element={<MenteeLogin element={<Explore />} />} />
-          <Route path="mentor/:mentorId" element={<MenteeLogin element={<MentorProfile />} />} /> 
+          <Route
+            path="mentor/:mentorId"
+            element={<MenteeLogin element={<MentorProfile />} />}
+          />
           <Route
             path=":name"
             element={<MenteeLogin element={<MentorProfile />} />}
           />
           ;
         </Route>
-        <Route path="/:name/slot-booking" element={<MenteeLogin element={<BookingPage />} /> } />;  
+        <Route
+          path="/:name/slot-booking"
+          element={<MenteeLogin element={<BookingPage />} />}
+        />
+        ;
         <Route
           path="/bookings"
           element={<MenteeLogin element={<Bookings />} />}
         />
-        <Route path="/bookings/:roomId" element={ <MenteeLogin element={<VideoPage />} />} /> 
+        <Route
+          path="/bookings/:roomId"
+          element={<MenteeLogin element={<VideoPage />} />}
+        />
         <Route
           path="/messages"
           element={<MenteeLogin element={<Message />} />}
         />
         <Route path="/wallet" element={<MenteeLogin element={<Wallet />} />} />;
         <Route path="/qa" element={<MenteeLogin element={<QnA_page />} />} />;
-        <Route path="/google/success" element={<MenteeLogin element={<GoogleSuccess />} />} />;  
-        <Route path="/google/failure" element={ <MenteeLogin element={<GoogleFailure />} />} />; 
+        <Route path="/google/success" element={<GoogleSuccess />} />;
+        <Route path="/google/failure" element={<GoogleFailure />} />;
       </Route>
-      <Route path="/stripe-cancel" element={ <MenteeLogin element={<StripeCheckoutCancel />} />} /> 
-      <Route path="/stripe-success" element={<MenteeLogin element={<StripeComplete />} />} />  
+      <Route
+        path="/stripe-cancel"
+        element={<MenteeLogin element={<StripeCheckoutCancel />} />}
+      />
+      <Route
+        path="/stripe-success"
+        element={<MenteeLogin element={<StripeComplete />} />}
+      />
     </Routes>
   </Suspense>
 );

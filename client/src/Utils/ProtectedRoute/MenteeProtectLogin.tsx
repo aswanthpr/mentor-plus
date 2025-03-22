@@ -14,7 +14,7 @@ const MenteeLogin: React.FC<PrivateRouteProps> = ({ element }) => {
     (state: RootState) => state.mentee.accessToken
   );
   const role = useSelector((state: RootState) => state.mentee.role);
-
+console.log(role,accessToken,'thi9s is hte token')
   useEffect(() => {
 
     if (!accessToken || role !== "mentee") {
@@ -27,7 +27,7 @@ const MenteeLogin: React.FC<PrivateRouteProps> = ({ element }) => {
   }, [accessToken, role, navigate]);
 
   if (isLoading) {
-    return (setTimeout(()=>{<Spinner/>},1000));
+    return <Spinner/>;
   }
 
   console.log("in................");

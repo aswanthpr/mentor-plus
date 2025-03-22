@@ -9,6 +9,7 @@ export default interface IauthService {
     mainLogin(email: string, password: string): Promise<{
         success: boolean;
         message: string;
+        status: number;
         refreshToken?: string;
         accessToken?: string;
         role?: string;

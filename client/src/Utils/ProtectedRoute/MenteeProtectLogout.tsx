@@ -14,7 +14,6 @@ const MenteeLogout: React.FC<IMenteeLogout> = ({ element }) => {
     const accessToken = useSelector((state: RootState) => state.mentee.accessToken);
     const role = useSelector((state: RootState) => state.mentee.role);
     const [isLoading, setIsLoading] = useState<boolean>(true);
-  
     useEffect(() => {
       
       if (accessToken && role === 'mentee') {
@@ -27,7 +26,7 @@ const MenteeLogout: React.FC<IMenteeLogout> = ({ element }) => {
     
     if(isLoading){
 
-      return (setTimeout(()=>{<Spinner/>},1000));
+      return (<Spinner/>);
 
     }
       

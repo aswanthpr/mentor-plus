@@ -151,7 +151,7 @@ export class adminController implements IadminController {
 
   async changeMenteeStatus(req: Request, res: Response): Promise<void> {
     try {
-      const result = await this._adminService.changeMenteeStatus(req.body.id);
+      const result = await this._adminService.changeMenteeStatus(req.body?.id);
       res
         .status(result.status)
         .json({ success: result.success, message: result.message });

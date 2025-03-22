@@ -21,6 +21,7 @@ export declare class authService implements IauthService {
     mainLogin(email: string, password: string): Promise<{
         success: boolean;
         message: string;
+        status: number;
         refreshToken?: string;
         accessToken?: string;
     }>;

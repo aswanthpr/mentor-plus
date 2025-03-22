@@ -46,6 +46,7 @@ class chatRepository extends baseRepo_1.baseRepository {
                             menteeId: 1,
                             lastMessage: 1,
                             createdAt: 1,
+                            updatedAt: 1,
                             users: {
                                 _id: 1,
                                 name: 1,
@@ -56,6 +57,9 @@ class chatRepository extends baseRepo_1.baseRepository {
                                 profileUrl: 1,
                             },
                         },
+                    },
+                    {
+                        $sort: { updatedAt: -1 }
                     },
                 ]);
             }
@@ -91,6 +95,7 @@ class chatRepository extends baseRepo_1.baseRepository {
                             menteeId: 1,
                             lastMessage: 1,
                             createdAt: 1,
+                            updatedAt: 1,
                             users: {
                                 _id: 1,
                                 name: 1,

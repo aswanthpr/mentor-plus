@@ -13,7 +13,7 @@ export interface Answer {
 interface AddQuestionModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onAdd: (question: IQuestion) => void;
+  onAdd: (question:IeditQuestion) => void;
   initialQuestion?: IQuestion;
   isEditing?: boolean;
 }
@@ -25,9 +25,9 @@ const AddQuestion: React.FC<AddQuestionModalProps> = ({
   initialQuestion,
   isEditing = false 
 }) => {
-  const [title, setTitle] = useState(initialQuestion?.title || '');
-  const [content, setContent] = useState(initialQuestion?.content || '');
-  const [tags, setTags] = useState<string[]>(initialQuestion?.tags || []);
+  const [title, setTitle] = useState<string>(initialQuestion?.title ?? '');
+  const [content, setContent] = useState<string>(initialQuestion?.content ?? '');
+  const [tags, setTags] = useState<string[]>(initialQuestion?.tags ?? []);
   const [errors, setErrors] = useState<Record<string, string>>({});
   if (!isOpen) return null;
 
@@ -61,14 +61,10 @@ const AddQuestion: React.FC<AddQuestionModalProps> = ({
   
     if (!validateForm()) return;
  
-    const question: IQuestion = {
+    const question:IeditQuestion= {
       title,
       content,
       tags,
-      menteeId: '',
-      createdAt: '',
-      updatedAt: '',
-      isBlocked: false
     };
 
     onAdd(question);

@@ -1,21 +1,16 @@
 import React, { useState, useRef, useEffect, useCallback } from "react";
 import { Search, Send, Paperclip, X, Smile } from "lucide-react";
+import dayjs  from "dayjs"
 import moment from "moment";
 import { Socket } from "socket.io-client";
 import { errorHandler } from "../../Utils/Reusable/Reusable";
 import { connectToChat } from "../../Socket/connect";
 import { uploadFile } from "../../Utils/Reusable/cloudinary";
-import chatBg from "../../Asset/bgChat.jpg";
+import chatBg from "../../Asset/mpchatbg.png";
 import { fetchChats } from "../../service/commonApi";
 import EmojiPicker, { EmojiClickData } from "emoji-picker-react";
 const Message: React.FC = () => {
   const [selectedUser, setSelectedUser] = useState<Ichat | null>(null);
-  // const [selectedChat,setSelectedChat] = useState<Imessage[]|[]>([]);
-  // const [userId, setUserId] = useState<string>("");
-  // const [isRecording, setIsRecording] = useState(false);
-  // const [recordingTime, setRecordingTime] = useState(0);
-  // const [audioBlob, setAudioBlob] = useState<Blob | null>(null);
-  // const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const [users, setUsers] = useState<Ichat[] | []>([]);
   const [messageInput, setMessageInput] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
@@ -290,6 +285,8 @@ const Message: React.FC = () => {
     setMessageInput((prev) => prev + emojiObject.emoji);
     setShowPicker((pre)=>!pre)
   };
+
+  console.log(users?.[0]?.updatedAt)
   return (
     <div className="h-[calc(100vh-3rem)] pt-14 flex">
       {/* Users List */}
@@ -340,7 +337,7 @@ const Message: React.FC = () => {
                       {user?.users?.name}
                     </p>
                     <span className="text-xs text-gray-600 justify-end ">
-                      {moment(user?.updatedAt).format("HH-mm")}
+                      {dayjs( user?.updatedAt).format("HH:mm")}
                     </span>
                   </div>
                   <p className="text-sm text-gray-500 truncate  ">

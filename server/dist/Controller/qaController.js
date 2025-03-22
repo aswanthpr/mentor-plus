@@ -48,7 +48,6 @@ class qaController {
             try {
                 const { questionId, updatedQuestion, filter } = req.body;
                 const { status, message, success, question } = yield this._qaService.editQuestion(questionId, updatedQuestion, filter);
-                console.log(question);
                 res.status(status).json({ success, message, question: question[0] });
             }
             catch (error) {

@@ -7,9 +7,9 @@ import {
   Search,
   Filter,
   ArrowUpDown,
+  Frown,
 } from "lucide-react";
 import InputField from "../../components/Auth/InputField";
-import Spinner from "../../components/Common/common4All/Spinner";
 import { Pagination, Tooltip } from "@mui/material";
 import { errorHandler } from "../../Utils/Reusable/Reusable";
 import { toast } from "react-toastify";
@@ -37,16 +37,14 @@ const QA_mgt: React.FC = () => {
   const [sortOrder, setSortOrder] = useState<TSortOrder>("desc");
   const [statusFilter, setStatusFilter] = useState<TFilter>("all");
   const [questions, setQuestions] = useState<IQuestion[]>([]);
-  const [loading, setLoading] = useState(false);
+
   const [totalDocuments, setTotalDocuments] = useState<number>(0);
 
   // Fetch questions from API
   const fetchQuestions = useCallback(async () => {
     try {
       let flag = true;
-      const intravel = setTimeout(() => {
-        setLoading(true);
-      }, 1000);
+
       const response = await fetchQuestionMangement(
         searchQuery,
         statusFilter,
@@ -61,15 +59,13 @@ const QA_mgt: React.FC = () => {
         setQuestions(response?.data?.questions);
         setTotalDocuments(response?.data?.totalPage);
       }
-      clearInterval(intravel);
+     
       return () => {
         flag = false;
       };
     } catch (error) {
       console.error("Error fetching questions:", error);
-    } finally {
-      setLoading(false);
-    }
+    } 
   }, [currentPage, searchQuery, sortField, sortOrder, statusFilter]);
 
   useEffect(() => {
@@ -173,7 +169,7 @@ const QA_mgt: React.FC = () => {
   );
   return (
     <div className="p-6 mt-16  ">
-      <div className="bg-white rounded-lg shadow-md p-6 h-[87vh]">
+      <div className="bg-white rounded-lg shadow-md p-6 h-[89vh]">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
           {/* Search */}
           <div className="relative">
@@ -225,72 +221,75 @@ const QA_mgt: React.FC = () => {
             </select>
           </div>
         </div>
-
-        {loading ? (
-          <Spinner />
-        ) : (
+        <hr className="h-px  bg-gray-200 border-0 dark:bg-gray-700 " />
+        {questions.length > 0 ? (
           <Table headers={["Question", "Answers", "Status", "Actions"]}>
-            {questions?.map((question) => (
-              <tr key={question._id}>
-                <td className="px-6 py-4 ">
-                  <div className="max-w-md">
-                    <p className="truncate">{question.content}</p>
-                    <p className="text-sm text-gray-500">
-                      by {question?.user?.name} •{" "}
-                      {new Date(question?.createdAt).toLocaleDateString()}
-                    </p>
-                  </div>
-                </td>
-                <td className="px-6 py-4 text-center ">
-                  <button
-                    onClick={() => {
-                      setSelectedQuestion(question);
-                      setIsAnswersModalOpen(true);
-                    }}
-                    className="flex items-center gap-2 text-blue-600 hover:text-blue-800 mx-auto"
-                  >
-                    <Eye size={16} />
-                    View ({question?.answerData?.length})
-                  </button>
-                </td>
+          {questions?.map((question) => (
+            <tr key={question._id}>
+              <td className="px-6 py-4 ">
+                <div className="max-w-md">
+                  <p className="truncate">{question.content}</p>
+                  <p className="text-sm text-gray-500">
+                    by {question?.user?.name} •{" "}
+                    {new Date(question?.createdAt).toLocaleDateString()}
+                  </p>
+                </div>
+              </td>
+              <td className="px-6 py-4 text-center ">
+                <button
+                  onClick={() => {
+                    setSelectedQuestion(question);
+                    setIsAnswersModalOpen(true);
+                  }}
+                  className="flex items-center gap-2 text-blue-600 hover:text-blue-800 mx-auto"
+                >
+                  <Eye size={16} />
+                  View ({question?.answerData?.length})
+                </button>
+              </td>
 
-                <td className="px-6 py-4 text-center">
-                  <StatusBadge
-                    status={question.isBlocked ? "blocked" : "active"}
-                  />
-                </td>
-                <td className="px-6 py-4 text-center ">
-                  <button
-                    onClick={() => toggleQuestionBlock(question?._id as string)}
-                    // className={`   items-center gap-1 px-3 py-1 rounded-md  text-white`}
-                  >
-                    {question.isBlocked ? (
-                      <>
-                        <Tooltip
-                          arrow
-                          title="unblock"
-                          children={
-                            <CheckCircle className="w-10  text-green-600 hover:text-green-700" />
-                          }
-                        />
-                      </>
-                    ) : (
-                      <>
-                        <Tooltip
-                          arrow
-                          title="block"
-                          children={
-                            <XCircle className="w-10  text-red-600 hover:text-red-700" />
-                          }
-                        />
-                      </>
-                    )}
-                  </button>
-                </td>
-              </tr>
-            ))}
-          </Table>
-        )}
+              <td className="px-6 py-4 text-center">
+                <StatusBadge
+                  status={question.isBlocked ? "blocked" : "active"}
+                />
+              </td>
+              <td className="px-6 py-4 text-center ">
+                <button
+                  onClick={() => toggleQuestionBlock(question?._id as string)}
+                  // className={`   items-center gap-1 px-3 py-1 rounded-md  text-white`}
+                >
+                  {question.isBlocked ? (
+                    <>
+                      <Tooltip
+                        arrow
+                        title="unblock"
+                        children={
+                          <CheckCircle className="w-10  text-green-600 hover:text-green-700" />
+                        }
+                      />
+                    </>
+                  ) : (
+                    <>
+                      <Tooltip
+                        arrow
+                        title="block"
+                        children={
+                          <XCircle className="w-10  text-red-600 hover:text-red-700" />
+                        }
+                      />
+                    </>
+                  )}
+                </button>
+              </td>
+            </tr>
+          ))}
+        </Table>
+        ) : (
+          <div className="text-center text-gray-500 mt-4  mb-8 flex justify-center items-center ">
+          < Frown className="w-5 mr-4"/> <span>No Data Available</span> 
+          </div>
+        )
+      }
         <hr className="h-px  bg-gray-200 border-0 dark:bg-gray-700" />
         <div className="flex justify-center mt-3">
           <Pagination

@@ -218,6 +218,7 @@ class questionRepository extends baseRepo_1.baseRepository {
     }
     editQuestions(questionId, updatedQuestion, filter) {
         return __awaiter(this, void 0, void 0, function* () {
+            console.log(questionId);
             try {
                 let matchCondition = {};
                 if (filter === "answered") {
@@ -503,7 +504,7 @@ class questionRepository extends baseRepo_1.baseRepository {
     deleteQuestion(questionId) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                return this.deleteDocument(questionId);
+                return yield this.deleteDocument(questionId);
             }
             catch (error) {
                 throw new Error(`Error occured while delete  questions ${error instanceof Error ? error.message : String(error)}`);
@@ -515,7 +516,7 @@ class questionRepository extends baseRepo_1.baseRepository {
             try {
                 const questId = questionId;
                 console.log(typeof questId, "this is the type of questId in countAnswer");
-                return this.find_By_Id_And_Update(questionModal_2.default, questId, {
+                return yield this.find_By_Id_And_Update(questionModal_2.default, questId, {
                     $inc: { answers: 1 },
                 });
             }
@@ -527,7 +528,7 @@ class questionRepository extends baseRepo_1.baseRepository {
     reduceAnswerCount(questionId) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                return this.find_By_Id_And_Update(questionModal_2.default, questionId, {
+                return yield this.find_By_Id_And_Update(questionModal_2.default, questionId, {
                     $inc: { answers: -1 },
                 });
             }
@@ -695,7 +696,6 @@ class questionRepository extends baseRepo_1.baseRepository {
                 //count the total no of doc
                 const countPipeline = [
                     ...pipeline.slice(0, pipeline.length - 2),
-                    //   remove $skip and $limit from existing pipeline to find the total document length
                     {
                         $count: "totalDocuments",
                     },
@@ -714,7 +714,7 @@ class questionRepository extends baseRepo_1.baseRepository {
     changeQuestionStatus(questionId) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                return this.find_By_Id_And_Update(questionModal_2.default, questionId, [
+                return yield this.find_By_Id_And_Update(questionModal_2.default, questionId, [
                     { $set: { isBlocked: { $not: "$isBlocked" } } },
                 ]);
             }

@@ -27,6 +27,7 @@ passport_1.default.use(new passport_google_oauth20_1.Strategy({
     try {
         const email = (_b = (_a = profile.emails) === null || _a === void 0 ? void 0 : _a[0]) === null || _b === void 0 ? void 0 : _b.value;
         const profileUrl = (_d = (_c = profile.photos) === null || _c === void 0 ? void 0 : _c[0]) === null || _d === void 0 ? void 0 : _d.value;
+        const name = (profile === null || profile === void 0 ? void 0 : profile.displayName) || "Unnamed User";
         if (!email) {
             return done(new Error("Email is required but not provided in Google profile"), undefined);
         }
@@ -40,7 +41,7 @@ passport_1.default.use(new passport_google_oauth20_1.Strategy({
         }
         else {
             user = (yield menteeRepository_1.default.createDocument({
-                name: profile.displayName,
+                name,
                 email,
                 profileUrl,
                 verified: true,
@@ -59,6 +60,9 @@ passport_1.default.serializeUser((user, done) => {
 });
 passport_1.default.deserializeUser((user, done) => __awaiter(void 0, void 0, void 0, function* () {
     try {
+        if (!(user === null || user === void 0 ? void 0 : user._id)) {
+            throw new Error("User ID is missing during deserialization.");
+        }
         const User = yield menteeRepository_1.default.findById(user === null || user === void 0 ? void 0 : user._id);
         done(null, User);
     }

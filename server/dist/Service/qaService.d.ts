@@ -2,9 +2,8 @@ import { ObjectId } from "mongoose";
 import { IanswerRepository } from "../Interface/Qa/IanswerRepository";
 import { IqaService } from "../Interface/Qa/IqaService";
 import { IquestionRepository } from "../Interface/Qa/IquestionRepository";
-import { Ianswer } from "../Model/answerModel";
 import { Iquestion } from "../Model/questionModal";
-import { IcreateQuestion } from "../Types";
+import { IanswerWithQuestion, IcreateQuestion } from "../Types";
 import { InotificationRepository } from "../Interface/Notification/InotificationRepository";
 declare class qaService implements IqaService {
     private readonly __questionRepository;
@@ -35,7 +34,7 @@ declare class qaService implements IqaService {
         success: boolean;
         message: string;
         status: number;
-        answers: Ianswer | null;
+        answers: IanswerWithQuestion | null;
     }>;
     editAnswer(content: string, answerId: string): Promise<{
         success: boolean;

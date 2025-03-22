@@ -90,8 +90,8 @@ const OtpModal:React.FC<IModalProps> = (props) => {
               onClick={handleResendOtp}
               className={` text-white ${
                 canResend
-                  ? 'text-[#ffa640] hover:text-[#f8b54f] '
-                  : 'text-gray-400 cursor-not-allowed'
+                  ? 'text-[#ff9318] hover:text-[#f8b54f] '
+                  : 'text-gray-700 cursor-not-allowed'
               }`}
               disabled={!canResend}
             >

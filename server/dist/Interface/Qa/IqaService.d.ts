@@ -1,7 +1,6 @@
 import { ObjectId } from "mongoose";
 import { Iquestion } from "../../Model/questionModal";
-import { IcreateQuestion } from "../../Types";
-import { Ianswer } from "../../Model/answerModel";
+import { IanswerWithQuestion, IcreateQuestion } from "../../Types";
 export interface IqaService {
     addQuestionService(Data: IcreateQuestion, userId: ObjectId): Promise<{
         success: boolean;
@@ -27,7 +26,7 @@ export interface IqaService {
         success: boolean;
         message: string;
         status: number;
-        answers: Ianswer | null;
+        answers: IanswerWithQuestion | null;
     }>;
     editAnswer(content: string, answerId: string): Promise<{
         success: boolean;

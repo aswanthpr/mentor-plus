@@ -2,9 +2,8 @@ import { ObjectId } from "mongoose";
 import { IanswerRepository } from "../Interface/Qa/IanswerRepository";
 import { IqaService } from "../Interface/Qa/IqaService";
 import { IquestionRepository } from "../Interface/Qa/IquestionRepository";
-import { Ianswer } from "../Model/answerModel";
 import { Iquestion } from "../Model/questionModal";
-import { IcreateQuestion } from "../Types";
+import { IanswerWithQuestion, IcreateQuestion } from "../Types";
 import { Status } from "../Utils/httpStatusCode";
 import { InotificationRepository } from "../Interface/Notification/InotificationRepository";
 import { socketManager } from "../index";
@@ -158,7 +157,7 @@ class qaService implements IqaService {
         return {
           success: false,
           message: "Invalid input: title, content, and tags are required",
-          status: 400,
+          status: Status?.BadRequest,
           question: null,
         };
       }
@@ -172,7 +171,7 @@ class qaService implements IqaService {
       return {
         success: true,
         message: "Edit Successfully!",
-        status: 200,
+        status: Status?.Ok,
         question: response,
       };
     } catch (error: unknown) {
@@ -192,7 +191,7 @@ class qaService implements IqaService {
     success: boolean;
     message: string;
     status: number;
-    answers: Ianswer | null;
+    answers: IanswerWithQuestion | null;
   }> {
     try {
       if (!answer || !questionId || !userId || !userType) {

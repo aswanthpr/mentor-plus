@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useState } from "react";
-import { Wallet } from "lucide-react";
+import { Frown, Wallet } from "lucide-react";
 import WalletCard from "../../components/Common/wallet/WalletCard";
 import AddMoneyModal from "../../components/Common/wallet/AddMoneyModal";
 import TransactionList from "../../components/Common/wallet/TransactionList";
@@ -85,7 +85,7 @@ console.log(totalDoc,'lkasdf')
         </div>
       </div>
 
-      <div className="bg-white p-6 rounded-lg shadow-sm">
+<div className="bg-white p-6 rounded-lg shadow-sm h-[86vh]">
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-3">
           <h2 className="text-xl font-bold">Transaction History</h2>
           <TransactionFilters
@@ -97,10 +97,17 @@ console.log(totalDoc,'lkasdf')
           />
           
         </div>
-
+        {
+  walletData?.transaction.length > 0 ?(
         <div className="overflow-x-auto">
           <TransactionList transactions={walletData?.transaction} />
         </div>
+      ):(
+        <div className="text-center text-gray-500 mt-4  mb-8 flex justify-center items-center ">
+        < Frown className="w-10 mr-4"/> <span>No Data Available</span> 
+        </div>
+  )
+}
         <hr className="h-px  bg-gray-200 border-0 dark:bg-gray-700" />
         <div className="flex justify-center mt-2">
           <Pagination
@@ -115,6 +122,8 @@ console.log(totalDoc,'lkasdf')
           />
         </div>
       </div>
+
+      
       <AddMoneyModal
         isOpen={showAddMoney}
         onClose={() => setShowAddMoney(false)}

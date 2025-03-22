@@ -17,7 +17,7 @@ class answerRespository
     questionId: ObjectId,
     userId: ObjectId,
     userType: string
-  ): Promise<{ result: Ianswer | null; menteeId: ObjectId }> {
+  ): Promise<{ result: IanswerWithQuestion | null; menteeId: ObjectId }> {
     try {
       const result = await (
         await this.createDocument({
@@ -33,6 +33,20 @@ class answerRespository
          $match: { questionId, _id: result?._id }
        },
        {
+        $lookup: {
+          from: "mentees",
+          localField:"authorId",
+          foreignField: "_id",
+          as: "author",
+       }
+      },
+      {
+        $unwind: {
+          path: "$author",
+          preserveNullAndEmptyArrays: true,
+        },
+      },
+       {
          $lookup: {
            from: "questions",
            localField: "questionId",
@@ -42,11 +56,15 @@ class answerRespository
          },
        },
        {
-         $unwind: "$question",
-       }
+        $unwind: {
+          path: "$question",
+          preserveNullAndEmptyArrays: true,
+        },
+      },
+       
      ]) as unknown as IanswerWithQuestion[] ;
 
-      return { result, menteeId:data[0]?.question?.menteeId as IanswerWithQuestion['question']['menteeId'] }
+      return {result: data[0] , menteeId:data[0]?.question?.menteeId as IanswerWithQuestion['question']['menteeId'] }
     } catch (error: unknown) {
       throw new Error(
         `Error occured while create answer ${
@@ -57,7 +75,7 @@ class answerRespository
   }
   async editAnswer(content: string, answerId: string): Promise<Ianswer | null> {
     try {
-      return this.find_By_Id_And_Update(answerModel, answerId, {
+      return await this.find_By_Id_And_Update(answerModel, answerId, {
         $set: { answer: content },
       });
     } catch (error: unknown) {
@@ -70,7 +88,7 @@ class answerRespository
   }
   async deleteAnswer(questionId: string): Promise<DeleteResult | undefined> {
     try {
-      return this.deleteMany({ questionId });
+      return await this.deleteMany({ questionId });
     } catch (error: unknown) {
       throw new Error(
         `Error occured while delete answer ${
@@ -81,7 +99,7 @@ class answerRespository
   }
   async changeAnswerStatus(answerId: string): Promise<Ianswer | null> {
     try {
-      return this.find_By_Id_And_Update(answerModel, answerId, [
+      return await this.find_By_Id_And_Update(answerModel, answerId, [
         { $set: { isBlocked: { $not: "$isBlocked" } } },
       ]);
     } catch (error: unknown) {

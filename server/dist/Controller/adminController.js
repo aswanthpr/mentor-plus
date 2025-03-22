@@ -126,8 +126,9 @@ class adminController {
     }
     changeMenteeStatus(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
+            var _a;
             try {
-                const result = yield this._adminService.changeMenteeStatus(req.body.id);
+                const result = yield this._adminService.changeMenteeStatus((_a = req.body) === null || _a === void 0 ? void 0 : _a.id);
                 res
                     .status(result.status)
                     .json({ success: result.success, message: result.message });

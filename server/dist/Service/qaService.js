@@ -101,7 +101,7 @@ class qaService {
                     return {
                         success: false,
                         message: "Invalid input: title, content, and tags are required",
-                        status: 400,
+                        status: httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.BadRequest,
                         question: null,
                     };
                 }
@@ -109,7 +109,7 @@ class qaService {
                 return {
                     success: true,
                     message: "Edit Successfully!",
-                    status: 200,
+                    status: httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.Ok,
                     question: response,
                 };
             }

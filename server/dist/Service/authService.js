@@ -18,6 +18,7 @@ const hashPass_util_1 = __importDefault(require("../Utils/hashPass.util"));
 const jwt_utils_1 = require("../Utils/jwt.utils");
 const cloudinary_util_1 = require("../Config/cloudinary.util");
 const index_1 = require("../index");
+const httpStatusCode_1 = require("../Utils/httpStatusCode");
 class authService {
     constructor(_OtpService, _categoryRepository, _MentorRepository, _MenteeRepository, _notificationRepository) {
         this._OtpService = _OtpService;
@@ -70,35 +71,32 @@ class authService {
     mainLogin(email, password) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                console.log(email, password);
-                console.log(email, password, "logic");
                 if (!email || !password) {
-                    return { success: false, message: "login credencial is missing" };
+                    return { success: false, message: "login credencial is missing", status: httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.BadRequest };
                 }
                 const result = yield this._MenteeRepository.mainLogin(email);
                 if (!result || (result === null || result === void 0 ? void 0 : result.email) != email) {
-                    return { success: false, message: "user not exist.Please signup" };
+                    return { success: false, message: "user not exist.Please signup", status: httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.BadRequest };
                 }
                 if (result === null || result === void 0 ? void 0 : result.isAdmin) {
-                    return { success: false, message: "Admin is not allowed ,sorry.." };
+                    return { success: false, message: "Admin is not allowed ,sorry..", status: httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.Unauthorized };
                 }
                 if (result === null || result === void 0 ? void 0 : result.isBlocked) {
-                    return { success: false, message: "user blocked .sorry.." };
+                    return { success: false, message: "user blocked .sorry..", status: httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.Unauthorized };
                 }
-                console.log(password, result.password);
                 const checkUser = yield bcrypt_1.default.compare(password, result.password);
                 if (!checkUser) {
-                    return { success: false, message: "password not matching" };
+                    return { success: false, message: "password not matching", status: httpStatusCode_1.Status.BadRequest };
                 }
                 const userId = result._id;
                 const accessToken = (0, jwt_utils_1.genAccesssToken)(userId, "mentee");
                 const refreshToken = (0, jwt_utils_1.genRefreshToken)(userId, "mentee");
-                console.log(accessToken, refreshToken, "access refrsh");
                 return {
                     success: true,
                     message: "Login Successfull",
                     refreshToken,
                     accessToken,
+                    status: httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.Ok
                 };
             }
             catch (error) {
@@ -158,12 +156,12 @@ class authService {
             try {
                 const result = yield this._categoryRepository.allCategoryData();
                 if (!result) {
-                    return { success: false, message: "No data found ", status: 204 };
+                    return { success: false, message: "No data found ", status: httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.NoContent };
                 }
                 return {
                     success: true,
                     message: "data found",
-                    status: 200,
+                    status: httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.Ok,
                     categories: result,
                 };
             }
@@ -219,7 +217,7 @@ class authService {
                     return {
                         success: false,
                         message: "credential is missing",
-                        status: 400,
+                        status: httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.BadRequest,
                     };
                 }
                 const response = yield this._MentorRepository.findMentor(email, phone);
@@ -256,7 +254,7 @@ class authService {
                 return {
                     success: true,
                     message: "Mentor application submitted!",
-                    status: 200,
+                    status: httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.Ok,
                 };
             }
             catch (error) {
@@ -264,7 +262,7 @@ class authService {
                 return {
                     success: false,
                     message: "unexpected error occured",
-                    status: 500,
+                    status: httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.InternalServerError,
                 };
             }
         });
@@ -277,16 +275,15 @@ class authService {
                     return {
                         success: false,
                         message: `${!email ? "email is required" : "password is required"}`,
-                        status: 400,
+                        status: httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.BadRequest,
                     };
                 }
                 const result = yield this._MentorRepository.findMentor(email);
-                console.log(result, "111111111111");
                 if (!result) {
                     return {
                         success: false,
                         message: "user with the provided email not found",
-                        status: 404,
+                        status: httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.NotFound,
                     };
                 }
                 if (!(result === null || result === void 0 ? void 0 : result.verified)) {
@@ -295,15 +292,16 @@ class authService {
                         message: `You're on our waitlist!
                    Thanks for signing up for MentorPlus.
                     We're focused on creating the best experience possible for everyone on the site.`,
-                        status: 401,
+                        status: httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.Unauthorized,
                     };
                 }
                 if (result === null || result === void 0 ? void 0 : result.isBlocked) {
-                    return { success: false, message: "User is  Blocked!", status: 401 };
+                    return { success: false, message: "User is  Blocked!", status: httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.Unauthorized };
                 }
                 const checkPass = yield bcrypt_1.default.compare(password, result === null || result === void 0 ? void 0 : result.password);
+                console.log(checkPass);
                 if (!checkPass) {
-                    return { success: false, message: "Incorrect password", status: 400 };
+                    return { success: false, message: "Incorrect password", status: httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.BadRequest };
                 }
                 const mentorId = `${result._id}`;
                 console.log(mentorId, "userid");
@@ -313,7 +311,7 @@ class authService {
                 return {
                     success: true,
                     message: "login successfull!",
-                    status: 200,
+                    status: httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.Ok,
                     accessToken,
                     refreshToken,
                 };
@@ -375,13 +373,13 @@ class authService {
                 if (!user) {
                     throw new Error("user deailes not found");
                 }
-                console.log(user, "this is the user");
                 const accessToken = (0, jwt_utils_1.genAccesssToken)(user === null || user === void 0 ? void 0 : user._id, "mentee");
                 const refreshToken = (0, jwt_utils_1.genRefreshToken)(user === null || user === void 0 ? void 0 : user._id, "mentee");
+                console.log(refreshToken, 'sfkasdsdfjsjflkslfkjskldjflaskdfjlkasjd', accessToken);
                 return {
                     success: true,
                     message: "login successfull!",
-                    status: 200,
+                    status: httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.Ok,
                     accessToken,
                     refreshToken,
                 };

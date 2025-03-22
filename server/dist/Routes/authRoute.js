@@ -42,7 +42,8 @@ auth_Router.get(`/google`, passport_1.default.authenticate('google', { scope: ['
 auth_Router.get(`/google/callback`, passport_1.default.authenticate('google', {
     successRedirect: '/auth/google/success',
     failureRedirect: 'http://localhost:5173/mentee/google/failure',
+    failureMessage: true,
+    successMessage: true
 }));
 auth_Router.get(`/google/success`, __authController.googleAuth.bind(__authController));
-// auth_Router.get(`/google/failure`,__authController.getGoogleAuth.bind(__authController));
 exports.default = auth_Router;

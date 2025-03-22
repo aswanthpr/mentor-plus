@@ -101,7 +101,7 @@ const Home: React.FC = () => {
   );
 
   const handleEditQuestion = useCallback(
-    async (questionId: string, updatedQuestion: IQuestion) => {
+    async (questionId: string, updatedQuestion: IeditQuestion) => {
       // Update the question in the state
 
       const originalQuestion = questions.find((q) => q._id === questionId);
@@ -119,7 +119,7 @@ const Home: React.FC = () => {
           "this is the quesion where error occure"
         );
         return (
-          JSON.stringify(updatedQuestion[key as keyof IQuestion]) !==
+          JSON.stringify(updatedQuestion[key as keyof IeditQuestion]) !==
           JSON.stringify(originalQuestion[key as keyof IQuestion])
         );
       });
@@ -210,23 +210,23 @@ const Home: React.FC = () => {
       console.log(answerQuestionId, "thsi sit he question id ");
       try {
         setLoading(true);
-        const { status, data } = await fetchCreateAnswer(
+        const response = await fetchCreateAnswer(
           content,
           answerQuestionId,
           "mentee"
         );
 
-        console.log(data.answers);
-        if (status === 200 && data.success) {
-          toast.success(data.message);
+        console.log(response?.data.answers);
+        if (response?.status === 200 && response?.data.success) {
+          toast.success(response?.data.message);
           setIsAnswerModalOpen(false);
-          setNewAns(data?.answers);
+          setNewAns(response?.data?.answers);
           setQuestions((prevQuestions) =>
             prevQuestions.map((question) =>
               question._id === answerQuestionId
                 ? {
                     ...question,
-                    answerData: [...(question.answerData || []), data?.answers],
+                    answerData: [...(question.answerData || []), response?.data?.answers],
                   }
                 : question
             )
@@ -355,16 +355,6 @@ const Home: React.FC = () => {
               </div>
             </div>
           </div>
-          <div className="w-96 mt-1 xss:w-auto">
-            <InputField
-              type="search"
-              name="search"
-              value={searchQuery}
-              placeholder="Search questions..."
-              className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#ff8800] focus:border-transparent"
-              onChange={(e) => setSearchQuery(e.target.value)}
-            />
-          </div>
         </section>
      
       
@@ -392,7 +382,7 @@ const Home: React.FC = () => {
             onEditQuestion={handleEditQuestion}
             onEditAnswer={handleEditAnswer}
             EditedData={editData}
-            newAns={newAns}
+            newAnswer={newAns}
           />
         </InfiniteScroll>
         </div>

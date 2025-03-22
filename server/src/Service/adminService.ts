@@ -309,17 +309,17 @@ const totalPage = Math.ceil(result?.totalDoc/limitNo)
         return {
           success: false,
           message: "credential is missing",
-          status: 400,
+          status:  Status?.BadRequest,
         };
       }
       const result = await this._menteeRepository.changeMenteeStatus(id);
       if (!result) {
-        return { success: false, message: "mentee not found", status: 400 };
+        return { success: false, message: "mentee not found", status:  Status?.BadRequest };
       }
       return {
         success: true,
         message: "mentee Edited successfully",
-        status: 200,
+        status:  Status?.Ok,
       };
     } catch (error: unknown) {
       throw new Error(

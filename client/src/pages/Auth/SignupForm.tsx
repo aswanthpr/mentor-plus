@@ -1,8 +1,8 @@
 import React, { useCallback, useState } from "react";
-import { EyeClosedIcon, EyeIcon  } from "lucide-react";
+import { EyeClosedIcon, EyeIcon } from "lucide-react";
 import { toast } from "react-toastify";
-import { Link, useNavigate } from 'react-router-dom';
-import Spinner from "../../components/Common/common4All/Spinner"; 
+import { Link, useNavigate } from "react-router-dom";
+import Spinner from "../../components/Common/common4All/Spinner";
 // import SocialLogins from "../../components/auth/SocialLogins";
 import InputField from "../../components/Auth/InputField";
 import OtpModal from "../../components/Auth/OtpModal";
@@ -13,8 +13,12 @@ import {
   validateConfirmPassword,
 } from "../../Validation/Validation";
 import { errorHandler } from "../../Utils/Reusable/Reusable";
-import { fetchMenteeSignup, fetchResendOtp, fetchVerifyOtp } from "../../service/menteeApi";
-
+import {
+  fetchMenteeSignup,
+  fetchResendOtp,
+  fetchVerifyOtp,
+} from "../../service/menteeApi";
+import bgImg from "../../Asset/background.jpg";
 interface IFormErrors {
   name?: string;
   email?: string;
@@ -28,11 +32,11 @@ interface IFormData {
   confirmPassword: string;
 }
 
-const SignupForm:React.FC = () => {
-
+const SignupForm: React.FC = () => {
   const navigate = useNavigate();
   const [isPasswordVisible, setIsPasswordVisible] = useState<boolean>(false);
-  const [isConfirmPasswordVisible, setIsConfirmPasswordVisible] = useState<boolean>(false);
+  const [isConfirmPasswordVisible, setIsConfirmPasswordVisible] =
+    useState<boolean>(false);
   const [formData, setFormData] = useState<IFormData>({
     name: "",
     email: "",
@@ -41,135 +45,142 @@ const SignupForm:React.FC = () => {
   });
   const [errors, setErrors] = useState<IFormErrors>({});
   const [showOtpModal, setShowOtpModal] = useState<boolean>(false);
-  const [loading,setLoading]=useState<boolean>(false);
+  const [loading, setLoading] = useState<boolean>(false);
 
-  const handleChange =useCallback( (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const { id, value } = e.target;
     console.log(e.target.value);
     setFormData((prev) => ({ ...prev, [id]: value }));
 
     // Clear error when user starts typing
     setErrors((prev: IFormErrors) => ({ ...prev, [id]: undefined }));
-  },[]);
+  }, []);
 
-
-  const validateField = useCallback((field: string, value: string) => {
-    switch (field) {
-      case "name":
-        return validateName(value);
-      case "email":
-        return validateEmail(value);
-      case "password":
-        return validatePassword(value);
-      case "confirmPassword":
-        return validateConfirmPassword(value, formData.password);
-      default:
-        return undefined;
-    }
-  },[formData.password]);
- 
-
-  const handleSubmit =useCallback( async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-
-    // Validate all fields
-    const newErrors: IFormErrors = {};
-    Object.keys(formData).forEach((key) => {
-      const error = validateField(key, formData[key as keyof typeof formData]);
-      if (error) {
-        newErrors[key as keyof IFormErrors] = error;
+  const validateField = useCallback(
+    (field: string, value: string) => {
+      switch (field) {
+        case "name":
+          return validateName(value);
+        case "email":
+          return validateEmail(value);
+        case "password":
+          return validatePassword(value);
+        case "confirmPassword":
+          return validateConfirmPassword(value, formData.password);
+        default:
+          return undefined;
       }
-    });
-    setErrors(newErrors);
+    },
+    [formData.password]
+  );
 
-    if (Object.keys(newErrors).length === 0) {
-      setLoading(true)
-      try { 
-        const response = await fetchMenteeSignup(formData);
-         
-       
-        if (response.status == 200) {
-          setLoading(false)
-          setShowOtpModal(true);
-          setFormData({confirmPassword:"",email:"",name:"",password:""})
-          toast.success(response.data.message);
-        
-        } else {
-          toast.error("Failed to send OTP");
+  const handleSubmit = useCallback(
+    async (e: React.FormEvent<HTMLFormElement>) => {
+      e.preventDefault();
+
+      // Validate all fields
+      const newErrors: IFormErrors = {};
+      Object.keys(formData).forEach((key) => {
+        const error = validateField(
+          key,
+          formData[key as keyof typeof formData]
+        );
+        if (error) {
+          newErrors[key as keyof IFormErrors] = error;
         }
-      } catch (error) {
-        console.error("Error during signup", error);
-      }finally{
-        setLoading(false)
+      });
+      setErrors(newErrors);
+
+      if (Object.keys(newErrors).length === 0) {
+        setLoading(true);
+        try {
+          const response = await fetchMenteeSignup(formData);
+
+          if (response.status == 200) {
+            setLoading(false);
+            setShowOtpModal(true);
+            setFormData((pre)=>({...pre,confirmPassword:'',name:'',password:''}))
+            toast.success(response.data.message);
+          } else {
+            toast.error("Failed to send OTP");
+          }
+        } catch (error) {
+          console.error("Error during signup", error);
+        } finally {
+          setLoading(false);
+        }
       }
-    }
-  },[formData, validateField]);
+    },
+    [formData, validateField]
+  );
 
-  const handleVerifyOtp = useCallback(async (otp: string) => { 
-    setLoading(true)
-    try{
-    const {email} = formData;
-    
-    setLoading(true)
-    console.log("Verifying OTP:", otp,email);;
-    const response = await fetchVerifyOtp(email,otp)
-   
+  const handleVerifyOtp = useCallback(
+    async (otp: string) => {
+      setLoading(true);
+      try {
+        const { email } = formData;
 
-  
-    if(response.status==200&&response.data.success){
-      toast.success(response.data.message);
-      setShowOtpModal(false);
-      navigate('/auth/login/mentee')
-    }else{
-      toast.error(response.data.message);
-    }
-  }catch(error:unknown){
-    errorHandler(error)
-  }finally{
-    setLoading(true)
-  }
-  },[formData, navigate]);
+        setLoading(true);
+        console.log("Verifying OTP:", otp, email);
+        const response = await fetchVerifyOtp(email, otp);
 
-  const handleResendOtp = useCallback(async()=>{
+        if (response.status == 200 && response.data.success) {
+          toast.success(response.data.message);
+          setShowOtpModal(false);
+          navigate("/auth/login/mentee");
+        } else {
+          toast.error(response.data.message);
+        }
+      } catch (error: unknown) {
+        errorHandler(error);
+      } finally {
+        setLoading(true);
+      }
+    },
+    [formData, navigate]
+  );
+
+  const handleResendOtp = useCallback(async () => {
     try {
-      const {email} = formData;
-      const response = await fetchResendOtp(email)
-      
-      if(response.status == 200){
-        toast.success(response.data.message||'OTP resend successfull')
-      }else{
+      const { email } = formData;
+      const response = await fetchResendOtp(email);
+
+      if (response.status == 200) {
+        toast.success(response.data.message || "OTP resend successfull");
+      } else {
         toast.error("Failed to resend OTP");
       }
-    } catch (error:unknown) {
-     errorHandler(error)
+    } catch (error: unknown) {
+      errorHandler(error);
     }
-  },[formData])
-
+  }, [formData]);
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
+    <div
+      className="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8"
+      style={{
+        backgroundImage: `url(${bgImg})`,
+        backgroundSize: "cover",
+        backgroundPosition: "center",
+        backgroundRepeat: "no-repeat",
+      }}
+    >
       {loading && <Spinner />}
       <div className="sm:mx-auto sm:w-full sm:max-w-md">
         <h2 className="text-center text-3xl font-bold tracking-tight text-gray-900">
-          Sign up as mentee 
+          Sign up as mentee
         </h2>
       </div>
 
       <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
         <div className="bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10">
           <div className="space-y-4">
-            {/* <SocialLogins
-              icon={Github}
-              provider=" GitHub"
-              onClick={() => handleSocialLogin("GitHub")}
-            />
-            <SocialLogins
-              icon={Linkedin}
-              provider=" LinkedIn"
-              onClick={() => handleSocialLogin("LinkedIn")}
-            /> */}
             <button
-              onClick={() => (window.location.href = `${import.meta.env.VITE_SERVER_URL}auth/google`)}
+              onClick={() =>
+                (window.location.href = `${
+                  import.meta.env.VITE_SERVER_URL
+                }/auth/google`)
+              }
               className="w-full flex items-center justify-center gap-2 px-4 py-2 border-2 border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
             >
               <img
@@ -216,19 +227,19 @@ const SignupForm:React.FC = () => {
               error={errors.email}
             />
             <div className="relative">
-            <InputField
-              label="Password"
-              type={isPasswordVisible ? "text" : "password"}
-              id="password"
-              name="password"
-              placeholder="Password"
-              value={formData.password}
-              onChange={handleChange}
-              error={errors.password}
-            />
-             <button
+              <InputField
+                label="Password"
+                type={isPasswordVisible ? "text" : "password"}
+                id="password"
+                name="password"
+                placeholder="Password"
+                value={formData.password}
+                onChange={handleChange}
+                error={errors.password}
+              />
+              <button
                 type="button"
-                onClick={()=>setIsPasswordVisible((pre)=>!pre)}
+                onClick={() => setIsPasswordVisible((pre) => !pre)}
                 aria-label={
                   isPasswordVisible ? "Hide Password" : "Show Password"
                 }
@@ -236,26 +247,28 @@ const SignupForm:React.FC = () => {
               >
                 {isPasswordVisible ? <EyeClosedIcon /> : <EyeIcon />}
               </button>
-              </div>
-              <div className="relative">
-            <InputField
-              label="Confirm Password"
-              type={isConfirmPasswordVisible ? "text" : "password"}
-              id="confirmPassword"
-              name="confirmPassword"
-              placeholder="Confirm Password"
-              value={formData.confirmPassword}
-              onChange={handleChange}
-              error={errors.confirmPassword}
-            />
-            <button
-            type="button"
-            onClick={()=>setIsConfirmPasswordVisible((pre)=>!pre)}
-            aria-label={isConfirmPasswordVisible ? "Hide Password" : "Show Password"}
-            className="absolute right-4 top-12 transform -translate-y-1/2 text-gray-400" // Position the icon to the right of the input field
-          >
-            {isConfirmPasswordVisible ? <EyeClosedIcon /> : <EyeIcon />}
-          </button>
+            </div>
+            <div className="relative">
+              <InputField
+                label="Confirm Password"
+                type={isConfirmPasswordVisible ? "text" : "password"}
+                id="confirmPassword"
+                name="confirmPassword"
+                placeholder="Confirm Password"
+                value={formData.confirmPassword}
+                onChange={handleChange}
+                error={errors.confirmPassword}
+              />
+              <button
+                type="button"
+                onClick={() => setIsConfirmPasswordVisible((pre) => !pre)}
+                aria-label={
+                  isConfirmPasswordVisible ? "Hide Password" : "Show Password"
+                }
+                className="absolute right-4 top-12 transform -translate-y-1/2 text-gray-400"
+              >
+                {isConfirmPasswordVisible ? <EyeClosedIcon /> : <EyeIcon />}
+              </button>
             </div>
 
             <div>

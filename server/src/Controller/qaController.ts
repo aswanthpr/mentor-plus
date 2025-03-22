@@ -45,7 +45,7 @@ class qaController implements IqaController {
       const { status, message, success, question } =
         await this._qaService.editQuestion(questionId, updatedQuestion, filter);
 
-      console.log(question);
+
       res.status(status).json({ success, message, question: question![0] });
     } catch (error: unknown) {
       console.log(

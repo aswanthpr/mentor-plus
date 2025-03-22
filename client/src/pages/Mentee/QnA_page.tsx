@@ -53,6 +53,7 @@ const QnA_page: React.FC = () => {
     content: "",
     answerId: "",
   });
+  const [newAns, setNewAns] = useState<Ianswer|null>(null);
   useEffect(() => {
     const fetchQuestions = async () => {
       try {
@@ -84,7 +85,7 @@ const QnA_page: React.FC = () => {
   }, [currentPage, filter, searchQuery, sortField, sortOrder]);
 
   const handleAddQuestion = useCallback(
-    async (question: IQuestion) => {
+    async (question: IeditQuestion) => {
       setShowAddModal(false);
       try {
         const response = await fetchCreateQuestion(question);
@@ -114,7 +115,7 @@ const QnA_page: React.FC = () => {
   );
 
   const handleEditQuestion = useCallback(
-    async (questionId: string, updatedQuestion: IQuestion) => {
+    async (questionId: string, updatedQuestion: Partial<IQuestion>) => {
       const originalQuestion = questions.find((q) => q._id === questionId);
 
       if (!originalQuestion) {
@@ -137,6 +138,7 @@ const QnA_page: React.FC = () => {
         );
         return;
       }
+
 
       try {
         setLoading(true);
@@ -225,9 +227,9 @@ const QnA_page: React.FC = () => {
           "mentee"
         );
 
-        if (response.status === 200 && response.data.success) {
+        if (response?.status === 200 && response.data.success) {
           toast.success("Answer submited  successfully");
-
+          setNewAns(response?.data?.answers)
           setQuestions((prevQuestions) =>
             prevQuestions.map((question) =>
               question._id === answerQuestionId
@@ -381,6 +383,7 @@ const QnA_page: React.FC = () => {
           setIsAnswerModalOpen={setIsAnswerModalOpen}
           onEditAnswer={handleEditAnswer}
           EditedData={editData}
+          newAnswer={newAns}
         />
         <hr className="h-px  bg-gray-100 border-0 dark:bg-gray-300 mt-2" />
         <div className="flex justify-center mt-3">

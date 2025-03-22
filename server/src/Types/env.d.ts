@@ -27,5 +27,7 @@ declare namespace NodeJS {
 
     PLATFORM_COMMISION:string;
     MENTOR_COMMISION:string;
+    
+    NODE_ENV:string
   }
 }

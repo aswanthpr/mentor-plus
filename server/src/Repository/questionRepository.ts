@@ -232,7 +232,11 @@ class questionRepository
     updatedQuestion: Iquestion,
     filter: string
   ): Promise<Iquestion[] | null> {
+    console.log(questionId,
+  
+    )
     try {
+     
       let matchCondition = {};
       if (filter === "answered") {
         matchCondition = {
@@ -245,7 +249,7 @@ class questionRepository
       const [updatedData, aggregateData] = await Promise.all([
         await this.find_By_Id_And_Update(
           questionModal,
-          questionId,
+          questionId ,
           { $set: { ...updatedQuestion } },
           { new: true }
         ),
@@ -264,9 +268,9 @@ class questionRepository
           {
             $lookup: {
               from: "mentees",
-              localField: "menteeId",
+              localField:"menteeId",
               foreignField: "_id",
-              as: "user",
+              as:"user",
             },
           },
           {
@@ -542,7 +546,7 @@ class questionRepository
 
   async deleteQuestion(questionId: string): Promise<DeleteResult | undefined> {
     try {
-      return this.deleteDocument(questionId);
+      return await this.deleteDocument(questionId);
     } catch (error: unknown) {
       throw new Error(
         `Error occured while delete  questions ${
@@ -555,7 +559,7 @@ class questionRepository
     try {
       const questId = questionId as unknown as string;
       console.log(typeof questId, "this is the type of questId in countAnswer");
-      return this.find_By_Id_And_Update(questionModal, questId, {
+      return await this.find_By_Id_And_Update(questionModal, questId, {
         $inc: { answers: 1 },
       });
     } catch (error: unknown) {
@@ -568,7 +572,7 @@ class questionRepository
   }
   async reduceAnswerCount(questionId: string): Promise<Iquestion | null> {
     try {
-      return this.find_By_Id_And_Update(questionModal, questionId, {
+      return await this.find_By_Id_And_Update(questionModal, questionId, {
         $inc: { answers: -1 },
       });
     } catch (error: unknown) {
@@ -759,7 +763,7 @@ class questionRepository
       //count the total no of doc
       const countPipeline = [
         ...pipeline.slice(0, pipeline.length - 2),
-        //   remove $skip and $limit from existing pipeline to find the total document length
+        
         {
           $count: "totalDocuments",
         },
@@ -780,7 +784,7 @@ class questionRepository
   }
   async changeQuestionStatus(questionId: string): Promise<Iquestion | null> {
     try {
-      return this.find_By_Id_And_Update(questionModal, questionId, [
+      return await this.find_By_Id_And_Update(questionModal, questionId, [
         { $set: { isBlocked: { $not: "$isBlocked" } } },
       ]);
     } catch (error: unknown) {

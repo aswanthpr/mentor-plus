@@ -10,6 +10,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.authController = void 0;
+const httpStatusCode_1 = require("../Utils/httpStatusCode");
 class authController {
     constructor(_AuthService, _OtpService) {
         this._AuthService = _AuthService;
@@ -21,14 +22,14 @@ class authController {
             try {
                 yield this._AuthService.mentee_Signup(req.body);
                 yield this._OtpService.sentOtptoMail(req.body.email);
-                res.status(200).json({
+                res.status(httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.Ok).json({
                     success: true,
                     message: "OTP successfully sent to mail",
                 });
             }
             catch (error) {
                 res
-                    .status(500)
+                    .status(httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.InternalServerError)
                     .json({ success: false, message: "Internal server error" });
                 throw new Error(`error while mentee Signup ${error instanceof Error ? error.message : error}`);
             }
@@ -39,6 +40,7 @@ class authController {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 const { email, otp, type } = req.body;
+                console.log(otp, email, type);
                 const result = yield this._OtpService.verifyOtp(email, otp, type);
                 console.log(result, "this is otp result");
                 if (result && result.success) {
@@ -49,19 +51,19 @@ class authController {
                 }
                 else {
                     res
-                        .status(400)
+                        .status(httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.BadRequest)
                         .json({ success: false, message: "Invalid OTP or email" });
                 }
             }
             catch (error) {
                 res
-                    .status(500)
+                    .status(httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.InternalServerError)
                     .json({ success: false, message: "Internal server error" });
                 throw new Error(`Error while receving Otp${error instanceof Error ? error.message : String(error)}`);
             }
         });
     }
-    //for singup otpverify resend otp
+    //for singup otpverify resend otp 
     resendOtp(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
@@ -83,38 +85,24 @@ class authController {
     }
     mainLogin(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
+            var _a;
             try {
-                console.log(req.body, "this is from getMain login");
                 const { email, password } = req.body;
                 const result = yield this._AuthService.mainLogin(email, password);
-                if (!result) {
-                    res
-                        .status(400)
-                        .json({ success: false, message: "user not found. Please Singup" });
-                    return;
-                }
-                if (result.success) {
-                    res
-                        .status(200)
-                        .cookie("refreshToken", `${result === null || result === void 0 ? void 0 : result.refreshToken}`, {
-                        httpOnly: true,
-                        secure: false, //process.env.NODE_ENV === 'production',
-                        sameSite: "lax",
-                        maxAge: 14 * 24 * 60 * 60 * 1000,
-                    })
-                        .json({
-                        success: result === null || result === void 0 ? void 0 : result.success,
-                        message: result === null || result === void 0 ? void 0 : result.message,
-                        accessToken: result === null || result === void 0 ? void 0 : result.accessToken,
-                    });
-                    return;
-                }
-                else {
-                    res
-                        .status(401)
-                        .json({ success: result.success, message: result.message });
-                    return;
-                }
+                res
+                    .status(result === null || result === void 0 ? void 0 : result.status)
+                    .cookie("refreshToken", `${(_a = result === null || result === void 0 ? void 0 : result.refreshToken) !== null && _a !== void 0 ? _a : ''}`, {
+                    httpOnly: true,
+                    secure: false, //process.env.NODE_ENV === 'production',
+                    sameSite: "lax",
+                    maxAge: 14 * 24 * 60 * 60 * 1000,
+                })
+                    .json({
+                    success: result === null || result === void 0 ? void 0 : result.success,
+                    message: result === null || result === void 0 ? void 0 : result.message,
+                    accessToken: result === null || result === void 0 ? void 0 : result.accessToken,
+                });
+                return;
             }
             catch (error) {
                 console.error(`Login error: ${error instanceof Error ? error.message : String(error)}`);
@@ -130,7 +118,7 @@ class authController {
             try {
                 const result = yield this._AuthService.forgotPassword(req.body.email);
                 if ((result === null || result === void 0 ? void 0 : result.success) == false) {
-                    res.status(400).json(result);
+                    res.status(httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.BadRequest).json(result);
                     return;
                 }
                 res.status(200).json(result);
@@ -156,7 +144,7 @@ class authController {
                         .json({ success: true, message: "password changed successfully" });
                 }
                 if ((result === null || result === void 0 ? void 0 : result.message) === "credencial is missing") {
-                    res.status(400).json({ success: false, message: result.message });
+                    res.status(httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.BadRequest).json({ success: false, message: result.message });
                     return;
                 }
                 else if ((result === null || result === void 0 ? void 0 : result.message) === "user not exist.Please signup") {
@@ -182,7 +170,7 @@ class authController {
                 const result = yield this._AuthService.adminLogin(email, password);
                 if (!result) {
                     res
-                        .status(400)
+                        .status(httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.BadRequest)
                         .json({ success: false, message: "user not found. Please Singup" });
                     return;
                 }
@@ -275,12 +263,12 @@ class authController {
     //metnor login;
     mentorLogin(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
-            var _a, _b;
             try {
-                const response = yield this._AuthService.mentorLogin((_a = req.body) === null || _a === void 0 ? void 0 : _a.email, (_b = req.body) === null || _b === void 0 ? void 0 : _b.password);
+                const { email, password } = req.body;
+                const { status, success, message, accessToken, refreshToken } = yield this._AuthService.mentorLogin(email, password);
                 res
-                    .status(response.status)
-                    .cookie("mentorToken", response.refreshToken, {
+                    .status(status)
+                    .cookie("mentorToken", refreshToken, {
                     httpOnly: true,
                     secure: process.env.NODE_ENV === "production",
                     sameSite: "strict",
@@ -288,14 +276,14 @@ class authController {
                     path: "/",
                 })
                     .json({
-                    success: response.success,
-                    message: response.message,
-                    accessToken: response.accessToken,
+                    success,
+                    message,
+                    accessToken,
                 });
             }
             catch (error) {
                 res
-                    .status(500)
+                    .status(httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.InternalServerError)
                     .json({ success: false, message: "Internal server error" });
                 throw new Error(`error while mentor signup ${error instanceof Error ? error.message : String(error)}`);
             }
@@ -307,7 +295,7 @@ class authController {
             try {
                 const result = yield this._AuthService.mentorForgotPassword(req.body.email);
                 if ((result === null || result === void 0 ? void 0 : result.success) == false) {
-                    res.status(400).json(result);
+                    res.status(httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.BadRequest).json(result);
                     return;
                 }
                 res.status(200).json(result);
@@ -315,7 +303,7 @@ class authController {
             catch (error) {
                 console.error(`Login error: ${error instanceof Error ? error.message : String(error)}`);
                 res
-                    .status(500)
+                    .status(httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.InternalServerError)
                     .json({ success: false, message: "Internal server error" });
                 throw new Error(`error while forgetpass in getforgetPassword ${error instanceof Error ? error.message : String(error)}`);
             }
@@ -333,7 +321,7 @@ class authController {
                         .json({ success: true, message: "password changed successfully" });
                 }
                 if ((result === null || result === void 0 ? void 0 : result.message) === "credencial is missing") {
-                    res.status(400).json({ success: false, message: result.message });
+                    res.status(httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.BadRequest).json({ success: false, message: result.message });
                     return;
                 }
                 else if ((result === null || result === void 0 ? void 0 : result.message) === "user not exist.Please signup") {
@@ -344,7 +332,7 @@ class authController {
             catch (error) {
                 console.error(`Login error: ${error instanceof Error ? error.message : String(error)}`);
                 res
-                    .status(500)
+                    .status(httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.InternalServerError)
                     .json({ success: false, message: "Internal server error" });
                 throw new Error(`Error while handling metnor forgot password request: ${error instanceof Error ? error.message : String(error)}`);
             }
@@ -354,17 +342,19 @@ class authController {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 const { accessToken, refreshToken } = yield this._AuthService.googleAuth(req.user);
-                res.cookie('refreshToken', refreshToken, {
+                console.log(accessToken, "jwt tokens", refreshToken, "thsi si the jwt tokens");
+                res.cookie("refreshToken", refreshToken, {
                     httpOnly: true,
-                    secure: process.env.NODE_ENV === 'production',
-                    sameSite: 'lax',
+                    secure: process.env.NODE_ENV === "production",
+                    sameSite: "lax",
                     maxAge: 7 * 24 * 60 * 60 * 1000,
                 });
+                console.log(process.env.CLIENT_ORIGIN_URL);
                 res.redirect(`${process.env.CLIENT_ORIGIN_URL}/mentee/google/success?token=${accessToken}`);
             }
             catch (error) {
-                res.status(500).json({
-                    status: 'error',
+                res.status(httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.InternalServerError).json({
+                    status: "error",
                     message: `Error while Google auth: ${error instanceof Error ? error.message : String(error)}`,
                 });
             }

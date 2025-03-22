@@ -37,7 +37,7 @@ auth_Router.post(`/apply_as_mentor`,upload.fields(
 auth_Router.post(`/login/mentor`,__authController.mentorLogin.bind(__authController));
 auth_Router.post('/forgot_password/mentor',__authController.mentorForgotPassword.bind(__authController));
 auth_Router.put('/change_password/mentor',__authController.mentorForgot_PasswordChange.bind(__authController))
-
+ 
 //admin auth
 auth_Router.post('/login/admin',__authController.adminLogin.bind(__authController));
 
@@ -48,11 +48,12 @@ auth_Router.get(`/google`,passport.authenticate('google',{scope:['email','profil
 auth_Router.get(`/google/callback`,passport.authenticate('google',{
     successRedirect:'/auth/google/success',
     failureRedirect:'http://localhost:5173/mentee/google/failure',
-
+    failureMessage: true,
+    successMessage:true
 }));
 
 auth_Router.get(`/google/success`,__authController.googleAuth.bind(__authController));
-// auth_Router.get(`/google/failure`,__authController.getGoogleAuth.bind(__authController));
+
 
 export default auth_Router
 

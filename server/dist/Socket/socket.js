@@ -22,7 +22,7 @@ const chatMap = new Map();
 const rooms = new Map(); //webrtc
 class SocketManager {
     constructor(io) {
-        // for emitting new notification 
+        // for emitting new notification
         this.sendNotification = (userId, message) => {
             this.io
                 .of("/notifications")
@@ -79,9 +79,9 @@ class SocketManager {
                 console.log(`user joined in the room`, data === null || data === void 0 ? void 0 : data.roomId);
                 socket.join(data === null || data === void 0 ? void 0 : data.roomId);
                 try {
-                    //fetch all specific roomid message 
+                    //fetch all specific roomid message
                     const result = yield messageRepository_1.default.getMessage(new mongoose_1.default.Types.ObjectId(data === null || data === void 0 ? void 0 : data.roomId));
-                    //send all  messages to the chatnamespace's specific  users roomId 
+                    //send all  messages to the chatnamespace's specific  users roomId
                     chatNsp
                         .to(data === null || data === void 0 ? void 0 : data.roomId)
                         .emit("all-message", { result, roomId: data === null || data === void 0 ? void 0 : data.roomId });
@@ -93,6 +93,7 @@ class SocketManager {
             //geting new message
             socket.on("new-message", (_a) => __awaiter(this, [_a], void 0, function* ({ roomId, message }) {
                 var _b;
+                console.log('mesage vannu ttoh 0000000000000000000');
                 try {
                     if (!roomId) {
                         console.log("no room");
@@ -114,9 +115,9 @@ class SocketManager {
                             .to(roomId)
                             .emit("errorMessage", { error: "message not created " });
                     }
-                    //send back the  new  message 
+                    //send back the  new  message
                     chatNsp.to(roomId).emit("receive-message", { result, roomId });
-                    //decode the %$like code from the file name 
+                    //decode the %$like code from the file name
                     const messageContent = (message === null || message === void 0 ? void 0 : message.messageType) == "text"
                         ? message === null || message === void 0 ? void 0 : message.content
                         : decodeURIComponent(message === null || message === void 0 ? void 0 : message.content.split("/").pop());

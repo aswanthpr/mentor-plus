@@ -5,7 +5,7 @@ import { useDispatch } from "react-redux";
 import { toast } from "react-toastify";
 import { Link } from "react-router-dom";
 
-// import SocialLogins from "../../components/auth/SocialLogins";
+
 import { AppDispatch } from "../../Redux/store";
 import { setAccessToken } from "../../Redux/menteeSlice";
 import { setMentorToken } from "../../Redux/mentorSlice";
@@ -15,7 +15,7 @@ import { errorHandler } from "../../Utils/Reusable/Reusable";
 import InputField from "../../components/Auth/InputField";
 import Spinner from "../../components/Common/common4All/Spinner";
 import { validateEmail, validatePassword } from "../../Validation/Validation";
-
+import bgImg from "../../Asset/background.jpg"
 const Login: React.FC = () => {
   const dispatch: AppDispatch = useDispatch();
 
@@ -98,6 +98,11 @@ const Login: React.FC = () => {
               toast.success(response.data.message);
 
               navigate("/mentee/home");
+            }else{
+             
+                console.log(response,";aksjdjfk")
+                toast.error(response?.data?.message)
+            
             }
           }
           if (userType == "mentor") {
@@ -121,6 +126,7 @@ const Login: React.FC = () => {
             }
             toast.success(response.data.message);
           }
+         
         }
       } catch (error: unknown) {
         errorHandler(error);
@@ -140,7 +146,14 @@ const Login: React.FC = () => {
   }, []);
 
   return (
-    <div className="min-h-screen flex flex-col justify-center py-12 sm:px-6 lg:px-8 font-poppins">
+    <div className="min-h-screen flex flex-col justify-center py-12 sm:px-6 lg:px-8 font-poppins"
+    style={{
+      backgroundImage: `url(${bgImg})`,
+      backgroundSize: "cover",
+      backgroundPosition: "center",
+      backgroundRepeat: "no-repeat",
+    }}
+    >
       {loading && <Spinner />}
       <div className="sm:mx-auto sm:w-full sm:max-w-md">
         <h2 className="text-center text-4xl font-bold text-black mb-8">
@@ -174,17 +187,6 @@ const Login: React.FC = () => {
         <div className="bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10">
           {userType === "mentee" && (
             <div className="space-y-4 mb-8">
-              {/* <SocialLogins
-                icon={Github}
-                provider="GitHub"
-                onClick={() => handleSocialLogin("GitHub")}
-              />
-
-              <SocialLogins
-                icon={Linkedin}
-                provider="LinkedIn"
-                onClick={() => handleSocialLogin("LinkedIn")}
-              /> */}
               <button
                 onClick={() => handleSocialLogin("google")}
                 className="w-full flex items-center justify-center gap-2 px-4 py-2 border-2 border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
@@ -240,7 +242,7 @@ const Login: React.FC = () => {
                 aria-label={
                   isPasswordVisible ? "Hide Password" : "Show Password"
                 }
-                className="absolute right-4 top-12 transform -translate-y-1/2 text-gray-400" // Position the icon to the right of the input field
+                className="absolute right-4 top-12 transform -translate-y-1/2 text-gray-400" 
               >
                 {isPasswordVisible ? <EyeClosedIcon /> : <EyeIcon />}
               </button>

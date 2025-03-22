@@ -77,6 +77,7 @@ export interface IanswerWithQuestion extends Ianswer {
     _id: ObjectId;
     menteeId: ObjectId;
   };
+  user:Imentee
 }
 
 interface IchatWithUser {

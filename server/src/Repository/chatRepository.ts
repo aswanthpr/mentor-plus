@@ -16,6 +16,7 @@ class chatRepository extends baseRepository<Ichat> implements IchatRepository {
             menteeId: userId,
           },
         },
+        
         {
           $lookup: {
             from: "mentors",
@@ -27,6 +28,7 @@ class chatRepository extends baseRepository<Ichat> implements IchatRepository {
         {
           $unwind: "$users",
         },
+        
         {
           $project: {
             _id: 1,
@@ -34,6 +36,7 @@ class chatRepository extends baseRepository<Ichat> implements IchatRepository {
             menteeId: 1,
             lastMessage: 1,
             createdAt: 1,
+            updatedAt:1,
             users: {
               _id: 1,
               name: 1,
@@ -44,6 +47,9 @@ class chatRepository extends baseRepository<Ichat> implements IchatRepository {
               profileUrl: 1,
             },
           },
+        },
+        {
+          $sort:{updatedAt:-1}
         },
       ]);
     } catch (error: unknown) {
@@ -81,6 +87,7 @@ class chatRepository extends baseRepository<Ichat> implements IchatRepository {
             menteeId: 1,
             lastMessage: 1,
             createdAt: 1,
+            updatedAt:1,
             users: {
               _id: 1,
               name: 1,

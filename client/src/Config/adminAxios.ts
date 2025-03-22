@@ -30,6 +30,7 @@ API.interceptors.request.use(
     return config;
   },
   (error) => {
+    
     return Promise.reject(error);
 
   }
@@ -42,7 +43,7 @@ API.interceptors.response.use(
   },
   async (error: AxiosError) => {
     const originalRequest = error.config as InternalAxiosRequestConfig & { _retry?: boolean };
-console.log(error,'error aane')
+
     if (error.response?.status === 401) {
 
       store.dispatch(clearToken());

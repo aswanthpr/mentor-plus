@@ -10,6 +10,7 @@ import { setToken } from "../../Redux/adminSlice";
 import { EyeClosedIcon, EyeIcon } from "lucide-react";
 import { errorHandler } from "../../Utils/Reusable/Reusable";
 import { fetchAdminLogin } from "../../service/adminApi";
+import bgImg from "../../Asset/background.jpg"
 
 
 interface IError {
@@ -76,7 +77,14 @@ const AdminLogin: React.FC = () => {
   },[dispatch, email, navigate, password]);
 
   return (
-    <div className="font-poppins flex items-center justify-center min-h-screen bg-gray-100">
+    <div className="font-poppins flex items-center justify-center min-h-screen bg-gray-100"
+    style={{
+      backgroundImage: `url(${bgImg})`,
+      backgroundSize: "cover",
+      backgroundPosition: "center",
+      backgroundRepeat: "no-repeat",
+    }}
+    >
       {loading && <Spinner />}
       <div className="bg-white p-8 rounded-lg shadow-lg w-full max-w-sm">
         <h2 className="text-center text-3xl font-bold text-grey-900 mb-6">
@@ -139,12 +147,6 @@ const AdminLogin: React.FC = () => {
             className="w-full py-2 mt-4 bg-[#ff8800] text-white font-extrabold rounded-md hover:bg-[#e07e00] transition-colors"
           />
         </form>
-        {/* <div className='text-center mt-4'>
-        <a href="#"
-        className='text-black font-bold text-sm hover:underline'>Forgot Password?
-        </a>
-
-    </div> */}
       </div>
     </div>
   );

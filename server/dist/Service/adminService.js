@@ -225,17 +225,17 @@ class adminService {
                     return {
                         success: false,
                         message: "credential is missing",
-                        status: 400,
+                        status: httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.BadRequest,
                     };
                 }
                 const result = yield this._menteeRepository.changeMenteeStatus(id);
                 if (!result) {
-                    return { success: false, message: "mentee not found", status: 400 };
+                    return { success: false, message: "mentee not found", status: httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.BadRequest };
                 }
                 return {
                     success: true,
                     message: "mentee Edited successfully",
-                    status: 200,
+                    status: httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.Ok,
                 };
             }
             catch (error) {

@@ -12,7 +12,6 @@ const AdminProtectLogout:React.FC<IAdminLogout> = ({element}) => {
 
     const navigate = useNavigate();
     const adminToken = useSelector((state: RootState) => state.admin?.adminToken);
-    console.log(adminToken)
     const role = useSelector((state: RootState) => state.admin?.adminRole);
     console.log(adminToken,role,'huauuuafjalsjdfl')
     useEffect(() => {

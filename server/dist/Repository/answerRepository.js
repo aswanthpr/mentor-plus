@@ -34,6 +34,20 @@ class answerRespository extends baseRepo_1.baseRepository {
                     },
                     {
                         $lookup: {
+                            from: "mentees",
+                            localField: "authorId",
+                            foreignField: "_id",
+                            as: "author",
+                        }
+                    },
+                    {
+                        $unwind: {
+                            path: "$author",
+                            preserveNullAndEmptyArrays: true,
+                        },
+                    },
+                    {
+                        $lookup: {
                             from: "questions",
                             localField: "questionId",
                             foreignField: "_id",
@@ -42,10 +56,13 @@ class answerRespository extends baseRepo_1.baseRepository {
                         },
                     },
                     {
-                        $unwind: "$question",
-                    }
+                        $unwind: {
+                            path: "$question",
+                            preserveNullAndEmptyArrays: true,
+                        },
+                    },
                 ]);
-                return { result, menteeId: (_b = (_a = data[0]) === null || _a === void 0 ? void 0 : _a.question) === null || _b === void 0 ? void 0 : _b.menteeId };
+                return { result: data[0], menteeId: (_b = (_a = data[0]) === null || _a === void 0 ? void 0 : _a.question) === null || _b === void 0 ? void 0 : _b.menteeId };
             }
             catch (error) {
                 throw new Error(`Error occured while create answer ${error instanceof Error ? error.message : String(error)}`);
@@ -55,7 +72,7 @@ class answerRespository extends baseRepo_1.baseRepository {
     editAnswer(content, answerId) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                return this.find_By_Id_And_Update(answerModel_1.default, answerId, {
+                return yield this.find_By_Id_And_Update(answerModel_1.default, answerId, {
                     $set: { answer: content },
                 });
             }
@@ -67,7 +84,7 @@ class answerRespository extends baseRepo_1.baseRepository {
     deleteAnswer(questionId) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                return this.deleteMany({ questionId });
+                return yield this.deleteMany({ questionId });
             }
             catch (error) {
                 throw new Error(`Error occured while delete answer ${error instanceof Error ? error.message : String(error)}`);
@@ -77,7 +94,7 @@ class answerRespository extends baseRepo_1.baseRepository {
     changeAnswerStatus(answerId) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                return this.find_By_Id_And_Update(answerModel_1.default, answerId, [
+                return yield this.find_By_Id_And_Update(answerModel_1.default, answerId, [
                     { $set: { isBlocked: { $not: "$isBlocked" } } },
                 ]);
             }

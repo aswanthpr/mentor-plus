@@ -4,7 +4,7 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { StatusBadge } from "../../components/Admin/StatusBadge";
 import { toast } from "react-toastify";
 import profile from "../../Asset/rb_2877.png";
-import { ArrowUpDown, BanIcon, CheckCircle2, CircleCheckBigIcon, Eye, Filter, Search } from "lucide-react";
+import { ArrowUpDown, BanIcon, CheckCircle2, CircleCheckBigIcon, Eye, Filter, Frown, Search } from "lucide-react";
 import ConfirmToast from "../../components/Common/common4All/ConfirmToast";
 import Spinner from "../../components/Common/common4All/Spinner";
 import { errorHandler } from "../../Utils/Reusable/Reusable";
@@ -91,7 +91,7 @@ const [searchQuery, setSearchQuery] = useState("");
         setMentors((pre) =>
           pre.map((mentor) =>
             mentor?._id == id ? { ...mentor, verified: true } : mentor
-          )
+          ).filter((ment)=>ment?._id!=id)
         );
       } else {
         console.error("Invalid response format", response);
@@ -247,80 +247,91 @@ const [searchQuery, setSearchQuery] = useState("");
             </select>
           </div>
         </div>
-      <Table
-        headers={[
-          "Profile",
-          "Name",
-          "Email",
-          `${activeTab == "verified" ? "Status" : "Details"}`,
-          `${activeTab == "verified" ? "Action" : "Verify"}`,
-        ]}
-      >
-        {mentors.map((mentor) => (
-          <tr key={mentor?._id}>
-            <td className=" py-4 flex justify-center">
-              <img
-                src={mentor?.profileUrl ? mentor?.profileUrl : profile}
-                alt={mentor?.name}
-                className="w-10 h-10 rounded-full  "
-              />
-            </td>
-            <td className="px-6 py-4 text-sm text-center">{mentor?.name}</td>
-            <td className="px-6 py-4 text-sm text-center">{mentor?.email}</td>
-
-            {activeTab === "not-verified" ? (
-              <td className="px-6 py-4 text-center">
-                <button
-                  className="px-3 py-1 bg-cyan-200 text-white rounded-full hover:bg-cyan-700 font-bold"
-                  onClick={() => (window.location.href = `${mentor?.resume}`)}
-                >
-                  <Eye className="text-black h-10" />
-                </button>
-              </td>
-            ) : (
-              <td className="px-6 py-4 text-center">
-                <StatusBadge
-                  status={mentor?.isBlocked ? "blocked" : "active"}
-                />
-              </td>
-            )}
-
-            <>
-              {activeTab === "not-verified" ? (
-                <>
-                  <td className="px-6 py-4 text-center font-bold">
+        <hr className="h-px  bg-gray-200 border-0 dark:bg-gray-500 " />
+        {
+          mentors.length > 0 ? (
+            <Table
+            headers={[
+              "Profile",
+              "Name",
+              "Email",
+              `${activeTab == "verified" ? "Status" : "Details"}`,
+              `${activeTab == "verified" ? "Action" : "Verify"}`,
+            ]}
+          >
+            {mentors.map((mentor) => (
+              <tr key={mentor?._id}>
+                <td className=" py-4 flex justify-center">
+                  <img
+                    src={mentor?.profileUrl ? mentor?.profileUrl : profile}
+                    alt={mentor?.name}
+                    className="w-10 h-10 rounded-full  "
+                  />
+                </td>
+                <td className="px-6 py-4 text-sm text-center">{mentor?.name}</td>
+                <td className="px-6 py-4 text-sm text-center">{mentor?.email}</td>
+    
+                {activeTab === "not-verified" ? (
+                  <td className="px-6 py-4 text-center">
                     <button
-                      onClick={() => handleMentorVerify(mentor?._id as string)}
-                      className="px-3 py-1 bg-green-400 text-white rounded-full hover:bg-green-700"
+                      className="px-3 py-1 bg-cyan-200 text-white rounded-full hover:bg-cyan-700 font-bold"
+                      onClick={() => (window.location.href = `${mentor?.resume}`)}
                     >
-                      <CheckCircle2 className="h-10 text-black" />
+                      <Eye className="text-black h-10" />
                     </button>
                   </td>
+                ) : (
+                  <td className="px-6 py-4 text-center">
+                    <StatusBadge
+                      status={mentor?.isBlocked ? "blocked" : "active"}
+                    />
+                  </td>
+                )}
+    
+                <>
+                  {activeTab === "not-verified" ? (
+                    <>
+                      <td className="px-6 py-4 text-center font-bold">
+                        <button
+                          onClick={() => handleMentorVerify(mentor?._id as string)}
+                          className="px-3 py-1 bg-green-400 text-white rounded-full hover:bg-green-700"
+                        >
+                          <CheckCircle2 className="h-10 text-black" />
+                        </button>
+                      </td>
+                    </>
+                  ) : (
+                    <td className="px-6 py-4 text-center">
+                      <button
+                        className={` ${
+                          mentor.isBlocked
+                            ? "text-green-800 hover:text-green-400"
+                            : "text-red-800 hover:text-red-400"
+                        } `}
+                        onClick={() =>
+                          handleMentorBlock(mentor?._id as string, activeTab)
+                        }
+                      >
+                        {mentor?.isBlocked ? (
+                          <CircleCheckBigIcon color="green" />
+                        ) : (
+                          <BanIcon color="red" />
+                        )}
+                      </button>
+                    </td>
+                  )}
                 </>
-              ) : (
-                <td className="px-6 py-4 text-center">
-                  <button
-                    className={` ${
-                      mentor.isBlocked
-                        ? "text-green-800 hover:text-green-400"
-                        : "text-red-800 hover:text-red-400"
-                    } `}
-                    onClick={() =>
-                      handleMentorBlock(mentor?._id as string, activeTab)
-                    }
-                  >
-                    {mentor?.isBlocked ? (
-                      <CircleCheckBigIcon color="green" />
-                    ) : (
-                      <BanIcon color="red" />
-                    )}
-                  </button>
-                </td>
-              )}
-            </>
-          </tr>
-        ))}
-      </Table>
+              </tr>
+            ))}
+          </Table>
+          ) : (
+            <div className="text-center text-gray-500 mt-4  mb-8 flex justify-center items-center ">
+            < Frown className="w-5 mr-4"/> <span>No Data Available</span> 
+            </div>
+          )
+        }
+        
+     
  <hr className="h-px  bg-gray-200 border-0 dark:bg-gray-700 " />
       <div className="flex justify-center items-center mt-2">
         <Pagination

@@ -12,7 +12,7 @@ import { EyeClosedIcon, EyeIcon } from "lucide-react";
 import { errorHandler } from "../../Utils/Reusable/Reusable";
 import { fetchMentorApplication } from "../../service/mentorApi";
 import { githubUrlPattern, linkedinUrlPattern, noNumbersOrSymbols } from "../../Validation/Validation";
-
+import bgImg from "../../Asset/background.jpg" 
 const MentorApply: React.FC = () => {
   const initialState = useMemo(() => ({
     formData: {
@@ -196,7 +196,6 @@ const MentorApply: React.FC = () => {
 
       if (data.success && status == 200) {
         console.log(data.message);
-        toast.success(data.message);
 
         setFormData(initialState?.formData);
         navigate('/auth/login/mentor')
@@ -214,19 +213,26 @@ const MentorApply: React.FC = () => {
     setFormData((prev) => ({ ...prev, [field]: value }));
   },[]);
   return (
-    <div className="min-h-screen bg-gray-50 py-12 px-4 font-sans">
+    <div className="min-h-screen bg-gray-50 py-1 px-4 font-sans items-center justify-center flex"
+    style={{
+      backgroundImage: `url(${bgImg})`,
+      backgroundSize: "cover",
+      backgroundPosition: "center",
+      backgroundRepeat: "no-repeat",
+    }}
+    >
     {  loading && <Spinner/>}
-      <div className="max-w-3xl mx-auto bg-white rounded-lg shadow-lg p-8 flex flex-col">
-        <h1 className="text-3xl font-bold text-black mb-1 text-center">
+      <div className="max-w-3xl mx-auto bg-white rounded-lg shadow-lg p-6 flex flex-col ">
+        <h1 className="text-2xl font-bold text-black mb-1 text-center">
           Apply as a Mentor
         </h1>
-        <form onSubmit={handleSubmit} className="space-y-6">
+        <form onSubmit={handleSubmit} className="space-y-1">
           <ProfileImageUpload onImageChange={setProfileImage} />
           {errors.profileImage && (
             <p className=" text-center text-red-500 text-sm">{errors.profileImage}</p>
           )} 
-          <div className="grid md:grid-cols-2 gap-6 ">
-            <div className="space-y-6 ">
+          <div className="grid md:grid-cols-2 gap-5 ">
+            <div className="space-y-5 ">
               <InputField
                 label="Full Name"
                 type="text"
@@ -328,7 +334,7 @@ const MentorApply: React.FC = () => {
                 )}
               </div>
             </div>
-            <div className="space-y-6">
+            <div className="space-y-2">
               <InputField
                 type="text"
                 name="linkedinUrl"
@@ -363,7 +369,7 @@ const MentorApply: React.FC = () => {
                   onChange={(e) => handleInputChange("bio", e.target.value)}
                   placeholder="Tell us about yourself and your experience..."
                   rows={4}
-                  className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-orange-200 border-orange-500 resize-none"
+                  className="w-full px-4 py-1 border rounded-md focus:outline-none focus:ring-2 focus:ring-orange-200 border-orange-500 resize-none"
                 />
                 {errors.bio && (
                   <p className="text-red-500 text-sm">{errors.bio}</p>
@@ -396,11 +402,11 @@ const MentorApply: React.FC = () => {
           <Button
             type="submit"
             variant="orange"
-            className="w-full font-bold mt-8"
+            className="w-full font-bold"
             children={"Submit Application"}
           />
         </form>
-        <p className="text-sm text-center text-gray-600 mt-8">
+        <p className="text-sm text-center text-gray-600 mt-2">
           Already have an account?
           <Link
             to="/auth/login/mentor"

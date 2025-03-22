@@ -352,3 +352,15 @@ interface ImentorChartData{
   cumulativeSession: CumulativeSessionData[];
   topMentors:ItopMentors[]
 }
+
+interface IeditQuestion{
+  title:string,
+  content:string,
+  tags:string[],
+}
+interface IFormErrors {
+  name?: string;
+  email?: string;
+  password?: string;
+  confirmPassword?: string;
+}

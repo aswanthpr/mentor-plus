@@ -1,3 +1,4 @@
+import { IanswerWithQuestion } from "src/Types";
 import { IanswerRepository } from "../Interface/Qa/IanswerRepository";
 import { Ianswer } from "../Model/answerModel";
 import { baseRepository } from "./baseRepo";
@@ -5,7 +6,7 @@ import { DeleteResult, ObjectId } from "mongoose";
 declare class answerRespository extends baseRepository<Ianswer> implements IanswerRepository {
     constructor();
     createNewAnswer(answer: string, questionId: ObjectId, userId: ObjectId, userType: string): Promise<{
-        result: Ianswer | null;
+        result: IanswerWithQuestion | null;
         menteeId: ObjectId;
     }>;
     editAnswer(content: string, answerId: string): Promise<Ianswer | null>;
