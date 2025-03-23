@@ -62,7 +62,7 @@ export const categoryValidation = async (
   if (!category) {
     return false;
   }
-  const regex = /^[a-zA-Z\s]{3,20}$/;
+  const regex = /^[a-zA-Z0-9\s,&]{3,50}$/;
   return regex.test(category);
 };
 

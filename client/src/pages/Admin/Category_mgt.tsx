@@ -54,7 +54,7 @@ const Category_mgt: React.FC = () => {
   //fetch category data
   useEffect(() => {
     const fetchCategories = async () => {
-      setLoading(true);
+     
       try {
         const response = await fetchAllcategoryData(
           searchQuery,
@@ -73,9 +73,7 @@ const Category_mgt: React.FC = () => {
         }
       } catch (error: unknown) {
         errorHandler(error);
-      } finally {
-        setLoading(false);
-      }
+      } 
     };
 
     fetchCategories();
@@ -117,7 +115,7 @@ const Category_mgt: React.FC = () => {
     const isValid = await categoryValidation(categoryValue.trim());
     if (!isValid) {
       setError(
-        "Category must be between 3 and 20 letters, and no symbols or numbers are allowed."
+        "Category must be between 3 and 50 letters, and no symbols or numbers are allowed."
       );
       return;
     }

@@ -90,6 +90,7 @@ const BookingPage: React.FC = () => {
       setMessage("");
       setErrors(initialState);
       setTimeDifference(null);
+
     } catch (error: unknown) {
       // Handle Yup validation error
       if (error instanceof Yup.ValidationError) {
