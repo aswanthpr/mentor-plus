@@ -1,10 +1,8 @@
 
-
-
 import React, { useRef, useState } from "react";
 import SelectField from "../Common/Schedule/SelectField";
 import { SelectChangeEvent, Tooltip } from "@mui/material";
-import { XCircleIcon } from "lucide-react";
+
 
 interface Category {
   _id: string;

@@ -98,11 +98,11 @@ const EditProfileModal:React.FC<IEditProfileModal> = ({
               value='formData.skills.map(s => s.name).join(",")'
               onChange={(e) => {
                 const skillNames = e.target.value.split(',').map(s => s.trim());
-                const skills = skillNames.map((name, index) => ({
+                 skillNames.map((name, index) => ({
                   id: index.toString(),
                   name,
                 }));
-                // setFormData(' ...formData, skills ');
+               
               }}
               className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-[#ff8800] focus:ring-[#ff8800]"
             />

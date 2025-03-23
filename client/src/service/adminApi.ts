@@ -128,23 +128,23 @@ export const fetchEditCategory = async (
   }
 };
 export const fetchAllcategoryData = async (
-    searchQuery:string,
-        statusFilter:string,
-        sortField:string,
-        sortOrder:string,
-        page:number,
-        limit:number
+  searchQuery: string,
+  statusFilter: string,
+  sortField: string,
+  sortOrder: string,
+  page: number,
+  limit: number
 ): Promise<AxiosResponse | any> => {
   try {
-    return await API.get("/admin/category_management",{
-        params:{
-            searchQuery,
-            statusFilter,
-            sortField,
-            sortOrder,
-            page,
-            limit 
-        }
+    return await API.get("/admin/category_management", {
+      params: {
+        searchQuery,
+        statusFilter,
+        sortField,
+        sortOrder,
+        page,
+        limit,
+      },
     });
   } catch (error: unknown) {
     console.log(error instanceof Error ? error?.message : String(error));
@@ -165,20 +165,20 @@ export const fetchAllMentee = async (
   search: string,
   sortField: string,
   sortOrder: string,
-  statusFilter:string,
+  statusFilter: string,
   page: number,
   limit: number
 ): Promise<AxiosResponse | any> => {
   try {
-    return await API.get(`/admin/mentee_management`,{
-        params:{
-            search,
-            sortField,
-            sortOrder,
-            statusFilter,
-            page,
-            limit,
-        }
+    return await API.get(`/admin/mentee_management`, {
+      params: {
+        search,
+        sortField,
+        sortOrder,
+        statusFilter,
+        page,
+        limit,
+      },
     });
   } catch (error: unknown) {
     console.log(error instanceof Error ? error?.message : String(error));

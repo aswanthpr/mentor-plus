@@ -155,24 +155,25 @@ export const fetchMenteeQuestions = async (
   limit: number
 ): Promise<AxiosResponse | any> => {
   try {
-    return await protectedAPI.get(`/mentee/qa`,{params:{
-      search,
-      filter,
-      sortField,
-      sortOrder,
-      page,
-      limit,
-    }});
+    return await protectedAPI.get(`/mentee/qa`, {
+      params: {
+        search,
+        filter,
+        sortField,
+        sortOrder,
+        page,
+        limit,
+      },
+    });
   } catch (error: unknown) {
     console.log(error instanceof Error ? error.message : String(error));
   }
 };
 export const fetchCreateQuestion = async (
-  question: IeditQuestion,
-
+  question: IeditQuestion
 ): Promise<AxiosResponse | any> => {
   try {
-    return await protectedAPI.post(`/mentee/qa/add-question/`,question);
+    return await protectedAPI.post(`/mentee/qa/add-question/`, question);
   } catch (error: unknown) {
     console.log(error instanceof Error ? error.message : String(error));
   }
@@ -368,8 +369,8 @@ export const fetchMenteeLogin = async (
   formData: LoginFormData
 ): Promise<AxiosResponse | any> => {
   try {
-  const response = await unProtectedAPI.post(`/auth/login/mentee`, formData);
-  return response
+    const response = await unProtectedAPI.post(`/auth/login/mentee`, formData);
+    return response;
   } catch (error: unknown) {
     console.log(error instanceof Error ? error.message : String(error));
   }

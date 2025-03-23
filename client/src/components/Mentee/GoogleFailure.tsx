@@ -15,7 +15,7 @@ const GoogleFailure: React.FC = () => {
 
     setLoading(false);
 
-  }, []);
+  }, [navigate]);
 
   return <div>{loading ? <Spinner /> : null}</div>;
 };

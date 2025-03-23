@@ -1,10 +1,10 @@
-// import { Breadcrumb } from '../../components/Common/exploreMentor/BreadCrumb';
+
 import { ProfileHeader } from "../../components/Common/exploreMentor/ProfileHeader";
 import { Skills } from "../../components/Common/exploreMentor/Skills";
 
 import { BookOption } from "../../components/Common/exploreMentor/BookOption";
 import MentorListByCategory from "../../components/Common/exploreMentor/MentorListByCategory";
-// import Button from "../../components/Auth/Button";
+
 import { useLocation, useNavigate } from "react-router-dom";
 import { useCallback, useEffect, useState } from "react";
 import Spinner from "../../components/Common/common4All/Spinner";
@@ -20,7 +20,7 @@ import { fetchSimilarMentors } from "../../service/menteeApi";
   const [similarMentor, setSimilarMentor] = useState<IMentor[] | []>([]);
 
   const [loading, setLoading] = useState(true);
-  // const [error, setError] = useState('')
+
 
   useEffect(() => {
     const fetchMentorData = async () => {
@@ -51,10 +51,7 @@ import { fetchSimilarMentors } from "../../service/menteeApi";
   return (
     <div className="min-h-screen bg-gray-50 pt-10">
       {loading && <Spinner />}
-      {/* <div className="container mx-auto px-4 py-6">
-        <Breadcrumb path={breadcrumbPath} />
-      </div> */}
-
+     
       <ProfileHeader mentorData={mentorData} />
 
       <div className="container mx-auto px-4 py-4">
@@ -72,7 +69,7 @@ import { fetchSimilarMentors } from "../../service/menteeApi";
               </div>
             </div>
             {
-            // mentorData?.review&& mentorData?.review?.length>0 &&
+           
             <ReviewSection  mentorData={mentorData as IMentor} />
             }
           </div>
@@ -83,9 +80,7 @@ import { fetchSimilarMentors } from "../../service/menteeApi";
               onBook={handleBooking}
             />
 
-            {/* <Button variant="secondary" className="w-full">
-              View one-off sessions
-            </Button> */}
+            
           </div>
         </div>
         {similarMentor.length > 0 ? (

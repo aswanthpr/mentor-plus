@@ -112,13 +112,13 @@ console.log(totalDoc,'lkasdf')
         <div className="flex justify-center mt-2">
           <Pagination
             count={totalDoc}
-            page={currentPage} // Current page
-            onChange={handlePageChange} // Page change handler
-            color="standard" // Pagination color
-            shape="circular" // Rounded corners
-            size="small" // Size of pagination
-            siblingCount={1} // Number of sibling pages shown next to the current page
-            boundaryCount={1} // Number of boundary pages to show at the start and end
+            page={currentPage} 
+            onChange={handlePageChange} 
+            color="standard" 
+            shape="circular" 
+            size="small" 
+            siblingCount={1} 
+            boundaryCount={1} 
           />
         </div>
       </div>

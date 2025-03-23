@@ -69,10 +69,3 @@ export const disconnectChat = () => {
   }
 };
 
-// //  connect to WebRTC namespace
-// export const connectToWebRTC = (): Socket => {
-//   if (!webrtcSocket) {
-//     webrtcSocket = io(`${import.meta.env?.VITE_SERVER_URL}/webrtc`);
-//   }
-//   return webrtcSocket;
-// }

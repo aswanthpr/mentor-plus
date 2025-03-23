@@ -30,8 +30,7 @@ const BookingPage: React.FC = () => {
   const [timeSlot, setTimeSlot] = useState<Itime[] | []>([]);
   const [errors, setErrors] = useState<IBookingError>(initialState);
   const [timeDifference, setTimeDifference] = useState<number | null>(null);
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+
   const [mentorName] = useState<string>(pathname.split("/")[2]);
   const [sessionPrice, setSessionPrice] = useState<number>(0);
   useEffect(() => {
@@ -51,11 +50,11 @@ const BookingPage: React.FC = () => {
 
 
   const handleBook = async () => {
-    setErrorMessage(null);
+
 
     try {
       if (!selectedSlot) {
-        setErrorMessage("Please select a time slot");
+        toast.error("Please select a time slot");
         return;
       }
       await bookingInputValidation.validate({ message });
@@ -91,7 +90,6 @@ const BookingPage: React.FC = () => {
       setMessage("");
       setErrors(initialState);
       setTimeDifference(null);
-      setErrorMessage(null);
     } catch (error: unknown) {
       // Handle Yup validation error
       if (error instanceof Yup.ValidationError) {

@@ -8,11 +8,6 @@ interface MentorCardProps {
 }
 
 const MentorCard: React.FC<MentorCardProps> = ({ mentor }) => {
-  // const availabilityColor = {
-  //   available: 'bg-green-500',
-  //   busy: 'bg-yellow-500',
-  //   offline: 'bg-gray-400',
-  // }[mentor.availability??"available"];
 
   return (
     <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-2 sm:p-6 hover:shadow-md transition-shadow mx-1">
@@ -32,10 +27,7 @@ const MentorCard: React.FC<MentorCardProps> = ({ mentor }) => {
                 <BadgeCheckIcon className="ml-1 text-green-600 w-5" />
               </span>
             </div>
-            {/* <div className="flex items-center justify-center sm:justify-start gap-1">
-                <div className={`w-2 h-2 rounded-full ${availabilityColor}`} />
-                <span className="text-sm text-gray-500 capitalize">{mentor?.availability}</span>
-              </div> */}
+
           </div>
           <p className="text-sm text-gray-600 mt-1 text-center sm:text-left">
             {mentor?.jobTitle} |{mentor?.category}
@@ -45,13 +37,9 @@ const MentorCard: React.FC<MentorCardProps> = ({ mentor }) => {
                 
                 <span className="ml-1 text-sm font-medium">{mentor?.averageRating?mentor?.averageRating?.toFixed(1):0}</span>
                 <Star className="w-4 h-4 text-yellow-400 fill-current" />
-                {/* <span className="text-sm text-gray-500">({mentor.reviewCount})</span> */}
+      
               </div>
-              {/* <span className="text-gray-300">•</span>
-              <div className="flex items-center">
-                <Clock className="w-4 h-4 text-gray-400" />
-                <span className="ml-1 text-sm text-gray-600">${mentor.avarageRating}/hr</span>
-              </div> */}
+              
             </div>
           <div className="mt-3 flex flex-wrap justify-center sm:justify-start gap-2">
             {mentor.skills.map((skill) => (

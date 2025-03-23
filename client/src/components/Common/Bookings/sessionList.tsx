@@ -9,18 +9,6 @@ interface SessionListProps {
     handleRating: (session: ISession) => void;
     handleSearchQueryChange: (query: string) => void;
 }
-// interface Session {
-//     id: string;
-//     mentorName: string;
-//     mentorAvatar: string;
-//     date: string;
-//     time: string;
-//     duration: number;
-//     topic: string;
-//     status: 'scheduled' | 'completed' | 'cancelled';
-//     rating?: number;
-//     review?: string;
-// }
 
 const SessionList: React.FC<SessionListProps> = ({
   sessions,
@@ -47,7 +35,6 @@ const SessionList: React.FC<SessionListProps> = ({
       <div className="space-y-4">
         {sessions.map(session => (
           <SessionCard 
-         
             key={session?._id} 
             session={session} 
             handleCancelSession={handleCancelSession} 

@@ -5,8 +5,7 @@ import VideoPage from "../components/Common/Bookings/VideoPage";
 import WalletPage from "../pages/Mentor/WalletPage";
 import MentorHome from "../pages/Mentor/Statistics";
 
-
-const Chat  = lazy(() => import("../pages/Mentor/Chat"));
+const Chat = lazy(() => import("../pages/Mentor/Chat"));
 const NotFound = lazy(() => import("../pages/Error/NotFound"));
 const Sessions = lazy(() => import("../pages/Mentor/Sessions"));
 const Schedule = lazy(() => import("../pages/Mentor/Schedule"));
@@ -41,17 +40,24 @@ const MentorRoute: React.FC = () => (
         />
         <Route
           path="/session"
-          element={<MentorProtectLogin element={<Sessions />} />} 
+          element={<MentorProtectLogin element={<Sessions />} />}
         />
-         <Route path="/session/:roomId" element={<MentorProtectLogin element={<VideoPage/>} />} /> 
-  <Route path="/wallet" element={<MentorProtectLogin element={<WalletPage />} />} />;
+        <Route
+          path="/session/:roomId"
+          element={<MentorProtectLogin element={<VideoPage />} />}
+        />
+        <Route
+          path="/wallet"
+          element={<MentorProtectLogin element={<WalletPage />} />}
+        />
+        ;
         <Route
           path="/messages"
           element={<MentorProtectLogin element={<Chat />} />}
         />
         <Route
           path="/home"
-          element={<MentorProtectLogin element={<MentorHome />} />} 
+          element={<MentorProtectLogin element={<MentorHome />} />}
         />
       </Route>
     </Routes>

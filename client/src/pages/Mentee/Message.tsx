@@ -20,7 +20,6 @@ const Message: React.FC = () => {
   const [btnDisable, setBtnDisable] = useState(false);
   const [messages, setMessages] = useState<Imessage[] | []>([]);
   const [showPicker,setShowPicker] =useState<boolean>(false)
-  // const chunksRef = useRef<Blob[]>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const userId = useRef<string>("");
@@ -149,7 +148,7 @@ const Message: React.FC = () => {
   const handleSelectedUser = useCallback(async (user: Ichat) => {
     setMessages([]);
 
-    setSelectedUser(user); // save the selected User
+    setSelectedUser(user); 
     console.log(user, "thsi si the seledted user");
     if (!user?._id) return;
     if (chatSocket.current) {
@@ -177,7 +176,7 @@ const Message: React.FC = () => {
     setBtnDisable(true);
 
     if (!selectedFile && !messageInput.trim()) {
-      //|| audioBlob
+   
       return;
     }
     let senderId: string;
@@ -206,10 +205,7 @@ const Message: React.FC = () => {
 
       newMessage.content = await uploadFile(selectedFile);
     }
-    //  else if (audioBlob) {
-    //   newMessage.messageType = "audio";
-    //   newMessage.mediaUrl = URL.createObjectURL(audioBlob);
-    // }
+
 
     console.log(newMessage, "thsi si the new mewsage");
 
@@ -224,7 +220,7 @@ const Message: React.FC = () => {
     setSelectedFile(null);
     setPreviewUrl(null);
     setBtnDisable(false);
-    // setAudioBlob(null);
+  
   }, [
     currentUser,
     messageInput,
@@ -234,53 +230,7 @@ const Message: React.FC = () => {
     selectedUser?.mentorId,
   ]);
 
-  // const handleStartRecording = async () => {
-  //   try {
-  //     const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-  //     const mediaRecorder = new MediaRecorder(stream);
-  //     mediaRecorderRef.current = mediaRecorder;
-  //     chunksRef.current = [];
-
-  //     mediaRecorder.ondataavailable = (e) => {
-  //       chunksRef.current.push(e.data);
-  //     };
-
-  //     mediaRecorder.onstop = () => {
-  //       const blob = new Blob(chunksRef.current, { type: "audio/webm" });
-  //       setAudioBlob(blob);
-  //       stream.getTracks().forEach((track) => track.stop());
-  //     };
-
-  //     mediaRecorder.start();
-  //     setIsRecording(true);
-
-  //     // Start timer
-  //     const startTime = Date.now();
-  //     const timerInterval = setInterval(() => {
-  //       setRecordingTime(Math.floor((Date.now() - startTime) / 1000));
-  //     }, 1000);
-
-  //     mediaRecorder.addEventListener("stop", () => {
-  //       clearInterval(timerInterval);
-  //       setRecordingTime(0);
-  //     });
-  //   } catch (error) {
-  //     console.error("Error accessing microphone:", error);
-  //   }
-  // };
-
-  // const handleStopRecording = () => {
-  //   if (mediaRecorderRef.current && isRecording) {
-  //     mediaRecorderRef.current.stop();
-  //     setIsRecording(false);
-  //   }
-  // };
-
-  // const formatTime = (seconds: number) => {
-  //   const mins = Math.floor(seconds / 60);
-  //   const secs = seconds % 60;
-  //   return `${mins}:${secs.toString().padStart(2, "0")}`;
-  // };
+  
   const handleEmojiClick = (emojiObject: EmojiClickData) => {
     setMessageInput((prev) => prev + emojiObject.emoji);
     setShowPicker((pre)=>!pre)
@@ -344,11 +294,7 @@ const Message: React.FC = () => {
                     {user?.lastMessage?.slice(0, 10)}
                   </p>
                 </div>
-                {/* {user.unreadCount > 0 && (
-                <span className="bg-[#ff8800] text-white text-xs font-medium px-2 py-1 rounded-full">
-                  {user.unreadCount}
-                </span>
-              )} */}
+                
               </button>
               <div className="h-0.5 bg-gray-100 w-full " />
             </>
@@ -374,9 +320,7 @@ const Message: React.FC = () => {
                 <h2 className="font-medium text-gray-900">
                   {selectedUser?.users?.name}
                 </h2>
-                {/* <p className="text-sm text-gray-500">
-                  {selectedUser.online ? 'Online' : 'Offline'}
-                </p> */}
+               
               </div>
             </div>
 
@@ -457,13 +401,7 @@ const Message: React.FC = () => {
                           );
                         })()}
 
-                      {/* {message.messageType === "audio" && message?.mediaUrl && (
-                        <audio
-                          src={message?.mediaUrl}
-                          controls
-                          className="w-full"
-                        />
-                      )} */}
+                     
                       <span
                         className={`text-xs flex ${
                           message.receiverId ===
@@ -507,34 +445,9 @@ const Message: React.FC = () => {
                 </div>
               )}
 
-              {/* {audioBlob && !isRecording && (
-                <div className="mb-4 flex items-center gap-4">
-                  <audio
-                    src={URL.createObjectURL(audioBlob)}
-                    controls
-                    className="flex-1"
-                  />
-                  <button
-                    onClick={() => setAudioBlob(null)}
-                    className="p-1 text-gray-500 hover:text-gray-700"
-                  >
-                    <X className="h-4 w-4" />
-                  </button>
-                </div>
-              )} */}
+              
 
-              {/* {isRecording && (
-                <div className="mb-4 flex items-center gap-4 text-red-500">
-                  <span className="animate-pulse">●</span>
-                  <span>Recording {formatTime(recordingTime)}</span>
-                  <button
-                    onClick={handleStopRecording}
-                    className="p-1 text-gray-500 hover:text-gray-700"
-                  >
-                    <X className="h-4 w-4" />
-                  </button>
-                </div>
-              )} */}
+             
 
               <div className="flex items-center gap-4" >
                 <button
@@ -590,18 +503,7 @@ const Message: React.FC = () => {
                   <Paperclip className="h-5 w-5" />
                 </button>
 
-                {/* <button
-                  onClick={() => {
-                    if (isRecording) {
-                      handleStopRecording();
-                    } else {
-                      handleStartRecording();
-                    }
-                  }}
-                  className="p-2 text-gray-500 hover:text-gray-700"
-                >
-                  <Mic className="h-5 w-5" />
-                </button> */}
+               
 
                 <button
                   onClick={handleSendMessage}
