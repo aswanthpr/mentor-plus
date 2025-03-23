@@ -10,16 +10,11 @@ import { bookingInputValidation } from "../../Validation/yupValidation";
 import { toast } from "react-toastify";
 import { confirmSlotBooking, fetchSlotBookingPageData } from "../../service/menteeApi";
 
-interface IBookingError {
-  message: string;
-  wallet: string;
-  paypal: string;
-  stripe: string;
-}
+
 const initialState: IBookingError = {
   message: "",
   wallet: "",
-  paypal: "",
+ 
   stripe: "",
 };
 
@@ -109,7 +104,6 @@ const BookingPage: React.FC = () => {
 
   // Function to handle time slot selection and check for future time
   const handleSlotClick = (slot: Itime) => {
-    // if (slotStartTime.isAfter(currentTime)) {
     setSelectedSlot(slot);
     setSessionPrice(Number(slot?.price));
   };

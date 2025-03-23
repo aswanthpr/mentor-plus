@@ -3,24 +3,24 @@ import SessionCard from './SessionCard';
 import { Search } from 'lucide-react';
 
 interface SessionListProps {
-    sessions: Session[];
+    sessions: ISession[];
     searchQuery: string;
     handleCancelSession: (sessionId: string) => void;
-    handleRating: (sessionId: string) => void;
+    handleRating: (session: ISession) => void;
     handleSearchQueryChange: (query: string) => void;
 }
-interface Session {
-    id: string;
-    mentorName: string;
-    mentorAvatar: string;
-    date: string;
-    time: string;
-    duration: number;
-    topic: string;
-    status: 'scheduled' | 'completed' | 'cancelled';
-    rating?: number;
-    review?: string;
-}
+// interface Session {
+//     id: string;
+//     mentorName: string;
+//     mentorAvatar: string;
+//     date: string;
+//     time: string;
+//     duration: number;
+//     topic: string;
+//     status: 'scheduled' | 'completed' | 'cancelled';
+//     rating?: number;
+//     review?: string;
+// }
 
 const SessionList: React.FC<SessionListProps> = ({
   sessions,
@@ -29,10 +29,7 @@ const SessionList: React.FC<SessionListProps> = ({
   handleRating,
   handleSearchQueryChange
 }) => {
-  const filteredSessions = sessions.filter(session => 
-    session.topic.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    session.mentorName.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+
 
   return (
     <div>
@@ -48,9 +45,10 @@ const SessionList: React.FC<SessionListProps> = ({
       </div>
       
       <div className="space-y-4">
-        {filteredSessions.map(session => (
+        {sessions.map(session => (
           <SessionCard 
-            key={session.id} 
+         
+            key={session?._id} 
             session={session} 
             handleCancelSession={handleCancelSession} 
             handleRating={handleRating} 

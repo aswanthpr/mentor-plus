@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, {useState } from "react";
 import { Calendar, Clock, Star } from "lucide-react";
 import Modal from "../common4All/Modal";
 import { SelectChangeEvent, TextareaAutosize, Tooltip } from "@mui/material";
@@ -9,7 +9,7 @@ import Button from "../../Auth/Button";
 
 interface SessionCardProps {
   session: ISession;
-  role: string;
+  role?: string;
   handleReclaimRequest?: (sessionId: string, value: string) => void;
   handleCreateSessionCode?: (sessionId: string) => void;
   handleCancelSession?: (
@@ -19,7 +19,7 @@ interface SessionCardProps {
   ) => void;
   handleCompletedSession?(sessionId: string): void;
   handleRating?: (session: ISession) => void;
-  handleSessionJoin(sessionId: string, sessionCode: string, role: string): void;
+  handleSessionJoin?(sessionId: string, sessionCode: string, role: string): void;
 }
 
 const issues = [
@@ -74,7 +74,6 @@ const SessionCard: React.FC<SessionCardProps> = ({
     }
   };
 
-  useEffect(() => {}, [session]);
 
   const handleSubmit = () => {
     if (reason == "") {
@@ -201,10 +200,10 @@ const SessionCard: React.FC<SessionCardProps> = ({
                 <Tooltip title="Join session">
                   <button
                     onClick={() =>
-                      handleSessionJoin(
+                      handleSessionJoin!(
                         session?._id,
                         session?.sessionCode as string,
-                        role
+                        role as string
                       )
                     }
                     className="text-[#ff8800] hover:text-[#ff9900] text-lg font-medium"
@@ -236,7 +235,7 @@ const SessionCard: React.FC<SessionCardProps> = ({
           !session?.review?.rating &&
           role === "mentee" ? (
             <button
-              onClick={() => handleRating!(session)}
+              onClick={() => handleRating!(session as ISession)}
               className="text-[#ff8800] hover:text-[#ff9900] text-sm font-medium"
             >
               Rate session

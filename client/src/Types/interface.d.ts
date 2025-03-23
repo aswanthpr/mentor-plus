@@ -33,8 +33,8 @@ interface ISession {
   duration: string;
   sessionCode: string | null;
   description: string;
-  slotDetails: Itime;
-  user: IMentor | IMentee;
+  slotDetails?: Itime;
+  user?: IMentor | IMentee;
   review?:Ireview|null
 }
 
@@ -363,4 +363,9 @@ interface IFormErrors {
   email?: string;
   password?: string;
   confirmPassword?: string;
+}
+interface IBookingError {
+  message: string;
+  wallet: string;
+  stripe: string;
 }
