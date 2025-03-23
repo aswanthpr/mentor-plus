@@ -12,7 +12,7 @@ const express_1 = __importDefault(require("express"));
 const helmet_1 = __importDefault(require("helmet"));
 //default cors config
 exports.corsOptions = {
-    origin: 'https://mentorplus.vercel.app',
+    origin: process.env.CLIENT_ORIGIN_URL,
     methods: ["GET,HEAD,OPTIONS,PUT,PATCH,POST,DELETE"],
     allowedHeaders: [
         "Origin",
