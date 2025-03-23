@@ -53,7 +53,7 @@ const mentorAuthorization = async (
 
         const mentorData = await mentorModel.findById(decode?.userId);
 
-        if (!mentorData || mentorData?.isBlocked) {
+        if (!mentorData?.name || mentorData?.isBlocked) {
             res.status(Status.Unauthorized).json({ message: 'You do not have permission to access this resource.', success: false, user: false });
             return
 

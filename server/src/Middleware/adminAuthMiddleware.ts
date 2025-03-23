@@ -23,7 +23,7 @@ const adminAuthorization = async (
 
     //get access token from authorizatoin header
     const authHeader = req.headers.authorization;
-
+   
     if (!authHeader || !authHeader.startsWith("Bearer")) {
       res
         .status(Status?.Unauthorized)
@@ -32,10 +32,17 @@ const adminAuthorization = async (
     }
 
     const token: string | undefined = authHeader?.split(" ")[1];
-    
+
     //jwt verifying
     const decode = verifyAccessToken(token as string);
-  
+
+    if (decode?.error == "TamperedToken") {
+      res
+        .status(Status?.Unauthorized)
+        .json({ success: false, message: "Token Invalid." });
+      return;
+    }
+
     if (decode?.error == "TokenExpired") {
       res
         .status(Status?.Forbidden)
@@ -43,13 +50,7 @@ const adminAuthorization = async (
       return;
     }
    
-    if (decode?.error == "TamperedToken") {
-      res
-        .status(Status?.Unauthorized)
-        .json({ success: false, message: "Token Invalid." });
-      return;
-    }
- 
+
     if (decode.role !== "admin") {
       res
         .status(Status?.Unauthorized)

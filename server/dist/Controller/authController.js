@@ -20,11 +20,13 @@ class authController {
     menteeSignup(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                yield this._AuthService.mentee_Signup(req.body);
-                yield this._OtpService.sentOtptoMail(req.body.email);
-                res.status(httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.Ok).json({
-                    success: true,
-                    message: "OTP successfully sent to mail",
+                const [{ status, success, message }] = yield Promise.all([
+                    this._AuthService.mentee_Signup(req.body),
+                    this._OtpService.sentOtptoMail(req.body.email),
+                ]);
+                res.status(status).json({
+                    success,
+                    message,
                 });
             }
             catch (error) {
@@ -63,7 +65,7 @@ class authController {
             }
         });
     }
-    //for singup otpverify resend otp 
+    //for singup otpverify resend otp
     resendOtp(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
@@ -91,7 +93,7 @@ class authController {
                 const result = yield this._AuthService.mainLogin(email, password);
                 res
                     .status(result === null || result === void 0 ? void 0 : result.status)
-                    .cookie("refreshToken", `${(_a = result === null || result === void 0 ? void 0 : result.refreshToken) !== null && _a !== void 0 ? _a : ''}`, {
+                    .cookie("refreshToken", `${(_a = result === null || result === void 0 ? void 0 : result.refreshToken) !== null && _a !== void 0 ? _a : ""}`, {
                     httpOnly: true,
                     secure: false, //process.env.NODE_ENV === 'production',
                     sameSite: "lax",
@@ -144,7 +146,9 @@ class authController {
                         .json({ success: true, message: "password changed successfully" });
                 }
                 if ((result === null || result === void 0 ? void 0 : result.message) === "credencial is missing") {
-                    res.status(httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.BadRequest).json({ success: false, message: result.message });
+                    res
+                        .status(httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.BadRequest)
+                        .json({ success: false, message: result.message });
                     return;
                 }
                 else if ((result === null || result === void 0 ? void 0 : result.message) === "user not exist.Please signup") {
@@ -166,31 +170,18 @@ class authController {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 const { email, password } = req.body;
-                console.log(email, password, "thsi is the email and password");
-                const result = yield this._AuthService.adminLogin(email, password);
-                if (!result) {
-                    res
-                        .status(httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.BadRequest)
-                        .json({ success: false, message: "user not found. Please Singup" });
-                    return;
-                }
-                if (result.success) {
-                    res
-                        .status(200)
-                        .cookie("adminToken", result === null || result === void 0 ? void 0 : result.refreshToken, {
-                        httpOnly: true,
-                        secure: process.env.NODE_ENV === "production",
-                        sameSite: "lax",
-                        maxAge: 15 * 24 * 60 * 60 * 1000,
-                        path: "/",
-                    })
-                        .json(result);
-                    return;
-                }
-                else {
-                    res.status(401).json(result);
-                    return;
-                }
+                const { success, message, status, refreshToken, accessToken } = yield this._AuthService.adminLogin(email, password);
+                res
+                    .status(status)
+                    .cookie("adminToken", refreshToken, {
+                    httpOnly: true,
+                    secure: process.env.NODE_ENV === "production",
+                    sameSite: "lax",
+                    maxAge: 15 * 24 * 60 * 60 * 1000,
+                    path: "/",
+                })
+                    .json({ message, success, accessToken });
+                return;
             }
             catch (error) {
                 res
@@ -321,7 +312,9 @@ class authController {
                         .json({ success: true, message: "password changed successfully" });
                 }
                 if ((result === null || result === void 0 ? void 0 : result.message) === "credencial is missing") {
-                    res.status(httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.BadRequest).json({ success: false, message: result.message });
+                    res
+                        .status(httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.BadRequest)
+                        .json({ success: false, message: result.message });
                     return;
                 }
                 else if ((result === null || result === void 0 ? void 0 : result.message) === "user not exist.Please signup") {

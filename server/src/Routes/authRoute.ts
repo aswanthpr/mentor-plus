@@ -9,10 +9,11 @@ import mentorRepository from '../Repository/mentorRepository';
 import passport from 'passport';
 import menteeRepository from '../Repository/menteeRepository';
 import notificationRepository from '../Repository/notificationRepository';
+import { IauthController } from 'src/Interface/Auth/iAuthController';
 
 const __otpService = new otpService(otpRepo,menteeRepository)
 const __authService = new authService(__otpService,categoryRepository,mentorRepository,menteeRepository,notificationRepository)
-const __authController = new authController(__authService,__otpService);
+const __authController:IauthController = new authController(__authService,__otpService);
 
 const auth_Router :Router = express.Router();
 

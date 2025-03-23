@@ -5,12 +5,13 @@ import { useNavigate } from "react-router-dom";
 import Button from "../../components/Auth/Button";
 import { validatePassword, validateEmail } from "../../Validation/Validation";
 import Spinner from "../../components/Common/common4All/Spinner";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { setToken } from "../../Redux/adminSlice";
 import { EyeClosedIcon, EyeIcon } from "lucide-react";
 import { errorHandler } from "../../Utils/Reusable/Reusable";
 import { fetchAdminLogin } from "../../service/adminApi";
 import bgImg from "../../Asset/background.jpg"
+import { RootState } from "../../Redux/store";
 
 
 interface IError {
@@ -18,6 +19,7 @@ interface IError {
   password: string | undefined;
 }
 const AdminLogin: React.FC = () => {
+  const ans =useSelector((state:RootState)=>state?.admin?.adminToken)
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const [isVisible,setIsVisible]=useState<boolean>(false)
@@ -55,10 +57,11 @@ const AdminLogin: React.FC = () => {
       const response = await fetchAdminLogin(email,password)
      
 
-      if (response?.data.success && response?.status === 200) {
-        console.log(response?.data?.accessToken,response?.data,'login sessikn')
-        dispatch(setToken({adminToken:response.data.accessToken,adminRole:'admin'}));
+      if (response.data?.accessToken && response?.status === 200) {
+        console.log(response?.data?.accessToken,response?.data,'login sessikn00000000000000000000000000000',)
+        dispatch(setToken({adminToken:response.data?.accessToken,adminRole:'admin'}));
         setLoading(false);
+        console.log(ans,'111111111111111111111111')
         toast.success(response.data.message);
         navigate("/admin/dashboard");
 
@@ -74,7 +77,7 @@ const AdminLogin: React.FC = () => {
 
       },500)
     }
-  },[dispatch, email, navigate, password]);
+  },[ans, dispatch, email, navigate, password]);
 
   return (
     <div className="font-poppins flex items-center justify-center min-h-screen bg-gray-100"

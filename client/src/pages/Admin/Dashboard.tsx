@@ -112,7 +112,7 @@ const formated_Data =()=>{
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           <StatsCard
             title="Total Revenue"
-            value={`$${cardData?.totalRevenue}`}
+            value={cardData?.totalRevenue ??0}
             icon={DollarSign}
             iconBgColor="bg-orange-100"
             iconColor="text-[#ff8800]"

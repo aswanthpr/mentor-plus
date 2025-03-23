@@ -1,1 +1,0 @@
-{"version":3,"file":"menteeAuthorization.d.ts","sourceRoot":"","sources":["../../src/Middleware/menteeAuthorization.ts"],"names":[],"mappings":"AAAA,OAAO,EAAE,OAAO,EAAE,QAAQ,EAAE,YAAY,EAAE,MAAM,SAAS,CAAC;AAK1D,QAAA,MAAM,SAAS,QACR,OAAO,OACP,QAAQ,QACP,YAAY,KACjB,OAAO,CAAC,IAAI,CAgDd,CAAC;AAEF,eAAe,SAAS,CAAC"}

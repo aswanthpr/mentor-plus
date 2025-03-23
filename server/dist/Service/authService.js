@@ -31,13 +31,20 @@ class authService {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 if (!userData.email || !userData.password) {
-                    return { success: false, message: "Email or password is missing" };
+                    return {
+                        success: false,
+                        message: "Email or password is missing",
+                        status: httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.BadRequest,
+                    };
                 }
-                const existingUser = yield this._MenteeRepository.findByEmail(userData.email);
-                if (existingUser) {
+                console.log(userData === null || userData === void 0 ? void 0 : userData.email, userData === null || userData === void 0 ? void 0 : userData.password);
+                const existingUser = yield this._MenteeRepository.findByEmail(userData === null || userData === void 0 ? void 0 : userData.email);
+                console.log(existingUser);
+                if (existingUser || (existingUser === null || existingUser === void 0 ? void 0 : existingUser.provider)) {
                     return {
                         success: false,
                         message: "user with this email is already exists",
+                        status: httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.BadRequest,
                     };
                 }
                 // pass hasing
@@ -48,13 +55,18 @@ class authService {
                     return {
                         success: false,
                         message: "Singup Failed",
+                        status: httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.BadRequest,
                     };
                 }
                 const notfi = yield this._notificationRepository.createNotification(response === null || response === void 0 ? void 0 : response._id, `Welcome ${response === null || response === void 0 ? void 0 : response.name}`, `Start exploring and connect with mentors today.`, `mentee`, `${process.env.CLIENT_ORIGIN_URL}/mentee/explore`);
                 if ((response === null || response === void 0 ? void 0 : response.id) && notfi) {
                     index_1.socketManager.sendNotification(response === null || response === void 0 ? void 0 : response._id, notfi);
                 }
-                return { success: true, message: "signup successfull" };
+                return {
+                    success: true,
+                    message: "signup successfull",
+                    status: httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.Ok,
+                };
             }
             catch (error) {
                 if (error instanceof Error) {
@@ -72,21 +84,48 @@ class authService {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 if (!email || !password) {
-                    return { success: false, message: "login credencial is missing", status: httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.BadRequest };
+                    return {
+                        success: false,
+                        message: "login credencial is missing",
+                        status: httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.BadRequest,
+                    };
                 }
                 const result = yield this._MenteeRepository.mainLogin(email);
+                if ((result === null || result === void 0 ? void 0 : result.provider) != "email") {
+                    return {
+                        success: false,
+                        message: "please login with google",
+                        status: httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.BadRequest,
+                    };
+                }
                 if (!result || (result === null || result === void 0 ? void 0 : result.email) != email) {
-                    return { success: false, message: "user not exist.Please signup", status: httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.BadRequest };
+                    return {
+                        success: false,
+                        message: "user not exist.Please signup",
+                        status: httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.BadRequest,
+                    };
                 }
                 if (result === null || result === void 0 ? void 0 : result.isAdmin) {
-                    return { success: false, message: "Admin is not allowed ,sorry..", status: httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.Unauthorized };
+                    return {
+                        success: false,
+                        message: "Admin is not allowed ,sorry..",
+                        status: httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.Unauthorized,
+                    };
                 }
                 if (result === null || result === void 0 ? void 0 : result.isBlocked) {
-                    return { success: false, message: "user blocked .sorry..", status: httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.Unauthorized };
+                    return {
+                        success: false,
+                        message: "user blocked .sorry..",
+                        status: httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.Unauthorized,
+                    };
                 }
-                const checkUser = yield bcrypt_1.default.compare(password, result.password);
+                const checkUser = yield bcrypt_1.default.compare(password, result === null || result === void 0 ? void 0 : result.password);
                 if (!checkUser) {
-                    return { success: false, message: "password not matching", status: httpStatusCode_1.Status.BadRequest };
+                    return {
+                        success: false,
+                        message: "password not matching",
+                        status: httpStatusCode_1.Status.BadRequest,
+                    };
                 }
                 const userId = result._id;
                 const accessToken = (0, jwt_utils_1.genAccesssToken)(userId, "mentee");
@@ -96,7 +135,7 @@ class authService {
                     message: "Login Successfull",
                     refreshToken,
                     accessToken,
-                    status: httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.Ok
+                    status: httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.Ok,
                 };
             }
             catch (error) {
@@ -156,7 +195,11 @@ class authService {
             try {
                 const result = yield this._categoryRepository.allCategoryData();
                 if (!result) {
-                    return { success: false, message: "No data found ", status: httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.NoContent };
+                    return {
+                        success: false,
+                        message: "No data found ",
+                        status: httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.NoContent,
+                    };
                 }
                 return {
                     success: true,
@@ -175,21 +218,27 @@ class authService {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 if (!email || !password) {
-                    return { success: false, message: "admin credencial is missing" };
+                    return { success: false, message: "admin credencial is missing", status: httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.BadRequest, refreshToken: null,
+                        accessToken: null, };
                 }
-                const result = yield this._MenteeRepository.adminLogin(email);
+                const result = yield this._MenteeRepository.findByEmail(email);
+                // adminLogin(email);
                 if (!result) {
-                    return { success: false, message: "Admin not exist" };
+                    return { success: false, message: "Admin not exist", status: httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.BadRequest, refreshToken: null,
+                        accessToken: null, };
                 }
                 if (!(result === null || result === void 0 ? void 0 : result.isAdmin)) {
-                    return { success: false, message: "user is not allowed ,sorry.." };
+                    return { success: false, message: "user is not allowed ,sorry..", status: httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.BadRequest, refreshToken: null,
+                        accessToken: null, };
                 }
                 if (result === null || result === void 0 ? void 0 : result.isBlocked) {
-                    return { success: false, message: "Admin blocked .sorry.." };
+                    return { success: false, message: "Admin blocked .sorry..", status: httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.BadRequest, refreshToken: null,
+                        accessToken: null, };
                 }
                 const checkUser = yield bcrypt_1.default.compare(password, result === null || result === void 0 ? void 0 : result.password);
                 if (!checkUser) {
-                    return { success: false, message: "password not matching" };
+                    return { success: false, message: "password not matching", status: httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.BadRequest, refreshToken: null,
+                        accessToken: null, };
                 }
                 const userId = result._id;
                 const accessToken = (0, jwt_utils_1.genAccesssToken)(userId, "admin");
@@ -198,13 +247,20 @@ class authService {
                 return {
                     success: true,
                     message: "Login Successfull",
-                    refreshToken,
+                    status: httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.Ok,
                     accessToken,
+                    refreshToken,
                 };
             }
             catch (error) {
-                console.error("Error while loging admin", error);
-                return { success: false, message: "Admin does't exist" };
+                console.error(error instanceof Error ? error.message : String(error), "Error while loging admin", error);
+                return {
+                    success: false,
+                    message: "An error occurred during admin login",
+                    status: httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.InternalServerError,
+                    refreshToken: null,
+                    accessToken: null,
+                };
             }
         });
     }
@@ -296,12 +352,20 @@ class authService {
                     };
                 }
                 if (result === null || result === void 0 ? void 0 : result.isBlocked) {
-                    return { success: false, message: "User is  Blocked!", status: httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.Unauthorized };
+                    return {
+                        success: false,
+                        message: "User is  Blocked!",
+                        status: httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.Unauthorized,
+                    };
                 }
                 const checkPass = yield bcrypt_1.default.compare(password, result === null || result === void 0 ? void 0 : result.password);
                 console.log(checkPass);
                 if (!checkPass) {
-                    return { success: false, message: "Incorrect password", status: httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.BadRequest };
+                    return {
+                        success: false,
+                        message: "Incorrect password",
+                        status: httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.BadRequest,
+                    };
                 }
                 const mentorId = `${result._id}`;
                 console.log(mentorId, "userid");
@@ -375,7 +439,7 @@ class authService {
                 }
                 const accessToken = (0, jwt_utils_1.genAccesssToken)(user === null || user === void 0 ? void 0 : user._id, "mentee");
                 const refreshToken = (0, jwt_utils_1.genRefreshToken)(user === null || user === void 0 ? void 0 : user._id, "mentee");
-                console.log(refreshToken, 'sfkasdsdfjsjflkslfkjskldjflaskdfjlkasjd', accessToken);
+                console.log(refreshToken, "sfkasdsdfjsjflkslfkjskldjflaskdfjlkasjd", accessToken);
                 return {
                     success: true,
                     message: "login successfull!",

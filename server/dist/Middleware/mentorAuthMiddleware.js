@@ -54,7 +54,7 @@ const mentorAuthorization = (req, res, next) => __awaiter(void 0, void 0, void 0
             return;
         }
         const mentorData = yield mentorModel_1.default.findById(decode === null || decode === void 0 ? void 0 : decode.userId);
-        if (!mentorData || (mentorData === null || mentorData === void 0 ? void 0 : mentorData.isBlocked)) {
+        if (!(mentorData === null || mentorData === void 0 ? void 0 : mentorData.name) || (mentorData === null || mentorData === void 0 ? void 0 : mentorData.isBlocked)) {
             res.status(httpStatusCode_1.Status.Unauthorized).json({ message: 'You do not have permission to access this resource.', success: false, user: false });
             return;
         }

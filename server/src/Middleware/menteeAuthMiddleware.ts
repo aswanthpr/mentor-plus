@@ -28,7 +28,7 @@ const menteeAuthorization = async (
       });
       return;
     }
-
+ 
     const token: string | undefined = authHeader?.split(" ")[1];
     if (!token) {
       res.status(Status.Unauthorized).json({ success: false, message: "You do not have permission to access this resource.", user: false });

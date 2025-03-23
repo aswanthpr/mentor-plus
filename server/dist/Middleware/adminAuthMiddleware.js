@@ -38,16 +38,16 @@ const adminAuthorization = (req, res, next) => __awaiter(void 0, void 0, void 0,
         const token = authHeader === null || authHeader === void 0 ? void 0 : authHeader.split(" ")[1];
         //jwt verifying
         const decode = (0, jwt_utils_1.verifyAccessToken)(token);
-        if ((decode === null || decode === void 0 ? void 0 : decode.error) == "TokenExpired") {
-            res
-                .status(httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.Forbidden)
-                .json({ success: false, message: "Token Expired." });
-            return;
-        }
         if ((decode === null || decode === void 0 ? void 0 : decode.error) == "TamperedToken") {
             res
                 .status(httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.Unauthorized)
                 .json({ success: false, message: "Token Invalid." });
+            return;
+        }
+        if ((decode === null || decode === void 0 ? void 0 : decode.error) == "TokenExpired") {
+            res
+                .status(httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.Forbidden)
+                .json({ success: false, message: "Token Expired." });
             return;
         }
         if (decode.role !== "admin") {

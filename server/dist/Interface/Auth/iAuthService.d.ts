@@ -5,6 +5,7 @@ export default interface IauthService {
     mentee_Signup(userData: Imentee): Promise<{
         success: boolean;
         message: string;
+        status: number;
     }>;
     mainLogin(email: string, password: string): Promise<{
         success: boolean;
@@ -25,9 +26,10 @@ export default interface IauthService {
     adminLogin(email: string, password: string): Promise<{
         success: boolean;
         message: string;
-        accessToken?: string;
-        refreshToken?: string;
-    } | undefined>;
+        status: number;
+        accessToken: string | null;
+        refreshToken: string | null;
+    }>;
     mentorFields(): Promise<{
         success: boolean;
         message: string;

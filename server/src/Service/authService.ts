@@ -12,9 +12,8 @@ import { ImenteeRepository } from "../Interface/Mentee/iMenteeRepository";
 import { ImentorApplyData } from "../Types";
 import { InotificationRepository } from "../Interface/Notification/InotificationRepository";
 import { ObjectId } from "mongoose";
-import {socketManager } from "../index";
+import { socketManager } from "../index";
 import { Status } from "../Utils/httpStatusCode";
-
 
 export class authService implements IauthService {
   constructor(
@@ -27,18 +26,24 @@ export class authService implements IauthService {
 
   async mentee_Signup(
     userData: Imentee
-  ): Promise<{ success: boolean; message: string }> {
+  ): Promise<{ success: boolean; message: string; status: number }> {
     try {
       if (!userData.email || !userData.password) {
-        return { success: false, message: "Email or password is missing" };
+        return {
+          success: false,
+          message: "Email or password is missing",
+          status: Status?.BadRequest,
+        };
       }
-      const existingUser = await this._MenteeRepository.findByEmail(
-        userData.email
-      );
-      if (existingUser) {
+      console.log(userData?.email, userData?.password);
+      const existingUser: Imentee | null =
+        await this._MenteeRepository.findByEmail(userData?.email);
+      console.log(existingUser);
+      if ((existingUser as Imentee) || existingUser?.provider) {
         return {
           success: false,
           message: "user with this email is already exists",
+          status: Status?.BadRequest,
         };
       }
       // pass hasing
@@ -51,6 +56,7 @@ export class authService implements IauthService {
         return {
           success: false,
           message: "Singup Failed",
+          status: Status?.BadRequest,
         };
       }
 
@@ -61,10 +67,14 @@ export class authService implements IauthService {
         `mentee`,
         `${process.env.CLIENT_ORIGIN_URL}/mentee/explore`
       );
-      if ( response?.id && notfi) {
-        socketManager.sendNotification(response?._id as string, notfi)
+      if (response?.id && notfi) {
+        socketManager.sendNotification(response?._id as string, notfi);
       }
-      return { success: true, message: "signup successfull" };
+      return {
+        success: true,
+        message: "signup successfull",
+        status: Status?.Ok,
+      };
     } catch (error: unknown) {
       if (error instanceof Error) {
         console.error("\x1b[35m%s\x1b[0m", "error while create mentee");
@@ -81,48 +91,75 @@ export class authService implements IauthService {
   ): Promise<{
     success: boolean;
     message: string;
-    status:number;
+    status: number;
     refreshToken?: string;
     accessToken?: string;
   }> {
     try {
-     
-
       if (!email || !password) {
-        return { success: false, message: "login credencial is missing",status:Status?.BadRequest };
+        return {
+          success: false,
+          message: "login credencial is missing",
+          status: Status?.BadRequest,
+        };
       }
       const result: Imentee | null = await this._MenteeRepository.mainLogin(
         email
       );
-
+      if (result?.provider != "email") {
+        return {
+          success: false,
+          message: "please login with google",
+          status: Status?.BadRequest,
+        };
+      }
       if (!result || result?.email != email) {
-        return { success: false, message: "user not exist.Please signup",status:Status?.BadRequest };
+        return {
+          success: false,
+          message: "user not exist.Please signup",
+          status: Status?.BadRequest,
+        };
       }
       if (result?.isAdmin) {
-        return { success: false, message: "Admin is not allowed ,sorry..",status:Status?.Unauthorized };
+        return {
+          success: false,
+          message: "Admin is not allowed ,sorry..",
+          status: Status?.Unauthorized,
+        };
       }
 
       if (result?.isBlocked) {
-        return { success: false, message: "user blocked .sorry..",status:Status?.Unauthorized };
+        return {
+          success: false,
+          message: "user blocked .sorry..",
+          status: Status?.Unauthorized,
+        };
       }
 
-      const checkUser = await bcrypt.compare(password, result.password!);
+      const checkUser = await bcrypt.compare(
+        password,
+        result?.password as string
+      );
 
       if (!checkUser) {
-        return { success: false, message: "password not matching" ,status:Status.BadRequest};
+        return {
+          success: false,
+          message: "password not matching",
+          status: Status.BadRequest,
+        };
       }
 
       const userId: string = result._id as string;
-     
-      const accessToken = genAccesssToken(userId as string,"mentee");
-      const refreshToken = genRefreshToken(userId as string,"mentee");
-      
+
+      const accessToken = genAccesssToken(userId as string, "mentee");
+      const refreshToken = genRefreshToken(userId as string, "mentee");
+
       return {
         success: true,
         message: "Login Successfull",
         refreshToken,
         accessToken,
-        status:Status?.Ok
+        status: Status?.Ok,
       };
     } catch (error: unknown) {
       throw new Error(
@@ -201,12 +238,16 @@ export class authService implements IauthService {
     try {
       const result = await this._categoryRepository.allCategoryData();
       if (!result) {
-        return { success: false, message: "No data found ", status:  Status?.NoContent };
+        return {
+          success: false,
+          message: "No data found ",
+          status: Status?.NoContent,
+        };
       }
       return {
         success: true,
         message: "data found",
-        status:  Status?.Ok,
+        status: Status?.Ok,
         categories: result,
       };
     } catch (error: unknown) {
@@ -217,29 +258,35 @@ export class authService implements IauthService {
   async adminLogin(
     email: string,
     password: string
-  ): Promise<
-    | {
+  ): Promise<{
         success: boolean;
         message: string;
-        accessToken?: string;
-        refreshToken?: string;
-      }
-    | undefined
-  > {
+        status: number;
+        accessToken: string|null;
+        refreshToken: string|null;
+      }>{
     try {
-      if (!email || !password) {
-        return { success: false, message: "admin credencial is missing" };
-      }
-      const result = await this._MenteeRepository.adminLogin(email);
 
+      if (!email || !password) {
+        return { success: false, message: "admin credencial is missing",status:Status?.BadRequest,refreshToken:null,
+          accessToken:null, };
+      }
+      const result = await this._MenteeRepository.findByEmail(email)
+      // adminLogin(email);
+   
       if (!result) {
-        return { success: false, message: "Admin not exist" };
+        return { success: false, message: "Admin not exist",status:Status?.BadRequest,refreshToken:null,
+          accessToken:null, };
       }
+  
       if (!result?.isAdmin) {
-        return { success: false, message: "user is not allowed ,sorry.." };
+        return { success: false, message: "user is not allowed ,sorry..",status:Status?.BadRequest,refreshToken:null,
+          accessToken:null, };
       }
+
       if (result?.isBlocked) {
-        return { success: false, message: "Admin blocked .sorry.." };
+        return { success: false, message: "Admin blocked .sorry.." ,status:Status?.BadRequest,refreshToken:null,
+          accessToken:null,};
       }
       const checkUser = await bcrypt.compare(
         password,
@@ -247,23 +294,31 @@ export class authService implements IauthService {
       );
 
       if (!checkUser) {
-        return { success: false, message: "password not matching" };
+        return { success: false, message: "password not matching",status:Status?.BadRequest,refreshToken:null,
+          accessToken:null, };
       }
       const userId: string = result._id as string;
 
-      const accessToken = genAccesssToken(userId as string,"admin");
-      const refreshToken = genRefreshToken(userId as string,"admin");
+      const accessToken = genAccesssToken(userId as string, "admin") as string;
+      const refreshToken = genRefreshToken(userId as string, "admin") as string;
       console.log(accessToken, refreshToken, "access refrsh");
 
       return {
         success: true,
         message: "Login Successfull",
+        status:Status?.Ok,
+        accessToken ,
         refreshToken,
-        accessToken,
       };
     } catch (error: unknown) {
-      console.error("Error while loging admin", error);
-      return { success: false, message: "Admin does't exist" };
+      console.error( error instanceof Error? error.message:String(error),"Error while loging admin", error);
+      return {
+        success: false,
+        message: "An error occurred during admin login",
+        status: Status?.InternalServerError,
+        refreshToken: null,
+        accessToken: null,
+      };
     }
   }
 
@@ -278,7 +333,7 @@ export class authService implements IauthService {
         return {
           success: false,
           message: "credential is missing",
-          status:  Status?.BadRequest,
+          status: Status?.BadRequest,
         };
       }
       const response = await this._MentorRepository.findMentor(email, phone);
@@ -318,28 +373,27 @@ export class authService implements IauthService {
         };
       }
       const admin = await this._MenteeRepository._find();
-     const notifi =  await this._notificationRepository.createNotification(
+      const notifi = await this._notificationRepository.createNotification(
         admin?._id as ObjectId,
         `New Mentor Has Joined!`,
         `${result?.name} Applied as mentor. Please review their profile and verify`,
         "admin",
         `${process.env.CLIENT_ORIGIN_URL}/admin/mentor_management/not_verified`
       );
-      if(admin?._id && notifi){
-
-        socketManager.sendNotification(admin?._id as string, notifi)
+      if (admin?._id && notifi) {
+        socketManager.sendNotification(admin?._id as string, notifi);
       }
       return {
         success: true,
         message: "Mentor application submitted!",
-        status:  Status?.Ok,
+        status: Status?.Ok,
       };
     } catch (error: unknown) {
       console.error("Error while mentor appling", error);
       return {
         success: false,
         message: "unexpected error occured",
-        status:  Status?.InternalServerError,
+        status: Status?.InternalServerError,
       };
     }
   }
@@ -359,7 +413,7 @@ export class authService implements IauthService {
         return {
           success: false,
           message: `${!email ? "email is required" : "password is required"}`,
-          status:  Status?.BadRequest,
+          status: Status?.BadRequest,
         };
       }
 
@@ -381,24 +435,32 @@ export class authService implements IauthService {
         };
       }
       if (result?.isBlocked) {
-        return { success: false, message: "User is  Blocked!", status: Status?.Unauthorized };
+        return {
+          success: false,
+          message: "User is  Blocked!",
+          status: Status?.Unauthorized,
+        };
       }
 
       const checkPass = await bcrypt.compare(password, result?.password);
-      console.log(checkPass)
+      console.log(checkPass);
       if (!checkPass) {
-        return { success: false, message: "Incorrect password", status: Status?.BadRequest };
+        return {
+          success: false,
+          message: "Incorrect password",
+          status: Status?.BadRequest,
+        };
       }
       const mentorId = `${result._id}`;
       console.log(mentorId, "userid");
-      const accessToken = genAccesssToken(mentorId as string,"mentor");
-      const refreshToken = genRefreshToken(mentorId as string,"mentor");
+      const accessToken = genAccesssToken(mentorId as string, "mentor");
+      const refreshToken = genRefreshToken(mentorId as string, "mentor");
 
       console.log(accessToken, refreshToken, "access refrsh");
       return {
         success: true,
         message: "login successfull!",
-        status:  Status?.Ok,
+        status: Status?.Ok,
         accessToken,
         refreshToken,
       };
@@ -469,18 +531,21 @@ export class authService implements IauthService {
     refreshToken?: string;
   }> {
     try {
-
       if (!user) {
         throw new Error("user deailes not found");
       }
 
-      const accessToken = genAccesssToken(user?._id as string,"mentee");
-      const refreshToken = genRefreshToken(user?._id as string,"mentee");
-console.log(refreshToken,'sfkasdsdfjsjflkslfkjskldjflaskdfjlkasjd',accessToken)
+      const accessToken = genAccesssToken(user?._id as string, "mentee");
+      const refreshToken = genRefreshToken(user?._id as string, "mentee");
+      console.log(
+        refreshToken,
+        "sfkasdsdfjsjflkslfkjskldjflaskdfjlkasjd",
+        accessToken
+      );
       return {
         success: true,
         message: "login successfull!",
-        status:  Status?.Ok,
+        status: Status?.Ok,
         accessToken,
         refreshToken,
       };

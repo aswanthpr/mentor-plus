@@ -57,7 +57,7 @@ const QnA_page: React.FC = () => {
   useEffect(() => {
     const fetchQuestions = async () => {
       try {
-        setLoading(true);
+        // setLoading(true);
         const response = await fetchMenteeQuestions(
           searchQuery,
           filter,
@@ -76,9 +76,10 @@ const QnA_page: React.FC = () => {
         }
       } catch (error: unknown) {
         errorHandler(error);
-      } finally {
-        setLoading(false);
-      }
+      } 
+      // finally {
+      //   setLoading(false);
+      // }
     };
 
     fetchQuestions();

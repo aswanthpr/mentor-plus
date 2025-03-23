@@ -17,6 +17,7 @@ export declare class authService implements IauthService {
     mentee_Signup(userData: Imentee): Promise<{
         success: boolean;
         message: string;
+        status: number;
     }>;
     mainLogin(email: string, password: string): Promise<{
         success: boolean;
@@ -42,9 +43,10 @@ export declare class authService implements IauthService {
     adminLogin(email: string, password: string): Promise<{
         success: boolean;
         message: string;
-        accessToken?: string;
-        refreshToken?: string;
-    } | undefined>;
+        status: number;
+        accessToken: string | null;
+        refreshToken: string | null;
+    }>;
     mentorApply(mentorData: ImentorApplyData): Promise<{
         success: boolean;
         message: string;

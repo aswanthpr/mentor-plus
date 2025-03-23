@@ -46,11 +46,11 @@ const Admin_Page: React.FC = () => {
 
     const fetchData = async () => {
       try {
-        const { data, status } = await fetchAllNotification();
+        const response = await fetchAllNotification();
 
-        if (flag && status == 200 && data.success) {
+        if (flag && response?.status == 200 && response?.data.success) {
           dispatch(
-            setNotification({ userType: "admin", notification: data?.result })
+            setNotification({ userType: "admin", notification: response?.data?.result })
           );
         }
       } catch (error: unknown) {

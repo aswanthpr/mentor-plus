@@ -1,134 +1,100 @@
 import React, { useState } from 'react';
-import {useNavigate,Link} from 'react-router-dom';
-import { ArrowRight } from 'lucide-react';
-import { Menu, X, Users, Target, Calendar, Video, MessageSquare, Award, Github, Twitter, Linkedin } from 'lucide-react';
+import {Link} from 'react-router-dom';
+import { ArrowRight, Code, Laptop } from 'lucide-react';
+import { Menu, X, Users, Target, MessageSquare, Award, Github, Twitter, Linkedin } from 'lucide-react';
 import logo from '../../Asset/mentor+logo.png';
 import heroImg from '../../Asset/illustration-1.svg';
-import landimg from '../../Asset/unsplash.jpg';
+
 
 
 const Landing: React.FC = () => {
-  const navigate = useNavigate()
+
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   const features = [
     {
-      name: 'Expert Mentors',
-      description: 'Connect with professionals who can guide you through your career journey.',
+      name: 'Top Tech Mentors',
+      description: 'Learn from experienced engineers, developers, and tech leaders.',
       icon: Users,
     },
     {
-      name: 'Personalized Matching',
-      description: 'Find mentors who align with your professional goals and experience.',
-      icon: Target,
+      name: 'Specialized Guidance',
+      description: 'Find mentors in software engineering, data science, DevOps, AI, and more.',
+      icon: Code,
     },
     {
-      name: 'Flexible Scheduling',
-      description: 'Book sessions at your convenience to fit your busy professional life.',
-      icon: Calendar,
+      name: 'Project Reviews',
+      description: 'Get actionable feedback on your code and projects.',
+      icon: Laptop,
     },
     {
-      name: 'Virtual Sessions',
-      description: 'Access mentorship from anywhere in the world, wherever you are.',
-      icon: Video,
+      name: 'Career Advancement',
+      description: 'Plan your tech career with mentors who have been in your shoes.',
+      icon: Award,
     },
     {
-      name: 'Direct Communication',
-      description: 'Maintain ongoing communication with your mentor through our platform.',
+      name: 'Networking Opportunities',
+      description: 'Expand your connections in the tech community.',
       icon: MessageSquare,
     },
     {
-      name: 'Skill Development',
-      description: 'Track your growth and continuously improve through actionable feedback.',
-      icon: Award,
+      name: 'Skill Mastery',
+      description: 'Stay updated with the latest tools, frameworks, and practices.',
+      icon: Target,
     },
   ];
 
   return (
     <div>
-      <header className='fixed top-0 left-0 right-0 bg-white/90 backdrop-blur-sm z-50 border-b border-grey-100'>
+       <header className='fixed top-0 left-0 right-0 bg-white/90 backdrop-blur-sm z-50 border-b border-grey-100'>
         <div className='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8'>
           <div className='flex justify-between items-center h-16'>
             <div className='flex items-center'>
               <img className='w-100 h-24 cover' src={logo} alt='MentorPlus' />
             </div>
 
-            {/* Desktop Navigation */}
             <div className='hidden md:flex gap-4'>
-              <Link to='/auth/apply_as_mentor' className='px-4 py-2 bg-[#ff8800] text-white rounded-lg hover:bg-[#ff9900] transition-colors font-bold'>
-                Become a Mentor
+              <Link to='/auth/apply_as_mentor' className='px-4 py-2 bg-[#ff8800] text-white rounded-lg hover:bg-white hover:text-[#ff9900] transition-colors font-normal items-center justify-center flex border'>
+                Become a Tech Mentor
               </Link>
-              <Link to='/auth/signup' className='px-4 py-2 border-2 border-black text-black hover:bg-grey-50 rounded-lg transition-colors font-bold hover:bg-slate-200'>
+              <Link to='/auth/signup' className='px-4 py-2 border-2 border-black text-black hover:bg-gray-800 hover:text-white rounded-lg transition-colors font-normal flex items-center justify-center group'>
                 Sign Up
               </Link>
-              <Link to='/auth/login/mentee' className='px-4 py-2 bg-black text-white rounded-lg hover:bg-gray-700 transition-colors font-bold'>
+              <Link to='/auth/login/mentee' className='px-4 py-2 bg-black text-white rounded-lg transition-colors font-normal items-center justify-center flex  hover:bg-gray-50 hover:text-gray-950 border '>
                 Login
               </Link>
             </div>
 
-            {/* Mobile Menu Button */}
             <button className='md:hidden p-2 rounded-lg hover:bg-gray-100' onClick={() => setIsMenuOpen(!isMenuOpen)}>
               {isMenuOpen ? <X className='h-6 w-6' /> : <Menu className='h-6 w-6' />}
             </button>
           </div>
-
-          {/* Mobile Navigation */}
-          {isMenuOpen && (
-            <div className='md:hidden py-4 space-y-3'>
-              <button
-
-                onClick={()=>navigate('/auth/apply_as_mentor')}
-                className='w-full px-4 py-2 bg-[#ff8800] text-white rounded-lg hover:bg-[#ff9900] transition-colors font-medium text-sm'
-              >
-                Become a Mentor
-              </button>
-              <button
-                onClick={()=>navigate('/auth/signup')}
-                className='w-full px-4 py-2 border-2 border-black text-black hover:bg-gray-200 rounded-lg transition-colors font-medium text-sm'
-              >
-                Sign Up
-              </button>
-              <button
-                onClick={()=>navigate('/auth/login/mentee')}
-                className='w-full px-4 py-2 bg-black text-white rounded-lg hover:bg-gray-800 transition-colors font-medium text-sm'
-              >
-                Login
-              </button>
-            </div>
-
-          )}
         </div>
       </header>
 
       {/* Hero Section */}
       <section className='relative bg-transparent pt-32'>
-
         <div className='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-18 pb-14 lg:pt-30'>
           <div className='grid grid-cols-1 lg:grid-cols-2 gap-10 items-center'>
-            <div className='order-2 lg:order-1'>
-              <img src={heroImg} alt='Mentoring illustration' className='w-full lg:w-[120%] h-auto max-w-none lg:transform lg:scale-125' />
-            </div>
-            <div className='order-2 lg:order-2'>
-              <div className='border-2 p-4 rounded-xl sm:p-8 bg-white shadow-lg'>
-                <h1 className='font-display text-4xl sm:text-5xl font-medium -tracking-tight text-black'>
-                  Accelerate Your Career with{' '}
-                  <span className='relative whitespace-nowrap text-[#ff8800]'>
-                    <span className='relative'>Expert Mentorship</span>
-                  </span>
-                </h1>
-                <p className='mt-6 text-base sm:text-lg tracking-tight text-grey-600'>
-                  Connect with industry experts who can guide you through your professional journey and help you achieve your career goals.
-                </p>
-                <div className='mt-8 sm:mt-10 flex justify-start sm:justify-end gap-x-6'>
-                  <Link
-                    to='/auth/signup'
-                    className='group inline-flex items-center justify-center rounded-lg py-2 px-4 text-sm font-semibold focus:outline-none focus-visible:outline-2 focus-visible:outline-offset-2 bg-[#ff8800] text-white hover:bg-[#ff9900] active:bg-[#ff7700] focus-visible:outline-[#ff8800]'
-                  >
-                    Get Started
-                    <ArrowRight className='ml-2 h-4 w-4' />
-                  </Link>
-                </div>
+            <div>
+              <h1 className='font-display text-4xl sm:text-5xl font-medium text-black'>
+                Empower Your Tech Career with <span className='text-[#ff8800]'>Expert Mentorship</span>
+              </h1>
+              <p className='mt-6 text-base sm:text-lg tracking-tight text-grey-600'>
+                Learn from top software engineers, AI experts, data scientists, and tech leaders to navigate your career path.
+              </p>
+              <div className='mt-8 sm:mt-10'>
+                <Link
+                  to='/auth/signup'
+                  className='group inline-flex items-center justify-center rounded-lg py-2 px-4 text-sm font-semibold focus:outline-none bg-[#ff8800] text-white hover:bg-[#ff9900]'
+                >
+                  Get Started
+                  <ArrowRight className='ml-2 h-4 w-4' />
+                </Link>
               </div>
+            </div>
+            <div>
+              <img src={heroImg} alt='Tech mentoring' className='w-full lg:w-[120%] h-auto max-w-none' />
             </div>
           </div>
         </div>
@@ -138,31 +104,22 @@ const Landing: React.FC = () => {
       <section className='bg-white py-16 sm:py-24'>
         <div className='mx-auto max-w-7xl px-4 sm:px-6 lg:px-8'>
           <div className='mx-auto max-w-2xl text-center'>
-            <h2 className='text-base font-semibold leading-7 text-[#ff8800]'>Everything you need</h2>
-            <p className='mt-2 text-2xl sm:text-3xl font-bold tracking-tight text-black lg:text-4xl'>
-              Powerful Features for Career Growth
-            </p>
-            <p className='mt-6 text-base sm:text-lg leading-8 text-grey-600'>
-              Our platform provides all tools you need to connect with mentors and accelerate your career growth.
+            <h2 className='text-base font-semibold text-[#ff8800]'>Tech Focused</h2>
+            <p className='mt-2 text-2xl sm:text-3xl font-bold text-black'>
+              Unlock Your Potential with Specialized Mentorship
             </p>
           </div>
-
-          <div className='mx-auto mt-12 sm:mt-16 max-w-7xl lg:mt-24'>
-            <div className='grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3'>
-              {features.map((feature) => (
-                <div key={feature.name} className='relative bg-white p-6 sm:p-8 rounded-2xl shadow-sm ring-1 ring-grey-200 hover:shadow-md transition-shadow'>
-                  <div className='flex items-center gap-x-3'>
-                    <feature.icon className='h-6 w-6 text-[#ff8800]' />
-                    <h3 className='text-base sm:text-lg font-semibold leading-7 text-black'>{feature.name}</h3>
-                  </div>
-                  <p className='mt-4 text-sm sm:text-base leading-7 text-grey-600'>{feature.description}</p>
+          <div className='mt-12 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8'>
+            {features.map((feature) => (
+              <div key={feature.name} className='p-6 bg-white rounded-lg shadow-lg hover:shadow-xl'>
+                <div className='flex items-center gap-4'>
+                  <feature.icon className='h-6 w-6 text-[#ff8800]' />
+                  <h3 className='text-lg font-semibold'>{feature.name}</h3>
                 </div>
-              ))}
-            </div>
+                <p className='mt-4 text-gray-600'>{feature.description}</p>
+              </div>
+            ))}
           </div>
-        </div>
-        <div className='mt-16 sm:mt-24 relative h-64 sm:h-96 overflow-hidden'>
-          <img src={landimg} alt='Landing image' className='mt-16 w-full h-full object-cover' />
         </div>
       </section>
 
@@ -286,3 +243,4 @@ const Landing: React.FC = () => {
 };
 
 export default Landing;
+
