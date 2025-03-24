@@ -16,11 +16,11 @@ import {
   fetchHomeData,
   fetchMenteeEditAnswer,
 } from "../../service/menteeApi";
-import { TSortOrder } from "../../Types/type";
+
 
 const Home: React.FC = () => {
   const page_limit = 6;
-  const [filter, setFilter] = useState<"answered" | "unanswered">("answered");
+  const [filter, setFilter] = useState<TquestionTab>("answered");
   const [selectedQuestion, setSelectedQuestion] = useState<IQuestion | null>(
     null
   );
@@ -36,9 +36,10 @@ const Home: React.FC = () => {
   const [editingAnswer, setEditingAnswer] = useState<string | null>(null);
   const [editingAnswerId, setEditingAnswerId] = useState<string | null>(null);
   const [hasMore, setHasMore] = useState<boolean>(true);
-  const [sortField, setSortField] = useState<"createdAt" | "mostAnswered">(
+  const [sortField, setSortField] = useState<TsortField>(
     "createdAt"
   );
+
   const [sortOrder, setSortOrder] = useState<TSortOrder>("desc");
   const [editData, setEditData] = useState<{
     content: string;

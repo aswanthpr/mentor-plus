@@ -13,11 +13,11 @@ import {
   fetchMentorHomeData,
 } from "../../service/mentorApi";
 import { toast } from "react-toastify";
-import { TSortOrder } from "../../Types/type";
+
 
 const MentorQna: React.FC = () => {
   const limit = 6;
-  const [filter, setFilter] = useState<"answered" | "unanswered">("answered");
+  const [filter, setFilter] = useState<TquestionTab>("answered");
   const [questions, setQuestions] = useState<IQuestion[] | []>([]);
   const [selectedQuestion, setSelectedQuestion] = useState<IQuestion | null>(
     null
@@ -34,7 +34,7 @@ const MentorQna: React.FC = () => {
   const [answerId, setAnswerId] = useState<string>("");
   const [editAnswerModalOpen, setEditAnswerModalOpen] =
     useState<boolean>(false);
-  const [sortField, setSortField] = useState<"createdAt" | "mostAnswered">(
+  const [sortField, setSortField] = useState<TsortField>(
     "createdAt"
   );
   const [sortOrder, setSortOrder] = useState<TSortOrder>("desc");

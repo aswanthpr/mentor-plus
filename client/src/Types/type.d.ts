@@ -1,14 +1,13 @@
 type TSortOrder = "asc" | "desc";
 type TSort = "createdAt" | "answers";
 type TFilter = "all" | "blocked" | "active";
-type Ttransaction = "all" | "deposit" | "withdrawal" | "earning";
+type Ttransaction = "all" | "debit" | "credit" | "paid";
 type Tuser = "mentor" | "mentee"|'admin';
-type TslotType = "normal"|"recurring" 
-export const enum SlotStatus {
-  "RESCHEDULED",
-  "CANCELLED",
-  "PENDING",
-  "CONFIRMED",
-  "COMPLETED",
-  "RECLAIM_REQUESTED",
-}
+type TslotType = "normal"|"recurring" ;
+type Tmethod ='normal'|'recurring';
+type Tpayment ="stripe" | "wallet";
+type TquestionTab= "answered" | "unanswered"|'all';
+type Tactive = "verified" | "not-verified";
+type  TsortField = "createdAt" | "mostAnswered";
+type TsessionTab ="upcoming" | "history";
+type Tvarient = "primary" | "secondary" | "dark" | "orange";

@@ -1,14 +1,6 @@
 
 import { Trash2 } from "lucide-react";
 
-interface TimeSlotCardProps {
-  day: string;
-  startTime: string;
-  endTime: string;
-  price: string;
-  onDelete: () => void;
-  key: string;
-}
 
 export const TimeSlotCard = ({
   day,

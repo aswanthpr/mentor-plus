@@ -1,8 +1,5 @@
 import { ChevronRight } from 'lucide-react';
 
-interface BreadcrumbProps {
-  path: { label: string; href: string }[];
-}
 
 export const Breadcrumb = ({ path }: BreadcrumbProps) => {
   return (

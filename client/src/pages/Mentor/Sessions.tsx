@@ -10,8 +10,12 @@ import { toast } from "react-toastify";
 
 import { useNavigate } from "react-router-dom";
 import InputField from "../../components/Auth/InputField";
-import { TFilter, TSort, TSortOrder } from "../../Types/type";
-import { createSessionCodeApi, fetchCanceSessionResponse, getMentorSessions, markAsSessionCompleted } from "../../service/mentorApi";
+import {
+  createSessionCodeApi,
+  fetchCanceSessionResponse,
+  getMentorSessions,
+  markAsSessionCompleted,
+} from "../../service/mentorApi";
 import { joinSessionHandler } from "../../service/commonApi";
 import { Pagination } from "@mui/material";
 
@@ -19,13 +23,13 @@ const Sessions: React.FC = () => {
   const limit = 5;
   const navigate = useNavigate();
 
-  const [activeTab, setActiveTab] = useState<"upcoming" | "history">(
+  const [activeTab, setActiveTab] = useState<TsessionTab>(
     "upcoming"
   );
   const [searchQuery, setSearchQuery] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [sessions, setSessions] = useState<ISession[] | []>([]);
-   const [totalDocuments,setTotalDocuments]=useState<number>(0);
+  const [totalDocuments, setTotalDocuments] = useState<number>(0);
   const [sortField, setSortField] = useState<TSort>("createdAt");
   const [sortOrder, setSortOrder] = useState<TSortOrder>("desc");
   const [statusFilter, setStatusFilter] = useState<TFilter>("all");
@@ -34,8 +38,6 @@ const Sessions: React.FC = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-
-
         const response = await getMentorSessions(
           activeTab,
           searchQuery,
@@ -43,16 +45,16 @@ const Sessions: React.FC = () => {
           sortOrder,
           statusFilter,
           currentPage,
-          limit,
+          limit
         );
-         
+
         if (response?.status == 200 && response?.data?.success) {
           setSessions(response?.data?.slots);
-          setTotalDocuments(response?.data?.totalPage)
+          setTotalDocuments(response?.data?.totalPage);
         }
       } catch (error: unknown) {
         errorHandler(error);
-      } 
+      }
     };
     fetchData();
   }, [activeTab, currentPage, searchQuery, sortField, sortOrder, statusFilter]);
@@ -103,7 +105,6 @@ const Sessions: React.FC = () => {
     [sessions]
   );
 
-
   const crerateSessionCode = useCallback(async (_id: string) => {
     const resp = await createSessionCodeApi(_id);
 
@@ -138,7 +139,7 @@ const Sessions: React.FC = () => {
       }
     );
 
-    const handleRequest =  async (bookingId: string) => {
+    const handleRequest = async (bookingId: string) => {
       const response = await markAsSessionCompleted(bookingId);
       if (response?.status == 200 && response?.data.success) {
         toast.success(response?.data?.message);
@@ -176,13 +177,11 @@ const Sessions: React.FC = () => {
   return (
     <div>
       <div className=" mt-16 ">
-
-
         <TabNavigation
           activeTab={activeTab}
           firstTab="upcoming"
           secondTab="history"
-          onTabChange={(tab) => setActiveTab(tab as "upcoming" | "history")}
+          onTabChange={(tab) => setActiveTab(tab as TsessionTab)}
         />
       </div>
       <div className="bg-white mt-2 p-4 rounded-lg shadow-sm h-[86vh]">
@@ -214,20 +213,16 @@ const Sessions: React.FC = () => {
                 className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-orange-200 border-orange-500"
               >
                 <option value="all">All Status</option>
-                {
-                  activeTab=="upcoming"?(
-                    <>
+                {activeTab == "upcoming" ? (
+                  <>
                     <option value="RECLAIM_REQUESTED">Cancel Request</option>
-                    
-                    </>
-                  ):(
-                    <>
+                  </>
+                ) : (
+                  <>
                     <option value="COMPLETED">Completed</option>
                     <option value="CANCELLED">Cancelled</option>
-                    
-                    </>
-                  )
-                }
+                  </>
+                )}
               </select>
             </div>
 
@@ -263,8 +258,8 @@ const Sessions: React.FC = () => {
             />
           ))}
         </div>
- {/* Pagination */}
-<hr className="h-px  bg-gray-200 border-0 dark:bg-gray-700 mt-2 " />
+        {/* Pagination */}
+        <hr className="h-px  bg-gray-200 border-0 dark:bg-gray-700 mt-2 " />
         <div className="flex justify-center mt-2">
           <Pagination
             count={totalDocuments}

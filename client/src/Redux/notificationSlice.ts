@@ -1,8 +1,6 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
-interface Inotify {
-  [key: string]: Inotification[];
-}
+
 const initialState: Inotify = {
   mentee: [],
   mentor: [],

@@ -8,7 +8,6 @@ import TabNavigation from "../../components/Common/Bookings/TabNavigation";
 import InputField from "../../components/Auth/InputField";
 import { errorHandler } from "../../Utils/Reusable/Reusable";
 import { RootState } from "../../Redux/store";
-import { TFilter, TSort, TSortOrder } from "../../Types/type";
 import RatingModal from "../../components/Common/Bookings/RatingModal";
 import {
   fetchBookingSlots,
@@ -22,7 +21,7 @@ const Boooking: React.FC = () => {
   const limit = 5;
 
   const navigate = useNavigate();
-  const [activeTab, setActiveTab] = useState<"upcoming" | "history">(
+  const [activeTab, setActiveTab] = useState<TsessionTab>(
     "upcoming"
   );
   const [searchQuery, setSearchQuery] = useState("");

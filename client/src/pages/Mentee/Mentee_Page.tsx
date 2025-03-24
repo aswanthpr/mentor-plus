@@ -19,11 +19,6 @@ import { connectToNotifications, disconnectNotificationSocket } from "../../Sock
 import { fetchLogout, fetchNotification, ReadNotification } from "../../service/menteeApi";
 
 
-interface INavItem {
-  name: string;
-  path: string;
-  icon: React.FC<React.SVGProps<SVGSVGElement>>;
-}
 
 const navItems: INavItem[] = [
   { name: "Home", path: "/mentee/home", icon: Home },

@@ -1,12 +1,7 @@
 import { Select, MenuItem, InputLabel, FormControl } from "@mui/material";
-type Tmethod ='normal'|'recurring'
 
-interface ScheduleTypeSelectorProps {
-    value: Tmethod;
-    onChange: (value: Tmethod) => void;
-    classNames:string
-  }
-  
+
+
   export const ScheduleTypeSelector = ({ value, onChange,classNames }: ScheduleTypeSelectorProps) => {
     return (
       <div className={`mb-6 ${classNames}` }>

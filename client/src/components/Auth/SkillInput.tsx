@@ -1,11 +1,6 @@
 import React, { useState } from 'react';
 import { X } from 'lucide-react';
 
-interface ISkill {
-    skills: string[];
-    onSkillsChange: (skills: string[]) => void;
-    maxSkills?: number;
-}
 
 export const SkillInput: React.FC<ISkill> = ({ skills, onSkillsChange, maxSkills = 8 }) => {
     const [inputValue, setInputValue] = useState<string>('');

@@ -3,7 +3,6 @@ import { EyeClosedIcon, EyeIcon } from "lucide-react";
 import { toast } from "react-toastify";
 import { Link, useNavigate } from "react-router-dom";
 import Spinner from "../../components/Common/common4All/Spinner";
-// import SocialLogins from "../../components/auth/SocialLogins";
 import InputField from "../../components/Auth/InputField";
 import OtpModal from "../../components/Auth/OtpModal";
 import {
@@ -19,31 +18,21 @@ import {
   fetchVerifyOtp,
 } from "../../service/menteeApi";
 import bgImg from "../../Asset/background.jpg";
-interface IFormErrors {
-  name?: string;
-  email?: string;
-  password?: string;
-  confirmPassword?: string;
-}
-interface IFormData {
-  name: string;
-  email: string;
-  password: string;
-  confirmPassword: string;
-}
+
+
 
 const SignupForm: React.FC = () => {
   const navigate = useNavigate();
   const [isPasswordVisible, setIsPasswordVisible] = useState<boolean>(false);
   const [isConfirmPasswordVisible, setIsConfirmPasswordVisible] =
     useState<boolean>(false);
-  const [formData, setFormData] = useState<IFormData>({
+  const [formData, setFormData] = useState<ISignupData>({
     name: "",
     email: "",
     password: "",
     confirmPassword: "",
   });
-  const [errors, setErrors] = useState<IFormErrors>({});
+  const [errors, setErrors] = useState<ISignupErrors>({});
   const [showOtpModal, setShowOtpModal] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(false);
 
@@ -53,7 +42,7 @@ const SignupForm: React.FC = () => {
     setFormData((prev) => ({ ...prev, [id]: value }));
 
     // Clear error when user starts typing
-    setErrors((prev: IFormErrors) => ({ ...prev, [id]: undefined }));
+    setErrors((prev: ISignupErrors) => ({ ...prev, [id]: undefined }));
   }, []);
 
   const validateField = useCallback(
@@ -79,14 +68,14 @@ const SignupForm: React.FC = () => {
       e.preventDefault();
 
       // Validate all fields
-      const newErrors: IFormErrors = {};
+      const newErrors: ISignupErrors = {};
       Object.keys(formData).forEach((key) => {
         const error = validateField(
           key,
           formData[key as keyof typeof formData]
         );
         if (error) {
-          newErrors[key as keyof IFormErrors] = error;
+          newErrors[key as keyof ISignupErrors] = error;
         }
       });
       setErrors(newErrors);

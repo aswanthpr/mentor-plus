@@ -2,12 +2,7 @@ import { BadgeCheckIcon, Star } from "lucide-react";
 import React from "react";
 import { Link } from "react-router-dom";
 
-
-interface MentorCardProps {
-  mentor: IMentor;
-}
-
-const MentorCard: React.FC<MentorCardProps> = ({ mentor }) => {
+const MentorCard: React.FC<{ mentor: IMentor}> = ({ mentor }) => {
 
   return (
     <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-2 sm:p-6 hover:shadow-md transition-shadow mx-1">

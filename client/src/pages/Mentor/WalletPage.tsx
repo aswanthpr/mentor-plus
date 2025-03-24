@@ -21,8 +21,7 @@ const WalletPage: React.FC = () => {
   const [totalDoc, setTotalDoc] = useState(0);
   const [showWithdraw, setShowWithdraw] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
-  const [typeFilter, setTypeFilter] = useState<
-    "all" | "deposit" | "withdrawal" | "earning"
+  const [typeFilter, setTypeFilter] = useState<Ttransaction
   >("all");
 
 
@@ -91,8 +90,8 @@ const WalletPage: React.FC = () => {
             searchQuery={searchQuery}
             onSearchChange={setSearchQuery}
             typeFilter={typeFilter}
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            onTypeFilterChange={(type) => setTypeFilter(type as any)}
+         
+            onTypeFilterChange={(type) => setTypeFilter(type as Ttransaction)}
           />
         </div>
         <hr className="h-px  bg-gray-200 border-0 dark:bg-gray-400" />

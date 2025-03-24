@@ -5,10 +5,8 @@ import { useNavigate } from 'react-router-dom';
 import { RootState } from '../../Redux/store';
 
 
-export interface IAdminLogout {
-    element: React.ReactNode;
-}
-const AdminProtectLogout:React.FC<IAdminLogout> = ({element}) => {
+
+const AdminProtectLogout:React.FC<Iprotector> = ({element}) => {
 
     const navigate = useNavigate();
     const adminToken = useSelector((state: RootState) => state.admin?.adminToken);

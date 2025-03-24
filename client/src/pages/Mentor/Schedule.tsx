@@ -6,7 +6,6 @@ import { ArrowUpDown, Filter, Search } from "lucide-react";
 import Button from "../../components/Auth/Button";
 import InputField from "../../components/Auth/InputField";
 import { errorHandler } from "../../Utils/Reusable/Reusable";
-import { TSortOrder } from "../../Types/type";
 import ConfirmToast from "../../components/Common/common4All/ConfirmToast";
 import { TimeSlotCard } from "../../components/Common/Schedule/TimeSlotCard";
 import { ScheduleModal } from "../../components/Common/Schedule/ScheduleModal";

@@ -1,12 +1,7 @@
 import React, { useState } from 'react';
 import { DollarSign, X } from 'lucide-react';
 
-interface WithdrawModalProps {
-  isOpen: boolean;
-  onClose: () => void;
-  onSubmit: (amount: number) => void;
-  maxAmount: number;
-}
+
 
 const WithdrawModal: React.FC<WithdrawModalProps> = ({ isOpen, onClose, onSubmit, maxAmount }) => {
   const [amount, setAmount] = useState('');

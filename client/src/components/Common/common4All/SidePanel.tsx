@@ -1,18 +1,7 @@
 import React from "react";
 import { NavLink, useLocation } from "react-router-dom";
 
-
-export interface INavItem {
-  name: string;
-  path: string;
-  icon: React.FC<{ className?: string }>;
-}
-interface ISideBar {
-  SideBarItems: INavItem[];
-}
-
 const SidePanel: React.FC<ISideBar> = ({ SideBarItems }) => {
-  
   const location = useLocation();
   return (
     <aside className="fixed left-0 top-16 h-[calc(100vh-4rem)] w-64 bg-white border-r border-gray-200">

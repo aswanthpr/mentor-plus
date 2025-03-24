@@ -1,14 +1,8 @@
-import React from 'react';
-import { Star } from 'lucide-react';
+import React from "react";
+import { Star } from "lucide-react";
 
-
-
-interface TopMentorsProps {
-  mentors: ItopMentors[];
-}
-
-const TopMentors: React.FC<TopMentorsProps> =React.memo( ({ mentors }) => {
-  console.log(mentors,'kljkhikhoiuh')
+const TopMentors: React.FC<TopMentorsProps> = React.memo(({ mentors }) => {
+  console.log(mentors, "kljkhikhoiuh");
   return (
     <div className="bg-white p-6 rounded-lg shadow-sm">
       <h3 className="text-lg font-semibold mb-6 ">Top Performing Mentors</h3>
@@ -44,19 +38,27 @@ const TopMentors: React.FC<TopMentorsProps> =React.memo( ({ mentors }) => {
                       alt={mentor?.mentorName}
                     />
                     <div className="ml-4">
-                      <div className="text-sm font-medium text-gray-900">{mentor?.mentorName}</div>
+                      <div className="text-sm font-medium text-gray-900">
+                        {mentor?.mentorName}
+                      </div>
                     </div>
                   </div>
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap">
-                  <span className="text-sm text-gray-900">{mentor?.category}</span>
+                  <span className="text-sm text-gray-900">
+                    {mentor?.category}
+                  </span>
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap">
-                  <span className="text-sm text-gray-900">${mentor?.totalRevenue.toLocaleString()}</span>
+                  <span className="text-sm text-gray-900">
+                    ${mentor?.totalRevenue.toLocaleString()}
+                  </span>
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap">
                   <div className="flex items-center">
-                    <span className="ml-1 text-sm text-gray-900">{mentor?.averageRating}</span>
+                    <span className="ml-1 text-sm text-gray-900">
+                      {mentor?.averageRating}
+                    </span>
                     <Star className="h-4 w-4 text-yellow-400 fill-current" />
                   </div>
                 </td>

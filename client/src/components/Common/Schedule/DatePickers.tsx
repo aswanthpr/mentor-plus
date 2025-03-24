@@ -1,17 +1,7 @@
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 
 import { Moment } from 'moment';
-
-const DatePickers = ({
-  label,
-  value,
-  onChange,
-  minDate,
-  maxDate,
-  shouldDisableDate,
-  format,
-  className
-}: {
+interface IpickerProps{
   label: string;
   value?: Moment | null;
   onChange: (newValue: Moment | null) => void;
@@ -21,8 +11,17 @@ const DatePickers = ({
   shouldDisableDate?: (date: Moment) => boolean;
   format: string;
   className?:string
-
-}) => {
+}
+const DatePickers = ({
+  label,
+  value,
+  onChange,
+  minDate,
+  maxDate,
+  shouldDisableDate,
+  format,
+  className
+}:IpickerProps) => {
   return (
     <>
     <DatePicker

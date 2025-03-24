@@ -1,19 +1,6 @@
-import {
-  // MapPin,
-  // Star,
-  Clock,
-  // Play,
-  // BookmarkPlus,
-  Github,
-  Linkedin,
-  Star,
-} from "lucide-react";
-// import Button from "../../Auth/Button";
-import { Link } from "react-router-dom";
+import { Clock, Github, Linkedin, Star } from "lucide-react";
 
-interface ProfileHeaderProps {
-  mentorData: IMentor | null;
-}
+import { Link } from "react-router-dom";
 
 export const ProfileHeader = ({ mentorData }: ProfileHeaderProps) => {
   return (
@@ -53,15 +40,13 @@ export const ProfileHeader = ({ mentorData }: ProfileHeaderProps) => {
               </div> */}
               <div className="flex">
                 <div className="flex items-center gap-1 text-gray-100">
-                 
                   <Link to={mentorData?.linkedinUrl as string}>
-                   <Linkedin className="w-5" />
+                    <Linkedin className="w-5" />
                   </Link>
                 </div>
                 <div className="flex items-center gap-1 ml-3 text-gray-100">
-                  
                   <Link to={mentorData?.githubUrl as string}>
-                  <Github className="w-5" />
+                    <Github className="w-5" />
                   </Link>
                 </div>
               </div>

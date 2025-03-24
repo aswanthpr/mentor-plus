@@ -1,13 +1,6 @@
 import React from "react";
 
-// Reusable Toast Component
-interface ToastNotificationProps {
-  message: string;
-  description: string;
-  onReply: () => void;
-  onIgnore: () => void;
-  ariaLabel: string;
-}
+
 
 const ConfirmToast: React.FC<ToastNotificationProps> =({ message, description, onReply, onIgnore ,ariaLabel}) => {
   return (

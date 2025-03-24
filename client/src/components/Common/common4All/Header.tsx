@@ -7,17 +7,6 @@ import { Link } from "react-router-dom";
 import profile from "../../../Asset/images.png";
 
 
-interface IHeader {
-  onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
-  value: string;
-  placeholder: string;
-  ToggleSideBar: () => void;
-  userType: "mentor" | "mentee" | "admin";
-  profileLink: string;
-  logout: () => void;
-  onRead: (id: string) => void;
-  notifData:Inotification[]
-}
 
 const Header: React.FC<IHeader> =React.memo( (props) => {
   const { userType, ToggleSideBar, profileLink, logout, onRead ,notifData} = props;

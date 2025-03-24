@@ -3,13 +3,9 @@ import ReactCrop, { Crop, PixelCrop } from 'react-image-crop';
 import "react-image-crop/dist/ReactCrop.css";
 import Button from './Button';
 
-interface IImageCroper {
-  imageFile: File;
-  onCropComplete: (croppedImage: Blob) => void;
-  onCancel: () => void;
-}
 
-const ImageCropper: React.FC<IImageCroper> = ({ imageFile, onCropComplete, onCancel }) => {
+
+const ImageCropper: React.FC<ImageCroper> = ({ imageFile, onCropComplete, onCancel }) => {
   const [crop, setCrop] = useState<Crop>({
     unit: '%',
     x: 25,

@@ -3,7 +3,6 @@
 
 import axios, { AxiosResponse } from "axios";
 import { API, unAPI } from "../Config/adminAxios";
-import { TSort, TSortOrder } from "../Types/type";
 
 export const fetchDashboardData = async (
   signal: AbortSignal,

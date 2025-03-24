@@ -3,11 +3,7 @@ import { useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import { RootState } from '../../Redux/store';
 
-
-export interface IMentorLogout {
-    element: React.ReactNode;
-}
-const MentorProtectLogout:React.FC<IMentorLogout> = ({element}) => {
+const MentorProtectLogout:React.FC<Iprotector> = ({element}) => {
     const navigate = useNavigate();
     const accessToken = useSelector((state: RootState) => state.menter.mentorToken);
     const role = useSelector((state: RootState) => state.menter.mentorRole);

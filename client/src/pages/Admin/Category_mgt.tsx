@@ -23,13 +23,9 @@ import {
   fetchEditCategory,
 } from "../../service/adminApi";
 import InputField from "../../components/Auth/InputField";
-import { TFilter, TSortOrder } from "../../Types/type";
 
-interface Category {
-  _id: string;
-  category: string;
-  isBlocked?: boolean;
-}
+
+
 
 const Category_mgt: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState("");

@@ -101,7 +101,7 @@ export const validatePhones = (phone: string) => {
 };
 
 export const validateNames = (name: string) => {
-  const namePattern = /^[A-Z][a-z]+$/;
+  const namePattern = /^(?!.*[_.]{2})[a-zA-Z0-9._]{3,16}(?<![_.])$/;
   if (!name) {
     return "Name is required.";
   }

@@ -9,14 +9,6 @@ import {
   ResponsiveContainer
 } from 'recharts';
 
-interface BookingData {
-  time: string;
-  bookings: number;
-}
-
-interface BookingTrendsProps {
-  data: BookingData[];
-}
 
 const BookingTrends: React.FC<BookingTrendsProps> = React.memo(({ data }) => {
   return (

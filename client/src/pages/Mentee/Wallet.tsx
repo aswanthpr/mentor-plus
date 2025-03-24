@@ -22,7 +22,7 @@ const WalletPage: React.FC = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [totalDoc, setTotalDoc] = useState(0);
   const [typeFilter, setTypeFilter] = useState<
-    "all" | "debit" | "credit" | "paid"
+  Ttransaction
   >("all");
 
   useEffect(() => {

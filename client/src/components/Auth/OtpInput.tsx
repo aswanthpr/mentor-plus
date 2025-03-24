@@ -1,9 +1,6 @@
 import React,{useRef}from 'react'
 
-interface IOtpinput{
-    value:string;
-    onChange:(value:string)=>void;
-}
+
 export const OtpInput:React.FC<IOtpinput> = (props) => {
     const inputRefs = useRef<(HTMLInputElement|null)[]>([]);
 

@@ -1,4 +1,4 @@
-import React from 'react';
+import React from "react";
 import {
   LineChart,
   Line,
@@ -7,42 +7,33 @@ import {
   CartesianGrid,
   Tooltip,
   Legend,
-  ResponsiveContainer
-} from 'recharts';
-
-// Interface for session data
-interface CumulativeSessionData {
-  revenue: number;
-  cumulativeRevenue: number;
-  month: number;
-  year?: number;
-}
-
-// Interface for transformed growth data
-interface GrowthData {
-  month: string;
-  revenue: number;
-  cumulative: number;
-}
-
-// Props interface
-interface GrowthTrendProps {
-  data: CumulativeSessionData[];
-}
+  ResponsiveContainer,
+} from "recharts";
 
 // Month number to string conversion
-const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+const monthNames = [
+  "Jan",
+  "Feb",
+  "Mar",
+  "Apr",
+  "May",
+  "Jun",
+  "Jul",
+  "Aug",
+  "Sep",
+  "Oct",
+  "Nov",
+  "Dec",
+];
 
 // Component
 const GrowthTrend: React.FC<GrowthTrendProps> = React.memo(({ data }) => {
-
   // Transform cumulative data
   const transformedData: GrowthData[] = data?.map((item) => ({
     month: monthNames[item?.month - 1],
     revenue: item?.revenue,
-    cumulative: item?.cumulativeRevenue, 
+    cumulative: item?.cumulativeRevenue,
   }));
-
 
   return (
     <div className="bg-white p-6 rounded-lg shadow-sm">
@@ -55,8 +46,18 @@ const GrowthTrend: React.FC<GrowthTrendProps> = React.memo(({ data }) => {
             <YAxis />
             <Tooltip />
             <Legend />
-            <Line type="monotone" dataKey="revenue" stroke="#ff8800" activeDot={{ r: 8 }} />
-            <Line type="monotone" dataKey="cumulative" stroke="#ffbb00" activeDot={{ r: 8 }} />
+            <Line
+              type="monotone"
+              dataKey="revenue"
+              stroke="#ff8800"
+              activeDot={{ r: 8 }}
+            />
+            <Line
+              type="monotone"
+              dataKey="cumulative"
+              stroke="#ffbb00"
+              activeDot={{ r: 8 }}
+            />
           </LineChart>
         </ResponsiveContainer>
       </div>

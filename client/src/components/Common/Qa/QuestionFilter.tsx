@@ -1,9 +1,5 @@
 import React from 'react';
 
-interface QuestionFilterProps {
-  activeFilter: 'answered' | 'unanswered';
-  onFilterChange: (filter: 'answered' | 'unanswered') => void; 
-}
 
 const QuestionFilter: React.FC<QuestionFilterProps> = ({ activeFilter, onFilterChange }) => {
   return (

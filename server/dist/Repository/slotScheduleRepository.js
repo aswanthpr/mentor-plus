@@ -12,7 +12,6 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-/* eslint-disable @typescript-eslint/no-unused-vars */
 const slotSchedule_1 = __importDefault(require("../Model/slotSchedule"));
 const baseRepo_1 = require("./baseRepo");
 const mongoose_1 = __importDefault(require("mongoose"));
@@ -46,11 +45,6 @@ class slotScheduleRepository extends baseRepo_1.baseRepository {
                             preserveNullAndEmptyArrays: true,
                         },
                     },
-                    // {
-                    //   $project:{
-                    //     mentorId:"$times.mentorId",
-                    //   }
-                    // }
                 ]);
                 console.log(result, "result");
                 return result[0];

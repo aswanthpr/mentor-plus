@@ -1,19 +1,6 @@
 
 import React from 'react';
-interface InputFieldProps{
-    label?:string;
-    type:string;
-    id?:string;
-    placeholder?:string;
-    value:string;
-    onChange?:(e:React.ChangeEvent<HTMLInputElement>)=>void;
-    error?:string;
-    required?:boolean;
-    className?:string;
-    name?:string
-    min?:string|number;
-    max?:string|number;
-}
+
 
 const InputField:React.FC<InputFieldProps> = (props) => {
   return (

@@ -1,26 +1,10 @@
 import React from 'react';
 import { format } from 'date-fns';
 
-export interface Transaction {
-    id: string;
-    type: 'deposit' | 'withdrawal' | 'earning';
-    date: string;
-    customer: string;
-    amount: number;
-    notes: string;
-  }
-  
-  export interface WalletStats {
-    walletBalance: number;
-    lifetimeEarnings: number;
-    pendingBalance: number;
-  }
-  
-interface TransactionListProps {
-  transactions: Itransaction[];
-}
 
-const TransactionList: React.FC<TransactionListProps> = ({ transactions }) => {
+const TransactionList: React.FC<{
+  transactions: Itransaction[]
+}> = ({ transactions }) => {
   return (
     <table className="w-full">
       <thead className="bg-gray-50">
@@ -31,9 +15,7 @@ const TransactionList: React.FC<TransactionListProps> = ({ transactions }) => {
           <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
             Transaction Date
           </th>
-          {/* <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-            Customer
-          </th> */}
+       
           <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
             Amount
           </th>
@@ -61,9 +43,7 @@ const TransactionList: React.FC<TransactionListProps> = ({ transactions }) => {
             <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
               {format(new Date(transaction?.createdAt), 'MMM d, yyyy HH:mm')}
             </td>
-            {/* <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-              {transaction.customer}
-            </td> */}
+           
             <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
               <span className={transaction?.amount >= 0 ? 'text-green-600' : 'text-red-600'}>
                 ${Math.abs(transaction?.amount)?.toFixed(2)}

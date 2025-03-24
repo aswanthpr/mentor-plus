@@ -1,4 +1,4 @@
-import { ReactNode } from 'react';
+import { ReactNode } from "react";
 
 interface TableProps {
   headers: string[];
@@ -21,9 +21,7 @@ export const Table = ({ headers, children }: TableProps) => {
             ))}
           </tr>
         </thead>
-        <tbody className="bg-white divide-y divide-gray-200">
-          {children}
-        </tbody>
+        <tbody className="bg-white divide-y divide-gray-200">{children}</tbody>
       </table>
     </div>
   );

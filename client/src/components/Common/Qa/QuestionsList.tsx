@@ -14,19 +14,7 @@ import {
 import AddQuestion from "./AddQuestion";
 import falseLogo from "../../../Asset/images.png"; 
 
-interface QuestionListProps {
-  questions: IQuestion[];
-  onEditQuestion?: (questionId: string, question: IeditQuestion) => void;
-  currentUserId?: string;
-  onShowAnswers: (questionId: string) => void;
-  onDeleteQestion?: (questionId: string) => void;
-  setIsAnswerModalOpen: React.Dispatch<React.SetStateAction<boolean>>;
-  setAnswerQuestionId: React.Dispatch<React.SetStateAction<string>>;
-  onEditAnswer: (content: string, answerId: string) => void;
-  EditedData: { content: string; answerId: string };
-  newAnswer?:Ianswer|null;
 
-}
 const QuestionList: React.FC<QuestionListProps> = ({
   questions,
   newAnswer,

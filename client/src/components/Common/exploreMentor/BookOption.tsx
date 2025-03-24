@@ -13,10 +13,6 @@ const features = [
   "LinkedIn profile optimization",
 ];
 
-interface MentorshipPlansProps {
-  mentorName: string;
-  onBook: () => void;
-}
 
 export const BookOption = ({ mentorName, onBook }: MentorshipPlansProps) => {
   const [mentor] = useState<string>(mentorName);

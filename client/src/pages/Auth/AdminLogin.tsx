@@ -12,12 +12,6 @@ import { errorHandler } from "../../Utils/Reusable/Reusable";
 import { fetchAdminLogin } from "../../service/adminApi";
 import bgImg from "../../Asset/background.jpg"
 
-
-
-interface IError {
-  email: string | undefined;
-  password: string | undefined;
-}
 const AdminLogin: React.FC = () => {
  
   const navigate = useNavigate();

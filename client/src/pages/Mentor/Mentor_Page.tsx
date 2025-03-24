@@ -12,11 +12,7 @@ import SidePanel from "../../components/Common/common4All/SidePanel";
 import { connectToNotifications, disconnectNotificationSocket } from "../../Socket/connect";
 import { fetchMentorLogout, fetchMentorNotification, fetchReadNotification } from "../../service/mentorApi";
 
-interface INavItem {
-  name: string;
-  path: string;
-  icon: React.FC<React.SVGProps<SVGSVGElement>>;
-}
+
 const navItems: INavItem[] = [
   { name: "Home", path: "/mentor/home", icon: Home },
   { name: "Session", path: "/mentor/session", icon: Video },

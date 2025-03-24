@@ -10,9 +10,8 @@ import Spinner from "../../components/Common/common4All/Spinner";
 import { errorHandler } from "../../Utils/Reusable/Reusable";
 import { Pagination } from "@mui/material";
 import InputField from "../../components/Auth/InputField";
-import {  TSort, TSortOrder } from "../../Types/type";
 import { fetchMentorData, fetchMentorVerify, toggleMentorStatus } from "../../service/adminApi";
-type Tactive = "verified" | "not-verified"
+
 const PAGE_LIMIT = 8;
 
 export const Mentor_mgt: React.FC = () => {

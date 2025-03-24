@@ -1,18 +1,5 @@
-
-
-import React, { useState } from 'react';
-import { X } from 'lucide-react';
-
-interface IPass{
-    currentPassword:string;
-    newPassword:string;
-    confirmPassword:string;
-}
-interface EditPasswordModalProps {
-  isOpen: boolean;
-  onClose: () => void;
-  onUpdate: (passwords: IPass) => void;
-}
+import React, { useState } from "react";
+import { X } from "lucide-react";
 
 const EditPassword: React.FC<EditPasswordModalProps> = ({
   isOpen,
@@ -20,12 +7,14 @@ const EditPassword: React.FC<EditPasswordModalProps> = ({
   onUpdate,
 }) => {
   const [passwords, setPasswords] = useState<IPass>({
-    currentPassword: '',
-    newPassword: '',
-    confirmPassword: '',
+    currentPassword: "",
+    newPassword: "",
+    confirmPassword: "",
   });
 
-  const [errors, setErrors] = useState<Partial<Record<keyof IPass, string>>>({});
+  const [errors, setErrors] = useState<Partial<Record<keyof IPass, string>>>(
+    {}
+  );
 
   if (!isOpen) return null;
 
@@ -33,27 +22,30 @@ const EditPassword: React.FC<EditPasswordModalProps> = ({
     const newErrors: Partial<Record<keyof IPass, string>> = {};
 
     if (!passwords.currentPassword) {
-      newErrors.currentPassword = 'Current password is required';
+      newErrors.currentPassword = "Current password is required";
     }
 
     if (!passwords.newPassword) {
-      newErrors.newPassword = 'New password is required';
+      newErrors.newPassword = "New password is required";
     } else if (passwords.newPassword.length < 8) {
-      newErrors.newPassword = 'Password must be at least 8 characters';
+      newErrors.newPassword = "Password must be at least 8 characters";
     } else if (!/[A-Z]/.test(passwords.newPassword)) {
-      newErrors.newPassword = 'Password must contain at least one uppercase letter';
+      newErrors.newPassword =
+        "Password must contain at least one uppercase letter";
     } else if (!/[a-z]/.test(passwords.newPassword)) {
-      newErrors.newPassword = 'Password must contain at least one lowercase letter';
+      newErrors.newPassword =
+        "Password must contain at least one lowercase letter";
     } else if (!/[0-9]/.test(passwords.newPassword)) {
-      newErrors.newPassword = 'Password must contain at least one number';
+      newErrors.newPassword = "Password must contain at least one number";
     } else if (!/[!@#$%^&*]/.test(passwords.newPassword)) {
-      newErrors.newPassword = 'Password must contain at least one special character (!@#$%^&*)';
+      newErrors.newPassword =
+        "Password must contain at least one special character (!@#$%^&*)";
     }
 
     if (!passwords.confirmPassword) {
-      newErrors.confirmPassword = 'Please confirm your password';
+      newErrors.confirmPassword = "Please confirm your password";
     } else if (passwords.confirmPassword !== passwords.newPassword) {
-      newErrors.confirmPassword = 'Passwords do not match';
+      newErrors.confirmPassword = "Passwords do not match";
     }
 
     setErrors(newErrors);
@@ -80,7 +72,7 @@ const EditPassword: React.FC<EditPasswordModalProps> = ({
             <X className="h-5 w-5" />
           </button>
         </div>
-        
+
         <form onSubmit={handleSubmit} className="p-6 space-y-6">
           <div>
             <label className="block text-sm font-medium text-gray-700">
@@ -95,15 +87,17 @@ const EditPassword: React.FC<EditPasswordModalProps> = ({
               }}
               className={`mt-1 block w-full rounded-md shadow-sm ${
                 errors.currentPassword
-                  ? 'border-red-300 focus:border-red-500 focus:ring-red-500'
-                  : 'border-gray-300 focus:border-[#ff8800] focus:ring-[#ff8800]'
+                  ? "border-red-300 focus:border-red-500 focus:ring-red-500"
+                  : "border-gray-300 focus:border-[#ff8800] focus:ring-[#ff8800]"
               }`}
             />
             {errors.currentPassword && (
-              <p className="mt-1 text-sm text-red-600">{errors.currentPassword}</p>
+              <p className="mt-1 text-sm text-red-600">
+                {errors.currentPassword}
+              </p>
             )}
           </div>
-          
+
           <div>
             <label className="block text-sm font-medium text-gray-700">
               New Password
@@ -117,15 +111,15 @@ const EditPassword: React.FC<EditPasswordModalProps> = ({
               }}
               className={`mt-1 block w-full rounded-md shadow-sm ${
                 errors.newPassword
-                  ? 'border-red-300 focus:border-red-500 focus:ring-red-500'
-                  : 'border-gray-300 focus:border-[#ff8800] focus:ring-[#ff8800]'
+                  ? "border-red-300 focus:border-red-500 focus:ring-red-500"
+                  : "border-gray-300 focus:border-[#ff8800] focus:ring-[#ff8800]"
               }`}
             />
             {errors.newPassword && (
               <p className="mt-1 text-sm text-red-600">{errors.newPassword}</p>
             )}
           </div>
-          
+
           <div>
             <label className="block text-sm font-medium text-gray-700">
               Confirm New Password
@@ -139,15 +133,17 @@ const EditPassword: React.FC<EditPasswordModalProps> = ({
               }}
               className={`mt-1 block w-full rounded-md shadow-sm ${
                 errors.confirmPassword
-                  ? 'border-red-300 focus:border-red-500 focus:ring-red-500'
-                  : 'border-gray-300 focus:border-[#ff8800] focus:ring-[#ff8800]'
+                  ? "border-red-300 focus:border-red-500 focus:ring-red-500"
+                  : "border-gray-300 focus:border-[#ff8800] focus:ring-[#ff8800]"
               }`}
             />
             {errors.confirmPassword && (
-              <p className="mt-1 text-sm text-red-600">{errors.confirmPassword}</p>
+              <p className="mt-1 text-sm text-red-600">
+                {errors.confirmPassword}
+              </p>
             )}
           </div>
-          
+
           <div className="flex justify-end gap-4">
             <button
               type="button"
@@ -170,4 +166,3 @@ const EditPassword: React.FC<EditPasswordModalProps> = ({
 };
 
 export default EditPassword;
-

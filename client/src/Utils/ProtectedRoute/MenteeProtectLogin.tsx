@@ -4,10 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { RootState } from "../../Redux/store";
 import Spinner from "../../components/Common/common4All/Spinner";
 
-interface PrivateRouteProps {
-  element: React.ReactNode;
-}
-const MenteeLogin: React.FC<PrivateRouteProps> = ({ element }) => {
+const MenteeLogin: React.FC<Iprotector> = ({ element }) => {
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(true);
   const accessToken = useSelector(

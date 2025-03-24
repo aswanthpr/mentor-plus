@@ -1,10 +1,7 @@
 import React, { useState } from "react";
 import { Upload } from "lucide-react";
 
-interface IFileUpload {
-  onFileSelect: (file: File) => void;
-  accept?: string;
-}
+
 export const FileUpload: React.FC<IFileUpload> = ({
   onFileSelect,
   accept = ".pdf,.doc,.docx",

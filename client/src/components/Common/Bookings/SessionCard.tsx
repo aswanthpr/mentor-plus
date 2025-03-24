@@ -7,20 +7,6 @@ import SelectField from "../Schedule/SelectField";
 import moment from "moment";
 import Button from "../../Auth/Button";
 
-interface SessionCardProps {
-  session: ISession;
-  role?: string;
-  handleReclaimRequest?: (sessionId: string, value: string) => void;
-  handleCreateSessionCode?: (sessionId: string) => void;
-  handleCancelSession?: (
-    sessionId: string,
-    reason: string,
-    customReason: string
-  ) => void;
-  handleCompletedSession?(sessionId: string): void;
-  handleRating?: (session: ISession) => void;
-  handleSessionJoin?(sessionId: string, sessionCode: string, role: string): void;
-}
 
 const issues = [
   "health Issues",
@@ -34,7 +20,7 @@ const issues = [
   "other",
 ];
 
-const SessionCard: React.FC<SessionCardProps> = ({
+const SessionCard: React.FC<ISessionCardProps> = ({
   session,
   handleCreateSessionCode,
   handleCancelSession,
@@ -51,7 +37,7 @@ const SessionCard: React.FC<SessionCardProps> = ({
   const [mentorStatusChange, setMentorStatusChange] = useState<string>("");
   const [desptnOpn, setDesptnOpn] = useState<boolean>(false);
 
-  const formatTime = moment(session.slotDetails?.slots![0]?.startTime);
+  const formatTime = moment(session?.slotDetails?.slots![0]?.startTime);
 
   const startTime = moment(formatTime).format("hh:mm A");
   const startDate = moment(session?.slotDetails?.slots?.[0]?.startTime).format(
@@ -102,7 +88,7 @@ const SessionCard: React.FC<SessionCardProps> = ({
         <div className="flex items-center gap-4">
           <img
             src={session?.user?.profileUrl}
-            alt={session.user?.name}
+            alt={session?.user?.name}
             className="w-12 h-12 rounded-full"
           />
           {/* description */}

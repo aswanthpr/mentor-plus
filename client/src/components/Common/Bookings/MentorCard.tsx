@@ -2,24 +2,6 @@
 import React from 'react';
 import { Calendar, Clock } from 'lucide-react';
 import { format } from 'date-fns';
-// import { Session } from './types';
-interface Session {
-    id: string;
-    mentorName: string;
-    mentorAvatar: string;
-    date: string;
-    time: string;
-    duration: number;
-    topic: string;
-    status: 'scheduled' | 'completed' | 'cancelled';
-    rating?: number;
-    review?: string;
-  }
-interface SessionCardProps {
-    session: Session;
-    handleCancelSession: (sessionId: string) => void;
-   
-}
 
 const MentorCard: React.FC<SessionCardProps> = ({ session, handleCancelSession }) => (
     <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200 hover:shadow-md transition-shadow">

@@ -1,11 +1,9 @@
 import { Star } from 'lucide-react';
 import moment from 'moment';
 
-interface ReviewSectionProps {
+export const ReviewSection = ({ mentorData }: {
   mentorData:IMentor;
-}
-
-export const ReviewSection = ({ mentorData }: ReviewSectionProps) => {
+}) => {
 
   const ReviewCard = ({review}:{review:Ireview}) => (
     <div className="border-b pb-6 last:border-b-0">

@@ -8,13 +8,14 @@ import stripeLogo from "../../Asset/stripe-icon.svg";
 import { errorHandler } from "../../Utils/Reusable/Reusable";
 import { bookingInputValidation } from "../../Validation/yupValidation";
 import { toast } from "react-toastify";
-import { confirmSlotBooking, fetchSlotBookingPageData } from "../../service/menteeApi";
-
+import {
+  confirmSlotBooking,
+  fetchSlotBookingPageData,
+} from "../../service/menteeApi";
 
 const initialState: IBookingError = {
   message: "",
   wallet: "",
- 
   stripe: "",
 };
 
@@ -24,9 +25,7 @@ const BookingPage: React.FC = () => {
   const [selectedSlot, setSelectedSlot] = useState<Itime | null>(null);
   const [message, setMessage] = useState("");
   const [mentorId] = useState<string>(state);
-  const [selectedPayment, setSelectedPayment] = useState<
-    "stripe" | "wallet" 
-  >("stripe");
+  const [selectedPayment, setSelectedPayment] = useState<Tpayment>("stripe");
   const [timeSlot, setTimeSlot] = useState<Itime[] | []>([]);
   const [errors, setErrors] = useState<IBookingError>(initialState);
   const [timeDifference, setTimeDifference] = useState<number | null>(null);
@@ -41,17 +40,14 @@ const BookingPage: React.FC = () => {
         if (response?.status == 200 && response?.data?.success) {
           setTimeSlot(response.data?.timeSlots);
         }
-      } catch (error: unknown) { 
+      } catch (error: unknown) {
         errorHandler(error);
       }
     };
     fetchData();
   }, [mentorId]);
 
-
   const handleBook = async () => {
-
-
     try {
       if (!selectedSlot) {
         toast.error("Please select a time slot");
@@ -76,21 +72,19 @@ const BookingPage: React.FC = () => {
       );
 
       if (response?.status == 200 && response?.data.success) {
-        if(selectedPayment=="stripe"){
+        if (selectedPayment == "stripe") {
           if (response?.data.session?.url) {
             window.location.href = response?.data.session?.url;
           }
-
-        }else if(selectedPayment =="wallet"){
-          toast.success(response?.data?.message)
-          navigate("/mentee/bookings")
+        } else if (selectedPayment == "wallet") {
+          toast.success(response?.data?.message);
+          navigate("/mentee/bookings");
         }
       }
 
       setMessage("");
       setErrors(initialState);
       setTimeDifference(null);
-
     } catch (error: unknown) {
       // Handle Yup validation error
       if (error instanceof Yup.ValidationError) {

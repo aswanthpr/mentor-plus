@@ -1,15 +1,4 @@
-import { Calendar, Trash2 } from 'lucide-react';
-
-interface BlockedDate {
-  date: string;
-}
-
-interface BlockedDatesPickerProps {
-  blockedDates: BlockedDate[];
-  onAdd: () => void;
-  onRemove: (index: number) => void;
-  onUpdate: (index: number, date: string) => void;
-}
+import { Calendar, Trash2 } from "lucide-react";
 
 export const BlockedDatesPicker = ({
   blockedDates,

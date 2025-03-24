@@ -9,7 +9,6 @@ import TimePickers from "./TimePickers";
 import DatePickers from "./DatePickers";
 import { ScheduleTypeSelector } from "./ScheduleTypeSelector";
 import { RecurringScheduleForm } from "./RecurringScheduleForm";
-import { TslotType } from "../../../Types/type";
 import {
   baseScheduleSchema,
   scheduleSchema,

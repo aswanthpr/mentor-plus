@@ -3,22 +3,8 @@ import { X } from 'lucide-react';
 import TagInput from './TagInput';
 import InputField from '../../Auth/InputField';
 import { validateSkills } from '../../../Validation/Validation';
-export interface Answer {
-  id: string;
-  content: string;
-  author: IMentee;
-  createdAt: string;
-}
 
-interface AddQuestionModalProps {
-  isOpen: boolean;
-  onClose: () => void;
-  onAdd: (question:IeditQuestion) => void;
-  initialQuestion?: IQuestion;
-  isEditing?: boolean;
-}
-
-const AddQuestion: React.FC<AddQuestionModalProps> = ({
+const AddQuestion: React.FC<IAddQuestionModalProps> = ({
   isOpen,
   onClose,
   onAdd,

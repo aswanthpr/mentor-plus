@@ -7,9 +7,7 @@ import {
   validateConfirmPassword,
 } from "../../Validation/Validation";
 
-interface IPassChange {
-  onSubmit: (password: string) => void;
-}
+
 
 const ChangePassword: React.FC<IPassChange> = (props) => {
   const [password, setPassword] = useState<string>("");

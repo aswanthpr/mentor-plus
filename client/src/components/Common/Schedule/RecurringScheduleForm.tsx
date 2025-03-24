@@ -4,26 +4,7 @@ import moment, { Moment } from "moment";
 import DatePickers from "./DatePickers";
 import MuiInput from "./MuiInput";
 
-interface TimeSlot {
-  startTime: string;
-  endTime: string;
-}
 
-interface RecurringScheduleFormProps {
-  startDate: string;
-  endDate: string;
-  price: number;
-  selectedDays: string[];
-  timeSlots: TimeSlot[];
-  errors: Record<string, string>;
-  onStartDateChange: (date: string) => void;
-  onEndDateChange: (date: string) => void;
-  onPriceChange: (price: number) => void;
-  onDayToggle: (day: string) => void;
-  onAddTimeSlot: () => void;
-  onRemoveTimeSlot: (index: number) => void;
-  onTimeSlotChange: (index: number, key: keyof TimeSlot, value: string) => void;
-}
 
 const DAYS = [
   "Sunday",

@@ -19,7 +19,6 @@ import {
   fetchChangeAnswerStatus,
   fetchQuestionMangement,
 } from "../../service/adminApi";
-import { TFilter, TSort, TSortOrder } from "../../Types/type";
 import { Table } from "../../components/Admin/Table";
 import { StatusBadge } from "../../components/Admin/StatusBadge";
 import Modal from "../../components/Common/common4All/Modal";

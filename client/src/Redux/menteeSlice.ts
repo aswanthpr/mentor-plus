@@ -1,9 +1,6 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
-interface IAccessToken {
-  accessToken: string;
-  role: string;
-}
+
  
 const initialState: IAccessToken = {
   accessToken: localStorage.getItem("authToken") || "", 

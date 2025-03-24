@@ -2,11 +2,7 @@ import axios, { InternalAxiosRequestConfig, AxiosError, AxiosResponse } from 'ax
 import { store } from '../Redux/store';
 import { setAccessToken,clearAccessToken } from '../Redux/menteeSlice';
 
-interface ErrorResponseData {
-  user?: boolean;
-  message?: string;
-  success: boolean;
-}
+
 
 // Initialize Axios instances
 export const protectedAPI = axios.create({

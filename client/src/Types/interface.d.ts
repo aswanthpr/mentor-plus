@@ -1,3 +1,22 @@
+
+ interface Iprotector {
+    element: React.ReactNode;
+}
+interface Inotify {
+  [key: string]: Inotification[];
+}
+interface IAccessToken {
+  accessToken: string;
+  role: string;
+}
+interface ImentorToken { 
+  mentorToken: string;
+  mentorRole: string;
+}
+interface IadminToken {
+  adminToken: string;
+  adminRole: string;
+}
 interface IPass {
   currentPassword?: string;
   newPassword?: string;
@@ -35,7 +54,7 @@ interface ISession {
   description: string;
   slotDetails?: Itime;
   user?: IMentor | IMentee;
-  review?:Ireview|null
+  review?: Ireview | null;
 }
 
 interface Ichat {
@@ -75,6 +94,16 @@ interface Ifilter {
   sort: string;
   domain: string[];
   skill: string[];
+}
+interface IMentee {
+  _id?: string;
+  name?: string;
+  email?: string;
+  phone?: string;
+  bio?: string;
+  isBlocked?: boolean;
+  verified?: boolean;
+  profileUrl?: string;
 }
 
 interface IMentee {
@@ -128,8 +157,8 @@ interface IMentor {
   skills: string[];
   resume?: File | null;
   profileImage?: Blob | null;
-  reviews?:Ireview[];
-  averageRating:number;
+  reviews?: Ireview[];
+  averageRating: number;
 }
 interface IFormData {
   name: string;
@@ -144,6 +173,15 @@ interface IFormData {
   skills?: string[];
   profileImage: Blob | null;
   resume: File | null;
+}
+interface IProfileData {
+  name: string;
+  phone: string;
+  email: string;
+  expertise: string;
+  bio: string;
+  avatar?: string;
+  skills: string[];
 }
 interface IMentorErrors {
   name?: string;
@@ -181,7 +219,7 @@ interface TimeSlot {
 
 interface DaySchedule {
   slots: TimeSlot[];
-  price: number|null;
+  price: number | null;
   startDate: string;
 }
 
@@ -190,7 +228,7 @@ interface ISchedule {
   endDate?: string;
   slots: TimeSlot[];
   selectedDays?: string[];
-  price:number|null;
+  price: number | null;
 }
 
 interface ScheduleModalProps {
@@ -263,8 +301,8 @@ interface Question {
   createdAt: string;
   author: string;
 }
-interface Itransaction{
-  _id:string
+interface Itransaction {
+  _id: string;
   transactionType: string;
   amount: number;
   note: string;
@@ -274,49 +312,48 @@ interface Itransaction{
   updatedAt: Date;
 }
 interface Iwallet {
-  _id:string
-  userId:string;
-  balance:string;
-  transaction:Itransaction[];
+  _id: string;
+  userId: string;
+  balance: string;
+  transaction: Itransaction[];
 }
-interface Ireview{
-_id:string;
-  menteeId:string;
-  menteeId:string;
-  sessionId:string;
-  rating:number;
-  feedback:string;
-  role:string;
-  mentee:IMentee
-  createdAt?:string;
-  updatedAt?:string;
+interface Ireview {
+  _id: string;
+  menteeId: string;
+  menteeId: string;
+  sessionId: string;
+  rating: number;
+  feedback: string;
+  role: string;
+  mentee: IMentee;
+  createdAt?: string;
+  updatedAt?: string;
 }
-interface ItopMentors{
-  mentorId: string,
-  mentorName:string,
-  totalSessions:number,
-  totalRevenue:number,
-  category:string,
-  averageRating:number,
-  profileUrl:string
+interface ItopMentors {
+  mentorId: string;
+  mentorName: string;
+  totalSessions: number;
+  totalRevenue: number;
+  category: string;
+  averageRating: number;
+  profileUrl: string;
 }
-interface IcardData{
-  totalRevenue:number,
-  totalBookings: number,
-  totalCancelledBookings: number,
-  uniqueMentorsThisMonth: number,
-  yearly?:{year:number,revenue:number,sessions:number}[];
-  monthly?:{month:number,revenue:number,sessions:number}[];
-  weekly?:{week:number,revenue:number,sessions:number}[];
-  categoryDistribution: { category: string, value:number }[],
-  topMentors:ItopMentors[]
+interface IcardData {
+  totalRevenue: number;
+  totalBookings: number;
+  totalCancelledBookings: number;
+  uniqueMentorsThisMonth: number;
+  yearly?: { year: number; revenue: number; sessions: number }[];
+  monthly?: { month: number; revenue: number; sessions: number }[];
+  weekly?: { week: number; revenue: number; sessions: number }[];
+  categoryDistribution: { category: string; value: number }[];
+  topMentors: ItopMentors[];
 }
 
-
-interface IChangePass{
-  currentPassword:string,
-  newPassword:string,
-  _id:string;
+interface IChangePass {
+  currentPassword: string;
+  newPassword: string;
+  _id: string;
 }
 type IUserType = "mentee" | "mentor";
 
@@ -343,22 +380,22 @@ interface CumulativeSessionData {
   year?: number;
 }
 
-interface ImentorChartData{
-  currentMonthRevenue:number;
+interface ImentorChartData {
+  currentMonthRevenue: number;
   currentMonthTotalBookings: number;
   currentMonthCancelledBookings: number;
-  currentDaySessionsToAttend:number;
+  currentDaySessionsToAttend: number;
   period: RevenueData[];
   cumulativeSession: CumulativeSessionData[];
-  topMentors:ItopMentors[]
+  topMentors: ItopMentors[];
 }
 
-interface IeditQuestion{
-  title:string,
-  content:string,
-  tags:string[],
+interface IeditQuestion {
+  title: string;
+  content: string;
+  tags: string[];
 }
-interface IFormErrors {
+interface ISignupErrors {
   name?: string;
   email?: string;
   password?: string;
@@ -368,4 +405,53 @@ interface IBookingError {
   message: string;
   wallet: string;
   stripe: string;
+}
+interface TimeSlot {
+  startTime: string;
+  endTime: string;
+}
+interface ISignupData {
+  name: string;
+  email: string;
+  password: string;
+  confirmPassword: string;
+}
+interface INavItem {
+  name: string;
+  path: string;
+  icon: React.FC<React.SVGProps<SVGSVGElement>>;
+}
+interface ErrorResponseData {
+  user?: boolean;
+  message?: string;
+  success: boolean;
+}
+interface Category {
+  _id: string;
+  category: string;
+  isBlocked?: boolean;
+}
+
+interface IMentee {
+  _id?: string;
+  name?: string;
+  email?: string;
+  phone?: string;
+  bio?: string;
+  isBlocked?: boolean;
+  verified?: boolean;
+  profileUrl?: string;
+}
+
+interface IError {
+  email: string | undefined;
+  password: string | undefined;
+}
+interface Transaction {
+  id: string;
+  type: Ttransaction;
+  date: string;
+  customer: string;
+  amount: number;
+  notes: string;
 }

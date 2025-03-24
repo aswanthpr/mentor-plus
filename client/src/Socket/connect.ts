@@ -1,11 +1,9 @@
 import { addNewNotification } from "../Redux/notificationSlice";
 import { io, Socket } from "socket.io-client";
 import { store } from "../Redux/store";
-import { Tuser } from "../Types/type";
 
 let notificationSocket: Socket | null = null;
 let chatSocket: Socket | null = null;
-// let webrtcSocket: Socket | null = null;
 
 // connect to Notifications namespace
 export const connectToNotifications = (userId: string, userType: Tuser) => {

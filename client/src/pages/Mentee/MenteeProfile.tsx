@@ -231,7 +231,7 @@ const MenteeProfile: React.FC = () => {
     try {
       setLoading(true);
 
-      const response = await fetchImageChange(profileImage,formData?._id)
+      const response = await fetchImageChange(profileImage,formData?._id as string)
      
       setShowcropper(false);
       if (response.data && response.data.status == 200) {

@@ -1,6 +1,4 @@
-interface SkillsProps {
-    skills: string[];
-  }
+
   
   export const Skills = ({ skills }: SkillsProps) => {
     return (

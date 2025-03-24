@@ -1,11 +1,5 @@
 import React from 'react';
 
-interface TabNavigationProps {
-  activeTab: string;
-  onTabChange: (tab: string) => void;  
-  firstTab:string;
-  secondTab:string
-}
 
 const TabNavigation: React.FC<TabNavigationProps> = ({ activeTab, onTabChange,secondTab,firstTab }) => {
   return (

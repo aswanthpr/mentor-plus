@@ -1,11 +1,8 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
-interface IAccessToken { 
-  mentorToken: string;
-  mentorRole: string;
-}
 
-const initialState: IAccessToken = {
+
+const initialState: ImentorToken = {
   mentorToken: localStorage.getItem("mentorToken") || "",
   mentorRole: localStorage.getItem("mentor") || "",
 };

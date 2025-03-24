@@ -4,12 +4,7 @@ import {  useNavigate } from 'react-router-dom';
 import { RootState } from '../../Redux/store';
 
 
-interface IMentorProtectLogin {
-  element: React.ReactNode;
-
-}
-
-const MentorProtectLogin:React.FC<IMentorProtectLogin> = ({element}) => {
+const MentorProtectLogin:React.FC<Iprotector> = ({element}) => {
     const navigate = useNavigate();
     const accessToken = useSelector((state: RootState) => state.menter.mentorToken);
     const role = useSelector((state: RootState) =>state.menter.mentorRole);

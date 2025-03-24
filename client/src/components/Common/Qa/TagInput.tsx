@@ -1,12 +1,6 @@
 import React, { useState, KeyboardEvent } from 'react';
 import { X } from 'lucide-react';
 
-interface TagInputProps {
-  tags: string[];
-  onChange: (tags: string[]) => void;
-  maxTags: number;
-  error?: string;
-}
 
 const TagInput: React.FC<TagInputProps> = ({ tags, onChange, maxTags, error }) => {
   const [input, setInput] = useState('');

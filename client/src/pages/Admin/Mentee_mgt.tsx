@@ -9,21 +9,10 @@ import Spinner from "../../components/Common/common4All/Spinner";
 import { errorHandler } from "../../Utils/Reusable/Reusable";
 import { Pagination } from "@mui/material";
 import { fetchAllMentee, ToggleMenteeStatus } from "../../service/adminApi";
-import { TFilter, TSort, TSortOrder } from "../../Types/type";
 import InputField from "../../components/Auth/InputField";
 
 const MENTEES_PER_PAGE = 8; 
 
-interface IMentee {
-  _id?: string;
-  name?: string;
-  email?: string;
-  phone?: string;
-  bio?: string;
-  isBlocked?: boolean;
-  verified?: boolean;
-  profileUrl?: string;
-}
 
 export const Mentee_mgt: React.FC = () => {
   const [currentPage, setCurrentPage] = useState<number>(1);
@@ -34,10 +23,6 @@ export const Mentee_mgt: React.FC = () => {
     const [sortOrder, setSortOrder] = useState<TSortOrder>("desc");
     const [statusFilter, setStatusFilter] = useState<TFilter>("all");
     const [totalPage, setTotalPage] = useState<number>(0);
-
-  // const indexOfLastMentee = currentPage * MENTEES_PER_PAGE;
-  // const indexOfFirstMentee = indexOfLastMentee - MENTEES_PER_PAGE;
-  // const currentMentee = menteeData.slice(indexOfFirstMentee, indexOfLastMentee);
 
   useEffect(() => {
     const fetchUserData = async (): Promise<void> => {

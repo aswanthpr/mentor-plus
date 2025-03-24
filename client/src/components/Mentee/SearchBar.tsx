@@ -1,10 +1,5 @@
-import React from 'react';
-import { Search } from 'lucide-react';
-
-interface SearchBarProps {
-  value: string;
-  onChange: (value: string) => void;
-}
+import React from "react";
+import { Search } from "lucide-react";
 
 const SearchBar: React.FC<SearchBarProps> = ({ value, onChange }) => {
   return (

@@ -1,11 +1,6 @@
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { useRef } from 'react';
 
-interface MentorListByCategoryProps {
-  title: string;
-  mentors: IMentor[];
-  onSeeAll: () => void;
-}
 
 export const MentorListByCategory = ({
   title,

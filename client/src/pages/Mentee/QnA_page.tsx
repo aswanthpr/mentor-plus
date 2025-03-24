@@ -22,7 +22,6 @@ import {
   fetchEditQuestion,
   fetchMenteeQuestions,
 } from "../../service/menteeApi";
-import {TSortOrder } from "../../Types/type";
 import { Pagination } from "@mui/material";
 
 const QnA_page: React.FC = () => {
@@ -37,10 +36,10 @@ const QnA_page: React.FC = () => {
   const [answer, setEditAnswer] = useState<string>("");
   const [answerId, setAnswerId] = useState<string>("");
   const [searchQuery, setSearchQuery] = useState<string>("");
-  const [sortField, setSortField] = useState<"createdAt"|"mostAnswered">("createdAt");
+  const [sortField, setSortField] = useState<TsortField>("createdAt");
   const [sortOrder, setSortOrder] = useState<TSortOrder>("desc");
   const [answerQuestionId, setAnswerQuestionId] = useState<string>("");
-  const [filter, setFilter] = useState<"answered" | "unanswered" | "all">(
+  const [filter, setFilter] = useState<TquestionTab>(
     "answered"
   );
   const [totalDocuments, setTotalDocuments] = useState<number>(0);

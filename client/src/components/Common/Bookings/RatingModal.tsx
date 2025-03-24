@@ -1,13 +1,7 @@
 import React, { useCallback, useState } from 'react';
 import { Star, X } from 'lucide-react';
 
-interface RatingModalProps { 
-  isOpen: boolean;
-  onClose: () => void;
-  onSubmit?: (rating: number, review: string) => void;
-  session?: ISession;
 
-}
 
 const RatingModal: React.FC<RatingModalProps> = ({ isOpen, onClose, onSubmit }) => {
   const [rating, setRating] = useState(0);

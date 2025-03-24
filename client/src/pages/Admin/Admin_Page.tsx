@@ -20,11 +20,7 @@ import {
   fetchNotificaitionRead,
 } from "../../service/adminApi";
 
-interface INavItem {
-  name: string;
-  path: string;
-  icon: React.FC<React.SVGProps<SVGSVGElement>>;
-}
+
 const navItems: INavItem[] = [
   { name: "Dashboard", path: "/admin/dashboard", icon: LayoutDashboard },
   { name: "Category", path: "/admin/category_management", icon: PaperclipIcon },

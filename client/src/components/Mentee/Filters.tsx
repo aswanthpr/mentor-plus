@@ -4,11 +4,7 @@ import SelectField from "../Common/Schedule/SelectField";
 import { SelectChangeEvent, Tooltip } from "@mui/material";
 
 
-interface Category {
-  _id: string;
-  category: string;
-  isBlocked: boolean;
-}
+
 export interface MentorFilters {
   categories: Category[];
   skills: string[];

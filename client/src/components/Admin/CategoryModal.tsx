@@ -1,15 +1,5 @@
-import { X } from 'lucide-react';
-import React, { useCallback, useRef } from 'react';
-
-interface ICategModal {
-  heading: JSX.Element | string;
-  category: string;
-  handleCategoryChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
-  error: string;
-  handleCloseModal: () => void;
-  handleSave: () => void;
-  reference: React.RefObject<HTMLInputElement>
-}
+import { X } from "lucide-react";
+import React, { useCallback, useRef } from "react";
 
 const CategoryModal: React.FC<ICategModal> = ({
   heading,
@@ -22,11 +12,14 @@ const CategoryModal: React.FC<ICategModal> = ({
 }) => {
   const modalRef = useRef<HTMLDivElement>(null);
 
-  const handleBackdropClick = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
-    if (modalRef.current && !modalRef.current.contains(e.target as Node)) {
-      handleCloseModal();
-    }
-  },[handleCloseModal]);
+  const handleBackdropClick = useCallback(
+    (e: React.MouseEvent<HTMLDivElement>) => {
+      if (modalRef.current && !modalRef.current.contains(e.target as Node)) {
+        handleCloseModal();
+      }
+    },
+    [handleCloseModal]
+  );
 
   return (
     <div
@@ -51,7 +44,7 @@ const CategoryModal: React.FC<ICategModal> = ({
 
         {/* Input Field */}
         <input
-        ref={reference}
+          ref={reference}
           type="text"
           name="category"
           value={category}

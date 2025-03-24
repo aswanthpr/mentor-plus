@@ -2,12 +2,7 @@ import React ,{useState,useEffect} from 'react';
 import InputField from './InputField';
 
 
-interface IModalProps{
-    isOpen:boolean;
-    onClose:()=>void;
-    onVerify:(otp:string)=>void;
-    onResendOtp:()=>void;
-}
+
 
 const OtpModal:React.FC<IModalProps> = (props) => {
     const [otp,setOtp] =useState<string>('');

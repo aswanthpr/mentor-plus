@@ -5,13 +5,7 @@ import  * as Yup from 'yup'
 import { answerInputSchema } from "../../../Validation/yupValidation";
 
 
-interface AnswerInputModalProps {
-  isOpen: boolean;
-  onClose: () => void;
-  onSubmit: (content: string, answerId?: string) => void;
-  answerId?: string;
-  receiveAnswer?: string;
-}
+
 const AnswerInputModal: React.FC<AnswerInputModalProps> = ({
   isOpen,
   onClose,

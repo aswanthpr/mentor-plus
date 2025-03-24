@@ -5,10 +5,7 @@ import { RootState } from '../../Redux/store';
 import Spinner from '../../components/Common/common4All/Spinner';
 
 
-export interface IMenteeLogout {
-    element: React.ReactNode;
-}
-const MenteeLogout: React.FC<IMenteeLogout> = ({ element }) => {
+const MenteeLogout: React.FC<Iprotector> = ({ element }) => {
 
     const navigate = useNavigate();
     const accessToken = useSelector((state: RootState) => state.mentee.accessToken);

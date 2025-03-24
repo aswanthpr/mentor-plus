@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 import slotScheduleSchema, { IslotSchedule } from "../Model/slotSchedule";
 import { baseRepository } from "./baseRepo";
 import { IslotScheduleRepository } from "../Interface/Booking/iSlotScheduleRepository";
@@ -47,12 +46,6 @@ class slotScheduleRepository
             preserveNullAndEmptyArrays: true,
           },
         },
-        // {
-        //   $project:{
-        //     mentorId:"$times.mentorId",
-
-        //   }
-        // }
       ]);
       console.log(result, "result");
       return result[0];
