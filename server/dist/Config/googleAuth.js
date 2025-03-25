@@ -11,7 +11,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
-var _a, _b;
+var _a, _b, _c;
 Object.defineProperty(exports, "__esModule", { value: true });
 const passport_1 = __importDefault(require("passport"));
 const passport_google_oauth20_1 = require("passport-google-oauth20");
@@ -19,8 +19,8 @@ const menteeRepository_1 = __importDefault(require("../Repository/menteeReposito
 require("express-session");
 passport_1.default.use(new passport_google_oauth20_1.Strategy({
     clientID: (_a = process.env) === null || _a === void 0 ? void 0 : _a.GOOGLE_CLIENT_ID,
-    clientSecret: process === null || process === void 0 ? void 0 : process.env.GOOGLE_CLIENT_SECRET,
-    callbackURL: (_b = process.env) === null || _b === void 0 ? void 0 : _b.CALLBACK_URL,
+    clientSecret: (_b = process.env) === null || _b === void 0 ? void 0 : _b.GOOGLE_CLIENT_SECRET,
+    callbackURL: (_c = process.env) === null || _c === void 0 ? void 0 : _c.CALLBACK_URL,
     passReqToCallback: true,
 }, (req, accessToken, refreshToken, profile, done) => __awaiter(void 0, void 0, void 0, function* () {
     var _a, _b, _c, _d;

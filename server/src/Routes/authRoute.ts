@@ -48,7 +48,7 @@ auth_Router.get(`/google`,passport.authenticate('google',{scope:['email','profil
 
 auth_Router.get(`/google/callback`,passport.authenticate('google',{
     successRedirect:'/auth/google/success',
-    failureRedirect:'http://localhost:5173/mentee/google/failure',
+    failureRedirect:`${process.env.CLIENT_ORIGIN_URL}/auth/login/mentee`,
     failureMessage: true,
     successMessage:true
 }));
