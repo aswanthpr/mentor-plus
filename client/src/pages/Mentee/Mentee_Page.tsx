@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useState } from "react";
 import { Outlet } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-import { 
+import {
   Home,
   Compass,
   MessageSquare,
@@ -15,10 +15,16 @@ import { clearAccessToken } from "../../Redux/menteeSlice";
 import { toast } from "react-toastify";
 import { markAsRead, setNotification } from "../../Redux/notificationSlice";
 import { RootState } from "../../Redux/store";
-import { connectToNotifications, disconnectNotificationSocket } from "../../Socket/connect";
-import { fetchLogout, fetchNotification, ReadNotification } from "../../service/menteeApi";
-
-
+import {
+  connectToNotifications,
+  disconnectNotificationSocket,
+} from "../../Socket/connect";
+import {
+  fetchLogout,
+  fetchNotification,
+  ReadNotification,
+} from "../../service/menteeApi";
+import { HttpStatusCode } from "axios";
 
 const navItems: INavItem[] = [
   { name: "Home", path: "/mentee/home", icon: Home },
@@ -38,29 +44,28 @@ const Mentee_Page: React.FC = () => {
   const [isSideBarOpen, setIsSideBarOpen] = useState<boolean>(false);
   const [searchValue, setSearchValue] = useState<string>("");
 
-
   useEffect(() => {
     let flag = true;
 
     const fetchData = async () => {
-      try {
-        const response = await fetchNotification()
-      
-        if (flag && response?.status == 200 && response?.data.success) {
-          const user_Id = response?.data.result?.[0]?.['userId'] as string;
+      const response = await fetchNotification();
 
-          dispatch(
-            setNotification({ userType: "mentee", notification: response?.data?.['result'] })
-          );
-          if(user_Id){
+      if (
+        flag &&
+        response?.status == HttpStatusCode?.Ok &&
+        response?.data.success
+      ) {
+        const user_Id = response?.data.result?.[0]?.["userId"] as string;
 
-            connectToNotifications(user_Id,'mentee')
-          }
-        }
-      } catch (error: unknown) {
-        console.log(
-          `${error instanceof Error ? error.message : String(error)}`
+        dispatch(
+          setNotification({
+            userType: "mentee",
+            notification: response?.data?.["result"],
+          })
         );
+        if (user_Id) {
+          connectToNotifications(user_Id, "mentee");
+        }
       }
     };
 
@@ -69,36 +74,38 @@ const Mentee_Page: React.FC = () => {
       flag = false;
       disconnectNotificationSocket();
     };
-
   }, [dispatch]);
 
-  const ToggleSideBar =useCallback( () => {
+  const ToggleSideBar = useCallback(() => {
     setIsSideBarOpen(!isSideBarOpen);
-  },[isSideBarOpen]);
+  }, [isSideBarOpen]);
 
-  const handleSearchChange =useCallback( (e: React.ChangeEvent<HTMLInputElement>) => {
-    setSearchValue(e.target.value);
-  },[]);
+  const handleSearchChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      setSearchValue(e.target.value);
+    },
+    []
+  );
 
   const logoutMentee = useCallback(async () => {
-    const response = await fetchLogout()
-    if (response.data.success && response.status === 200) {
+    const response = await fetchLogout();
+    if (response.data.success && response.status === HttpStatusCode?.Ok) {
       dispatch(clearAccessToken());
       localStorage.removeItem("menteeToken");
       toast.success(response.data.message);
     }
-  },[dispatch]);
-  const handleReadNotification = useCallback(async (id: string) => {
-    try {
-      const response = await ReadNotification(id)
+  }, [dispatch]);
 
-      if (response?.status == 200 && response?.data.success) {
+  const handleReadNotification = useCallback(
+    async (id: string) => {
+      const response = await ReadNotification(id);
+
+      if (response?.status == HttpStatusCode?.Ok && response?.data.success) {
         dispatch(markAsRead({ userType: "mentee", id }));
       }
-    } catch (error: unknown) {
-      console.log(`${error instanceof Error ? error.message : String(error)}`);
-    }
-  },[dispatch]);
+    },
+    [dispatch]
+  );
   return (
     <div className="min-h-screen bg-gray-50">
       <Header
@@ -110,7 +117,7 @@ const Mentee_Page: React.FC = () => {
         userType="mentee"
         logout={logoutMentee}
         onRead={handleReadNotification}
-        notifData={notification} 
+        notifData={notification}
       />
 
       {/* Overlay for Small Screens */}

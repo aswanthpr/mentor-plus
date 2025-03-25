@@ -3,6 +3,8 @@
 
 import axios, { AxiosResponse } from "axios";
 import { API, unAPI } from "../Config/adminAxios";
+import { errorHandler } from "../Utils/Reusable/Reusable";
+import { toast } from "react-toastify";
 
 export const fetchDashboardData = async (
   signal: AbortSignal,
@@ -33,6 +35,7 @@ export const fetchAdminLogin = async (
       password,
     });
   } catch (error: unknown) {
+     errorHandler(error)
     console.log(error instanceof Error ? error?.message : String(error));
   }
 };
@@ -44,6 +47,7 @@ export const fetchChangeAnswerStatus = async (
       answerId,
     });
   } catch (error: unknown) {
+    errorHandler(error);
     console.log(error instanceof Error ? error?.message : String(error));
   }
 };
@@ -78,6 +82,7 @@ export const changeQuestionStatus = async (
       questionId,
     });
   } catch (error: unknown) {
+     errorHandler(error);
     console.log(error instanceof Error ? error?.message : String(error));
   }
 };
@@ -102,6 +107,7 @@ export const fetchAllNotification = async (): Promise<AxiosResponse | any> => {
     return await API.get(`/admin/notification`);
   } catch (error: unknown) {
     console.log(error instanceof Error ? error?.message : String(error));
+    
   }
 };
 export const fetchCategoryChange = async (
@@ -111,6 +117,7 @@ export const fetchCategoryChange = async (
     return await API.put(`/admin/change_category_status`, { id });
   } catch (error: unknown) {
     console.log(error instanceof Error ? error?.message : String(error));
+    errorHandler(error);
   }
 };
 export const fetchEditCategory = async (
@@ -124,6 +131,7 @@ export const fetchEditCategory = async (
     });
   } catch (error: unknown) {
     console.log(error instanceof Error ? error?.message : String(error));
+     errorHandler(error);
   }
 };
 export const fetchAllcategoryData = async (
@@ -157,6 +165,7 @@ export const fetchCreateCategory = async (
       category,
     });
   } catch (error: unknown) {
+      errorHandler(error);
     console.log(error instanceof Error ? error?.message : String(error));
   }
 };
@@ -223,6 +232,8 @@ export const fetchMentorVerify = async (
   try {
     return await API.patch(`/admin/mentor_management/mentor_verify`, { id });
   } catch (error: unknown) {
+    errorHandler(error);
+    toast.dismiss();
     console.log(error instanceof Error ? error?.message : String(error));
   }
 };
@@ -234,6 +245,8 @@ export const toggleMentorStatus = async (
       id,
     });
   } catch (error: unknown) {
+    errorHandler(error);
+    toast.dismiss();
     console.log(error instanceof Error ? error?.message : String(error));
   }
 };

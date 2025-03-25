@@ -8,33 +8,38 @@ import Spinner from "../../components/Common/common4All/Spinner";
 import { useDispatch } from "react-redux";
 import { setToken } from "../../Redux/adminSlice";
 import { EyeClosedIcon, EyeIcon } from "lucide-react";
-import { errorHandler } from "../../Utils/Reusable/Reusable";
 import { fetchAdminLogin } from "../../service/adminApi";
-import bgImg from "../../Asset/background.jpg"
+import bgImg from "../../Asset/background.jpg";
+import { ADMIN_LOGIN_ERROR } from "../../Constants/initialStates";
+import { routesObj } from "../../Constants/message";
+import { HttpStatusCode } from "axios";
 
 const AdminLogin: React.FC = () => {
- 
   const navigate = useNavigate();
   const dispatch = useDispatch();
-  const [isVisible,setIsVisible]=useState<boolean>(false)
+  const [isVisible, setIsVisible] = useState<boolean>(false);
   const [email, setEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(false);
-  const [errors, setErrors] = useState<IError>({
-    email: "",
-    password: "",
-  });
+  const [errors, setErrors] = useState<IError>(ADMIN_LOGIN_ERROR);
 
-  const handleEmailChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    setEmail(e.target.value);
-  },[]);
-  const handlePassChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    setPassword(e.target.value);
-  },[]);
+  const handleEmailChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      setEmail(e.target.value);
+    },
+    []
+  );
+  const handlePassChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      setPassword(e.target.value);
+    },
+    []
+  );
 
-  const handleSubmit = useCallback( async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    try {
+  const handleSubmit = useCallback(
+    async (e: React.FormEvent<HTMLFormElement>) => {
+      e.preventDefault();
+
       const emailError = validateEmail(email);
       const passwordError = validatePassword(password);
 
@@ -48,39 +53,39 @@ const AdminLogin: React.FC = () => {
 
       setLoading(true);
 
-      const response = await fetchAdminLogin(email,password)
-     
+      const response = await fetchAdminLogin(email, password);
 
-      if (response.data?.accessToken && response?.status === 200) {
-       
-        dispatch(setToken({adminToken:response.data?.accessToken,adminRole:'admin'}));
+      if (
+        response.data?.accessToken &&
+        response?.status === HttpStatusCode?.Ok
+      ) {
+        dispatch(
+          setToken({
+            adminToken: response.data?.accessToken,
+            adminRole: "admin",
+          })
+        );
         setLoading(false);
-        
+
         toast.success(response.data.message);
-        navigate("/admin/dashboard");
-
-      } else {
-        setLoading(false);
-        toast.error("Login failed. Please check your credentials.");
+        navigate(routesObj?.ADMIN_DASHBOARD);
       }
-    } catch (error: unknown) {
-     errorHandler(error)
-    }finally{
-      setTimeout(()=>{
-        setLoading(false)
 
-      },500)
-    }
-  },[dispatch, email, navigate, password]);
+        setLoading((pre)=>!pre);
+
+    },
+    [dispatch, email, navigate, password]
+  );
 
   return (
-    <div className="font-poppins flex items-center justify-center min-h-screen bg-gray-100"
-    style={{
-      backgroundImage: `url(${bgImg})`,
-      backgroundSize: "cover",
-      backgroundPosition: "center",
-      backgroundRepeat: "no-repeat",
-    }}
+    <div
+      className="font-poppins flex items-center justify-center min-h-screen bg-gray-100"
+      style={{
+        backgroundImage: `url(${bgImg})`,
+        backgroundSize: "cover",
+        backgroundPosition: "center",
+        backgroundRepeat: "no-repeat",
+      }}
     >
       {loading && <Spinner />}
       <div className="bg-white p-8 rounded-lg shadow-lg w-full max-w-sm">
@@ -116,8 +121,7 @@ const AdminLogin: React.FC = () => {
               Password
             </label>
             <input
-              type={isVisible?"text":"password"}
-             
+              type={isVisible ? "text" : "password"}
               id="password"
               name="password"
               value={password}
@@ -125,14 +129,14 @@ const AdminLogin: React.FC = () => {
               placeholder="Enter your password"
               className="w-full mt-2  p-2 border border-[#ff8800] rounded-md focus:outline-none focus:ring-2  focus:ring-[#ff8800] focus:border-transparent"
             />
-             <button
-            type="button"
-            onClick={()=>setIsVisible((prev)=>!prev)}
-            aria-label={isVisible ? "Hide Password" : "Show Password"}
-            className="absolute right-4 top-12 transform -translate-y-1/2 text-gray-400" 
-          >
-            {isVisible ? <EyeClosedIcon /> : <EyeIcon />}
-          </button>
+            <button
+              type="button"
+              onClick={() => setIsVisible((prev) => !prev)}
+              aria-label={isVisible ? "Hide Password" : "Show Password"}
+              className="absolute right-4 top-12 transform -translate-y-1/2 text-gray-400"
+            >
+              {isVisible ? <EyeClosedIcon /> : <EyeIcon />}
+            </button>
             {errors.password && (
               <p className="text-red-500 text-sm mt-2">{errors.password}</p>
             )}

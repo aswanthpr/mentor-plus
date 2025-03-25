@@ -1,6 +1,7 @@
 import { BadgeCheckIcon, Star } from "lucide-react";
 import React from "react";
 import { Link } from "react-router-dom";
+import { routesObj } from "../../Constants/message";
 
 const MentorCard: React.FC<{ mentor: IMentor}> = ({ mentor }) => {
 
@@ -54,7 +55,7 @@ const MentorCard: React.FC<{ mentor: IMentor}> = ({ mentor }) => {
       <div className=" flex space-x-2">
 
       <Link
-        to={`/mentee/explore/${mentor?.name.toLowerCase()}`}
+        to={`${routesObj?.MENTEE_EXPLORE}/${mentor?.name.toLowerCase()}`}
         state={mentor}
         className="mt-4 w-2/6 px-4 py-2 bg-[#ff8800] text-white rounded-lg hover:bg-[#ff9900] font-medium transition-colors block text-center mx-auto"
       >

@@ -8,15 +8,13 @@ import { Pagination } from "@mui/material";
 import { toast } from "react-toastify";
 import { fetchWalletData } from "../../service/commonApi";
 import { fetchHandleWithdraw } from "../../service/mentorApi";
+import { WALLET_DATA } from "../../Constants/initialStates";
+import { HttpStatusCode } from "axios";
+import { Messages } from "../../Constants/message";
 
 const WalletPage: React.FC = () => {
   const limit = 10;
-  const [walletData, setWalletData] = useState<Iwallet>({
-    _id: "",
-    userId: "",
-    balance: "",
-    transaction: [],
-  }); 
+  const [walletData, setWalletData] = useState<Iwallet>(WALLET_DATA); 
   const [searchQuery, setSearchQuery] = useState("");
   const [totalDoc, setTotalDoc] = useState(0);
   const [showWithdraw, setShowWithdraw] = useState(false);
@@ -34,7 +32,7 @@ const WalletPage: React.FC = () => {
         currentPage,
         limit,
       );
-      if (response?.status == 200 && response?.data?.success && flag) {
+      if (response?.status == HttpStatusCode?.Ok && response?.data?.success && flag) {
         setWalletData(response?.data?.walletData);
         setTotalDoc(response?.data?.totalPage)
       }
@@ -49,11 +47,11 @@ const WalletPage: React.FC = () => {
 
   const handleWithdraw = useCallback(async (amount: number) => {
     if (Number(amount) < 500 || !amount) {
-      toast.error("amount cannot be less than $500");
+      toast.error(Messages?.WITHDRAW_LIMIT);
     }
     const response = await fetchHandleWithdraw(amount);
 
-    if (response?.status == 200 && response?.data?.result) {
+    if (response?.status == HttpStatusCode?.Ok && response?.data?.result) {
       console.log(response);
       setWalletData((pre) => ({
         ...pre,

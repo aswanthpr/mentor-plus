@@ -4,17 +4,31 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { StatusBadge } from "../../components/Admin/StatusBadge";
 import { toast } from "react-toastify";
 import profile from "../../Asset/rb_2877.png";
-import { ArrowUpDown, BanIcon, CheckCircle2, CircleCheckBigIcon, Eye, Filter, Frown, Search } from "lucide-react";
+import {
+  ArrowUpDown,
+  BanIcon,
+  CheckCircle2,
+  CircleCheckBigIcon,
+  Eye,
+  Filter,
+  Frown,
+  Search,
+} from "lucide-react";
 import ConfirmToast from "../../components/Common/common4All/ConfirmToast";
 import Spinner from "../../components/Common/common4All/Spinner";
 import { errorHandler } from "../../Utils/Reusable/Reusable";
 import { Pagination } from "@mui/material";
 import InputField from "../../components/Auth/InputField";
-import { fetchMentorData, fetchMentorVerify, toggleMentorStatus } from "../../service/adminApi";
-
-const PAGE_LIMIT = 8;
+import {
+  fetchMentorData,
+  fetchMentorVerify,
+  toggleMentorStatus,
+} from "../../service/adminApi";
+import { HttpStatusCode } from "axios";
+import { routesObj } from "../../Constants/message";
 
 export const Mentor_mgt: React.FC = () => {
+  const PAGE_LIMIT = 8;
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -29,10 +43,10 @@ export const Mentor_mgt: React.FC = () => {
   const [activeTab, setActiveTab] = useState<Tactive>(
     getActiveTabFromPath(location.pathname)
   );
-const [searchQuery, setSearchQuery] = useState("");
+  const [searchQuery, setSearchQuery] = useState("");
   const [sortField, setSortField] = useState<TSort>("createdAt");
   const [sortOrder, setSortOrder] = useState<TSortOrder>("desc");
-  const [totalDoc,setTotalDoc] = useState<number>(0)
+  const [totalDoc, setTotalDoc] = useState<number>(0);
 
   // Pagination change handler
   const handlePageChange = useCallback(
@@ -44,24 +58,19 @@ const [searchQuery, setSearchQuery] = useState("");
   );
 
   useEffect(() => {
-
     const fetchMentors = async () => {
-      try {
-        const response = await fetchMentorData(
-          searchQuery,
-          activeTab,
-          sortField,
-          sortOrder,
-          currentPage,
-          PAGE_LIMIT
-        )
-      console.log(response,'resposne')
-        if (response?.status && response.data.success) {
-          setMentors(response.data?.mentorData);
-          setTotalDoc(response?.data?.totalPage)
-        }
-      } catch (error) {
-        console.error("Error fetching mentors:", error);
+      const response = await fetchMentorData(
+        searchQuery,
+        activeTab,
+        sortField,
+        sortOrder,
+        currentPage,
+        PAGE_LIMIT
+      );
+
+      if (response?.status == HttpStatusCode?.Ok && response.data.success) {
+        setMentors(response.data?.mentorData);
+        setTotalDoc(response?.data?.totalPage);
       }
     };
 
@@ -70,70 +79,59 @@ const [searchQuery, setSearchQuery] = useState("");
 
   useEffect(() => {
     if (activeTab == "verified") {
-      navigate("/admin/mentor_management/verified");
+      navigate(routesObj?.ADMIN_MGT_VERIFIED);
     } else {
-      navigate("/admin/mentor_management/not_verified");
+      navigate(routesObj?.ADMIN_MGT_NOT_VERIFIED);
     }
   }, [activeTab, navigate]);
 
   const handleVerify = useCallback(async (id: string) => {
-    try {
-      toast.dismiss();
-      setLoading(true);
-      const response = await fetchMentorVerify(id)
-     
-      if (response && response.data) {
-        setTimeout(() => {
-          toast.success(response.data.message);
-        }, 1000);
-        //here change the value opposite dinamically
-        setMentors((pre) =>
-          pre.map((mentor) =>
-            mentor?._id == id ? { ...mentor, verified: true } : mentor
-          ).filter((ment)=>ment?._id!=id)
-        );
-      } else {
-        console.error("Invalid response format", response);
-      }
-    } catch (error: unknown) {
-      errorHandler(error);
-      toast.dismiss();
-    } finally {
+    toast.dismiss();
+    setLoading(true);
+    const response = await fetchMentorVerify(id);
+
+    if (response.status == HttpStatusCode?.Ok && response.data) {
       setTimeout(() => {
-        setLoading(false);
+        toast.success(response.data.message);
       }, 1000);
-    }
-  }, []);
-  const handleStatus = useCallback(async (id: string) => {
-    try {
-      toast.dismiss();
-      setLoading(true);
-
-      const response = await toggleMentorStatus(id)
-     
-      if (response.status == 200 && response.data.success) {
-        setTimeout(() => {
-          toast.success(response.data?.message);
-        }, 1000);
-
-        setMentors((prev) =>
-          prev.map((mentor) =>
-            mentor?._id === id
-              ? { ...mentor, isBlocked: !mentor?.isBlocked }
-              : mentor
+      //here change the value opposite dinamically
+      setMentors((pre) =>
+        pre
+          .map((mentor) =>
+            mentor?._id == id ? { ...mentor, verified: true } : mentor
           )
-        );
-      } else {
-        console.error("Invalid response format", response);
-      }
-    } catch (error: unknown) {
-      errorHandler(error);
-      toast.dismiss();
-    } finally {
-      setTimeout(() => {
-        setLoading(false);
-      }, 500);
+          .filter((ment) => ment?._id != id)
+      );
     }
+
+    setTimeout(() => {
+      setLoading(false);
+    }, 1000);
+  }, []);
+
+  const handleStatus = useCallback(async (id: string) => {
+    toast.dismiss();
+    setLoading(true);
+
+    const response = await toggleMentorStatus(id);
+
+    if (response.status == HttpStatusCode?.Ok && response.data.success) {
+      setTimeout(() => {
+        toast.success(response.data?.message);
+      }, 1000);
+
+      setMentors((prev) =>
+        prev.map((mentor) =>
+          mentor?._id === id
+            ? { ...mentor, isBlocked: !mentor?.isBlocked }
+            : mentor
+        )
+      );
+    }
+
+    setTimeout(() => {
+      setLoading(false);
+    }, 500);
   }, []);
 
   const confirmModal = useCallback(
@@ -185,11 +183,9 @@ const [searchQuery, setSearchQuery] = useState("");
     [confirmModal, handleMentorVerify]
   );
 
-
   return (
     <div className="p-6  mt-16">
       {loading && <Spinner />}
-
 
       {/* <hr className="mb-6" /> */}
       <div className="bg-white rounded-lg shadow-md p-6 h-[87vh]">
@@ -217,7 +213,6 @@ const [searchQuery, setSearchQuery] = useState("");
               onChange={(e: React.ChangeEvent<HTMLSelectElement>) =>
                 setActiveTab(e.target?.value as Tactive)
               }
-
               className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-orange-200 border-orange-500"
             >
               <option value="verified">Verified</option>
@@ -241,15 +236,12 @@ const [searchQuery, setSearchQuery] = useState("");
             >
               <option value="createdAt-desc">Newest First</option>
               <option value="createdAt-asc">Oldest First</option>
-
-              
             </select>
           </div>
         </div>
         <hr className="h-px  bg-gray-200 border-0 dark:bg-gray-500 " />
-        {
-          mentors.length > 0 ? (
-            <Table
+        {mentors.length > 0 ? (
+          <Table
             headers={[
               "Profile",
               "Name",
@@ -267,14 +259,20 @@ const [searchQuery, setSearchQuery] = useState("");
                     className="w-10 h-10 rounded-full  "
                   />
                 </td>
-                <td className="px-6 py-4 text-sm text-center">{mentor?.name}</td>
-                <td className="px-6 py-4 text-sm text-center">{mentor?.email}</td>
-    
+                <td className="px-6 py-4 text-sm text-center">
+                  {mentor?.name}
+                </td>
+                <td className="px-6 py-4 text-sm text-center">
+                  {mentor?.email}
+                </td>
+
                 {activeTab === "not-verified" ? (
                   <td className="px-6 py-4 text-center">
                     <button
                       className="px-3 py-1 bg-cyan-200 text-white rounded-full hover:bg-cyan-700 font-bold"
-                      onClick={() => (window.location.href = `${mentor?.resume}`)}
+                      onClick={() =>
+                        (window.location.href = `${mentor?.resume}`)
+                      }
                     >
                       <Eye className="text-black h-10" />
                     </button>
@@ -286,13 +284,15 @@ const [searchQuery, setSearchQuery] = useState("");
                     />
                   </td>
                 )}
-    
+
                 <>
                   {activeTab === "not-verified" ? (
                     <>
                       <td className="px-6 py-4 text-center font-bold">
                         <button
-                          onClick={() => handleMentorVerify(mentor?._id as string)}
+                          onClick={() =>
+                            handleMentorVerify(mentor?._id as string)
+                          }
                           className="px-3 py-1 bg-green-400 text-white rounded-full hover:bg-green-700"
                         >
                           <CheckCircle2 className="h-10 text-black" />
@@ -323,27 +323,25 @@ const [searchQuery, setSearchQuery] = useState("");
               </tr>
             ))}
           </Table>
-          ) : (
-            <div className="text-center text-gray-500 mt-4  mb-8 flex justify-center items-center ">
-            < Frown className="w-5 mr-4"/> <span>No Data Available</span> 
-            </div>
-          )
-        }
-        
-     
- <hr className="h-px  bg-gray-200 border-0 dark:bg-gray-700 " />
-      <div className="flex justify-center items-center mt-2">
-        <Pagination
-          count={totalDoc} // Total pages
-          page={currentPage} // Current page
-          onChange={handlePageChange} // Page change handler
-          color="standard" // Pagination color
-          shape="circular" // Rounded corners
-          size="small" // Size of pagination
-          siblingCount={1} // Number of sibling pages shown next to the current page
-          boundaryCount={1} // Number of boundary pages to show at the start and end
-        />
-      </div>
+        ) : (
+          <div className="text-center text-gray-500 mt-4  mb-8 flex justify-center items-center ">
+            <Frown className="w-5 mr-4" /> <span>No Data Available</span>
+          </div>
+        )}
+
+        <hr className="h-px  bg-gray-200 border-0 dark:bg-gray-700 " />
+        <div className="flex justify-center items-center mt-2">
+          <Pagination
+            count={totalDoc} // Total pages
+            page={currentPage} // Current page
+            onChange={handlePageChange} // Page change handler
+            color="standard" // Pagination color
+            shape="circular" // Rounded corners
+            size="small" // Size of pagination
+            siblingCount={1} // Number of sibling pages shown next to the current page
+            boundaryCount={1} // Number of boundary pages to show at the start and end
+          />
+        </div>
       </div>
     </div>
   );

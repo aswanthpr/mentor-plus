@@ -63,6 +63,7 @@ const QuestionList: React.FC<QuestionListProps> = ({
     
     
   }, [questions, EditedData]);
+  
   useEffect(()=>{
     if (newAnswer&&Object.values(newAnswer).length) {
       setPickedQuestion((prev) => {

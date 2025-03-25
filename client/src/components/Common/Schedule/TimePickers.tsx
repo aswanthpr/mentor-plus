@@ -20,7 +20,7 @@ const TimePickers: React.FC<ReusableTimePickerProps> = ({
 }) => {
   // Handle the change event for TimePicker
   const handleChange = (newValue: Moment | null) => {
-    onChange(newValue); // Pass the new value to the parent
+    onChange(newValue);
   };
 
   return (

@@ -1,49 +1,49 @@
-import React,{useRef}from 'react'
+import React, { useCallback, useRef } from "react";
 
+export const OtpInput: React.FC<IOtpinput> = (props) => {
+  const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
 
-export const OtpInput:React.FC<IOtpinput> = (props) => {
-    const inputRefs = useRef<(HTMLInputElement|null)[]>([]);
+  const handleChange = useCallback(
+    (index: number) => (e: React.ChangeEvent<HTMLInputElement>) => {
+      const newValue = e.target.value;
+      if (newValue.length > 1) return;
+      const newOTP = props.value.split("");
+      newOTP[index] = newValue;
+      props.onChange(newOTP.join(""));
 
-    const handleChange = (index:number)=>(e:React.ChangeEvent<HTMLInputElement>)=>{
-        const newValue = e.target.value;
-        if(newValue.length>1)return ;
-        const newOTP = props.value.split('');
-        newOTP[index] =newValue;
-        props.onChange(newOTP.join(''))
-
-        //move to next input if value is entered
-
-        if(newValue && index<5){
-            inputRefs.current[index+1]?.focus();
-
-        }
-    }
-    const handleKeyDown = (index:number)=>(e:React.KeyboardEvent<HTMLInputElement>)=>{
-        if(e.key ==="Backspace" && !props.value[index]&& index >0){
-            inputRefs.current[index-1]?.focus();
-
-        }
-    }
+      if (newValue && index < 5) {
+        inputRefs.current[index + 1]?.focus();
+      }
+    },
+    [props]
+  );
+  const handleKeyDown = useCallback(
+    (index: number) => (e: React.KeyboardEvent<HTMLInputElement>) => {
+      if (e.key === "Backspace" && !props.value[index] && index > 0) {
+        inputRefs.current[index - 1]?.focus();
+      }
+    },
+    [props.value]
+  );
 
   return (
-    
-        <div className='flex gap-2 '>
-           {Array(6).fill(null).map((_,index)=>(
-            <input
+    <div className="flex gap-2 ">
+      {Array(6)
+        .fill(null)
+        .map((_, index) => (
+          <input
             key={index}
-            ref={(ref)=>inputRefs.current[index]=ref}
-             type="text"
+            ref={(ref) => (inputRefs.current[index] = ref)}
+            type="text"
             maxLength={1}
-            className=' w-12 h-12 text-center border-2 border-orange-500 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-200'
-            value={props.value[index]||""}
+            className=" w-12 h-12 text-center border-2 border-orange-500 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-200"
+            value={props.value[index] || ""}
             onChange={handleChange(index)}
             onKeyDown={handleKeyDown(index)}
-            
-              />
-           ))}
-        </div>
- 
-  )
-}
+          />
+        ))}
+    </div>
+  );
+};
 
-export default OtpInput
+export default OtpInput;

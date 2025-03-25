@@ -5,6 +5,7 @@ import NotificationItems from "./NotificationItem";
 const NotificationPanel: React.FC<INotificationPanel> = React.memo(
   ({ isOpen, onClose, onReadNotification, notification }) => {
     const panelRef = useRef<HTMLDivElement>(null);
+    
     useEffect(() => {
       const handleClickOutside = (event: MouseEvent) => {
         if (

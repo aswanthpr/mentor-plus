@@ -24,41 +24,19 @@ const MentorRoute: React.FC = () => (
       <Route path="/500" element={<InternalServer />} />
       <Route path="/" element={<Mentor_Page />}>
         <Route index element={<Navigate to="home" />} />
-        <Route
-          path="/question_Answeres"
-          element={<MentorProtectLogin element={<MentorQna />} />}
-        />
-        ;
-        <Route
-          path="/profile"
-          element={<MentorProtectLogin element={<MentorProfile />} />}
-        />
-        ;
-        <Route
-          path="/schedule"
-          element={<MentorProtectLogin element={<Schedule />} />}
-        />
-        <Route
-          path="/session"
-          element={<MentorProtectLogin element={<Sessions />} />}
-        />
-        <Route
-          path="/session/:roomId"
-          element={<MentorProtectLogin element={<VideoPage />} />}
-        />
-        <Route
-          path="/wallet"
-          element={<MentorProtectLogin element={<WalletPage />} />}
-        />
-        ;
-        <Route
-          path="/messages"
-          element={<MentorProtectLogin element={<Chat />} />}
-        />
-        <Route
-          path="/home"
-          element={<MentorProtectLogin element={<MentorHome />} />}
-        />
+        <Route element={<MentorProtectLogin />}>
+          <Route path="/question_Answeres" element={<MentorQna />} />
+          ;
+          <Route path="/profile" element={<MentorProfile />} />
+          ;
+          <Route path="/schedule" element={<Schedule />} />
+          <Route path="/session" element={<Sessions />} />
+          <Route path="/session/:roomId" element={<VideoPage />} />
+          <Route path="/wallet" element={<WalletPage />} />
+          ;
+          <Route path="/messages" element={<Chat />} />
+          <Route path="/home" element={<MentorHome />} />
+        </Route>
       </Route>
     </Routes>
   </Suspense>

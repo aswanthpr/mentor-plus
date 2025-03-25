@@ -6,19 +6,10 @@ import { toast } from "react-toastify";
 import SelectField from "../Schedule/SelectField";
 import moment from "moment";
 import Button from "../../Auth/Button";
+import { issues } from "../../../Constants/const Values";
 
 
-const issues = [
-  "health Issues",
-  "personal Issue",
-  "technical Issues",
-  "family Obligation",
-  "no Longer Interested",
-  "found Another Mentor",
-  "financial Constraints",
-  "dissatisfaction with Platform or Service",
-  "other",
-];
+
 
 const SessionCard: React.FC<ISessionCardProps> = ({
   session,
@@ -255,7 +246,7 @@ const SessionCard: React.FC<ISessionCardProps> = ({
                 <SelectField
                   label="Cancellation reason"
                   onChange={handleReasonChange}
-                  options={issues}
+                  options={issues as string[]}
                   placeholder="Choose a reason"
                   value={reason}
                   classNames="border border-none rounded-md focus:ring-2 focus:ring-orange-200 border-gray-500 focus:outline-none focus:border-gray-400"
@@ -271,8 +262,8 @@ const SessionCard: React.FC<ISessionCardProps> = ({
                       }
                       className="w-full p-2 border  border-gray-400 rounded mt-2 focus:outline-none focus:border-gray-300"
                       placeholder="Write your reason here..."
-                      minRows={2} // Adjust the minimum height by setting the minimum number of rows
-                      maxRows={6} //adjusting hte maximum height by setting the no of rows
+                      minRows={2} 
+                      maxRows={6} 
                     />
                   </div>
                 )}

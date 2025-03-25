@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
-import { useNavigate } from "react-router-dom";
+import { Outlet, useNavigate } from "react-router-dom";
 import { RootState } from "../../Redux/store";
 import Spinner from "../../components/Common/common4All/Spinner";
+import { routesObj } from "../../Constants/message";
 
-const MenteeLogin: React.FC<Iprotector> = ({ element }) => {
+const MenteeLogin: React.FC = () => {
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(true);
   const accessToken = useSelector(
@@ -16,7 +17,7 @@ console.log(role,accessToken,'thi9s is hte token')
 
     if (!accessToken || role !== "mentee") {
       console.log("out.............");
-      navigate("/auth/login/mentee");
+      navigate(routesObj?.MENTEE_LOGIN);
     } else {
       setIsLoading(false);
     }
@@ -29,7 +30,7 @@ console.log(role,accessToken,'thi9s is hte token')
 
   console.log("in................");
 
-  return element;
+  return accessToken && role === 'mentee' ? <Outlet /> : null;
 };
 
 export default MenteeLogin;

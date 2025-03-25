@@ -157,7 +157,7 @@ const Message: React.FC = () => {
   }, []);
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const handleFileSelect = (e: any) => {
+  const handleFileSelect =useCallback( (e: any) => {
     const file: File | null = e.target.files?.[0];
     if (file) {
       setSelectedFile(file);
@@ -170,7 +170,7 @@ const Message: React.FC = () => {
         reader.readAsDataURL(file);
       }
     }
-  };
+  }, []);
 
   const handleSendMessage = useCallback(async () => {
     setBtnDisable(true);
@@ -231,10 +231,10 @@ const Message: React.FC = () => {
   ]);
 
   
-  const handleEmojiClick = (emojiObject: EmojiClickData) => {
+  const handleEmojiClick = useCallback((emojiObject: EmojiClickData) => {
     setMessageInput((prev) => prev + emojiObject.emoji);
     setShowPicker((pre)=>!pre)
-  };
+  }, []);
 
   console.log(users?.[0]?.updatedAt)
   return (

@@ -18,14 +18,14 @@ import {
 } from "../../service/mentorApi";
 import { joinSessionHandler } from "../../service/commonApi";
 import { Pagination } from "@mui/material";
+import { HttpStatusCode } from "axios";
+import { Messages } from "../../Constants/message";
 
 const Sessions: React.FC = () => {
   const limit = 5;
   const navigate = useNavigate();
 
-  const [activeTab, setActiveTab] = useState<TsessionTab>(
-    "upcoming"
-  );
+  const [activeTab, setActiveTab] = useState<TsessionTab>("upcoming");
   const [searchQuery, setSearchQuery] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [sessions, setSessions] = useState<ISession[] | []>([]);
@@ -48,7 +48,7 @@ const Sessions: React.FC = () => {
           limit
         );
 
-        if (response?.status == 200 && response?.data?.success) {
+        if (response?.status == HttpStatusCode?.Ok && response?.data?.success) {
           setSessions(response?.data?.slots);
           setTotalDocuments(response?.data?.totalPage);
         }
@@ -62,45 +62,41 @@ const Sessions: React.FC = () => {
   const handleReclaimRequest = useCallback(
     (sessionId: string, val: string) => {
       const value = val === "APPROVE" ? "CANCELLED" : "REJECTED";
-      try {
-        const handleRequest = async (sessionId: string, value: string) => {
-          const response = await fetchCanceSessionResponse(sessionId, value);
-          toast.dismiss();
-          if (response?.status == 200 && response?.data?.success) {
-            toast.success(response?.data?.message);
-            setSessions(
-              sessions
-                .map((session) =>
-                  session?._id === sessionId
-                    ? { ...session, status: value }
-                    : session
-                )
-                .filter((session) =>
-                  value !== "REJECTED" ? true : session?._id !== sessionId
-                )
-            );
-          }
-        };
-        toast(
-          <ConfirmToast
-            message="change Request Status"
-            description="This is final confirmation to change?"
-            onReply={() => handleRequest(sessionId as string, value as string)}
-            onIgnore={() => toast.dismiss()}
-            ariaLabel=" status confirmation"
-          />,
-          {
-            closeButton: false,
-            className: "p-0  border border-purple-600/40 ml-0",
-            autoClose: false,
-          }
-        );
 
-        console.log(sessionId, value);
-      } catch (error: unknown) {
-        console.log(error);
-        errorHandler(error);
-      }
+      const handleRequest = async (sessionId: string, value: string) => {
+        const response = await fetchCanceSessionResponse(sessionId, value);
+        toast.dismiss();
+        if (response?.status == HttpStatusCode?.Ok && response?.data?.success) {
+          toast.success(response?.data?.message);
+          setSessions(
+            sessions
+              .map((session) =>
+                session?._id === sessionId
+                  ? { ...session, status: value }
+                  : session
+              )
+              .filter((session) =>
+                value !== "REJECTED" ? true : session?._id !== sessionId
+              )
+          );
+        }
+      };
+      toast(
+        <ConfirmToast
+          message="change Request Status"
+          description="This is final confirmation to change?"
+          onReply={() => handleRequest(sessionId as string, value as string)}
+          onIgnore={() => toast.dismiss()}
+          ariaLabel=" status confirmation"
+        />,
+        {
+          closeButton: false,
+          className: "p-0  border border-purple-600/40 ml-0",
+          autoClose: false,
+        }
+      );
+
+      console.log(sessionId, value);
     },
     [sessions]
   );
@@ -108,7 +104,7 @@ const Sessions: React.FC = () => {
   const crerateSessionCode = useCallback(async (_id: string) => {
     const resp = await createSessionCodeApi(_id);
 
-    if (resp?.status == 200 && resp.data) {
+    if (resp?.status == HttpStatusCode?.Ok && resp.data) {
       setSessions((pre) =>
         pre?.map((session) =>
           session?._id === _id
@@ -116,7 +112,7 @@ const Sessions: React.FC = () => {
             : session
         )
       );
-      toast.success("successfully created SessionCode ✔️");
+      toast.success(Messages?.CREATED_SESSION_CODE);
     }
   }, []);
 
@@ -141,7 +137,7 @@ const Sessions: React.FC = () => {
 
     const handleRequest = async (bookingId: string) => {
       const response = await markAsSessionCompleted(bookingId);
-      if (response?.status == 200 && response?.data.success) {
+      if (response?.status == HttpStatusCode?.Ok && response?.data.success) {
         toast.success(response?.data?.message);
         setSessions((pre) =>
           pre.map((sess) =>
@@ -156,7 +152,7 @@ const Sessions: React.FC = () => {
     async (sessionId: string, session_Code: string, role: string) => {
       console.log(sessionId, session_Code, role);
       const response = await joinSessionHandler(sessionId, session_Code, role);
-      if (response?.status == 200 && response?.data?.success) {
+      if (response?.status == HttpStatusCode?.Ok && response?.data?.success) {
         console.log(response?.session_Code, "sessionCode");
         navigate(
           `/${role}/${role == "mentor" ? "session" : "bookings"}/${

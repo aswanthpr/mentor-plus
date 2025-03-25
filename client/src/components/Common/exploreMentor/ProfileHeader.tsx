@@ -55,17 +55,6 @@ export const ProfileHeader = ({ mentorData }: ProfileHeaderProps) => {
                 <span>'Usually responds in a few hours'</span>
               </div>
             </div>
-
-            {/* <div className="flex flex-wrap justify-center md:justify-start gap-4">
-              <Button variant="dark" className="flex items-center gap-2">
-                <Play size={16} />
-                Play intro
-              </Button>
-              <Button variant="secondary" className="flex items-center gap-2">
-                <BookmarkPlus size={16} />
-                Save
-              </Button>
-            </div> */}
           </div>
         </div>
       </div>

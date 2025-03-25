@@ -1,10 +1,17 @@
 import React from "react";
 
-
-
-const ConfirmToast: React.FC<ToastNotificationProps> =({ message, description, onReply, onIgnore ,ariaLabel}) => {
+const ConfirmToast: React.FC<ToastNotificationProps> = ({
+  message,
+  description,
+  onReply,
+  onIgnore,
+  ariaLabel,
+}) => {
   return (
-    <div className="grid grid-cols-[1fr_1px_80px] w-full " aria-label={ariaLabel}>
+    <div
+      className="grid grid-cols-[1fr_1px_80px] w-full "
+      aria-label={ariaLabel}
+    >
       <div className="flex flex-col p-4 ">
         <h3 className="text-zinc-800 text-sm font-semibold mb-2">{message}</h3>
         <p className="text-sm ">{description}</p>
@@ -21,7 +28,5 @@ const ConfirmToast: React.FC<ToastNotificationProps> =({ message, description, o
     </div>
   );
 };
-
-
 
 export default ConfirmToast;

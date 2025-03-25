@@ -5,38 +5,14 @@ import RevenueChart from "../../components/Charts/RevenueChart";
 import CategoryDistribution from "../../components/Charts/CategoryDistribution";
 import TopMentors from "../../components/Charts/TopMentors";
 import { fetchDashboardData } from "../../service/adminApi";
-
-
-const COLORS = ["#ff8800", "#ff9900", "#ffaa00", "#ffbb00", "#ffcc00"];
+import { COLORS, monthNames } from "../../Constants/const Values";
+import { ADMIN_DASH_INITIAL_VALUE } from "../../Constants/initialStates";
 
 const Dashboard: React.FC = () => {
   const role = location.pathname.split("/")[1];
-  console.log(role)
+  console.log(role);
   const [timeRange, setTimeRange] = useState("month");
-  const [cardData, setCardData] = useState<IcardData>({
-    totalRevenue: 0,
-    totalBookings: 0,
-    totalCancelledBookings: 0,
-    uniqueMentorsThisMonth: 0,
-    yearly: [{ year: 0, revenue: 0, sessions: 0 }],
-    monthly: [{ month: 0, revenue: 0, sessions: 0 }],
-    weekly: [{ week: 0, revenue: 0, sessions: 0 }],
-    categoryDistribution: [
-      { category: "", value: 0 },
-      { category: "", value: 0 },
-    ],
-    topMentors: [
-      {
-        mentorId: "",
-        mentorName: "",
-        totalSessions: 0,
-        totalRevenue: 0,
-        category: "",
-        averageRating: 0,
-        profileUrl: "",
-      },
-    ],
-  });
+  const [cardData, setCardData] = useState<IcardData>(ADMIN_DASH_INITIAL_VALUE);
   useEffect(() => {
     let flag = true;
     const controller = new AbortController(); // Create an AbortController instance
@@ -48,51 +24,36 @@ const Dashboard: React.FC = () => {
         setCardData(response?.data?.salesData);
       }
     };
-if(role=="admin"){
-  fetchData();
-
-}
+    if (role == "admin") {
+      fetchData();
+    }
     return () => {
       flag = false;
       controller.abort();
     };
   }, [role, timeRange]);
-  const monthNames = [
-    "Jan",
-    "Feb",
-    "Mar",
-    "Apr",
-    "May",
-    "Jun",
-    "Jul",
-    "Aug",
-    "Sep",
-    "Oct",
-    "Nov",
-    "Dec",
-  ];
-const formated_Data =()=>{
-
-   const  formatedData =
-    timeRange === "week"
-      ? cardData?.weekly?.map(({ week, revenue, sessions }) => ({
-          month: `Week ${week}`, 
-          revenue,
-          sessions,
-        })) ?? []
-      : timeRange === "month"
-      ? cardData?.monthly?.map(({ month, revenue, sessions }) => ({
-          month: monthNames[Number(month) - 1],
-          revenue,
-          sessions,
-        })) ?? []
-      : cardData?.yearly?.map(({ year, revenue, sessions }) => ({
-          year: `${year}`, 
-          revenue,
-          sessions,
-        })) ?? [];
-        return formatedData
-}
+  
+  const formated_Data = () => {
+    const formatedData =
+      timeRange === "week"
+        ? cardData?.weekly?.map(({ week, revenue, sessions }) => ({
+            month: `Week ${week}`,
+            revenue,
+            sessions,
+          })) ?? []
+        : timeRange === "month"
+        ? cardData?.monthly?.map(({ month, revenue, sessions }) => ({
+            month: monthNames[Number(month) - 1],
+            revenue,
+            sessions,
+          })) ?? []
+        : cardData?.yearly?.map(({ year, revenue, sessions }) => ({
+            year: `${year}`,
+            revenue,
+            sessions,
+          })) ?? [];
+    return formatedData;
+  };
 
   return (
     <div>
@@ -112,7 +73,7 @@ const formated_Data =()=>{
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           <StatsCard
             title="Total Revenue"
-            value={cardData?.totalRevenue ??0}
+            value={cardData?.totalRevenue ?? 0}
             icon={DollarSign}
             iconBgColor="bg-orange-100"
             iconColor="text-[#ff8800]"

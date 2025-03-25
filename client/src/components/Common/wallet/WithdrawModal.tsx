@@ -1,29 +1,37 @@
-import React, { useState } from 'react';
-import { DollarSign, X } from 'lucide-react';
+import React, { useCallback, useState } from "react";
+import { DollarSign, X } from "lucide-react";
 
+const WithdrawModal: React.FC<WithdrawModalProps> = ({
+  isOpen,
+  onClose,
+  onSubmit,
+  maxAmount,
+}) => {
+  const [amount, setAmount] = useState("");
 
-
-const WithdrawModal: React.FC<WithdrawModalProps> = ({ isOpen, onClose, onSubmit, maxAmount }) => {
-  const [amount, setAmount] = useState('');
-
+  const handleSubmit = useCallback(
+    (e: React.FormEvent) => {
+      e.preventDefault();
+      const numAmount = parseFloat(amount);
+      if (numAmount > 0 && numAmount <= maxAmount) {
+        onSubmit(numAmount);
+        setAmount("");
+        onClose();
+      }
+    },
+    [amount, maxAmount, onClose, onSubmit]
+  );
   if (!isOpen) return null;
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    const numAmount = parseFloat(amount);
-    if (numAmount > 0 && numAmount <= maxAmount) {
-      onSubmit(numAmount);
-      setAmount('');
-      onClose();
-    }
-  };
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
       <div className="bg-white rounded-lg max-w-md w-full p-6">
         <div className="flex justify-between items-center mb-6">
           <h3 className="text-xl font-bold text-gray-900">Withdraw Money</h3>
-          <button onClick={onClose} className="text-gray-400 hover:text-gray-600">
+          <button
+            onClick={onClose}
+            className="text-gray-400 hover:text-gray-600"
+          >
             <X className="h-6 w-6" />
           </button>
         </div>
@@ -58,7 +66,9 @@ const WithdrawModal: React.FC<WithdrawModalProps> = ({ isOpen, onClose, onSubmit
             </button>
             <button
               type="submit"
-              disabled={!amount || parseFloat(amount) <= 0 || parseFloat(amount) < 500}
+              disabled={
+                !amount || parseFloat(amount) <= 0 || parseFloat(amount) < 500
+              }
               className="px-4 py-2 text-sm font-medium text-white bg-[#ff8800] hover:bg-[#ff9900] rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
               Withdraw

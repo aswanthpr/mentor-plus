@@ -1,64 +1,52 @@
-import React ,{useState,useEffect} from 'react';
-import InputField from './InputField';
+import React, { useState, useEffect, useCallback } from "react";
+import InputField from "./InputField";
+import { validate_Otp } from "../../Validation/Validation";
 
+const OtpModal: React.FC<IModalProps> = (props) => {
+  const [otp, setOtp] = useState<string>("");
+  const [error, setError] = useState<string>("");
+  const [timer, setTimer] = useState<number>(60);
+  const [canResend, setCanResend] = useState<boolean>(false);
 
+  useEffect(() => {
+    let interval: ReturnType<typeof setInterval> | undefined;
+    if (props.isOpen && timer > 0) {
+      interval = setInterval(() => {
+        setTimer((prev) => prev - 1);
+      }, 1000);
+    } else if (timer === 0) {
+      setCanResend(true);
+    }
+    return () => {
+      clearInterval(interval);
+    };
+  }, [props.isOpen, timer]);
 
+  const handleSubmit = useCallback((e: React.FormEvent) => {
+    e.preventDefault();
+    const validateOtp = validate_Otp(otp);
+   if(validateOtp?.length!=0){
+    setError(validateOtp);
+   }
+    setError("");
+    props.onVerify(otp);
+  },[otp, props]);
+  
+  const handleResendOtp = useCallback(() => {
+    setOtp("");
+    setTimer(60);
+    setCanResend(false);
+    props.onResendOtp();
+  },[props]);
 
-const OtpModal:React.FC<IModalProps> = (props) => {
-    const [otp,setOtp] =useState<string>('');
-    const [error,setError]=useState<string|undefined>('');
-    const [timer,setTimer] = useState<number>(60);
-    const [canResend,setCanResend]=useState<boolean>(false);
-
-
-    useEffect(()=>{
-        let interval:ReturnType <typeof setInterval>|undefined;
-        if(props.isOpen && timer>0){
-            interval = setInterval(()=>{
-                setTimer((prev)=>prev-1);
-            },1000)
-
-        }else if(timer===0){
-            setCanResend(true)
-        }
-        return ()=>{
-            clearInterval(interval)
-        }
-
-    },[props.isOpen,timer]);
-
-    const handleSubmit = (e: React.FormEvent) => {
-        e.preventDefault();
-        if (!otp) {
-          setError('OTP is required');
-          return;
-        }
-        if (otp.length !== 6) {
-          setError('OTP must be 6 digits');
-          return;
-        }
-        if (!/^\d+$/.test(otp)) {
-          setError('OTP must contain only numbers');
-          return;
-        }
-        setError(undefined!);
-        props.onVerify(otp);
-      };
-      const handleResendOtp = () => {
-        setOtp('')
-        setTimer(60);
-        setCanResend(false);
-        props.onResendOtp();
-      };
-    
-      if (!props.isOpen) return null;
+  if (!props.isOpen) return null;
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
       <div className="bg-white rounded-lg max-w-md w-full p-6 space-y-6">
         <h2 className="text-2xl font-bold text-center text-gray-900">
           Verify OTP
         </h2>
-        
+
         <form onSubmit={handleSubmit} className="space-y-6">
           <InputField
             label="Enter OTP"
@@ -73,20 +61,21 @@ const OtpModal:React.FC<IModalProps> = (props) => {
                 setError(undefined!);
               }
             }}
-            error={error}
+            error={error as string}
           />
-          
+
           <div className="flex items-center justify-between text-sm">
             <span className="text-gray-600">
-              Time remaining: {Math.floor(timer / 60)}:{(timer % 60).toString().padStart(2, '0')}
+              Time remaining: {Math.floor(timer / 60)}:
+              {(timer % 60).toString().padStart(2, "0")}
             </span>
             <button
               type="button"
               onClick={handleResendOtp}
               className={` text-white ${
                 canResend
-                  ? 'text-[#ff9318] hover:text-[#f8b54f] '
-                  : 'text-gray-700 cursor-not-allowed'
+                  ? "text-[#ff9318] hover:text-[#f8b54f] "
+                  : "text-gray-700 cursor-not-allowed"
               }`}
               disabled={!canResend}
             >
@@ -112,7 +101,7 @@ const OtpModal:React.FC<IModalProps> = (props) => {
         </form>
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default OtpModal
+export default OtpModal;

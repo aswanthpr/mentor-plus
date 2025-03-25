@@ -2,6 +2,7 @@
 import { axiosInstance } from "../Config/mentorAxios";
 import { protectedAPI, unProtectedAPI } from "../Config/Axios";
 import { AxiosResponse } from "axios";
+import { errorHandler } from "../Utils/Reusable/Reusable";
 
 //COMMON_FETCH====================================================================
 export const joinSessionHandler = async (
@@ -61,6 +62,7 @@ export const fetchForgotPassword = async (
       { email, password }
     );
   } catch (error: unknown) {
+     errorHandler(error);
     console.log(error instanceof Error ? error.message : String(error));
   }
 };
@@ -72,6 +74,7 @@ export const fetchForgotPassOtpVerify = async (email: string, otp: string) => {
       type: "forgot_Passsword",
     });
   } catch (error: unknown) {
+     errorHandler(error);
     console.log(error instanceof Error ? error.message : String(error));
   }
 };
@@ -82,6 +85,7 @@ export const forgetPasswordResendOtp = async (
   try {
     return await unProtectedAPI.post("/auth/resend-otp", { email });
   } catch (error: unknown) {
+    errorHandler(error);
     console.log(error instanceof Error ? error.message : String(error));
   }
 };
@@ -95,6 +99,7 @@ export const fetchForgotPassSendOtp = async (
       { email }
     );
   } catch (error: unknown) {
+    errorHandler(error);
     console.log(error instanceof Error ? error.message : String(error));
   }
 };

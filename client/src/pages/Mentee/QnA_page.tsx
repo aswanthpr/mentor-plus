@@ -23,9 +23,12 @@ import {
   fetchMenteeQuestions,
 } from "../../service/menteeApi";
 import { Pagination } from "@mui/material";
+import { ANSWER_EDIT } from "../../Constants/initialStates";
+import { HttpStatusCode } from "axios";
+import { Messages } from "../../Constants/message";
 
 const QnA_page: React.FC = () => {
-  const limit  = 6;
+  const limit = 6;
 
   const [isAnswerModalOpen, setIsAnswerModalOpen] = useState<boolean>(false);
   const [showAddModal, setShowAddModal] = useState<boolean>(false);
@@ -39,24 +42,18 @@ const QnA_page: React.FC = () => {
   const [sortField, setSortField] = useState<TsortField>("createdAt");
   const [sortOrder, setSortOrder] = useState<TSortOrder>("desc");
   const [answerQuestionId, setAnswerQuestionId] = useState<string>("");
-  const [filter, setFilter] = useState<TquestionTab>(
-    "answered"
-  );
+  const [filter, setFilter] = useState<TquestionTab>("answered");
   const [totalDocuments, setTotalDocuments] = useState<number>(0);
   const [editAnswerModalOpen, setEditAnswerModalOpen] =
     useState<boolean>(false);
   const [editData, setEditData] = useState<{
     content: string;
     answerId: string;
-  }>({
-    content: "",
-    answerId: "",
-  });
-  const [newAns, setNewAns] = useState<Ianswer|null>(null);
+  }>(ANSWER_EDIT);
+  const [newAns, setNewAns] = useState<Ianswer | null>(null);
   useEffect(() => {
     const fetchQuestions = async () => {
       try {
-  
         const response = await fetchMenteeQuestions(
           searchQuery,
           filter,
@@ -66,7 +63,7 @@ const QnA_page: React.FC = () => {
           limit
         );
 
-        if (response?.status === 200 && response.data?.success) {
+        if (response?.status === HttpStatusCode?.Ok && response.data?.success) {
           console.log(response.data.question, "thsi is response data");
 
           setQuestions(response.data?.question);
@@ -75,8 +72,7 @@ const QnA_page: React.FC = () => {
         }
       } catch (error: unknown) {
         errorHandler(error);
-      } 
-     
+      }
     };
 
     fetchQuestions();
@@ -85,29 +81,26 @@ const QnA_page: React.FC = () => {
   const handleAddQuestion = useCallback(
     async (question: IeditQuestion) => {
       setShowAddModal(false);
-      try {
-        const response = await fetchCreateQuestion(question);
 
-        if (response?.status == 200 && response?.data?.success) {
-          if (filter == "unanswered") {
-            setQuestions((prevQuestions) => [
-              ...prevQuestions,
-              {
-                ...response.data?.question,
-                user: response.data?.question?.menteeId,
-                menteeId: response.data?.question?.user?._id,
-              },
-            ]);
-          }
-          toast.success(response.data.message);
+      const response = await fetchCreateQuestion(question);
+
+      if (response?.status == HttpStatusCode?.Ok && response?.data?.success) {
+        if (filter == "unanswered") {
+          setQuestions((prevQuestions) => [
+            ...prevQuestions,
+            {
+              ...response.data?.question,
+              user: response.data?.question?.menteeId,
+              menteeId: response.data?.question?.user?._id,
+            },
+          ]);
         }
-      } catch (error: unknown) {
-        errorHandler(error);
-      } finally {
-        setInterval(() => {
-          setLoading(false);
-        }, 500);
+        toast.success(response.data.message);
       }
+
+      setInterval(() => {
+        setLoading(false);
+      }, 500);
     },
     [filter]
   );
@@ -117,7 +110,7 @@ const QnA_page: React.FC = () => {
       const originalQuestion = questions.find((q) => q._id === questionId);
 
       if (!originalQuestion) {
-        toast.error("Unexpected error occured");
+        toast.error(Messages?.UNEXPECTED_ERROR);
         console.error(`Question with ID ${questionId} not found.`);
         return;
       }
@@ -131,34 +124,27 @@ const QnA_page: React.FC = () => {
       });
 
       if (!isChanged) {
-        toast.info(
-          "No changes detected. Please modify the question before updating."
-        );
+        toast.info(Messages?.NO_CHANGES_IN_FILE);
         return;
       }
 
+      setLoading(true);
+      const { status, data } = await fetchEditQuestion(
+        questionId,
+        updatedQuestion,
+        filter
+      );
 
-      try {
-        setLoading(true);
-        const { status, data } = await fetchEditQuestion(
-          questionId,
-          updatedQuestion,
-          filter
+      if (status == HttpStatusCode?.Ok && data.success) {
+        setQuestions(
+          questions.map((q) => (q._id === questionId ? data?.question : q))
         );
-
-        if (status == 200 && data.success) {
-          setQuestions(
-            questions.map((q) => (q._id === questionId ? data?.question : q))
-          );
-          toast.success(data.message);
-        }
-      } catch (error: unknown) {
-        errorHandler(error);
-      } finally {
-        setInterval(() => {
-          setLoading(false);
-        }, 500);
+        toast.success(data.message);
       }
+
+      setInterval(() => {
+        setLoading(false);
+      }, 500);
     },
     [filter, questions]
   );
@@ -195,69 +181,63 @@ const QnA_page: React.FC = () => {
     );
     const handleDel = async (questionId: string) => {
       toast.dismiss();
-      try {
-        const response = await fetchDeleteQuestion(questionId);
 
-        if (response.status === 200 && response.data.success) {
-          setQuestions((prevQuestions) =>
-            prevQuestions.filter((question) => question._id !== questionId)
-          );
-          toast.success("Question deleted successfully");
-        }
-      } catch (error: unknown) {
-        errorHandler(error);
-      } finally {
-        setTimeout(() => {
-          setLoading(false);
-        }, 500);
+      const response = await fetchDeleteQuestion(questionId);
+
+      if (response.status === HttpStatusCode?.Ok && response.data.success) {
+        setQuestions((prevQuestions) =>
+          prevQuestions.filter((question) => question._id !== questionId)
+        );
+        toast.success("Question deleted successfully");
       }
+
+      setTimeout(() => {
+        setLoading(false);
+      }, 500);
     };
   }, []);
 
   const handleAnswerSubmit = useCallback(
     async (content: string) => {
       console.log(answerQuestionId, "thsi sit he question id ");
-      try {
-        setLoading(true);
-        const response = await fetchCreateAnswer(
-          content,
-          answerQuestionId,
-          "mentee"
+
+      setLoading(true);
+      const response = await fetchCreateAnswer(
+        content,
+        answerQuestionId,
+        "mentee"
+      );
+
+      if (response?.status === HttpStatusCode?.Ok && response.data.success) {
+        toast.success("Answer submited  successfully");
+        setNewAns(response?.data?.answers);
+        setQuestions((prevQuestions) =>
+          prevQuestions.map((question) =>
+            question._id === answerQuestionId
+              ? {
+                  ...question,
+                  answerData: [
+                    ...(question.answerData || []),
+                    response?.data?.answers,
+                  ],
+                }
+              : question
+          )
         );
 
-        if (response?.status === 200 && response.data.success) {
-          toast.success("Answer submited  successfully");
-          setNewAns(response?.data?.answers)
+        if (filter == "unanswered") {
           setQuestions((prevQuestions) =>
-            prevQuestions.map((question) =>
-              question._id === answerQuestionId
-                ? {
-                    ...question,
-                    answerData: [
-                      ...(question.answerData || []),
-                      response?.data?.answers,
-                    ],
-                  }
-                : question
+            prevQuestions.filter(
+              (question) => question._id !== answerQuestionId
             )
           );
-
-          if (filter == "unanswered") {
-            setQuestions((prevQuestions) =>
-              prevQuestions.filter(
-                (question) => question._id !== answerQuestionId
-              )
-            );
-          }
-          setIsAnswerModalOpen(false);
         }
-      } catch (error: unknown) {
-        errorHandler(error);
-      } finally {
-        setTimeout(() => {
-          setLoading(false);
-        });
+        setIsAnswerModalOpen(false);
       }
+
+      setTimeout(() => {
+        setLoading(false);
+      });
     },
     [answerQuestionId, filter]
   );
@@ -270,29 +250,26 @@ const QnA_page: React.FC = () => {
   const handleEditAnswerSubmit = useCallback(
     async (content: string, answerId?: string) => {
       console.log(answerId, "thsi sit he question id ", content);
-      try {
-        setLoading(true);
-        const response = await fetchEditAnswer(content, answerId as string);
 
-        if (response.status === 200 && response.data.success) {
-          setEditData({ content: response.data?.answer, answerId: answerId! });
-          const updatedAnswer = response.data?.answer;
-          setQuestions((prevQuestions) =>
-            prevQuestions.map((question) => ({
-              ...question,
-              answerData: question.answerData?.map((ans) =>
-                ans._id === answerId ? { ...ans, answer: updatedAnswer } : ans
-              ),
-            }))
-          );
-          toast.success(response.data?.message);
-          setIsAnswerModalOpen(false);
-        }
-      } catch (error: unknown) {
-        errorHandler(error);
-      } finally {
-        setLoading(false);
+      setLoading(true);
+      const response = await fetchEditAnswer(content, answerId as string);
+
+      if (response.status === HttpStatusCode?.Ok && response.data.success) {
+        setEditData({ content: response.data?.answer, answerId: answerId! });
+        const updatedAnswer = response.data?.answer;
+        setQuestions((prevQuestions) =>
+          prevQuestions.map((question) => ({
+            ...question,
+            answerData: question.answerData?.map((ans) =>
+              ans._id === answerId ? { ...ans, answer: updatedAnswer } : ans
+            ),
+          }))
+        );
+        toast.success(response.data?.message);
+        setIsAnswerModalOpen(false);
       }
+
+      setLoading(false);
     },
     []
   );
@@ -346,7 +323,6 @@ const QnA_page: React.FC = () => {
               }
               className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-orange-200 border-orange-500"
             >
-           
               <option value="answered">Answered</option>
               <option value="unanswered">Un Answered</option>
             </select>
@@ -359,7 +335,7 @@ const QnA_page: React.FC = () => {
               value={`${sortField}-${sortOrder}`}
               onChange={(e) => {
                 const [field, order] = e.target.value.split("-");
-                setSortField(field as "createdAt"|"mostAnswered");
+                setSortField(field as "createdAt" | "mostAnswered");
                 setSortOrder(order as TSortOrder);
               }}
               className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-orange-200 border-orange-500"
@@ -387,13 +363,13 @@ const QnA_page: React.FC = () => {
         <div className="flex justify-center mt-3">
           <Pagination
             count={totalDocuments}
-            page={currentPage} 
-            onChange={handlePageChange} 
-            color="standard" 
-            shape="circular" 
-            size="small" 
-            siblingCount={1} 
-            boundaryCount={1} 
+            page={currentPage}
+            onChange={handlePageChange}
+            color="standard"
+            shape="circular"
+            size="small"
+            siblingCount={1}
+            boundaryCount={1}
           />
         </div>
       </div>

@@ -1,20 +1,17 @@
-
-
-import React, { useEffect, useRef, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { Mic, MicOff, Video, VideoOff, PhoneOff } from "lucide-react";
 import { io, Socket } from "socket.io-client";
 
 const ICE_SERVERS = {
   iceServers: [{ urls: "stun:stun.l.google.com:19302" }],
-
 };
 
-const SIGNALING_SERVER_URL = `${import.meta.env?.VITE_SERVER_URL}/webrtc`
+const SIGNALING_SERVER_URL = `${import.meta.env?.VITE_SERVER_URL}/webrtc`;
 
 const VideoPage: React.FC = () => {
   const navigate = useNavigate();
-  const role = location.pathname.split('/')?.[1]
+  const role = location.pathname.split("/")?.[1];
   const { roomId } = useParams<{ roomId: string }>();
   const localVideoRef = useRef<HTMLVideoElement>(null);
   const remoteVideoRef = useRef<HTMLVideoElement>(null);
@@ -120,7 +117,6 @@ const VideoPage: React.FC = () => {
         console.error("Error accessing media devices:", error);
       }
     };
-   
 
     initCall();
 
@@ -137,8 +133,9 @@ const VideoPage: React.FC = () => {
         localStream.getTracks().forEach((track) => track.stop());
       }
     };
+  
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [roomId]);
+  }, [localStream, roomId]);
 
   const toggleVideo = () => {
     if (localStream) {
@@ -150,7 +147,7 @@ const VideoPage: React.FC = () => {
     }
   };
 
-  const toggleAudio = () => {
+  const toggleAudio = useCallback(() => {
     if (localStream) {
       const audioTrack = localStream.getAudioTracks()[0];
       if (audioTrack) {
@@ -158,8 +155,8 @@ const VideoPage: React.FC = () => {
         setIsAudioOn(audioTrack.enabled);
       }
     }
-  };
-  const endCall = () => {
+  }, [localStream]);
+  const endCall = useCallback(() => {
     // Close Peer Connection
     if (peerConnection.current) {
       peerConnection.current.close();
@@ -179,8 +176,8 @@ const VideoPage: React.FC = () => {
     }
 
     // Redirect to Home Page
-    navigate(`/${role}/${role=="mentor"?"session":"bookings"}`);
-  };
+    navigate(`/${role}/${role == "mentor" ? "session" : "bookings"}`);
+  }, [localStream, navigate, role]);
   return (
     <div className="fixed  lg:ml-64  mt-32   mb-2  inset-0 flex items-center justify-center">
       <video

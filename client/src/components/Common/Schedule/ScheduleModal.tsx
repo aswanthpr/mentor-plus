@@ -16,25 +16,21 @@ import {
 } from "../../../Validation/yupValidation";
 import * as Yup from "yup";
 import { ValidatingIsOverlapping } from "../../../Validation/Validation";
+import { RECURRING_SCHEDULE_INITIAL } from "../../../Constants/initialStates";
+import { Messages } from "../../../Constants/message";
 
 export const ScheduleModal = ({
   isOpen,
   onClose,
   onSubmit,
 }: ScheduleModalProps) => {
-  
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
-  const [scheduleType, setScheduleType] = useState<TslotType>("normal");
+  const [scheduleType, setScheduleType] = useState<TscheduleType>("normal");
   const [selectedDates, setSelectedDates] = useState<string[]>([]);
-  // Initialize normalSchedule as an empty array
   const [normalSchedule, setNormalSchedule] = useState<DaySchedule[]>([]);
-  const [recurringSchedule, setRecurringSchedule] = useState<ISchedule>({
-    startDate: "",
-    endDate: "",
-    slots: [{ startTime: "", endTime: "" }],
-    selectedDays: [],
-    price: null,
-  });
+  const [recurringSchedule, setRecurringSchedule] = useState<ISchedule>(
+    RECURRING_SCHEDULE_INITIAL
+  );
 
   const handleDateSelection = useCallback(
     (date: string) => {
@@ -73,7 +69,7 @@ export const ScheduleModal = ({
       key: keyof TimeSlot,
       value: string
     ) => {
-      console.log(value, "timeString", typeof value);
+     
       const updated = [...normalSchedule];
       updated[dayIndex] = {
         ...updated[dayIndex],
@@ -90,9 +86,8 @@ export const ScheduleModal = ({
     (dayIndex: number, price: number) => {
       setNormalSchedule((prev) => {
         const updated = [...prev];
-  
-  
-        updated[dayIndex].price = price??0;
+
+        updated[dayIndex].price = price ?? 0;
         return updated;
       });
     },
@@ -109,7 +104,7 @@ export const ScheduleModal = ({
         };
         setNormalSchedule(updated);
       } else {
-        toast.warning("You can only add up to 10 time slots.");
+        toast.warning(Messages?.NORMAL_TIMESLOT_LIMIT);
       }
     },
     [normalSchedule]
@@ -127,13 +122,13 @@ export const ScheduleModal = ({
         };
         setNormalSchedule(updated);
         const errorKey = `normalSchedule[${dayIndex}].slots[${slotIndex}].${slotIndex}`;
-    if (errors[errorKey]) {
-      setErrors((prevErrors) => {
-        const newErrors = { ...prevErrors };
-        delete newErrors[errorKey];
-        return newErrors;
-      });
-    }
+        if (errors[errorKey]) {
+          setErrors((prevErrors) => {
+            const newErrors = { ...prevErrors };
+            delete newErrors[errorKey];
+            return newErrors;
+          });
+        }
       }
     },
     [errors, normalSchedule]
@@ -141,7 +136,7 @@ export const ScheduleModal = ({
 
   const handleSave = useCallback(async () => {
     setErrors({});
-    const validationErrors: Record<string, string> = {}; 
+    const validationErrors: Record<string, string> = {};
 
     if (scheduleType === "normal") {
       // Validate normal schedule entries
@@ -157,11 +152,11 @@ export const ScheduleModal = ({
               });
             }
           }
-         
 
           if (ValidatingIsOverlapping(slot?.slots)) {
-            validationErrors[`normalSchedule[${index}].slots}`] ="Time slots cannot overlap";
-            toast.error("Time slots cannot overlap")
+            validationErrors[`normalSchedule[${index}].slots}`] =
+              "Time slots cannot overlap";
+            toast.error(Messages?.TIME_SLOT_CANNOT_OVERLAP);
           }
 
           // Validate each time slot inside normal schedule
@@ -177,9 +172,7 @@ export const ScheduleModal = ({
                     ] = error.message;
                   });
                 }
-               
               }
-
             })
           );
         })
@@ -221,7 +214,7 @@ export const ScheduleModal = ({
     }
 
     // If validation errors exist, update state & stop submission
-   
+
     if (Object.keys(validationErrors).length > 0) {
       console.error("Validation Errors:", validationErrors);
       setErrors(validationErrors);
@@ -241,19 +234,11 @@ export const ScheduleModal = ({
         scheduleType === "normal" ? cleanNormalSchedule : recurringSchedule,
     };
 
-    console.log("Cleaned Schedule Data:", scheduleData);
     onSubmit(scheduleData as unknown as ISchedule);
     onClose();
-    setSelectedDates([])
-    setNormalSchedule([])
-    setRecurringSchedule({
-      startDate: "",
-      endDate: "",
-      slots: [{ startTime: "", endTime: "" }],
-      selectedDays: [],
-      price: null,
-    });
-   
+    setSelectedDates([]);
+    setNormalSchedule([]);
+    setRecurringSchedule(RECURRING_SCHEDULE_INITIAL);
   }, [normalSchedule, onClose, onSubmit, recurringSchedule, scheduleType]);
 
   const toggleRecurringDay = useCallback(
@@ -263,7 +248,6 @@ export const ScheduleModal = ({
         : [...recurringSchedule.selectedDays!, day];
 
       setRecurringSchedule({ ...recurringSchedule, selectedDays: updatedDays });
- 
     },
     [recurringSchedule]
   );
@@ -272,9 +256,7 @@ export const ScheduleModal = ({
     setRecurringSchedule({
       ...recurringSchedule,
       slots: [...recurringSchedule.slots, { startTime: "", endTime: "" }],
-      
     });
-   
   }, [recurringSchedule]);
 
   const handleTimeSlotChange = useCallback(
@@ -282,11 +264,8 @@ export const ScheduleModal = ({
       const updatedTimeSlots = [...recurringSchedule.slots];
       updatedTimeSlots[index] = { ...updatedTimeSlots[index], [key]: value };
       setRecurringSchedule({ ...recurringSchedule, slots: updatedTimeSlots });
-   
-    
     },
     [recurringSchedule]
-   
   );
 
   const removeRecurringTimeSlot = useCallback(
@@ -295,7 +274,6 @@ export const ScheduleModal = ({
         (_, idx) => idx !== index
       );
       setRecurringSchedule({ ...recurringSchedule, slots: updatedTimeSlots });
-    
     },
     [recurringSchedule]
   );
@@ -382,7 +360,6 @@ export const ScheduleModal = ({
                 {normalSchedule[dateIndex]?.slots.map((slot, slotIndex) => (
                   <div key={slotIndex} className="flex items-center gap-1 mb-2">
                     <div className="flex-1 w-full sm:w-1/2 md:w-1/3">
-                    
                       <TimePickers
                         label="StartTime"
                         value={
@@ -415,36 +392,38 @@ export const ScheduleModal = ({
                     </div>
 
                     <div className="flex-1 w-full xss:w-1/6 md:w-1/3 xss:flex ">
-                   <div className="flex flex-col">
-
-                      <TimePickers
-                        label="EndTime"
-                        value={
-                          slot.endTime ? moment(slot.endTime, "hh:mm A") : null
-                        }
-                        onChange={(newValue) => {
-                          const timeString = newValue?.format("HH:mm:ss") || "";
-
-                          handleNormalTimeChange(
-                            dateIndex,
-                            slotIndex,
-                            "endTime",
-                            timeString
-                          );
-                        }}
-                      />
-                       {errors[
-                        `normalSchedule[${dateIndex}].slots[${slotIndex}].endTime`
-                      ] && (
-                        <p className="text-red-500 text-sm mt-1">
-                          {
-                            errors[
-                              `normalSchedule[${dateIndex}].slots[${slotIndex}].endTime`
-                            ]
+                      <div className="flex flex-col">
+                        <TimePickers
+                          label="EndTime"
+                          value={
+                            slot.endTime
+                              ? moment(slot.endTime, "hh:mm A")
+                              : null
                           }
-                        </p>
-                      )}
-                   </div>
+                          onChange={(newValue) => {
+                            const timeString =
+                              newValue?.format("HH:mm:ss") || "";
+
+                            handleNormalTimeChange(
+                              dateIndex,
+                              slotIndex,
+                              "endTime",
+                              timeString
+                            );
+                          }}
+                        />
+                        {errors[
+                          `normalSchedule[${dateIndex}].slots[${slotIndex}].endTime`
+                        ] && (
+                          <p className="text-red-500 text-sm mt-1">
+                            {
+                              errors[
+                                `normalSchedule[${dateIndex}].slots[${slotIndex}].endTime`
+                              ]
+                            }
+                          </p>
+                        )}
+                      </div>
                       {slotIndex >=
                         normalSchedule[dateIndex]?.slots.length - 1 && (
                         <button
@@ -459,9 +438,7 @@ export const ScheduleModal = ({
                         </button>
                       )}
                     </div>
-                    
                   </div>
-                  
                 ))}
 
                 {normalSchedule[dateIndex]?.slots.length < 10 && (
@@ -479,7 +456,7 @@ export const ScheduleModal = ({
           </div>
         ) : (
           <RecurringScheduleForm
-          errors={errors}
+            errors={errors}
             startDate={recurringSchedule.startDate}
             endDate={recurringSchedule["endDate"]!}
             price={recurringSchedule.price as number}
@@ -503,7 +480,11 @@ export const ScheduleModal = ({
 
         <div className="mt-6">
           <Button
-            disabled={scheduleType=="normal"?!normalSchedule[0]:recurringSchedule.slots.length<0}
+            disabled={
+              scheduleType == "normal"
+                ? !normalSchedule[0]
+                : recurringSchedule.slots.length < 0
+            }
             onClick={handleSave}
           >
             Save Schedule

@@ -1,12 +1,5 @@
-import React from 'react';
-import { Search } from 'lucide-react';
-
-interface TransactionFiltersProps {
-  searchQuery: string;
-  onSearchChange: (query: string) => void;
-  typeFilter: string;
-  onTypeFilterChange: (type: string) => void;
-}
+import React from "react";
+import { Search } from "lucide-react";
 
 const TransactionFilters: React.FC<TransactionFiltersProps> = ({
   searchQuery,
@@ -34,7 +27,7 @@ const TransactionFilters: React.FC<TransactionFiltersProps> = ({
         <option value="all">All Types</option>
         <option value="debit">debit</option>
         <option value="credit">credit</option>
-        <option value="paid">paid</option> 
+        <option value="paid">paid</option>
       </select>
     </div>
   );

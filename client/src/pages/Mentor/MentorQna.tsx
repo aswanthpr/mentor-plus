@@ -5,7 +5,6 @@ import AnswerModal from "../../components/Common/Qa/AnswerInputModal";
 import QuestionList from "../../components/Common/Qa/QuestionsList";
 import Spinner from "../../components/Common/common4All/Spinner";
 import AnswerInputModal from "../../components/Common/Qa/AnswerInputModal";
-import { errorHandler } from "../../Utils/Reusable/Reusable";
 import InfiniteScroll from "react-infinite-scroll-component";
 import {
   fetchCreateNewAnsweres,
@@ -13,7 +12,8 @@ import {
   fetchMentorHomeData,
 } from "../../service/mentorApi";
 import { toast } from "react-toastify";
-
+import { ANSWER_EDIT } from "../../Constants/initialStates";
+import { HttpStatusCode } from "axios";
 
 const MentorQna: React.FC = () => {
   const limit = 6;
@@ -34,18 +34,13 @@ const MentorQna: React.FC = () => {
   const [answerId, setAnswerId] = useState<string>("");
   const [editAnswerModalOpen, setEditAnswerModalOpen] =
     useState<boolean>(false);
-  const [sortField, setSortField] = useState<TsortField>(
-    "createdAt"
-  );
+  const [sortField, setSortField] = useState<TsortField>("createdAt");
   const [sortOrder, setSortOrder] = useState<TSortOrder>("desc");
   const [hasMore, setHasMore] = useState<boolean>(true);
   const [editData, setEditData] = useState<{
     content: string;
     answerId: string;
-  }>({
-    content: "",
-    answerId: "",
-  });
+  }>(ANSWER_EDIT);
 
   const fetchData = useCallback(
     async (page: number, isNewSearch = false) => {
@@ -60,7 +55,10 @@ const MentorQna: React.FC = () => {
           limit
         );
 
-        if (response?.status === 200 && response?.data?.success) {
+        if (
+          response?.status === HttpStatusCode?.Ok &&
+          response?.data?.success
+        ) {
           setMentorId(response.data?.userId);
           const newQustion = response?.data.homeData;
           setQuestions((pre) =>
@@ -113,46 +111,41 @@ const MentorQna: React.FC = () => {
   });
   const handleAnswerSubmit = useCallback(
     async (answer: string) => {
-      try {
-        setLoading(true);
-        const response = await fetchCreateNewAnsweres(
-          answer,
-          answerQuestionId,
-          "mentor"
+      setLoading(true);
+      const response = await fetchCreateNewAnsweres(
+        answer,
+        answerQuestionId,
+        "mentor"
+      );
+
+      if (response?.status === HttpStatusCode?.Ok && response?.data.success) {
+        // setEditData({ content: data?.answers, answerId: answerQuestionId });
+        toast.success(response?.data?.message);
+
+        setQuestions((prevQuestions) =>
+          prevQuestions.map((question) =>
+            question._id === answerQuestionId
+              ? {
+                  ...question,
+                  answerData: [
+                    ...(question.answerData || []),
+                    response?.data.answers,
+                  ],
+                }
+              : question
+          )
         );
-
-        if (response?.status === 200 && response?.data.success) {
-          // setEditData({ content: data?.answers, answerId: answerQuestionId });
-          toast.success(response?.data?.message);
-
+        if (filter == "unanswered") {
           setQuestions((prevQuestions) =>
-            prevQuestions.map((question) =>
-              question._id === answerQuestionId
-                ? {
-                    ...question,
-                    answerData: [
-                      ...(question.answerData || []),
-                      response?.data.answers,
-                    ],
-                  }
-                : question
+            prevQuestions.filter(
+              (question) => question._id !== answerQuestionId
             )
           );
-          if (filter == "unanswered") {
-            setQuestions((prevQuestions) =>
-              prevQuestions.filter(
-                (question) => question._id !== answerQuestionId
-              )
-            );
-          }
         }
-        setAnswerInputModalOpen(false);
-      } catch (error: unknown) {
-        errorHandler(error);
-        console.log(error, "unexpected error");
-      } finally {
-        setLoading(false);
       }
+      setAnswerInputModalOpen(false);
+
+      setLoading(false);
     },
     [answerQuestionId, filter]
   );
@@ -163,30 +156,26 @@ const MentorQna: React.FC = () => {
 
       if (!answerId) return;
 
-      try {
-        setLoading(true);
-        const response = await fetchMentorEditAnswer(content, answerId);
+      setLoading(true);
+      const response = await fetchMentorEditAnswer(content, answerId);
 
-        if (response.status === 200 && response.data.success) {
-          setEditData({ content: response.data?.answer, answerId: answerId });
-          toast.success(response.data.message);
+      if (response.status === HttpStatusCode?.Ok && response.data.success) {
+        setEditData({ content: response.data?.answer, answerId: answerId });
+        toast.success(response.data.message);
 
-          const updatedAnswer = response.data?.answer;
-          setQuestions((prevQuestions) =>
-            prevQuestions.map((question) => ({
-              ...question,
-              answerData: question.answerData?.map((ans) =>
-                ans._id === answerId ? { ...ans, answer: updatedAnswer } : ans
-              ),
-            }))
-          );
-        }
-      } catch (error) {
-        errorHandler(error);
-      } finally {
-        setLoading(false);
-        setEditAnswerModalOpen(false);
+        const updatedAnswer = response.data?.answer;
+        setQuestions((prevQuestions) =>
+          prevQuestions.map((question) => ({
+            ...question,
+            answerData: question.answerData?.map((ans) =>
+              ans._id === answerId ? { ...ans, answer: updatedAnswer } : ans
+            ),
+          }))
+        );
       }
+
+      setLoading(false);
+      setEditAnswerModalOpen(false);
     },
     []
   );
@@ -241,7 +230,7 @@ const MentorQna: React.FC = () => {
                   value={`${sortField}-${sortOrder}`}
                   onChange={(e) => {
                     const [field, order] = e.target.value.split("-");
-                    setSortField(field as "createdAt" | "mostAnswered");
+                    setSortField(field as TsortField);
                     setSortOrder(order as TSortOrder);
                   }}
                   className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-orange-200 border-orange-500"

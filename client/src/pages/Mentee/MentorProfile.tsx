@@ -8,9 +8,9 @@ import MentorListByCategory from "../../components/Common/exploreMentor/MentorLi
 import { useLocation, useNavigate } from "react-router-dom";
 import { useCallback, useEffect, useState } from "react";
 import Spinner from "../../components/Common/common4All/Spinner";
-import { errorHandler } from "../../Utils/Reusable/Reusable";
 import { ReviewSection } from "../../components/Mentee/ReviewSection";
 import { fetchSimilarMentors } from "../../service/menteeApi";
+import { HttpStatusCode } from "axios";
 
  const MentorProfile = () => {
   const { state } = useLocation();
@@ -24,19 +24,17 @@ import { fetchSimilarMentors } from "../../service/menteeApi";
 
   useEffect(() => {
     const fetchMentorData = async () => {
-      try {
+ 
         setLoading(true);
 
         const response = await fetchSimilarMentors(mentorData?.category as string,mentorData?._id as string);
        
-        if (response.status === 200 && response.data.success) {
+        if (response.status === HttpStatusCode?.Ok && response.data.success) {
           setSimilarMentor(response.data.mentor);
         }
-      } catch (err) {
-        errorHandler(err);
-      } finally {
+
         setLoading(false);
-      }
+    
     };
 
    

@@ -1,10 +1,8 @@
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect, useCallback } from "react";
 import { X } from "lucide-react";
 import Button from "../../Auth/Button";
-import  * as Yup from 'yup'
+import * as Yup from "yup";
 import { answerInputSchema } from "../../../Validation/yupValidation";
-
-
 
 const AnswerInputModal: React.FC<AnswerInputModalProps> = ({
   isOpen,
@@ -15,7 +13,7 @@ const AnswerInputModal: React.FC<AnswerInputModalProps> = ({
 }) => {
   const [answer, setAnswer] = useState<string>("");
   const textAreaRef = useRef<HTMLTextAreaElement>(null);
-  const [error,setError] = useState<string>('')
+  const [error, setError] = useState<string>("");
 
   useEffect(() => {
     if (isOpen && textAreaRef.current) {
@@ -24,21 +22,20 @@ const AnswerInputModal: React.FC<AnswerInputModalProps> = ({
     setAnswer(receiveAnswer as string);
   }, [isOpen, receiveAnswer]);
 
-  const handleSubmit = async(e: React.FormEvent) => {
+  const handleSubmit = useCallback( async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-     await answerInputSchema.validate({ answer })
-     setError('')
-     onSubmit(answer, answerId);
-     setAnswer("");
-     onClose();
-    } catch (error:unknown) {
+      await answerInputSchema.validate({ answer });
+      setError("");
+      onSubmit(answer, answerId);
+      setAnswer("");
+      onClose();
+    } catch (error: unknown) {
       if (error instanceof Yup.ValidationError) {
-
-        setError(error.message); 
+        setError(error.message);
       }
     }
-  };
+  },[answer, answerId, onClose, onSubmit]);
 
   if (!isOpen) return null;
 
@@ -66,7 +63,11 @@ const AnswerInputModal: React.FC<AnswerInputModalProps> = ({
             className="w-full h-80 p-3 border border-[#ff8800] rounded-md focus:ring-2 focus:ring-orange-500 focus:border-transparent resize-none"
             placeholder="Write your answer here..."
           />
-   {error && <div className="text-red-500 text-sm font-normal mt-2 text-center">{error}</div>}
+          {error && (
+            <div className="text-red-500 text-sm font-normal mt-2 text-center">
+              {error}
+            </div>
+          )}
           <div className="mt-4 flex justify-end gap-2">
             <Button
               type="submit"

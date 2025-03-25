@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useCallback, useState } from "react";
 import { useParams } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
 
@@ -11,7 +11,6 @@ import ChangePassword from "../../components/Auth/ChangePassword";
 import Modal from "../../components/Common/common4All/Modal";
 import Spinner from "../../components/Common/common4All/Spinner";
 import { toast } from "react-toastify";
-import { errorHandler } from "../../Utils/Reusable/Reusable";
 import {
   fetchForgotPassOtpVerify,
   fetchForgotPassSendOtp,
@@ -19,6 +18,8 @@ import {
   forgetPasswordResendOtp,
 } from "../../service/commonApi";
 import bgImg from "../../Asset/background.jpg";
+import { HttpStatusCode } from "axios";
+import { Messages, routesObj } from "../../Constants/message";
 
 const ForgetPassword: React.FC = () => {
   const { user } = useParams();
@@ -33,88 +34,80 @@ const ForgetPassword: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(false);
   const { seconds, isActive, restart } = useTimer(60);
 
-  const handleEmailInput = (e: React.ChangeEvent<HTMLInputElement>) => {
-    e.preventDefault();
-    const email_Value = e.target.value;
-    setEmail(email_Value);
+  const handleEmailInput = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      e.preventDefault();
+      const email_Value = e.target.value;
+      setEmail(email_Value);
 
-    const emailValid = validateEmail(email_Value);
-    setEmailError(emailValid || null);
-  };
+      const emailValid = validateEmail(email_Value);
+      setEmailError(emailValid || null);
+    },
+    []
+  );
 
-  const handleSendOTP = async () => {
-    try {
-      if (validateEmail(email) != undefined) {
-        setEmailError("Please enter a valid email address before sending OTP");
-        return;
-      }
-      setEmailError("");
-      setLoading(true);
-
-      const response = await fetchForgotPassSendOtp(email, user as string);
-
-      if (response?.status == 200 && response?.data?.success) {
-        toast.success(`${response?.data?.message}`);
-        setIsOtpSent(true);
-        restart();
-      }
-    } catch (error: unknown) {
-      errorHandler(error);
-    } finally {
-      setTimeout(() => {
-        setLoading(false);
-      }, 500);
+  const handleSendOTP = useCallback(async () => {
+    if (validateEmail(email) != undefined) {
+      setEmailError(Messages?.EMAIL_OTP_ERROR);
+      return;
     }
-  };
+    setEmailError("");
+    setLoading(true);
 
-  const handleResendOTP = async () => {
-    try {
-      setLoading(true);
-      const response = await forgetPasswordResendOtp(email);
+    const response = await fetchForgotPassSendOtp(email, user as string);
 
-      if (response.data?.success) {
-        toast.success(response.data?.message);
-        setIsOtpSent(true);
-        restart();
-      }
-    } catch (error: unknown) {
-      errorHandler(error);
-    } finally {
-      setTimeout(() => {
-        setLoading(false);
-      }, 500);
+    if (response?.status == HttpStatusCode?.Ok && response?.data?.success) {
+      toast.success(`${response?.data?.message}`);
+      setIsOtpSent(true);
+      restart();
     }
-  };
 
-  const handleVerify = async () => {
-    try {
-      if (otp.length !== 6) {
-        setOtpError("Please enter a valid 6-digit OTP");
-        return;
-      }
-      setOtpError(null);
-      setLoading(true);
+    setTimeout(() => {
+      setLoading(false);
+    }, 500);
+  }, [email, restart, user]);
 
-      const response = await fetchForgotPassOtpVerify(email, otp);
+  const handleResendOTP = useCallback(async () => {
+    setLoading(true);
+    const response = await forgetPasswordResendOtp(email);
 
-      console.log(response?.data && response?.status);
-
-      if (response?.status == 200 && response?.data?.success) {
-        setLoading(false);
-        toast.success(response?.data?.message);
-        setIsModalOpen(true);
-        setOtp("");
-      }
-    } catch (error: unknown) {
-      errorHandler(error);
-    } finally {
-      setTimeout(() => {
-        setLoading(false);
-      }, 500);
+    if (response.data?.success) {
+      toast.success(response.data?.message);
+      setIsOtpSent(true);
+      restart();
     }
-  };
-  const handlePassChange = async (password: string) => {
-    try {
+
+    setTimeout(() => {
+      setLoading(false);
+    }, 500);
+  }, [email, restart]);
+
+  const handleVerify = useCallback(async () => {
+    if (otp.length !== 6) {
+      setOtpError(Messages?.OTP_MUSTBE_6);
+      return;
+    }
+    setOtpError(null);
+    setLoading(true);
+
+    const response = await fetchForgotPassOtpVerify(email, otp);
+
+    console.log(response?.data && response?.status);
+
+    if (response?.status == HttpStatusCode?.Ok && response?.data?.success) {
+      setLoading(false);
+      toast.success(response?.data?.message);
+      setIsModalOpen(true);
+      setOtp("");
+    }
+
+    setTimeout(() => {
+      setLoading(false);
+    }, 500);
+  }, [email, otp]);
+
+  const handlePassChange = useCallback(
+    async (password: string) => {
       setLoading(true);
       console.log("password  changed", password);
       setIsModalOpen(false);
@@ -126,18 +119,17 @@ const ForgetPassword: React.FC = () => {
       );
 
       console.log(response?.data.message, response?.status);
-      if (response?.status == 200 && response.data?.success) {
+      if (response?.status == HttpStatusCode?.Ok && response.data?.success) {
         toast.success(response.data?.message);
       }
-    } catch (error: unknown) {
-      errorHandler(error);
-    } finally {
+
       setTimeout(() => {
         setLoading(false);
       }, 500);
-      navigate("/auth/login/mentee");
-    }
-  };
+      navigate(routesObj?.MENTEE_LOGIN);
+    },
+    [email, navigate, user]
+  );
 
   return (
     <div

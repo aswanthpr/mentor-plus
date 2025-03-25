@@ -19,7 +19,7 @@ import {
   fetchAllNotification,
   fetchNotificaitionRead,
 } from "../../service/adminApi";
-
+import { HttpStatusCode } from "axios";
 
 const navItems: INavItem[] = [
   { name: "Dashboard", path: "/admin/dashboard", icon: LayoutDashboard },
@@ -41,17 +41,18 @@ const Admin_Page: React.FC = () => {
     let flag = true;
 
     const fetchData = async () => {
-      try {
-        const response = await fetchAllNotification();
+      const response = await fetchAllNotification();
 
-        if (flag && response?.status == 200 && response?.data.success) {
-          dispatch(
-            setNotification({ userType: "admin", notification: response?.data?.result })
-          );
-        }
-      } catch (error: unknown) {
-        console.log(
-          `${error instanceof Error ? error.message : String(error)}`
+      if (
+        flag &&
+        response?.status == HttpStatusCode?.Ok &&
+        response?.data.success
+      ) {
+        dispatch(
+          setNotification({
+            userType: "admin",
+            notification: response?.data?.result,
+          })
         );
       }
     };
@@ -68,21 +69,15 @@ const Admin_Page: React.FC = () => {
 
   const handleReadNotification = useCallback(
     async (id: string) => {
-      try {
-        const response = await fetchNotificaitionRead(id);
+      const response = await fetchNotificaitionRead(id);
 
-        if (response?.status == 200 && response?.data.success) {
-          dispatch(markAsRead({ userType: "admin", id }));
-        }
-      } catch (error: unknown) {
-        console.log(
-          `${error instanceof Error ? error.message : String(error)}`
-        );
+      if (response?.status == HttpStatusCode?.Ok && response?.data.success) {
+        dispatch(markAsRead({ userType: "admin", id }));
       }
     },
     [dispatch]
   );
-  
+
   const handleSearchChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
       setSearchValue(e.target.value);

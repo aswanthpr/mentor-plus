@@ -9,6 +9,7 @@ import MentorProfile from "../pages/Mentee/MentorProfile";
 import BookingPage from "../components/Mentee/BookingPage";
 import StripeCheckoutCancel from "../components/Common/Stripe/StripeCheckoutCancel";
 import VideoPage from "../components/Common/Bookings/VideoPage";
+import MenteeLogin from "../Utils/ProtectedRoute/MenteeProtectLogin";
 
 const Message = lazy(() => import("../pages/Mentee/Message"));
 const StripeComplete = lazy(
@@ -22,9 +23,6 @@ const Mentee_Page = lazy(() => import("../pages/Mentee/Mentee_Page"));
 const MenteeProfile = lazy(() => import("../pages/Mentee/MenteeProfile"));
 const GoogleSuccess = lazy(() => import("../components/Mentee/GoogleSuccess"));
 const GoogleFailure = lazy(() => import("../components/Mentee/GoogleFailure"));
-const MenteeLogin = lazy(
-  () => import("../Utils/ProtectedRoute/MenteeProtectLogin")
-);
 
 const MenteeRoute: React.FC = () => (
   <Suspense fallback={<Spinner />}>
@@ -35,54 +33,27 @@ const MenteeRoute: React.FC = () => (
       <Route path="/" element={<Mentee_Page />}>
         ;
         <Route index element={<Navigate to="/mentee/home" />} />;
-        <Route path="/home" element={<MenteeLogin element={<Home />} />} />;
-        <Route
-          path="/profile/"
-          element={<MenteeLogin element={<MenteeProfile />} />}
-        />
-        ;
-        <Route path="explore">
-          <Route index element={<MenteeLogin element={<Explore />} />} />
-          <Route
-            path="mentor/:mentorId"
-            element={<MenteeLogin element={<MentorProfile />} />}
-          />
-          <Route
-            path=":name"
-            element={<MenteeLogin element={<MentorProfile />} />}
-          />
+        <Route element={<MenteeLogin />}>
+          <Route path="/home" element={<Home />} />;
+          <Route path="/profile/" element={<MenteeProfile />} />;
+          <Route path="explore">
+            <Route index element={<Explore />} />
+            <Route path="mentor/:mentorId" element={<MentorProfile />} />
+            <Route path=":name" element={<MentorProfile />} />;
+          </Route>
+          <Route path="/:name/slot-booking" element={<BookingPage />} />
           ;
+          <Route path="/bookings" element={<Bookings />} />
+          <Route path="/bookings/:roomId" element={<VideoPage />} />
+          <Route path="/messages" element={<Message />} />
+          <Route path="/wallet" element={<Wallet />} />;
+          <Route path="/qa" element={<QnA_page />} />;
+          <Route path="/stripe-cancel" element={<StripeCheckoutCancel />} />
+          <Route path="/stripe-success" element={<StripeComplete />} />
         </Route>
-        <Route
-          path="/:name/slot-booking"
-          element={<MenteeLogin element={<BookingPage />} />}
-        />
-        ;
-        <Route
-          path="/bookings"
-          element={<MenteeLogin element={<Bookings />} />}
-        />
-        <Route
-          path="/bookings/:roomId"
-          element={<MenteeLogin element={<VideoPage />} />}
-        />
-        <Route
-          path="/messages"
-          element={<MenteeLogin element={<Message />} />}
-        />
-        <Route path="/wallet" element={<MenteeLogin element={<Wallet />} />} />;
-        <Route path="/qa" element={<MenteeLogin element={<QnA_page />} />} />;
         <Route path="/google/success" element={<GoogleSuccess />} />;
         <Route path="/google/failure" element={<GoogleFailure />} />;
       </Route>
-      <Route
-        path="/stripe-cancel"
-        element={<MenteeLogin element={<StripeCheckoutCancel />} />}
-      />
-      <Route
-        path="/stripe-success"
-        element={<MenteeLogin element={<StripeComplete />} />}
-      />
     </Routes>
   </Suspense>
 );

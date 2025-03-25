@@ -1,9 +1,10 @@
 import React,{useEffect} from 'react';
 import { useSelector } from 'react-redux';
-import { useNavigate } from 'react-router-dom';
+import { Outlet, useNavigate } from 'react-router-dom';
 import { RootState } from '../../Redux/store';
+import { routesObj } from '../../Constants/message';
 
-const MentorProtectLogout:React.FC<Iprotector> = ({element}) => {
+const MentorProtectLogout:React.FC = () => {
     const navigate = useNavigate();
     const accessToken = useSelector((state: RootState) => state.menter.mentorToken);
     const role = useSelector((state: RootState) => state.menter.mentorRole);
@@ -12,13 +13,13 @@ const MentorProtectLogout:React.FC<Iprotector> = ({element}) => {
     useEffect(() => {
         if (accessToken && role === 'mentor') {
             console.log("you are aleary logged in")
-          navigate('/mentor/home');
+          navigate(routesObj?.MENTOR_HOME);
         }
       }, [accessToken, role, navigate]);
     
     console.log("you are out.........")
     
-      return element;
+      return !accessToken && role !== 'mentor' ? <Outlet /> : null;;
 }
 
 export default MentorProtectLogout

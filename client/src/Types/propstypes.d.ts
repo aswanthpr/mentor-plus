@@ -1,6 +1,10 @@
-
 interface StatusBadgeProps {
   status: "active" | "inactive" | "verified" | "not-verified" | "blocked";
+}
+
+interface TableProps {
+  headers: string[];
+  children: React.ReactNode;
 }
 interface ICategModal {
   heading: JSX.Element | string;
@@ -227,8 +231,8 @@ interface AnswerInputModalProps {
 }
 
 interface QuestionFilterProps {
-  activeFilter:TquestionTab;
-  onFilterChange: (filter:TquestionTab) => void;
+  activeFilter: TquestionTab;
+  onFilterChange: (filter: TquestionTab) => void;
 }
 interface QuestionListProps {
   questions: IQuestion[];
@@ -259,7 +263,6 @@ interface BlockedDatesPickerProps {
   onRemove: (index: number) => void;
   onUpdate: (index: number, date: string) => void;
 }
-
 
 interface RecurringScheduleFormProps {
   startDate: string;
@@ -308,4 +311,31 @@ interface WithdrawModalProps {
   onClose: () => void;
   onSubmit: (amount: number) => void;
   maxAmount: number;
+}
+interface IButton extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+  variant?: Tvarient;
+  children?: JSX.Element | React.ReactNode;
+  className?: string;
+  disabled?: boolean;
+  onClick?: () => void;
+}
+interface IModal {
+  isOpen: boolean;
+  onClose: () => void;
+  children: React.ReactNode;
+}
+interface AddMoneyModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  onSubmit: (amount: number) => void;
+}
+interface TransactionFiltersProps {
+  searchQuery: string;
+  onSearchChange: (query: string) => void;
+  typeFilter: string;
+  onTypeFilterChange: (type: string) => void;
+}
+interface FiltersProps {
+  filters: MentorFilters;
+  onFilterChange: (filterVal: Ifilter) => void;
 }

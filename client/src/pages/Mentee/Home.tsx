@@ -1,9 +1,14 @@
 import React, { useCallback, useEffect, useState } from "react";
-import { ArrowUpDown, CircleAlertIcon, Filter, HandshakeIcon, Search } from "lucide-react";
+import {
+  ArrowUpDown,
+  CircleAlertIcon,
+  Filter,
+  HandshakeIcon,
+  Search,
+} from "lucide-react";
 import QuestionsList from "../../components/Common/Qa/QuestionsList";
 import AnswerModal from "../../components/Common/Qa/AnswerInputModal";
 import InputField from "../../components/Auth/InputField";
-import { errorHandler } from "../../Utils/Reusable/Reusable";
 import { toast } from "react-toastify";
 import ConfirmToast from "../../components/Common/common4All/ConfirmToast";
 import Spinner from "../../components/Common/common4All/Spinner";
@@ -16,7 +21,8 @@ import {
   fetchHomeData,
   fetchMenteeEditAnswer,
 } from "../../service/menteeApi";
-
+import { ANSWER_EDIT } from "../../Constants/initialStates";
+import { HttpStatusCode } from "axios";
 
 const Home: React.FC = () => {
   const page_limit = 6;
@@ -36,48 +42,35 @@ const Home: React.FC = () => {
   const [editingAnswer, setEditingAnswer] = useState<string | null>(null);
   const [editingAnswerId, setEditingAnswerId] = useState<string | null>(null);
   const [hasMore, setHasMore] = useState<boolean>(true);
-  const [sortField, setSortField] = useState<TsortField>(
-    "createdAt"
-  );
+  const [sortField, setSortField] = useState<TsortField>("createdAt");
 
   const [sortOrder, setSortOrder] = useState<TSortOrder>("desc");
   const [editData, setEditData] = useState<{
     content: string;
     answerId: string;
-  }>({
-    content: "",
-    answerId: "",
-  });
+  }>(ANSWER_EDIT);
   const [newAns, setNewAns] = useState<Ianswer | null>(null);
 
   const fetchData = useCallback(
     async (page: number, isNewSearch = false) => {
-      try {
-        setLoading(false);
-        const response = await fetchHomeData(
-          filter,
-          searchQuery,
-          sortField,
-          sortOrder,
-          page,
-          page_limit
-        );
+      setLoading(false);
+      const response = await fetchHomeData(
+        filter,
+        searchQuery,
+        sortField,
+        sortOrder,
+        page,
+        page_limit
+      );
 
-        if (response?.status === 200 && response?.data?.success) {
-          setUserId(response.data.userId);
-          const newQuestion = response?.data.homeData;
-          setQuestions((pre) =>
-            isNewSearch ? newQuestion : [...pre, ...newQuestion]
-          );
-          setHasMore(page < response?.data?.totalPage);
-          setCurrentPage(page);
-        }
-      } catch (error: unknown) {
-        console.log(
-          `error while fetching home data ${
-            error instanceof Error ? error.message : String(error)
-          }`
+      if (response?.status === HttpStatusCode?.Ok && response?.data?.success) {
+        setUserId(response.data.userId);
+        const newQuestion = response?.data.homeData;
+        setQuestions((pre) =>
+          isNewSearch ? newQuestion : [...pre, ...newQuestion]
         );
+        setHasMore(page < response?.data?.totalPage);
+        setCurrentPage(page);
       }
     },
     [filter, searchQuery, sortField, sortOrder]
@@ -106,7 +99,7 @@ const Home: React.FC = () => {
       // Update the question in the state
 
       const originalQuestion = questions.find((q) => q._id === questionId);
- 
+
       if (!originalQuestion) {
         toast.error("Unexpected error occured");
         console.error(`Question with ID ${questionId} not found.`);
@@ -132,27 +125,25 @@ const Home: React.FC = () => {
         return;
       }
 
-      try {
-        setLoading(true);
-        const { status, data } = await fetchEditQuestion(
-          questionId,
-          updatedQuestion,
-          filter
-        );
+      setLoading(true);
+      const response = await fetchEditQuestion(
+        questionId,
+        updatedQuestion,
+        filter
+      );
 
-        if (status == 200 && data.success) {
-          setQuestions(
-            questions.map((q) => (q._id === questionId ? data?.question : q))
-          );
-          toast.success(data.message);
-        }
-      } catch (error: unknown) {
-        errorHandler(error);
-      } finally {
-        setInterval(() => {
-          setLoading(false);
-        }, 500);
+      if (response?.status == HttpStatusCode?.Ok && response?.data.success) {
+        setQuestions(
+          questions.map((q) =>
+            q._id === questionId ? response?.data?.question : q
+          )
+        );
+        toast.success(response?.data.message);
       }
+
+      setInterval(() => {
+        setLoading(false);
+      }, 500);
     },
     [filter, questions]
   );
@@ -187,66 +178,61 @@ const Home: React.FC = () => {
     );
     const handleDel = async (questId: string) => {
       toast.dismiss();
-      try {
-        setLoading(true);
-        const response = await fetchDeleteQuestion(questId);
 
-        if (response.status === 200 && response.data.success) {
-          setQuestions((prevQuestions) =>
-            prevQuestions.filter((question) => question._id !== questId)
-          );
-          setSelectedQuestion(null);
-          toast.success("Question deleted successfully");
-        }
-      } catch (error: unknown) {
-        errorHandler(error);
-      } finally {
-        setLoading(false);
+      setLoading(true);
+      const response = await fetchDeleteQuestion(questId);
+
+      if (response.status === HttpStatusCode?.Ok && response.data.success) {
+        setQuestions((prevQuestions) =>
+          prevQuestions.filter((question) => question._id !== questId)
+        );
+        setSelectedQuestion(null);
+        toast.success(response.data?.message);
       }
+
+      setLoading(false);
     };
   }, []);
 
   const handleAnswerSubmit = useCallback(
     async (content: string) => {
-      console.log(answerQuestionId, "thsi sit he question id ");
-      try {
-        setLoading(true);
-        const response = await fetchCreateAnswer(
-          content,
-          answerQuestionId,
-          "mentee"
-        );
+      setLoading(true);
+      const response = await fetchCreateAnswer(
+        content,
+        answerQuestionId,
+        "mentee"
+      );
 
-        console.log(response?.data.answers);
-        if (response?.status === 200 && response?.data.success) {
-          toast.success(response?.data.message);
-          setIsAnswerModalOpen(false);
-          setNewAns(response?.data?.answers);
+      console.log(response?.data.answers);
+      if (response?.status === HttpStatusCode?.Ok && response?.data.success) {
+        toast.success(response?.data.message);
+        setIsAnswerModalOpen(false);
+        setNewAns(response?.data?.answers);
+        setQuestions((prevQuestions) =>
+          prevQuestions.map((question) =>
+            question._id === answerQuestionId
+              ? {
+                  ...question,
+                  answerData: [
+                    ...(question.answerData || []),
+                    response?.data?.answers,
+                  ],
+                }
+              : question
+          )
+        );
+        if (filter == "unanswered") {
           setQuestions((prevQuestions) =>
-            prevQuestions.map((question) =>
-              question._id === answerQuestionId
-                ? {
-                    ...question,
-                    answerData: [...(question.answerData || []), response?.data?.answers],
-                  }
-                : question
+            prevQuestions.filter(
+              (question) => question._id !== answerQuestionId
             )
           );
-          if (filter == "unanswered") {
-            setQuestions((prevQuestions) =>
-              prevQuestions.filter(
-                (question) => question._id !== answerQuestionId
-              )
-            );
-          }
         }
-      } catch (error: unknown) {
-        errorHandler(error);
-      } finally {
-        setTimeout(() => {
-          setLoading(false);
-        });
       }
+
+      setTimeout(() => {
+        setLoading(false);
+      });
     },
     [answerQuestionId, filter]
   );
@@ -259,34 +245,28 @@ const Home: React.FC = () => {
 
   const handleEditAnswerSubmit = useCallback(
     async (content: string, answerId?: string) => {
-      console.log("Answer Edited: ", { content, answerId });
-
       if (!answerId) return;
 
-      try {
-        setLoading(true);
-        const response = await fetchMenteeEditAnswer(content, answerId);
+      setLoading(true);
+      const response = await fetchMenteeEditAnswer(content, answerId);
 
-        if (response.status === 200 && response.data.success) {
-          setEditData({ content: response.data?.answer, answerId: answerId });
-          toast.success(response.data.message);
+      if (response.status === HttpStatusCode?.Ok && response.data.success) {
+        setEditData({ content: response.data?.answer, answerId: answerId });
+        toast.success(response.data.message);
 
-          const updatedAnswer = response.data?.answer;
-          setQuestions((prevQuestions) =>
-            prevQuestions.map((question) => ({
-              ...question,
-              answerData: question.answerData?.map((ans) =>
-                ans._id === answerId ? { ...ans, answer: updatedAnswer } : ans
-              ),
-            }))
-          );
-        }
-      } catch (error) {
-        errorHandler(error);
-      } finally {
-        setLoading(false);
-        setEditAnswerModalOpen(false);
+        const updatedAnswer = response.data?.answer;
+        setQuestions((prevQuestions) =>
+          prevQuestions.map((question) => ({
+            ...question,
+            answerData: question.answerData?.map((ans) =>
+              ans._id === answerId ? { ...ans, answer: updatedAnswer } : ans
+            ),
+          }))
+        );
       }
+
+      setLoading(false);
+      setEditAnswerModalOpen(false);
     },
     []
   );
@@ -303,89 +283,87 @@ const Home: React.FC = () => {
         </div>
         <div className="h-0.5 bg-gray-200 w-full" />
         <div className="bg-white p-6 rounded-lg shadow-sm">
-        <section className="flex items-center justify-between mb-2 sm:mb-2 sm:flex-col lg:flex-row  xss:flex-col">
+          <section className="flex items-center justify-between mb-2 sm:mb-2 sm:flex-col lg:flex-row  xss:flex-col">
+            <div className=" flex">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                {/* Search */}
+                <div className="relative">
+                  <Search
+                    className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
+                    size={20}
+                  />
+                  <InputField
+                    type={"search"}
+                    placeholder="Search questions or authors..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="pl-10"
+                  />
+                </div>
 
-        <div className=" flex">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
-              {/* Search */}
-              <div className="relative">
-                <Search
-                  className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
-                  size={20}
-                />
-                <InputField
-                  type={"search"}
-                  placeholder="Search questions or authors..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pl-10"
-                />
-              </div>
+                {/* Filter */}
+                <div className="flex items-center gap-2">
+                  <Filter size={20} className="text-gray-400" />
+                  <select
+                    value={filter}
+                    onChange={(e: React.ChangeEvent<HTMLSelectElement>) =>
+                      setFilter(e.target.value as "answered" | "unanswered")
+                    }
+                    className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-orange-200 border-orange-500"
+                  >
+                    <option value="answered">Answered</option>
+                    <option value="unanswered">Unanswered</option>
+                  </select>
+                </div>
 
-              {/* Filter */}
-              <div className="flex items-center gap-2">
-                <Filter size={20} className="text-gray-400" />
-                <select
-                  value={filter}
-                  onChange={(e: React.ChangeEvent<HTMLSelectElement>) =>
-                    setFilter(e.target.value as "answered" | "unanswered")
-                  }
-                  className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-orange-200 border-orange-500"
-                >
-                  <option value="answered">Answered</option>
-                  <option value="unanswered">Unanswered</option>
-                </select>
-              </div>
+                {/* Sort */}
 
-              {/* Sort */}
-
-              <div className="flex items-center gap-2">
-                <ArrowUpDown size={20} className="text-gray-400" />
-                <select
-                  value={`${sortField}-${sortOrder}`}
-                  onChange={(e) => {
-                    const [field, order] = e.target.value.split("-");
-                    setSortField(field as "createdAt" | "mostAnswered");
-                    setSortOrder(order as TSortOrder);
-                  }}
-                  className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-orange-200 border-orange-500"
-                >
-                  <option value="createdAt-desc">Newest First</option>
-                  <option value="createdAt-asc">Oldest First</option>
-                </select>
+                <div className="flex items-center gap-2">
+                  <ArrowUpDown size={20} className="text-gray-400" />
+                  <select
+                    value={`${sortField}-${sortOrder}`}
+                    onChange={(e) => {
+                      const [field, order] = e.target.value.split("-");
+                      setSortField(field as "createdAt" | "mostAnswered");
+                      setSortOrder(order as TSortOrder);
+                    }}
+                    className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-orange-200 border-orange-500"
+                  >
+                    <option value="createdAt-desc">Newest First</option>
+                    <option value="createdAt-asc">Oldest First</option>
+                  </select>
+                </div>
               </div>
             </div>
-          </div>
-        </section>
-     
-      
-        <InfiniteScroll
-          dataLength={questions?.length}
-          next={fetchMoreQuestion}
-          hasMore={hasMore}
-          loader={
-            <h4 className="text-center my-4">Loading more Questions...</h4>
-          }
-          endMessage={
-            <p className=" flex justify-center text-center my-4 text-gray-500">
-              <CircleAlertIcon className="w-6 mr-1" /> No more Questions to
-              load.{" "}
-            </p>
-          }
-        >
-          <QuestionsList
-            onDeleteQestion={handleDeleteQuestion}
-            currentUserId={userId}
-            questions={filterQuestions}
-            onShowAnswers={handleShowAnswers}
-            setIsAnswerModalOpen={setIsAnswerModalOpen}
-            setAnswerQuestionId={setAnswerQuestionId}
-            onEditQuestion={handleEditQuestion}
-            onEditAnswer={handleEditAnswer}
-            EditedData={editData}
-            newAnswer={newAns}
-          />
-        </InfiniteScroll>
+          </section>
+
+          <InfiniteScroll
+            dataLength={questions?.length}
+            next={fetchMoreQuestion}
+            hasMore={hasMore}
+            loader={
+              <h4 className="text-center my-4">Loading more Questions...</h4>
+            }
+            endMessage={
+              <p className=" flex justify-center text-center my-4 text-gray-500">
+                <CircleAlertIcon className="w-6 mr-1" /> No more Questions to
+                load.{" "}
+              </p>
+            }
+          >
+            <QuestionsList
+              onDeleteQestion={handleDeleteQuestion}
+              currentUserId={userId}
+              questions={filterQuestions}
+              onShowAnswers={handleShowAnswers}
+              setIsAnswerModalOpen={setIsAnswerModalOpen}
+              setAnswerQuestionId={setAnswerQuestionId}
+              onEditQuestion={handleEditQuestion}
+              onEditAnswer={handleEditAnswer}
+              EditedData={editData}
+              newAnswer={newAns}
+            />
+          </InfiniteScroll>
         </div>
       </div>
 

@@ -14,7 +14,6 @@ import {
 } from "lucide-react";
 import CategoryModal from "../../components/Admin/CategoryModal";
 import ConfirmToast from "../../components/Common/common4All/ConfirmToast";
-import { errorHandler } from "../../Utils/Reusable/Reusable";
 import { Pagination } from "@mui/material";
 import {
   fetchAllcategoryData,
@@ -23,13 +22,13 @@ import {
   fetchEditCategory,
 } from "../../service/adminApi";
 import InputField from "../../components/Auth/InputField";
-
-
-
+import { Messages } from "../../Constants/message";
+import { HttpStatusCode } from "axios";
+import { EDIT_CATEGORY } from "../../Constants/initialStates";
 
 const Category_mgt: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState("");
-  const [sortField, setSortField] = useState<"atoz" | "ztoa">("atoz");
+  const [sortField, setSortField] = useState<TalphabetOrder>("atoz");
   const [sortOrder, setSortOrder] = useState<TSortOrder>("desc");
   const [statusFilter, setStatusFilter] = useState<TFilter>("all");
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
@@ -40,40 +39,31 @@ const Category_mgt: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(false);
   const [totalDocuments, setTotalDocuments] = useState<number>(0);
   const [isEditModalOpen, setIsEditModalOpen] = useState<boolean>(false);
-  const [editData, setEditData] = useState<Category>({
-    _id: "",
-    category: "",
-  });
+  const [editData, setEditData] = useState<Category>(EDIT_CATEGORY);
   const inputRef = useRef<HTMLInputElement>(null);
   const PAGE_LIMIT = 8;
 
   //fetch category data
   useEffect(() => {
     const fetchCategories = async () => {
-     
-      try {
-        const response = await fetchAllcategoryData(
-          searchQuery,
-          statusFilter,
-          sortField,
-          sortOrder,
-          currentPage,
-          PAGE_LIMIT
-        );
+      const response = await fetchAllcategoryData(
+        searchQuery,
+        statusFilter,
+        sortField,
+        sortOrder,
+        currentPage,
+        PAGE_LIMIT
+      );
 
-        if (response.data.success) {
-          setCategories(response.data.categories);
-          setTotalDocuments(response?.data?.totalPage);
-        } else {
-          toast.error("Failed to load categories");
-        }
-      } catch (error: unknown) {
-        errorHandler(error);
-      } 
+      if (response.data.success) {
+        setCategories(response.data.categories);
+        setTotalDocuments(response?.data?.totalPage);
+      }
     };
 
     fetchCategories();
   }, [currentPage, searchQuery, sortField, sortOrder, statusFilter]);
+
   useEffect(() => {
     if (isModalOpen || isEditModalOpen) {
       inputRef.current?.focus();
@@ -110,30 +100,24 @@ const Category_mgt: React.FC = () => {
     const categoryValue = category.trim().toLowerCase();
     const isValid = await categoryValidation(categoryValue.trim());
     if (!isValid) {
-      setError(
-        "Category must be between 3 and 50 letters, and no symbols or numbers are allowed."
-      );
+      setError(Messages?.CATEGORY_ADD_INPUT_VALIDATION);
       return;
     }
 
-    try {
-      setLoading(true);
+    setLoading(true);
 
-      const response = await fetchCreateCategory(categoryValue);
+    const response = await fetchCreateCategory(categoryValue);
 
-      if (response.data.success && response.status === 201) {
-        setCategories((prev) => [...prev, response.data.result]);
+    if (response.data.success && response.status === HttpStatusCode?.Created) {
+      setCategories((prev) => [...prev, response.data.result]);
 
-        handleCloseModal();
-        toast.success(response.data.message);
-      }
-    } catch (error: unknown) {
-      errorHandler(error);
-    } finally {
-      setTimeout(() => {
-        setLoading(false);
-      }, 500);
+      handleCloseModal();
+      toast.success(response.data.message);
     }
+
+    setTimeout(() => {
+      setLoading(false);
+    }, 500);
   }, [category, handleCloseModal]);
 
   //handle edit category modal open
@@ -149,9 +133,7 @@ const Category_mgt: React.FC = () => {
     const isValid = await categoryValidation(categoryValue);
 
     if (!isValid) {
-      setError(
-        "Category must be between 3 and 20 letters, and no symbols or numbers are allowed."
-      );
+      setError(Messages?.CATEGORY_EDIT_INPUT_VALIDATION);
       return;
     }
     const isCategoryExist = categories.some(
@@ -159,65 +141,54 @@ const Category_mgt: React.FC = () => {
     );
 
     if (isCategoryExist) {
-      setError("Category already exists. Please choose a different name.");
+      setError(Messages?.CATEGORY_EXIST);
       return;
     }
-    try {
-      setLoading(true);
 
-      const response = await fetchEditCategory(
-        editData?._id,
-        editData?.category
+    setLoading(true);
+
+    const response = await fetchEditCategory(editData?._id, editData?.category);
+
+    if (response.data.success && response.status === HttpStatusCode?.Ok) {
+      toast.success(response.data.message);
+
+      setCategories((prevCategories) =>
+        prevCategories.map((cat) =>
+          cat?._id === editData?._id ? { ...cat, category: categoryValue } : cat
+        )
       );
-
-      if (response.data.success && response.status === 200) {
-        toast.success(response.data.message);
-
-        setCategories((prevCategories) =>
-          prevCategories.map((cat) =>
-            cat?._id === editData?._id
-              ? { ...cat, category: categoryValue }
-              : cat
-          )
-        );
-      }
-    } catch (error: unknown) {
-      errorHandler(error);
-    } finally {
-      setTimeout(() => {
-        setLoading(false);
-      }, 500);
-      handleEditCloseModal();
     }
+
+    setTimeout(() => {
+      setLoading(false);
+    }, 500);
+    handleEditCloseModal();
   }, [categories, editData?._id, editData.category, handleEditCloseModal]);
 
   //HANDLE CATEGORY BLOCK UNBLOCK;
   const handleBlock = useCallback(async (id: string): Promise<void> => {
-    try {
-      setLoading(true);
-      const response = await fetchCategoryChange(id);
+    setLoading(true);
+    const response = await fetchCategoryChange(id);
 
-      console.log(response.data, response.status, response.data.message);
-      if (response.data.success && response.status === 200) {
-        toast.dismiss();
+    console.log(response.data, response.status, response.data.message);
+    if (response.data.success && response.status === HttpStatusCode?.Ok) {
+      toast.dismiss();
 
-        setCategories((prevCategories) =>
-          prevCategories.map((cat) =>
-            cat._id === id ? { ...cat, isBlocked: !cat.isBlocked } : cat
-          )
-        );
-        setTimeout(() => {
-          toast.success(response.data.message);
-        }, 500);
-      }
-    } catch (error: unknown) {
-      errorHandler(error);
-    } finally {
+      setCategories((prevCategories) =>
+        prevCategories.map((cat) =>
+          cat._id === id ? { ...cat, isBlocked: !cat.isBlocked } : cat
+        )
+      );
       setTimeout(() => {
-        setLoading(false);
+        toast.success(response.data.message);
       }, 500);
     }
+
+    setTimeout(() => {
+      setLoading(false);
+    }, 500);
   }, []);
+
   const notify = useCallback(
     (id: string) => {
       toast(
@@ -361,14 +332,14 @@ const Category_mgt: React.FC = () => {
         {/* Pagination component */}
         <div className="flex justify-center items-center mt-3 ">
           <Pagination
-            count={totalDocuments} // Total pages
-            page={currentPage} // Current page
-            onChange={handlePageChange} // Page change handler
-            color="standard" // Pagination color
-            shape="circular" // Rounded corners
-            size="small" // Size of pagination
-            siblingCount={1} // Number of sibling pages shown next to the current page
-            boundaryCount={1} // Number of boundary pages to show at the start and end
+            count={totalDocuments} 
+            page={currentPage}
+            onChange={handlePageChange}
+            color="standard" 
+            shape="circular" 
+            size="small"
+            siblingCount={1} 
+            boundaryCount={1} 
           />
         </div>
       </div>

@@ -3,18 +3,7 @@ import TimePickers from "./TimePickers";
 import moment, { Moment } from "moment";
 import DatePickers from "./DatePickers";
 import MuiInput from "./MuiInput";
-
-
-
-const DAYS = [
-  "Sunday",
-  "Monday",
-  "Tuesday",
-  "Wednesday",
-  "Thursday",
-  "Friday",
-  "Saturday",
-];
+import { DAYS } from "../../../Constants/const Values";
 
 export const RecurringScheduleForm = ({
   startDate,
@@ -104,7 +93,7 @@ export const RecurringScheduleForm = ({
           Select Days
         </label>
         <div className="flex flex-wrap gap-2">
-          {DAYS.map((day) => (
+          {DAYS?.map((day) => (
             <button
               key={day}
               onClick={() => onDayToggle(day)}

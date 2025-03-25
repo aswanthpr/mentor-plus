@@ -1,10 +1,3 @@
-import { ReactNode } from "react";
-
-interface TableProps {
-  headers: string[];
-  children: ReactNode;
-}
-
 export const Table = ({ headers, children }: TableProps) => {
   return (
     <div className="overflow-x-auto mt-2">

@@ -1,6 +1,5 @@
-
- interface Iprotector {
-    element: React.ReactNode;
+interface Iprotector {
+  element: React.ReactNode;
 }
 interface Inotify {
   [key: string]: Inotification[];
@@ -9,7 +8,7 @@ interface IAccessToken {
   accessToken: string;
   role: string;
 }
-interface ImentorToken { 
+interface ImentorToken {
   mentorToken: string;
   mentorRole: string;
 }
@@ -158,7 +157,7 @@ interface IMentor {
   resume?: File | null;
   profileImage?: Blob | null;
   reviews?: Ireview[];
-  averageRating: number;
+  averageRating?: number;
 }
 interface IFormData {
   name: string;
@@ -454,4 +453,9 @@ interface Transaction {
   customer: string;
   amount: number;
   notes: string;
+}
+interface MentorFilters {
+  categories: Category[];
+  skills: string[];
+  rating: number;
 }

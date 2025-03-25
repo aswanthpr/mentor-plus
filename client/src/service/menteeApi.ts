@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { AxiosResponse } from "axios";
 import { protectedAPI, unProtectedAPI } from "../Config/Axios";
+import { errorHandler } from "../Utils/Reusable/Reusable";
 
 //MENTEE-ONLY//============================================================
 export const fetchSlotBookingPageData = async (mentorId: string) => {
@@ -55,6 +56,7 @@ export const fetchCanceSession = async (
       }
     );
   } catch (error: unknown) {
+    errorHandler(error);
     console.log(error instanceof Error ? error.message : String(error));
   }
 };
@@ -142,6 +144,7 @@ export const fetchBookingSlots = async (
       },
     });
   } catch (error: unknown) {
+    errorHandler(error);
     console.log(error instanceof Error ? error.message : String(error));
   }
 };
@@ -175,6 +178,7 @@ export const fetchCreateQuestion = async (
   try {
     return await protectedAPI.post(`/mentee/qa/add-question/`, question);
   } catch (error: unknown) {
+    errorHandler(error);
     console.log(error instanceof Error ? error.message : String(error));
   }
 };
@@ -190,6 +194,7 @@ export const fetchEditQuestion = async (
       filter,
     });
   } catch (error: unknown) {
+    errorHandler(error);
     console.log(error instanceof Error ? error.message : String(error));
   }
 };
@@ -200,6 +205,7 @@ export const fetchDeleteQuestion = async (
   try {
     return await protectedAPI.delete(`/mentee/qa/delete/${questionId}`);
   } catch (error: unknown) {
+    errorHandler(error);
     console.log(error instanceof Error ? error.message : String(error));
   }
 };
@@ -216,6 +222,7 @@ export const fetchCreateAnswer = async (
       userType,
     });
   } catch (error: unknown) {
+    errorHandler(error);
     console.log(error instanceof Error ? error.message : String(error));
   }
 };
@@ -230,6 +237,7 @@ export const fetchEditAnswer = async (
       answerId,
     });
   } catch (error: unknown) {
+     errorHandler(error);
     console.log(error instanceof Error ? error.message : String(error));
   }
 };
@@ -263,6 +271,7 @@ export const fetchImageChange = async (
       }
     );
   } catch (error: unknown) {
+    errorHandler(error);
     console.log(error instanceof Error ? error.message : String(error));
   }
 };
@@ -276,6 +285,7 @@ export const fetchMenteeChangePassword = async (
       passFormData
     );
   } catch (error: unknown) {
+    errorHandler(error);
     console.log(error instanceof Error ? error.message : String(error));
   }
 };
@@ -307,6 +317,7 @@ export const fetchMenteeEditAnswer = async (
       answerId,
     });
   } catch (error: unknown) {
+    errorHandler(error);
     console.log(error instanceof Error ? error.message : String(error));
   }
 };
@@ -330,6 +341,7 @@ export const fetchExplorePage = async (
       },
     });
   } catch (error: unknown) {
+    errorHandler(error);
     console.log(error instanceof Error ? error.message : String(error));
   }
 };
@@ -339,6 +351,7 @@ export const fetchMenteeSignup = async (
   try {
     return await unProtectedAPI.post("/auth/signup", formData);
   } catch (error: unknown) {
+    errorHandler(error);
     console.log(error instanceof Error ? error.message : String(error));
   }
 };
@@ -353,6 +366,7 @@ export const fetchVerifyOtp = async (
       type: "signup",
     });
   } catch (error: unknown) {
+    errorHandler(error);
     console.log(error instanceof Error ? error.message : String(error));
   }
 };
@@ -362,6 +376,7 @@ export const fetchResendOtp = async (
   try {
     return await unProtectedAPI.post("/auth/resend-otp", { email });
   } catch (error: unknown) {
+     errorHandler(error);
     console.log(error instanceof Error ? error.message : String(error));
   }
 };
@@ -372,6 +387,7 @@ export const fetchMenteeLogin = async (
     const response = await unProtectedAPI.post(`/auth/login/mentee`, formData);
     return response;
   } catch (error: unknown) {
+     errorHandler(error);
     console.log(error instanceof Error ? error.message : String(error));
   }
 };

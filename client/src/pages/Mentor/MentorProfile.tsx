@@ -3,7 +3,6 @@ import { toast } from "react-toastify";
 import { Link } from "react-router-dom";
 import Modal from "../../components/Common/common4All/Modal";
 import Spinner from "../../components/Common/common4All/Spinner";
-import { axiosInstance } from "../../Config/mentorAxios";
 import SkillInput from "../../components/Auth/SkillInput";
 import FileUpload from "../../components/Auth/FileUpload";
 import InputField from "../../components/Auth/InputField";
@@ -43,7 +42,14 @@ import {
   fetchChangeImage,
   fetchChangePassword,
   fetchEditProfile,
+  fetchMentorProfileData,
 } from "../../service/mentorApi";
+import {
+  MENTE_PROFILE_PASS_CHANGE,
+  MENTOR_PROFILE_FORM_ERROR_INITIAL,
+  MENTOR_PROFILE_FORM_INITIAL,
+} from "../../Constants/initialStates";
+import { HttpStatusCode } from "axios";
 
 const MentorProfile: React.FC = () => {
   const [isPasswordVisible, setIsPasswordVisible] = useState<boolean>(false);
@@ -60,77 +66,39 @@ const MentorProfile: React.FC = () => {
   const [showEditPassword, setShowEditPassword] = useState(false);
   const [mentor, setMentor] = useState<IMentor | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
-  const [formData, setFormData] = useState<Partial<IMentor>>({
-    _id: "",
-    name: "",
-    email: "",
-    phone: "",
-    bio: "",
-    linkedinUrl: "",
-    githubUrl: "",
-    jobTitle: "",
-    category: "",
-    skills: [],
-    resume: null,
-  });
-  const [errors, setErrors] = useState<IMentorErrors>({
-    name: "",
-    email: "",
-    phone: "",
-    linkedinUrl: "",
-    githubUrl: "",
-    bio: "",
-    jobTitle: "",
-    category: "",
-    skills: "",
-    resume: "",
-  });
+  const [formData, setFormData] = useState<Partial<IMentor>>(
+    MENTOR_PROFILE_FORM_INITIAL
+  );
+  const [errors, setErrors] = useState<IMentorErrors>(
+    MENTOR_PROFILE_FORM_ERROR_INITIAL
+  );
   const [editPassword, setEditPassword] = useState<IPass>({
     currentPassword: "",
     newPassword: "",
     confirmPassword: "",
   });
-  const [passError, setPassError] = useState<IPass>({
-    currentPassword: "",
-    newPassword: "",
-    confirmPassword: "",
-  });
+  const [passError, setPassError] = useState<IPass>(MENTE_PROFILE_PASS_CHANGE);
 
   useEffect(() => {
     const menterData = async () => {
-      try {
-        setLoading(true);
-        const response = await axiosInstance.get("/mentor/profile");
+      setLoading(true);
+      const response = await fetchMentorProfileData();
 
-        if (response.status == 200 && response.data.success) {
-          setMentor(response.data.result);
-          setFormData(response.data.result);
-          setCategories(response.data.categories);
-          setSkills(response.data.mentor?.skills);
-        }
-      } catch (error: unknown) {
-        errorHandler(error);
-      } finally {
-        setLoading(false);
+      if (response.status == HttpStatusCode?.Ok && response.data.success) {
+        setMentor(response.data?.result);
+        setFormData(response.data?.result);
+        setCategories(response.data?.categories);
+        setSkills(response.data.mentor?.skills);
       }
+
+      setLoading(false);
     };
 
     menterData();
   }, []);
 
   const handleValidation = useCallback(() => {
-    const formErrors: IMentorErrors = {
-      name: "",
-      email: "",
-      phone: "",
-      bio: "",
-      githubUrl: "",
-      linkedinUrl: "",
-      jobTitle: "",
-      category: "",
-      skills: "",
-      resume: "",
-    };
+    const formErrors: IMentorErrors = MENTOR_PROFILE_FORM_ERROR_INITIAL;
 
     formErrors.bio = validateBio(formData?.bio || "");
     formErrors.name = validateNames(formData?.name || "");
@@ -175,22 +143,11 @@ const MentorProfile: React.FC = () => {
     return Object.values(passErrors).every((error) => error === undefined);
   }, [
     editPassword?.confirmPassword,
-    editPassword.currentPassword,
-    editPassword.newPassword,
+    editPassword?.currentPassword,
+    editPassword?.newPassword,
   ]);
   const modalClose = useCallback(() => {
-    setErrors({
-      name: "",
-      email: "",
-      phone: "",
-      linkedinUrl: "",
-      githubUrl: "",
-      bio: "",
-      jobTitle: "",
-      category: "",
-      skills: "",
-      resume: "",
-    });
+    setErrors(MENTOR_PROFILE_FORM_ERROR_INITIAL);
     setResume(null);
     setEditModalOpen(false);
   }, []);
@@ -218,7 +175,7 @@ const MentorProfile: React.FC = () => {
 
       const response = await fetchEditProfile(Data);
 
-      if (response?.status === 200 && response?.data?.success) {
+      if (response?.status === HttpStatusCode?.Ok && response?.data?.success) {
         setFormData(response.data?.result);
         setMentor(response.data?.result);
         toast.success(response.data?.message);
@@ -247,15 +204,11 @@ const MentorProfile: React.FC = () => {
 
   const passModalClose = useCallback(() => {
     setShowEditPassword(false);
-    setEditPassword({
-      currentPassword: "",
-      newPassword: "",
-      confirmPassword: "",
-    });
+    setEditPassword(MENTE_PROFILE_PASS_CHANGE);
   }, []);
 
   const handleChangePassword = useCallback(async () => {
-    try {
+   
       if (!handlePasswordValidation()) {
         return; // Stop if validation fails
       }
@@ -267,15 +220,13 @@ const MentorProfile: React.FC = () => {
 
       const response = await fetchChangePassword(passFormData);
 
-      if (response?.status === 200 && response?.data?.success) {
+      if (response?.status === HttpStatusCode?.Ok && response?.data?.success) {
         toast.success(response.data?.message);
         passModalClose();
       }
-    } catch (error: unknown) {
-      errorHandler(error);
-    } finally {
+
       setLoading(false);
-    }
+    
   }, [
     editPassword?.currentPassword,
     editPassword?.newPassword,
@@ -304,7 +255,7 @@ const MentorProfile: React.FC = () => {
 
   const handleCropComplete = useCallback(
     async (profileImage: Blob) => {
-      try {
+   
         setShowcropper(false);
         setLoading(true);
 
@@ -313,7 +264,7 @@ const MentorProfile: React.FC = () => {
           formData?._id as string
         );
 
-        if (response.data && response.data?.status == 200) {
+        if (response.data && response.data?.status == HttpStatusCode?.Ok) {
           toast.success(response.data?.message);
 
           setMentor((prevMentee) => {
@@ -326,11 +277,9 @@ const MentorProfile: React.FC = () => {
             };
           });
         }
-      } catch (error: unknown) {
-        errorHandler(error);
-      } finally {
+
         setLoading(false);
-      }
+     
     },
     [formData._id]
   );

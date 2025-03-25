@@ -11,28 +11,25 @@ import {
   validatePassword,
   validateConfirmPassword,
 } from "../../Validation/Validation";
-import { errorHandler } from "../../Utils/Reusable/Reusable";
 import {
   fetchMenteeSignup,
   fetchResendOtp,
   fetchVerifyOtp,
 } from "../../service/menteeApi";
 import bgImg from "../../Asset/background.jpg";
-
-
+import { MENTEE_SIGNUP_FORM_INIT } from "../../Constants/initialStates";
+import { HttpStatusCode } from "axios";
+import { Messages, routesObj } from "../../Constants/message";
 
 const SignupForm: React.FC = () => {
   const navigate = useNavigate();
   const [isPasswordVisible, setIsPasswordVisible] = useState<boolean>(false);
   const [isConfirmPasswordVisible, setIsConfirmPasswordVisible] =
     useState<boolean>(false);
-  const [formData, setFormData] = useState<ISignupData>({
-    name: "",
-    email: "",
-    password: "",
-    confirmPassword: "",
-  });
-  const [errors, setErrors] = useState<ISignupErrors>({});
+  const [formData, setFormData] = useState<ISignupData>(
+    MENTEE_SIGNUP_FORM_INIT
+  );
+  const [errors, setErrors] = useState<ISignupErrors>(MENTEE_SIGNUP_FORM_INIT);
   const [showOtpModal, setShowOtpModal] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(false);
 
@@ -82,22 +79,24 @@ const SignupForm: React.FC = () => {
 
       if (Object.keys(newErrors).length === 0) {
         setLoading(true);
-        try {
-          const response = await fetchMenteeSignup(formData);
 
-          if (response.status == 200) {
-            setLoading(false);
-            setShowOtpModal(true);
-            setFormData((pre)=>({...pre,confirmPassword:'',name:'',password:''}))
-            toast.success(response.data.message);
-          } else {
-            toast.error("Failed to send OTP");
-          }
-        } catch (error) {
-          console.error("Error during signup", error);
-        } finally {
+        const response = await fetchMenteeSignup(formData);
+
+        if (response.status == HttpStatusCode?.Ok) {
           setLoading(false);
+          setShowOtpModal(true);
+          setFormData((pre) => ({
+            ...pre,
+            confirmPassword: "",
+            name: "",
+            password: "",
+          }));
+          toast.success(response.data?.message);
+        } else {
+          toast.error(Messages?.OTP_FAILED_TO_SEND);
         }
+
+        setLoading(false);
       }
     },
     [formData, validateField]
@@ -106,42 +105,37 @@ const SignupForm: React.FC = () => {
   const handleVerifyOtp = useCallback(
     async (otp: string) => {
       setLoading(true);
-      try {
-        const { email } = formData;
 
-        setLoading(true);
-        console.log("Verifying OTP:", otp, email);
-        const response = await fetchVerifyOtp(email, otp);
+      const { email } = formData;
 
-        if (response.status == 200 && response.data.success) {
-          toast.success(response.data.message);
-          setShowOtpModal(false);
-          navigate("/auth/login/mentee");
-        } else {
-          toast.error(response.data.message);
-        }
-      } catch (error: unknown) {
-        errorHandler(error);
-      } finally {
-        setLoading(true);
+      setLoading(true);
+      console.log("Verifying OTP:", otp, email);
+      const response = await fetchVerifyOtp(email, otp);
+
+      if (response.status == HttpStatusCode?.Ok && response.data.success) {
+        toast.success(response.data.message);
+        setShowOtpModal(false);
+        navigate(routesObj?.MENTEE_LOGIN);
+      } else {
+        toast.error(response.data.message);
       }
+
+      setLoading(true);
     },
     [formData, navigate]
   );
 
   const handleResendOtp = useCallback(async () => {
-    try {
+  
       const { email } = formData;
       const response = await fetchResendOtp(email);
 
-      if (response.status == 200) {
+      if (response.status == HttpStatusCode?.Ok) {
         toast.success(response.data.message || "OTP resend successfull");
       } else {
-        toast.error("Failed to resend OTP");
+        toast.error(Messages?.OTP_FAILED_TO_SEND);
       }
-    } catch (error: unknown) {
-      errorHandler(error);
-    }
+   
   }, [formData]);
 
   return (

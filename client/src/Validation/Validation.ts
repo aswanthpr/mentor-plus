@@ -1,4 +1,8 @@
 import * as EmailValidator from "email-validator";
+import { Messages } from "../Constants/message";
+import { MENTOR_APPLY_INITIAL } from "../Constants/initialStates";
+
+
 export const linkedinUrlPattern =
   /^https:\/\/www\.linkedin\.com\/in\/[a-zA-Z0-9_-]+\/?$/;
 export const githubUrlPattern = /^https:\/\/github\.com\/[a-zA-Z0-9_-]+\/?$/;
@@ -216,3 +220,142 @@ export const ValidatingIsOverlapping = (
   }
   return false;
 };
+export const validate_Otp = (otp: string): string => {
+  if (!otp) {
+    return Messages?.OTP_REQUIRED;
+  }
+  if (otp.length !== 6) {
+    return Messages.OTP_MUSTBE_6;
+  }
+  if (!/^\d+$/.test(otp)) {
+    return Messages?.OTP_MUST_BE_NUMBERS;
+  }
+  return "";
+};
+export const validateProfilePass  =(newPassword:string,currentPassword:string,confirmPassword:string)=>{
+  const newErrors: Partial<Record<keyof IPass, string>> = {};
+
+  if (!currentPassword) {
+    newErrors.currentPassword = "Current password is required";
+  }
+
+  if (!newPassword) {
+    newErrors.newPassword = "New password is required";
+  } else if (newPassword.length < 8) {
+    newErrors.newPassword = "Password must be at least 8 characters";
+  } else if (!/[A-Z]/.test(newPassword)) {
+    newErrors.newPassword =
+      "Password must contain at least one uppercase letter";
+  } else if (!/[a-z]/.test(newPassword)) {
+    newErrors.newPassword =
+      "Password must contain at least one lowercase letter";
+  } else if (!/[0-9]/.test(newPassword)) {
+    newErrors.newPassword = "Password must contain at least one number";
+  } else if (!/[!@#$%^&*]/.test(newPassword)) {
+    newErrors.newPassword =
+      "Password must contain at least one special character (!@#$%^&*)";
+  }
+
+  if (!confirmPassword) {
+    newErrors.confirmPassword = "Please confirm your password";
+  } else if (confirmPassword !== newPassword) {
+    newErrors.confirmPassword = "Passwords do not match";
+  }
+  return newErrors;
+}
+
+
+export const MentorApplyForm =(formData:IFormData,
+  resume:File|null,skills:string[],profileImage:Blob|null
+)=>{
+const formErrors: IErrors = { ...MENTOR_APPLY_INITIAL?.errors };
+
+    let isValid = true;
+
+    if (!formData.name || formData.name.length < 3) {
+      formErrors.name = "Name is required and must be at least 3 characters.";
+      isValid = false;
+    }
+
+    if (!formData.email || !/\S+@\S+\.\S+/.test(formData.email)) {
+      formErrors.email = "Valid email is required.";
+      isValid = false;
+    }
+
+    if (!formData.password || formData.password.length < 6) {
+      formErrors.password = "Password must be at least 6 characters.";
+      isValid = false;
+    }
+
+    if (!formData.phone || formData.phone.length < 10) {
+      formErrors.phone = "Phone number must be at least 10 characters.";
+      isValid = false;
+    }
+
+    if (
+      !formData.jobTitle ||
+      formData.jobTitle.length < 4 ||
+      formData.jobTitle.length > 50 ||
+      !noNumbersOrSymbols.test(formData.jobTitle)
+    ) {
+      formErrors.jobTitle =
+        "Job title must be between 4-50 characters and contain no numbers or symbols.";
+      isValid = false;
+    }
+
+    if (formData.category === "") {
+      formErrors.category = "Please select a valid category.";
+      isValid = false;
+    }
+    if (formData.bio.length < 20 || formData.bio.length < 200) {
+      formErrors.bio = "Bio must be between 20 and 200 characters.";
+      isValid = false;
+    }
+    if (
+      skills.length === 0 ||
+      skills.some(
+        (skill) => skill.length < 3 || !noNumbersOrSymbols.test(skill)
+      )
+    ) {
+      formErrors.skills =
+        "Skills must be at least 3 characters long and contain no numbers or symbols.";
+      isValid = false;
+    }
+
+    if (!linkedinUrlPattern.test(formData.linkedinUrl)) {
+      formErrors.linkedinUrl =
+        "Please enter a valid LinkedIn URL (https://www.linkedin.com/in/...).";
+      isValid = false;
+    }
+
+    if (!githubUrlPattern.test(formData.githubUrl)) {
+      formErrors.githubUrl =
+        "Please enter a valid GitHub URL (https://github.com/...).";
+      isValid = false;
+    }
+
+    if (!profileImage) {
+      formErrors.profileImage =
+        "Profile image is required and must be in JPEG, PNG, or JPG format.";
+      isValid = false;
+    }
+
+    if (
+      resume &&
+      (resume.size > 2 * 1024 * 1024 ||
+        ![
+          "application/pdf",
+          "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+        ].includes(resume.type))
+    ) {
+      formErrors.resume =
+        "Resume must be a PDF or DOCX file and under 2MB in size.";
+      isValid = false;
+    }
+    if (!resume) {
+      formErrors.resume = "resume cannot be empty";
+    }
+
+  
+    return {formErrors,isValid};
+}

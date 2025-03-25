@@ -5,17 +5,19 @@ import { useDispatch } from "react-redux";
 import { toast } from "react-toastify";
 import { Link } from "react-router-dom";
 
-
 import { AppDispatch } from "../../Redux/store";
 import { setAccessToken } from "../../Redux/menteeSlice";
 import { setMentorToken } from "../../Redux/mentorSlice";
 import { fetchMenteeLogin } from "../../service/menteeApi";
 import { fetchMentorLogin } from "../../service/mentorApi";
-import { errorHandler } from "../../Utils/Reusable/Reusable";
 import InputField from "../../components/Auth/InputField";
 import Spinner from "../../components/Common/common4All/Spinner";
 import { validateEmail, validatePassword } from "../../Validation/Validation";
-import bgImg from "../../Asset/background.jpg"
+import bgImg from "../../Asset/background.jpg";
+import { MENTEE_LOGIN_FORMDATA } from "../../Constants/initialStates";
+import { HttpStatusCode } from "axios";
+import { routesObj } from "../../Constants/message";
+
 const Login: React.FC = () => {
   const dispatch: AppDispatch = useDispatch();
 
@@ -23,12 +25,11 @@ const Login: React.FC = () => {
   const location = useLocation();
 
   const [isPasswordVisible, setIsPasswordVisible] = useState<boolean>(false);
-  const [formData, setFormData] = useState<LoginFormData>({
-    email: "",
-    password: "",
-  });
+  const [formData, setFormData] = useState<LoginFormData>(
+    MENTEE_LOGIN_FORMDATA
+  );
 
-  const [errors, setErrors] = useState<LoginFormError>({});
+  const [errors, setErrors] = useState<LoginFormError>(MENTEE_LOGIN_FORMDATA);
   const [loading, setLoading] = useState<boolean>(false);
 
   const getActivePath = useCallback((path: string) => {
@@ -72,69 +73,64 @@ const Login: React.FC = () => {
 
   const handleSubmit = useCallback(
     async (e: React.FormEvent<HTMLFormElement>) => {
-      try {
-        e.preventDefault();
-        const newErrors: LoginFormError = {};
-        (Object.keys(formData) as Array<keyof LoginFormData>).forEach((key) => {
-          const error = validateField(key, formData[key]);
-          if (error) {
-            newErrors[key] = error;
-          }
-        });
-        setErrors(newErrors);
-
-        if (Object.keys(newErrors).length === 0) {
-          if (userType == "mentee") {
-            const response = await fetchMenteeLogin(formData);
-
-            if (response?.status == 200 && response?.data?.accessToken) {
-              dispatch(
-                setAccessToken({
-                  accessToken: response.data?.accessToken,
-                  role: "mentee",
-                })
-              );
-
-              toast.success(response.data.message);
-
-              navigate("/mentee/home");
-            }else{
-             
-                console.log(response,";aksjdjfk")
-                toast.error(response?.data?.message)
-            
-            }
-          }
-          if (userType == "mentor") {
-            setLoading(true);
-            const response = await fetchMentorLogin(formData);
-
-            if (response.status == 200 && response.data.success) {
-              dispatch(
-                setMentorToken({
-                  mentorToken: response.data?.accessToken,
-                  mentorRole: "mentor",
-                })
-              );
-              console.log(
-                response.data?.accessToken,
-                "thsi is from redux",
-                response.data
-              );
-
-              navigate("/mentor/home");
-            }
-            toast.success(response.data.message);
-          }
-         
+      e.preventDefault();
+      const newErrors: LoginFormError = {};
+      (Object.keys(formData) as Array<keyof LoginFormData>).forEach((key) => {
+        const error = validateField(key, formData[key]);
+        if (error) {
+          newErrors[key] = error;
         }
-      } catch (error: unknown) {
-        errorHandler(error);
-      } finally {
+      });
+      setErrors(newErrors);
+
+      if (Object.keys(newErrors).length === 0) {
+        if (userType == "mentee") {
+          const response = await fetchMenteeLogin(formData);
+
+          if (
+            response?.status == HttpStatusCode?.Ok &&
+            response?.data?.accessToken
+          ) {
+            dispatch(
+              setAccessToken({
+                accessToken: response.data?.accessToken,
+                role: "mentee",
+              })
+            );
+
+            toast.success(response.data.message);
+
+            navigate(routesObj?.MENTEE_HOME);
+          } else {
+            toast.error(response?.data?.message);
+          }
+        }
+        if (userType == "mentor") {
+          setLoading(true);
+          const response = await fetchMentorLogin(formData);
+
+          if (response.status == HttpStatusCode?.Ok && response.data.success) {
+            dispatch(
+              setMentorToken({
+                mentorToken: response.data?.accessToken,
+                mentorRole: "mentor",
+              })
+            );
+            console.log(
+              response.data?.accessToken,
+              "thsi is from redux",
+              response.data
+            );
+
+            navigate(routesObj?.MENTOR_HOME);
+          }
+          toast.success(response.data.message);
+        }
         setTimeout(() => {
           setLoading(false);
         }, 500);
       }
+
     },
     [dispatch, formData, navigate, userType, validateField]
   );
@@ -146,13 +142,14 @@ const Login: React.FC = () => {
   }, []);
 
   return (
-    <div className="min-h-screen flex flex-col justify-center py-12 sm:px-6 lg:px-8 font-poppins"
-    style={{
-      backgroundImage: `url(${bgImg})`,
-      backgroundSize: "cover",
-      backgroundPosition: "center",
-      backgroundRepeat: "no-repeat",
-    }}
+    <div
+      className="min-h-screen flex flex-col justify-center py-12 sm:px-6 lg:px-8 font-poppins"
+      style={{
+        backgroundImage: `url(${bgImg})`,
+        backgroundSize: "cover",
+        backgroundPosition: "center",
+        backgroundRepeat: "no-repeat",
+      }}
     >
       {loading && <Spinner />}
       <div className="sm:mx-auto sm:w-full sm:max-w-md">
@@ -242,7 +239,7 @@ const Login: React.FC = () => {
                 aria-label={
                   isPasswordVisible ? "Hide Password" : "Show Password"
                 }
-                className="absolute right-4 top-12 transform -translate-y-1/2 text-gray-400" 
+                className="absolute right-4 top-12 transform -translate-y-1/2 text-gray-400"
               >
                 {isPasswordVisible ? <EyeClosedIcon /> : <EyeIcon />}
               </button>

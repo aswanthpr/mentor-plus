@@ -6,7 +6,6 @@ import { ArrowUpDown, Filter, Search, User } from "lucide-react";
 import SessionCard from "../../components/Common/Bookings/SessionCard";
 import TabNavigation from "../../components/Common/Bookings/TabNavigation";
 import InputField from "../../components/Auth/InputField";
-import { errorHandler } from "../../Utils/Reusable/Reusable";
 import { RootState } from "../../Redux/store";
 import RatingModal from "../../components/Common/Bookings/RatingModal";
 import {
@@ -16,14 +15,13 @@ import {
 } from "../../service/menteeApi";
 import { joinSessionHandler } from "../../service/commonApi";
 import { Pagination } from "@mui/material";
+import { HttpStatusCode } from "axios";
 
 const Boooking: React.FC = () => {
   const limit = 5;
 
   const navigate = useNavigate();
-  const [activeTab, setActiveTab] = useState<TsessionTab>(
-    "upcoming"
-  );
+  const [activeTab, setActiveTab] = useState<TsessionTab>("upcoming");
   const [searchQuery, setSearchQuery] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [showRatingModal, setShowRatingModal] = useState(false);
@@ -37,24 +35,19 @@ const Boooking: React.FC = () => {
   const role = useSelector((state: RootState) => state?.mentee.role);
   useEffect(() => {
     const fetchData = async () => {
-      try {;
+      const response = await fetchBookingSlots(
+        activeTab,
+        searchQuery,
+        sortField,
+        sortOrder,
+        statusFilter,
+        currentPage,
+        limit
+      );
 
-        const response = await fetchBookingSlots(
-          activeTab,
-          searchQuery,
-          sortField,
-          sortOrder,
-          statusFilter,
-          currentPage,
-          limit
-        );
-
-        if (response?.status == 200 && response?.data?.success) {
-          setSessions(response?.data?.slots);
-          setTotalDocuments(response?.data?.totalPage);
-        }
-      } catch (error: unknown) {
-        errorHandler(error);
+      if (response?.status == HttpStatusCode?.Ok && response?.data?.success) {
+        setSessions(response?.data?.slots);
+        setTotalDocuments(response?.data?.totalPage);
       }
     };
     fetchData();
@@ -62,25 +55,17 @@ const Boooking: React.FC = () => {
 
   const handleCancelSession = useCallback(
     async (sessionId: string, reason: string, customReason: string) => {
-      try {
-        const response = await fetchCanceSession(
-          sessionId,
-          customReason,
-          reason
-        );
+      const response = await fetchCanceSession(sessionId, customReason, reason);
 
-        if (response?.status === 200 && response?.data.success) {
-          setSessions(
-            sessions.map((session) =>
-              session?._id === sessionId
-                ? { ...session, status: "CANCEL_REQUESTED" }
-                : session
-            )
-          );
-          toast.success(response?.data?.message);
-        }
-      } catch (error: unknown) {
-        errorHandler(error);
+      if (response?.status === HttpStatusCode?.Ok && response?.data.success) {
+        setSessions(
+          sessions.map((session) =>
+            session?._id === sessionId
+              ? { ...session, status: "CANCEL_REQUESTED" }
+              : session
+          )
+        );
+        toast.success(response?.data?.message);
       }
     },
     [sessions]
@@ -99,7 +84,7 @@ const Boooking: React.FC = () => {
         rating
       );
       console.log(response?.data);
-      if (response?.data.success && response?.status == 200) {
+      if (response?.data.success && response?.status == HttpStatusCode?.Ok) {
         toast.success(response?.data?.message);
 
         setSessions((prev) =>
@@ -137,7 +122,7 @@ const Boooking: React.FC = () => {
     async (sessionId: string, sessionCode: string, role: string) => {
       console.log(sessionCode, sessionId, role);
       const response = await joinSessionHandler(sessionId, sessionCode, role);
-      if (response?.status == 200 && response?.data?.success) {
+      if (response?.status == HttpStatusCode?.Ok && response?.data?.success) {
         navigate(
           `/${role}/${role == "mentor" ? "session" : "bookings"}/${
             response?.data?.session_Code
@@ -182,7 +167,9 @@ const Boooking: React.FC = () => {
                 type={"search"}
                 placeholder="Search questions or authors..."
                 value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                  setSearchQuery(e.target.value)
+                }
                 className="pl-10"
               />
             </div>
@@ -217,7 +204,7 @@ const Boooking: React.FC = () => {
               <ArrowUpDown size={20} className="text-gray-400" />
               <select
                 value={`${sortField}-${sortOrder}`}
-                onChange={(e) => {
+                onChange={(e: React.ChangeEvent<HTMLSelectElement>) => {
                   const [field, order] = e.target.value.split("-");
                   setSortField(field as TSort);
                   setSortOrder(order as TSortOrder);

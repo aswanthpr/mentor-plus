@@ -5,7 +5,6 @@ import { useCallback, useEffect, useState } from "react";
 import { ArrowUpDown, Filter, Search } from "lucide-react";
 import Button from "../../components/Auth/Button";
 import InputField from "../../components/Auth/InputField";
-import { errorHandler } from "../../Utils/Reusable/Reusable";
 import ConfirmToast from "../../components/Common/common4All/ConfirmToast";
 import { TimeSlotCard } from "../../components/Common/Schedule/TimeSlotCard";
 import { ScheduleModal } from "../../components/Common/Schedule/ScheduleModal";
@@ -14,7 +13,7 @@ import {
   deleteTimeSlots,
   fetchTimeSlots,
 } from "../../service/mentorApi";
-
+import { HttpStatusCode } from "axios";
 
 const Schedule: React.FC = () => {
   const limit = 15;
@@ -22,11 +21,12 @@ const Schedule: React.FC = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [timeSlots, setTimeSlots] = useState<Itime[]>([]);
-  const [sortField, setSortField] = useState<'startDate'>("startDate");
+  const [sortField, setSortField] = useState<"startDate">("startDate");
   const [sortOrder, setSortOrder] = useState<TSortOrder>("asc");
-  const [statusFilter, setStatusFilter] = useState< "all"|"today">("all");
+  const [statusFilter, setStatusFilter] = useState<TscheduleFilter>("all");
   const [totalDocuments, setTotalDocuments] = useState<number>(0);
   const [currentPage, setCurrentPage] = useState(1);
+
   useEffect(() => {
     const fetchData = async () => {
       const response = await fetchTimeSlots(
@@ -38,7 +38,7 @@ const Schedule: React.FC = () => {
         limit
       );
 
-      if (response?.status === 200 && response?.data?.success) {
+      if (response?.status === HttpStatusCode?.Ok && response?.data?.success) {
         setTimeSlots(response?.data?.timeSlots);
         setTotalDocuments(response?.data?.totalPage);
       }
@@ -69,16 +69,13 @@ const Schedule: React.FC = () => {
 
       const confirmDelete = async (id: string) => {
         toast.dismiss();
-        try {
-          const response = await deleteTimeSlots(id);
 
-          if (response?.status == 200 && response?.data.success) {
-            toast.success(response?.data.message);
-            setTimeSlots(timeSlots.filter((slot) => slot._id !== id));
-            console.log(response?.data.message);
-          }
-        } catch (error: unknown) {
-          errorHandler(error);
+        const response = await deleteTimeSlots(id);
+
+        if (response?.status == HttpStatusCode?.Ok && response?.data.success) {
+          toast.success(response?.data.message);
+          setTimeSlots(timeSlots.filter((slot) => slot._id !== id));
+          console.log(response?.data.message);
         }
       };
     },
@@ -87,35 +84,28 @@ const Schedule: React.FC = () => {
 
   const handleSaveSchedule = useCallback(
     async (scheduleData: { type: string; schedule: TimeSlot[] }) => {
-      try {
-        console.log(scheduleData, "thsi si final from frontend");
-        const response = await createNewSlots(scheduleData);
+      console.log(scheduleData, "thsi si final from frontend");
+      const response = await createNewSlots(scheduleData);
 
-        if (response?.status == 200 && response?.data?.success) {
-          toast.success(response?.data?.message);
-          console.log(response?.data?.timeSlots, "thsi si timeslots");
-          // setTimeSlots((pre) => [...response.data.timeSlots, ...pre]);
+      if (response?.status == HttpStatusCode?.Ok && response?.data?.success) {
+        toast.success(response?.data?.message);
+        console.log(response?.data?.timeSlots, "thsi si timeslots");
+        // setTimeSlots((pre) => [...response.data.timeSlots, ...pre]);
 
-          const formattedSlots = response?.data?.timeSlots.map(
-            (slot: Itime) => ({
-              ...slot,
-              startDate: moment(slot.startDate).toISOString(),
-              slots: slot.slots!.map((s: IslotField) => ({
-                ...s,
-                startTime: moment(s.startTime).toISOString(),
-                endTime: moment(s.endTime).toISOString(),
-              })),
-            })
-          );
+        const formattedSlots = response?.data?.timeSlots.map((slot: Itime) => ({
+          ...slot,
+          startDate: moment(slot.startDate).toISOString(),
+          slots: slot.slots!.map((s: IslotField) => ({
+            ...s,
+            startTime: moment(s.startTime).toISOString(),
+            endTime: moment(s.endTime).toISOString(),
+          })),
+        }));
 
-          setTimeSlots((pre) => [...formattedSlots, ...pre]);
-        }
-        setRefresh(!refresh);
-        console.error(response?.data, "failed resonse response");
-      } catch (error: unknown) {
-        console.log(error)
-        errorHandler(error);
+        setTimeSlots((pre) => [...formattedSlots, ...pre]);
       }
+      setRefresh(!refresh);
+      console.error(response?.data, "failed resonse response");
     },
     [refresh]
   );
@@ -158,7 +148,7 @@ const Schedule: React.FC = () => {
             <select
               value={statusFilter}
               onChange={(e: React.ChangeEvent<HTMLSelectElement>) =>
-                setStatusFilter(e.target.value as "all"|"today")
+                setStatusFilter(e.target.value as "all" | "today")
               }
               className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-orange-200 border-orange-500"
             >
@@ -174,15 +164,14 @@ const Schedule: React.FC = () => {
               value={`${sortField}-${sortOrder}`}
               onChange={(e) => {
                 const [field, order] = e.target.value.split("-");
-                setSortField(field as 'startDate');
+                setSortField(field as "startDate");
                 setSortOrder(order as TSortOrder);
               }}
               className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-orange-200 border-orange-500"
             >
               <option value="startDate-asc">Ascending</option>
               <option value="startDate-desc">Descending</option>
-              
-            </select> 
+            </select>
           </div>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">

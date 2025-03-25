@@ -12,7 +12,7 @@ import {
   EyeClosedIcon,
   EyeIcon,
 } from "lucide-react";
-import profile from '../../Asset/images.png';
+import profile from "../../Asset/images.png";
 import Modal from "../../components/Common/common4All/Modal";
 import { toast } from "react-toastify";
 import InputField from "../../components/Auth/InputField";
@@ -33,15 +33,26 @@ import {
 import { Link } from "react-router-dom";
 import ImageCropper from "../../components/Auth/ImageCropper";
 import Spinner from "../../components/Common/common4All/Spinner";
-import { fetchImageChange, fetchMenteeChangePassword, fetchProfileData, fetchProfileEdit } from "../../service/menteeApi";
-
-
+import {
+  fetchImageChange,
+  fetchMenteeChangePassword,
+  fetchProfileData,
+  fetchProfileEdit,
+} from "../../service/menteeApi";
+import {
+  MENTEE_EDIT_PASSWORD,
+  MENTEE_PROFILE_ERROR,
+  MENTEE_PROFILE_FORMDATA,
+} from "../../Constants/initialStates";
+import { Messages } from "../../Constants/message";
+import { HttpStatusCode } from "axios";
 
 const MenteeProfile: React.FC = () => {
   const [isPasswordVisible, setIsPasswordVisible] = useState<boolean>(false);
-  const [isConfirmPasswordVisible, setIsConfirmPasswordVisible] = useState<boolean>(false);
-  const [isCurrentPasswordVisible, setIsCurrentPasswordVisible] = useState<boolean>(false);
-
+  const [isConfirmPasswordVisible, setIsConfirmPasswordVisible] =
+    useState<boolean>(false);
+  const [isCurrentPasswordVisible, setIsCurrentPasswordVisible] =
+    useState<boolean>(false);
 
   const [profileImage, setProfileImage] = useState<File | null>(null);
   const [showCropper, setShowcropper] = useState<boolean>(false);
@@ -49,77 +60,46 @@ const MenteeProfile: React.FC = () => {
   const [showEditPassword, setShowEditPassword] = useState(false);
   const [mentee, setMentee] = useState<IMentee | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
-  const [formData, setFormData] = useState<IMentee>({
-    _id: "",
-    name: "",
-    email: "",
-    phone: "",
-    bio: "",
-    profileUrl: "",
-    linkedinUrl: "",
-    githubUrl: "",
-    education: "",
-    currentPosition: "",
-    isBlocked: false,
-    verified:true,
-    provider:"email"
-  });
-  const [errors, setErrors] = useState<IFormErrors>({
-    name: "",
-    email: "",
-    phone: "",
-    linkedinUrl: "",
-    githubUrl: "",
-    bio: "",
-    education: "",
-    currentPosition: "",
-  });
-  const [editPassword, setEditPassword] = useState<IPass>({
-    currentPassword: "",
-    newPassword: "",
-    confirmPassword: "",
-  });
-  const [passError, setPassError] = useState<IPass>({
-    currentPassword: "",
-    newPassword: "",
-    confirmPassword: "",
-  });
-  const handleFileChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
+  const [formData, setFormData] = useState<IMentee>(MENTEE_PROFILE_FORMDATA);
+  const [errors, setErrors] = useState<IFormErrors>(MENTEE_PROFILE_ERROR);
+  const [editPassword, setEditPassword] = useState<IPass>(MENTEE_EDIT_PASSWORD);
+  const [passError, setPassError] = useState<IPass>(MENTEE_EDIT_PASSWORD);
 
-    if (!file) return;
-    const error = validateImageFile(file);
+  const handleFileChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      const file = e.target.files?.[0];
 
-    if (error) {
-      toast.error("invalid file type");
-      console.log(error);
-      return;
-    }
-    setProfileImage(file);
-    setShowcropper(true);
-  },[]);
+      if (!file) return;
+      const error = validateImageFile(file);
+
+      if (error) {
+        toast.error(Messages?.FILE_CHANGE_ERROR);
+        console.log(error);
+        return;
+      }
+      setProfileImage(file);
+      setShowcropper(true);
+    },
+    []
+  );
 
   useEffect(() => {
     const menteeData = async () => {
-      try {
-        setLoading(true);
-        const response = await fetchProfileData()
-       
-        if (response?.status == 200 && response.data?.success) {
-          setMentee(response.data?.result);
-          setFormData(response.data?.result);
-        }
-      } catch (error: unknown) {
-        errorHandler(error);
-      } finally {
-        setLoading(false);
+      setLoading(true);
+      const response = await fetchProfileData();
+
+      if (response?.status == HttpStatusCode?.Ok && response.data?.success) {
+        setMentee(response.data?.result);
+        setFormData(response.data?.result);
       }
+
+      setLoading(false);
     };
 
     menteeData();
   }, []);
 
-  const handleValidation =useCallback( () => {
+  const handleValidation = useCallback(() => {
     const formErrors: IFormErrors = {};
 
     formErrors.name = validateNames(formData.name || "");
@@ -137,24 +117,41 @@ const MenteeProfile: React.FC = () => {
 
     // Return true if no errors exist
     return Object.values(formErrors).every((error) => error === "");
-  },[formData.bio, formData.currentPosition, formData.education, formData.email, formData.githubUrl, formData.linkedinUrl, formData.name, formData.phone]);
+  }, [
+    formData.bio,
+    formData.currentPosition,
+    formData.education,
+    formData.email,
+    formData.githubUrl,
+    formData.linkedinUrl,
+    formData.name,
+    formData.phone,
+  ]);
   const handlePasswordValidation = useCallback(() => {
     const passErrors: IPass = {};
-    passErrors.currentPassword = validatePassword(`${editPassword?.currentPassword}`);
+    passErrors.currentPassword = validatePassword(
+      `${editPassword?.currentPassword}`
+    );
     passErrors.newPassword = validatePassword(`${editPassword?.newPassword}`);
-    passErrors.confirmPassword = validateConfirmPassword(`${editPassword?.confirmPassword}`,`${ editPassword.newPassword}`);
-    
+    passErrors.confirmPassword = validateConfirmPassword(
+      `${editPassword?.confirmPassword}`,
+      `${editPassword.newPassword}`
+    );
 
     setPassError(passErrors);
 
     // Return true if there are no errors
     return Object.values(passErrors).every((error) => error === undefined);
-  },[editPassword?.confirmPassword, editPassword?.currentPassword, editPassword.newPassword]);
-  const modalClose =useCallback( () => {
+  }, [
+    editPassword?.confirmPassword,
+    editPassword?.currentPassword,
+    editPassword.newPassword,
+  ]);
+  const modalClose = useCallback(() => {
     setEditModalOpen(false);
 
     setErrors({});
-  },[]);
+  }, []);
   const handleSaveChanges = useCallback(async () => {
     // Validate the form before sending data
     if (!handleValidation()) {
@@ -174,11 +171,10 @@ const MenteeProfile: React.FC = () => {
         education: formData?.education,
         currentPosition: formData?.currentPosition,
       };
-     
-      const response = await fetchProfileEdit(menteeData);
-    
 
-      if (response?.status === 200 && response?.data?.success) {
+      const response = await fetchProfileEdit(menteeData);
+
+      if (response?.status === HttpStatusCode?.Ok && response?.data?.success) {
         setFormData(response.data?.result);
         setMentee(response.data?.result);
         toast.success(response.data?.message);
@@ -189,8 +185,19 @@ const MenteeProfile: React.FC = () => {
     } finally {
       setLoading(false);
     }
-  },[formData?._id, formData?.bio, formData?.currentPosition, formData?.education, formData?.email, formData?.githubUrl, formData?.linkedinUrl, formData?.name, formData?.phone, handleValidation, modalClose]);
-
+  }, [
+    formData?._id,
+    formData?.bio,
+    formData?.currentPosition,
+    formData?.education,
+    formData?.email,
+    formData?.githubUrl,
+    formData?.linkedinUrl,
+    formData?.name,
+    formData?.phone,
+    handleValidation,
+    modalClose,
+  ]);
 
   const passModalClose = useCallback(() => {
     setShowEditPassword(false);
@@ -199,61 +206,67 @@ const MenteeProfile: React.FC = () => {
       newPassword: "",
       confirmPassword: "",
     });
-  },[]);
-
+  }, []);
 
   const handleChangePassword = useCallback(async () => {
-    try {
-      if (!handlePasswordValidation()) {
-        return; // Stop if validation fails
-      }
-      const passFormData = {
-        currentPassword: `${editPassword.currentPassword}`,
-        newPassword: `${editPassword.newPassword}`,
-        _id: `${formData._id}`,
-      };
-
-      const response = await fetchMenteeChangePassword(passFormData as IChangePass)
-     
-
-      if (response?.status === 200 && response?.data?.success) {
-        toast.success(response.data?.message);
-        passModalClose();
-      }
-    } catch (error:unknown) {
-      errorHandler(error);
-    } finally {
-      setLoading(false);
+    if (!handlePasswordValidation()) {
+      return; // Stop if validation fails
     }
-  },[editPassword.currentPassword, editPassword.newPassword, formData._id, handlePasswordValidation, passModalClose]);
+    const passFormData = {
+      currentPassword: `${editPassword.currentPassword}`,
+      newPassword: `${editPassword.newPassword}`,
+      _id: `${formData._id}`,
+    };
 
-  const handleCropComplete = useCallback(async (profileImage: Blob) => {
-    try {
-      setLoading(true);
+    const response = await fetchMenteeChangePassword(
+      passFormData as IChangePass
+    );
 
-      const response = await fetchImageChange(profileImage,formData?._id as string)
-     
-      setShowcropper(false);
-      if (response.data && response.data.status == 200) {
-        console.log(response.data.message);
-        toast.success(response.data.message);
-
-        setMentee((prevMentee) => {
-          if (prevMentee === null) {
-            return null;
-          }
-          return {
-            ...prevMentee,
-            profileUrl: response.data.profileUrl,
-          };
-        });
-      }
-    } catch (error: unknown) {
-      errorHandler(error);
-    } finally {
-      setLoading(false);
+    if (response?.status === HttpStatusCode?.Ok && response?.data?.success) {
+      toast.success(response.data?.message);
+      passModalClose();
     }
-  },[formData._id]);
+
+    setLoading(false);
+  }, [
+    editPassword.currentPassword,
+    editPassword.newPassword,
+    formData._id,
+    handlePasswordValidation,
+    passModalClose,
+  ]);
+
+  const handleCropComplete = useCallback(
+    async (profileImage: Blob) => {
+     
+        setLoading(true);
+
+        const response = await fetchImageChange(
+          profileImage,
+          formData?._id as string
+        );
+
+        setShowcropper(false);
+        if (response.data && response.data.status == HttpStatusCode?.Ok) {
+          console.log(response.data?.message);
+          toast.success(response.data?.message);
+
+          setMentee((prevMentee) => {
+            if (prevMentee === null) {
+              return null;
+            }
+            return {
+              ...prevMentee,
+              profileUrl: response.data?.profileUrl,
+            };
+          });
+        }
+      
+        setLoading(false);
+      
+    },
+    [formData._id]
+  );
 
   return (
     <div className="relative mt-16">
@@ -335,22 +348,21 @@ const MenteeProfile: React.FC = () => {
           </div>
 
           {/* Change Password Button */}
-          {formData?.provider !='google' &&(
-
-          <div className="relative group">
-            <button
-              onClick={() => setShowEditPassword(true)}
-              className="px-4 py-2 text-sm font-medium text-gray-700 border border-gray-300 hover:bg-gray-200 rounded-full transition-colors"
-            >
-              <KeyRoundIcon />
-            </button>
-            {/* Tooltip for Change Password */}
-            <span className="absolute top-full left-1/2 transform -translate-x-1/2 opacity-0 group-hover:opacity-100 bg-gray-800 text-white text-xs rounded px-2 py-1 transition-opacity">
-              Change Password
-            </span>
-          </div>
+          {formData?.provider != "google" && (
+            <div className="relative group">
+              <button
+                onClick={() => setShowEditPassword(true)}
+                className="px-4 py-2 text-sm font-medium text-gray-700 border border-gray-300 hover:bg-gray-200 rounded-full transition-colors"
+              >
+                <KeyRoundIcon />
+              </button>
+              {/* Tooltip for Change Password */}
+              <span className="absolute top-full left-1/2 transform -translate-x-1/2 opacity-0 group-hover:opacity-100 bg-gray-800 text-white text-xs rounded px-2 py-1 transition-opacity">
+                Change Password
+              </span>
+            </div>
           )}
-          </div>
+        </div>
 
         {/* Profile Information Section */}
         <section className="mt-0 grid grid-cols-1 md:grid-cols-2 gap-8 ml-6">
@@ -511,89 +523,95 @@ const MenteeProfile: React.FC = () => {
                 Change Password
               </h2>
               <div className="space-y-4">
-              <div className="relative">
-                <InputField
-                  id={"currentPassword"}
-                  name="currentPassword"
-                  value={editPassword.currentPassword || ""}
-                  placeholder="Enter Current Password" 
-                  error={passError?.currentPassword || ""}
-                  className={""}
-                  type={isCurrentPasswordVisible ? "text" : "password"}
-                  onChange={(e) =>
-                    setEditPassword({
-                      ...editPassword,
-                      currentPassword: e.target.value,
-                    })
-                  }
-                />
-              
-                 <button
-            type="button"
-            onClick={()=>setIsCurrentPasswordVisible((pre)=>!pre)}
-            aria-label={isCurrentPasswordVisible ? "Hide Password" : "Show Password"}
-            className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400" // Position the icon to the right of the input field
-          >
-            {isCurrentPasswordVisible ? <EyeClosedIcon /> : <EyeIcon />}
-          </button>
-    
-                </div>
                 <div className="relative">
-                <InputField
-                  id={"newPassword"}
-                  name="newPassword"
-                  value={editPassword.newPassword || ""}
-                  placeholder="Enter New Password"
-                  error={passError?.newPassword || ""}
-                  className={""}
-                  type={isPasswordVisible ? "text" : "password"}
-                  onChange={(e) =>
-                    setEditPassword({
-                      ...editPassword,
-                      newPassword: e.target.value,
-                    })
-                  }
-                />
-                 <button
-            type="button"
-            onClick={()=>setIsPasswordVisible((pre)=>!pre)}
-            aria-label={isPasswordVisible ? "Hide Password" : "Show Password"}
-            className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400" 
-          >
-            {isPasswordVisible ? <EyeClosedIcon /> : <EyeIcon />}
-          </button>
-    
-                </div>
-                <div className="relative">
-                <InputField
-                  id={"confirmPassword"}
-                  name="confirmPassword"
-                  value={editPassword.confirmPassword || ""}
-                  placeholder="Enter Confirm Password"
-                  error={passError?.confirmPassword || ""}
-                  className={""}
-                  type={isConfirmPasswordVisible ? "text" : "password"}
-                  onChange={(e) =>
-                    setEditPassword({
-                      ...editPassword,
-                      confirmPassword: e.target.value,
-                    })
-                  }
-                />
+                  <InputField
+                    id={"currentPassword"}
+                    name="currentPassword"
+                    value={editPassword.currentPassword || ""}
+                    placeholder="Enter Current Password"
+                    error={passError?.currentPassword || ""}
+                    className={""}
+                    type={isCurrentPasswordVisible ? "text" : "password"}
+                    onChange={(e) =>
+                      setEditPassword({
+                        ...editPassword,
+                        currentPassword: e.target.value,
+                      })
+                    }
+                  />
 
-               <button
-               type="button"
-               onClick={()=>setIsConfirmPasswordVisible((prev)=>!prev)}
-               aria-label={isConfirmPasswordVisible ? "Hide Password" : "Show Password"}
-               className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400" 
-             >
-               {isConfirmPasswordVisible ? <EyeClosedIcon /> : <EyeIcon />}
-             </button>
-       
-                   </div>
-                   </div>
+                  <button
+                    type="button"
+                    onClick={() => setIsCurrentPasswordVisible((pre) => !pre)}
+                    aria-label={
+                      isCurrentPasswordVisible
+                        ? "Hide Password"
+                        : "Show Password"
+                    }
+                    className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400" // Position the icon to the right of the input field
+                  >
+                    {isCurrentPasswordVisible ? <EyeClosedIcon /> : <EyeIcon />}
+                  </button>
+                </div>
+                <div className="relative">
+                  <InputField
+                    id={"newPassword"}
+                    name="newPassword"
+                    value={editPassword.newPassword || ""}
+                    placeholder="Enter New Password"
+                    error={passError?.newPassword || ""}
+                    className={""}
+                    type={isPasswordVisible ? "text" : "password"}
+                    onChange={(e) =>
+                      setEditPassword({
+                        ...editPassword,
+                        newPassword: e.target.value,
+                      })
+                    }
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setIsPasswordVisible((pre) => !pre)}
+                    aria-label={
+                      isPasswordVisible ? "Hide Password" : "Show Password"
+                    }
+                    className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400"
+                  >
+                    {isPasswordVisible ? <EyeClosedIcon /> : <EyeIcon />}
+                  </button>
+                </div>
+                <div className="relative">
+                  <InputField
+                    id={"confirmPassword"}
+                    name="confirmPassword"
+                    value={editPassword?.confirmPassword || ""}
+                    placeholder="Enter Confirm Password"
+                    error={passError?.confirmPassword || ""}
+                    className={""}
+                    type={isConfirmPasswordVisible ? "text" : "password"}
+                    onChange={(e) =>
+                      setEditPassword({
+                        ...editPassword,
+                        confirmPassword: e.target.value,
+                      })
+                    }
+                  />
+
+                  <button
+                    type="button"
+                    onClick={() => setIsConfirmPasswordVisible((prev) => !prev)}
+                    aria-label={
+                      isConfirmPasswordVisible
+                        ? "Hide Password"
+                        : "Show Password"
+                    }
+                    className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400"
+                  >
+                    {isConfirmPasswordVisible ? <EyeClosedIcon /> : <EyeIcon />}
+                  </button>
+                </div>
+              </div>
               <div className="mt-6 flex justify-end">
-
                 <button
                   onClick={handleChangePassword}
                   className="px-4 py-2 bg-[#ff8800] text-white rounded-md hover:bg-[#e67a00]"

@@ -1,4 +1,4 @@
-import React, { useRef, useState } from "react";
+import React, { useCallback, useRef, useState } from "react";
 import { Camera } from "lucide-react";
 import ImageCropper from "./ImageCropper";
 
@@ -10,20 +10,20 @@ export const ProfileImageUpload: React.FC<IProfileImageUpload> = ({
   const [selectFile, setSelectFile] = useState<File | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileSelect =useCallback( (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
       setSelectFile(file);
       setShowcropper(true);
     }
-  };
+  },[]);
 
-  const handleCropComplete = (croppedImage: Blob) => {
+  const handleCropComplete = useCallback((croppedImage: Blob) => {
     const previewUrl = URL.createObjectURL(croppedImage);
     setPreviewUrl(previewUrl);
     onImageChange(croppedImage);
     setShowcropper(false);
-  };
+  },[onImageChange]);
 
   return (
     <>

@@ -22,7 +22,7 @@ const SelectField: React.FC<SelectFieldProps> = ({classNames, label, value, onCh
         className={`${classNames} `}
       >
         <MenuItem value="">{placeholder}</MenuItem>
-        {options.map((option, index) => (
+        {options?.map((option, index) => (
           <MenuItem key={index} value={option}>
             {option}
           </MenuItem>

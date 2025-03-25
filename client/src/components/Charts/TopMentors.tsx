@@ -2,7 +2,6 @@ import React from "react";
 import { Star } from "lucide-react";
 
 const TopMentors: React.FC<TopMentorsProps> = React.memo(({ mentors }) => {
-  console.log(mentors, "kljkhikhoiuh");
   return (
     <div className="bg-white p-6 rounded-lg shadow-sm">
       <h3 className="text-lg font-semibold mb-6 ">Top Performing Mentors</h3>

@@ -6,14 +6,12 @@ import NotificationPanel from "./NotificationPanel";
 import { Link } from "react-router-dom";
 import profile from "../../../Asset/images.png";
 
-
-
-const Header: React.FC<IHeader> =React.memo( (props) => {
-  const { userType, ToggleSideBar, profileLink, logout, onRead ,notifData} = props;
+const Header: React.FC<IHeader> = React.memo((props) => {
+  const { userType, ToggleSideBar, profileLink, logout, onRead, notifData } =
+    props;
 
   const [showProfileMenu, setShowProfileMenu] = useState<boolean>(false);
   const [showNotification, setShowNotification] = useState<boolean>(false);
-
 
   const profileMenuRef = useRef<HTMLDivElement>(null);
   const profileMenuButtonRef = useRef<HTMLButtonElement>(null);
@@ -31,17 +29,16 @@ const Header: React.FC<IHeader> =React.memo( (props) => {
       }
     };
 
-  
-
     document.addEventListener("mousedown", handleClickOutside);
-    
+
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
-      
     };
   }, []);
 
-  const unreadCount:number|undefined = notifData?.filter((n) => !n.isRead!).length;
+  const unreadCount: number | undefined = notifData?.filter(
+    (n) => !n.isRead!
+  ).length;
 
   const handleProfileClick = () => {
     setShowProfileMenu(false); // Close menu on profile click

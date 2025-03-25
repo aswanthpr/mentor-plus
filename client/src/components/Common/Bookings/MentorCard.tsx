@@ -8,13 +8,13 @@ const MentorCard: React.FC<SessionCardProps> = ({ session, handleCancelSession }
     <div className="flex items-start justify-between">
       <div className="flex items-center gap-4">
         <img
-          src={session.mentorAvatar}
-          alt={session.mentorName}
+          src={session?.mentorAvatar}
+          alt={session?.mentorName}
           className="w-12 h-12 rounded-full"
           />
         <div>
-          <h3 className="font-medium text-gray-900">{session.mentorName}</h3>
-          <p className="text-sm text-gray-500">{session.topic}</p>
+          <h3 className="font-medium text-gray-900">{session?.mentorName}</h3>
+          <p className="text-sm text-gray-500">{session?.topic}</p>
         </div>
       </div>
       <span className={`px-3 py-1 rounded-full text-sm font-medium ${
@@ -24,7 +24,7 @@ const MentorCard: React.FC<SessionCardProps> = ({ session, handleCancelSession }
           ? 'bg-gray-100 text-gray-800'
           : 'bg-red-100 text-red-800'
         }`}>
-        {session.status.charAt(0).toUpperCase() + session.status.slice(1)}
+        {session.status.charAt(0).toUpperCase() + session?.status?.slice(1)}
       </span>
     </div>
 
@@ -32,13 +32,13 @@ const MentorCard: React.FC<SessionCardProps> = ({ session, handleCancelSession }
       <div className="flex items-center gap-2">
         <Calendar className="w-4 h-4 text-gray-400" />
         <span className="text-sm text-gray-600">
-          {format(new Date(session.date), 'MMM d, yyyy')}
+          {format(new Date(session?.date), 'MMM d, yyyy')}
         </span>
       </div>
       <div className="flex items-center gap-2">
         <Clock className="w-4 h-4 text-gray-400" />
         <span className="text-sm text-gray-600">
-          {session.time} ({session.duration} min)
+          {session?.time} ({session?.duration} min)
         </span>
       </div>
       <div className="flex justify-end">
@@ -55,7 +55,6 @@ const MentorCard: React.FC<SessionCardProps> = ({ session, handleCancelSession }
             </button>
           </div>
         )}
-        {/* {session.status === 'completed' && !session.rating && ( */}
          
       </div>
     </div>

@@ -1,4 +1,5 @@
 import React from "react";
+import { monthNames } from "../../Constants/const Values";
 import {
   LineChart,
   Line,
@@ -10,21 +11,6 @@ import {
   ResponsiveContainer,
 } from "recharts";
 
-// Month number to string conversion
-const monthNames = [
-  "Jan",
-  "Feb",
-  "Mar",
-  "Apr",
-  "May",
-  "Jun",
-  "Jul",
-  "Aug",
-  "Sep",
-  "Oct",
-  "Nov",
-  "Dec",
-];
 
 // Component
 const GrowthTrend: React.FC<GrowthTrendProps> = React.memo(({ data }) => {

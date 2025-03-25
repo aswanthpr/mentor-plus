@@ -1,33 +1,40 @@
-import React, { useState } from 'react';
-import { DollarSign, X } from 'lucide-react';
+import React, { useCallback, useState } from "react";
+import { DollarSign, X } from "lucide-react";
 
-interface AddMoneyModalProps {
-  isOpen: boolean;
-  onClose: () => void;
-  onSubmit: (amount: number) => void;
-}
+const AddMoneyModal: React.FC<AddMoneyModalProps> = ({
+  isOpen,
+  onClose,
+  onSubmit,
+}) => {
+  const [amount, setAmount] = useState("");
 
-const AddMoneyModal: React.FC<AddMoneyModalProps> = ({ isOpen, onClose, onSubmit }) => {
-  const [amount, setAmount] = useState('');
-
-  if (!isOpen) return null;
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    const numAmount = parseFloat(amount);
-    if (numAmount > 0) {
-      onSubmit(numAmount);
-      setAmount('');
-      onClose();
-    }
-  };
+  const handleSubmit = useCallback(
+    (e: React.FormEvent) => {
+      e.preventDefault();
+      const numAmount = parseFloat(amount);
+      if (numAmount > 0) {
+        onSubmit(numAmount);
+        setAmount("");
+        onClose();
+      }
+    },
+    [amount, onClose, onSubmit]
+  );
+  if (!isOpen) {
+    return null;
+  }
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
       <div className="bg-white rounded-lg max-w-md w-full p-6">
         <div className="flex justify-between items-center mb-6">
-          <h3 className="text-xl font-bold text-gray-900">Add Money to Wallet</h3>
-          <button onClick={onClose} className="text-gray-400 hover:text-gray-600">
+          <h3 className="text-xl font-bold text-gray-900">
+            Add Money to Wallet
+          </h3>
+          <button
+            onClick={onClose}
+            className="text-gray-400 hover:text-gray-600"
+          >
             <X className="h-6 w-6" />
           </button>
         </div>

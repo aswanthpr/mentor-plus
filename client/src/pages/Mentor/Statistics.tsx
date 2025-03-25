@@ -5,6 +5,7 @@ import GrowthTrend from '../../components/Charts/GrowthTrend';
 import RevenueChart from '../../components/Charts/RevenueChart';
 import { fetchMentorStatistics } from '../../service/mentorApi';
 import TopMentors from '../../components/Charts/TopMentors';
+import { HttpStatusCode } from 'axios';
            
 const MentorHome = () => {
   const [data,setData] = useState<ImentorChartData|null>(null)
@@ -16,7 +17,7 @@ const MentorHome = () => {
     const fetchData = async () => {
       const response = await fetchMentorStatistics( timeRange);
 
-      if (flag && response?.data && response?.status) {
+      if (flag && response?.data && response?.status == HttpStatusCode?.Ok) {
         setData(response?.data?.result);
       }
     };

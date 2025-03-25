@@ -5,6 +5,7 @@
 import { AxiosResponse } from "axios";
 import { axiosInstance } from "../Config/mentorAxios";
 import { unProtectedAPI } from "../Config/Axios";
+import { errorHandler } from "../Utils/Reusable/Reusable";
 
 export const fetchMentorHomeData = async (
   filter: string,
@@ -40,6 +41,7 @@ export const fetchCanceSessionResponse = async (
       }
     );
   } catch (error: unknown) {
+    errorHandler(error);
     console.log(error instanceof Error ? error.message : String(error));
   }
 };
@@ -63,6 +65,7 @@ export const markAsSessionCompleted = async (bookingId: string) => {
       { bookingId }
     );
   } catch (error: unknown) {
+    errorHandler(error);
     console.log(error instanceof Error ? error.message : String(error));
   }
 };
@@ -86,6 +89,7 @@ export const createNewSlots = async (scheduleData: {
       scheduleData
     );
   } catch (error: unknown) {
+    errorHandler(error);
     console.log(error instanceof Error ? error.message : String(error));
   }
 };
@@ -120,6 +124,7 @@ export const deleteTimeSlots = async (
       data: { slotId },
     });
   } catch (error: unknown) {
+    errorHandler(error);
     console.log(error instanceof Error ? error.message : String(error));
   }
 };
@@ -183,6 +188,7 @@ export const fetchChangePassword = async (
       passFormData
     );
   } catch (error: unknown) {
+    errorHandler(error);
     console.log(error instanceof Error ? error.message : String(error));
   }
 };
@@ -199,6 +205,7 @@ export const fetchChangeImage = async (
       }
     );
   } catch (error: unknown) {
+    errorHandler(error);
     console.log(error instanceof Error ? error.message : String(error));
   }
 };
@@ -242,6 +249,7 @@ export const fetchMentorLogin = async (
   try {
     return await axiosInstance.post("/auth/login/mentor", formData);
   } catch (error: unknown) {
+     errorHandler(error);
     console.log(error instanceof Error ? error.message : String(error));
   }
 };
@@ -258,6 +266,7 @@ export const fetchCreateNewAnsweres = async (
       userType,
     });
   } catch (error: unknown) {
+    errorHandler(error);
     console.log(error instanceof Error ? error.message : String(error));
   }
 };
@@ -271,6 +280,30 @@ export const fetchMentorEditAnswer = async (
       answerId,
     });
   } catch (error: unknown) {
+    errorHandler(error);
+    console.log(error instanceof Error ? error.message : String(error));
+  }
+};
+export const newMentorApply = async (
+  formData:any
+): Promise<AxiosResponse | any> => {
+  try {
+    return await   unProtectedAPI.post(`/auth/apply_as_mentor`, formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data'
+      },
+    });
+  } catch (error: unknown) {
+    errorHandler(error);
+    console.log(error instanceof Error ? error.message : String(error));
+  }
+};
+export const fetchMentorProfileData = async (
+): Promise<AxiosResponse | any> => {
+  try {
+    return await  axiosInstance.get("/mentor/profile");
+  } catch (error: unknown) {
+   
     console.log(error instanceof Error ? error.message : String(error));
   }
 };

@@ -11,7 +11,6 @@ import {
 } from "lucide-react";
 import InputField from "../../components/Auth/InputField";
 import { Pagination, Tooltip } from "@mui/material";
-import { errorHandler } from "../../Utils/Reusable/Reusable";
 import { toast } from "react-toastify";
 
 import {
@@ -22,9 +21,11 @@ import {
 import { Table } from "../../components/Admin/Table";
 import { StatusBadge } from "../../components/Admin/StatusBadge";
 import Modal from "../../components/Common/common4All/Modal";
+import { HttpStatusCode } from "axios";
+import { Messages } from "../../Constants/message";
 
 const QA_mgt: React.FC = () => {
- const  QUESTIONS_PER_PAGE=8;
+  const QUESTIONS_PER_PAGE = 8;
 
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedQuestion, setSelectedQuestion] = useState<
@@ -41,30 +42,30 @@ const QA_mgt: React.FC = () => {
 
   // Fetch questions from API
   const fetchQuestions = useCallback(async () => {
-    try {
-      let flag = true;
+    let flag = true;
 
-      const response = await fetchQuestionMangement(
-        searchQuery,
-        statusFilter,
-        sortField,
-        sortOrder,
-        currentPage,
-        QUESTIONS_PER_PAGE
-      );
+    const response = await fetchQuestionMangement(
+      searchQuery,
+      statusFilter,
+      sortField,
+      sortOrder,
+      currentPage,
+      QUESTIONS_PER_PAGE
+    );
 
-      console.log(response?.data?.questions);
-      if (response?.status === 200 && response?.data?.success && flag) {
-        setQuestions(response?.data?.questions);
-        setTotalDocuments(response?.data?.totalPage);
-      }
-     
-      return () => {
-        flag = false;
-      };
-    } catch (error) {
-      console.error("Error fetching questions:", error);
-    } 
+    console.log(response?.data?.questions);
+    if (
+      response?.status === HttpStatusCode?.Ok &&
+      response?.data?.success &&
+      flag
+    ) {
+      setQuestions(response?.data?.questions);
+      setTotalDocuments(response?.data?.totalPage);
+    }
+
+    return () => {
+      flag = false;
+    };
   }, [currentPage, searchQuery, sortField, sortOrder, statusFilter]);
 
   useEffect(() => {
@@ -79,81 +80,70 @@ const QA_mgt: React.FC = () => {
   ]);
 
   const toggleQuestionBlock = useCallback(async (questionId: string) => {
-    console.log("Toggle question block:", questionId);
-    try {
-      if (!questionId) {
-        toast.error("Credential not found");
-        return;
-      }
-      const response = await changeQuestionStatus(questionId);
+    if (!questionId) {
+      toast.error(Messages?.CREDENTIAL_NOT_FOUND);
+      return;
+    }
+    const response = await changeQuestionStatus(questionId);
 
-      if (response.data?.success && response.status === 200) {
-        toast.dismiss();
-        setQuestions((prevQuestions) =>
-          prevQuestions.map((qa) =>
-            qa._id === questionId ? { ...qa, isBlocked: !qa.isBlocked } : qa
-          )
-        );
-        toast.success(response.data?.message);
-      }
-    } catch (error: unknown) {
-      errorHandler(error);
+    if (response.data?.success && response.status === HttpStatusCode?.Ok) {
+      toast.dismiss();
+      setQuestions((prevQuestions) =>
+        prevQuestions.map((qa) =>
+          qa._id === questionId ? { ...qa, isBlocked: !qa.isBlocked } : qa
+        )
+      );
+      toast.success(response.data?.message);
     }
   }, []);
 
   const toggleAnswerBlock = useCallback(
     async (questionId: string, answerId: string) => {
-      try {
-        if (!questionId || !answerId) {
-          toast.error("credential not found");
-          return;
-        }
-        // setLoading(true)
-        const response = await fetchChangeAnswerStatus(answerId);
+      if (!questionId || !answerId) {
+        toast.error(Messages?.CREDENTIAL_NOT_FOUND);
+        return;
+      }
+      // setLoading(true)
+      const response = await fetchChangeAnswerStatus(answerId);
 
-        console.log(response?.data, response.status, response.data?.message);
+      console.log(response?.data, response.status, response.data?.message);
 
-        if (response.data?.success && response?.status === 200) {
-          // toast.dismiss();
+      if (response.data?.success && response?.status === HttpStatusCode?.Ok) {
+        // toast.dismiss();
 
-          setQuestions((prevQuestions) => {
-            return prevQuestions.map((question) => {
-              if (question._id === questionId) {
-                return {
-                  ...question,
-                  answerData: question.answerData?.map((ans) => {
-                    if (ans._id === answerId) {
-                      const updatedAnswer = {
-                        ...ans,
-                        isBlocked: !ans.isBlocked,
-                      };
-                      console.log("Updated Answer:", updatedAnswer);
-                      return updatedAnswer;
-                    }
-                    return ans;
-                  }),
-                };
-              }
-              return question;
-            });
+        setQuestions((prevQuestions) => {
+          return prevQuestions.map((question) => {
+            if (question._id === questionId) {
+              return {
+                ...question,
+                answerData: question.answerData?.map((ans) => {
+                  if (ans._id === answerId) {
+                    const updatedAnswer = {
+                      ...ans,
+                      isBlocked: !ans.isBlocked,
+                    };
+
+                    return updatedAnswer;
+                  }
+                  return ans;
+                }),
+              };
+            }
+            return question;
           });
-          setSelectedQuestion((prevSelectedQuestion) => {
-            if (!prevSelectedQuestion) return prevSelectedQuestion;
+        });
+        setSelectedQuestion((prevSelectedQuestion) => {
+          if (!prevSelectedQuestion) return prevSelectedQuestion;
 
-            return {
-              ...prevSelectedQuestion,
-              answerData: prevSelectedQuestion.answerData?.map((ans) =>
-                ans._id === answerId
-                  ? { ...ans, isBlocked: !ans.isBlocked }
-                  : ans
-              ),
-            };
-          });
+          return {
+            ...prevSelectedQuestion,
+            answerData: prevSelectedQuestion.answerData?.map((ans) =>
+              ans._id === answerId ? { ...ans, isBlocked: !ans.isBlocked } : ans
+            ),
+          };
+        });
 
-          toast.success(response.data?.message);
-        }
-      } catch (error: unknown) {
-        errorHandler(error);
+        toast.success(response.data?.message);
       }
     },
     []
@@ -180,7 +170,9 @@ const QA_mgt: React.FC = () => {
               type={"search"}
               placeholder="Search questions or authors..."
               value={searchQuery}
-              onChange={(e:React.ChangeEvent<HTMLInputElement>) => setSearchQuery(e.target.value)}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                setSearchQuery(e.target.value)
+              }
               className="pl-10"
             />
           </div>
@@ -223,72 +215,71 @@ const QA_mgt: React.FC = () => {
         <hr className="h-px  bg-gray-200 border-0 dark:bg-gray-700 " />
         {questions.length > 0 ? (
           <Table headers={["Question", "Answers", "Status", "Actions"]}>
-          {questions?.map((question) => (
-            <tr key={question._id}>
-              <td className="px-6 py-4 ">
-                <div className="max-w-md">
-                  <p className="truncate">{question.content}</p>
-                  <p className="text-sm text-gray-500">
-                    by {question?.user?.name} •{" "}
-                    {new Date(question?.createdAt).toLocaleDateString()}
-                  </p>
-                </div>
-              </td>
-              <td className="px-6 py-4 text-center ">
-                <button
-                  onClick={() => {
-                    setSelectedQuestion(question);
-                    setIsAnswersModalOpen(true);
-                  }}
-                  className="flex items-center gap-2 text-blue-600 hover:text-blue-800 mx-auto"
-                >
-                  <Eye size={16} />
-                  View ({question?.answerData?.length})
-                </button>
-              </td>
+            {questions?.map((question) => (
+              <tr key={question._id}>
+                <td className="px-6 py-4 ">
+                  <div className="max-w-md">
+                    <p className="truncate">{question.content}</p>
+                    <p className="text-sm text-gray-500">
+                      by {question?.user?.name} •{" "}
+                      {new Date(question?.createdAt).toLocaleDateString()}
+                    </p>
+                  </div>
+                </td>
+                <td className="px-6 py-4 text-center ">
+                  <button
+                    onClick={() => {
+                      setSelectedQuestion(question);
+                      setIsAnswersModalOpen(true);
+                    }}
+                    className="flex items-center gap-2 text-blue-600 hover:text-blue-800 mx-auto"
+                  >
+                    <Eye size={16} />
+                    View ({question?.answerData?.length})
+                  </button>
+                </td>
 
-              <td className="px-6 py-4 text-center">
-                <StatusBadge
-                  status={question.isBlocked ? "blocked" : "active"}
-                />
-              </td>
-              <td className="px-6 py-4 text-center ">
-                <button
-                  onClick={() => toggleQuestionBlock(question?._id as string)}
-                  // className={`   items-center gap-1 px-3 py-1 rounded-md  text-white`}
-                >
-                  {question.isBlocked ? (
-                    <>
-                      <Tooltip
-                        arrow
-                        title="unblock"
-                        children={
-                          <CheckCircle className="w-10  text-green-600 hover:text-green-700" />
-                        }
-                      />
-                    </>
-                  ) : (
-                    <>
-                      <Tooltip
-                        arrow
-                        title="block"
-                        children={
-                          <XCircle className="w-10  text-red-600 hover:text-red-700" />
-                        }
-                      />
-                    </>
-                  )}
-                </button>
-              </td>
-            </tr>
-          ))}
-        </Table>
+                <td className="px-6 py-4 text-center">
+                  <StatusBadge
+                    status={question.isBlocked ? "blocked" : "active"}
+                  />
+                </td>
+                <td className="px-6 py-4 text-center ">
+                  <button
+                    onClick={() => toggleQuestionBlock(question?._id as string)}
+                    // className={`   items-center gap-1 px-3 py-1 rounded-md  text-white`}
+                  >
+                    {question.isBlocked ? (
+                      <>
+                        <Tooltip
+                          arrow
+                          title="unblock"
+                          children={
+                            <CheckCircle className="w-10  text-green-600 hover:text-green-700" />
+                          }
+                        />
+                      </>
+                    ) : (
+                      <>
+                        <Tooltip
+                          arrow
+                          title="block"
+                          children={
+                            <XCircle className="w-10  text-red-600 hover:text-red-700" />
+                          }
+                        />
+                      </>
+                    )}
+                  </button>
+                </td>
+              </tr>
+            ))}
+          </Table>
         ) : (
           <div className="text-center text-gray-500 mt-4  mb-8 flex justify-center items-center ">
-          < Frown className="w-5 mr-4"/> <span>No Data Available</span> 
+            <Frown className="w-5 mr-4" /> <span>No Data Available</span>
           </div>
-        )
-      }
+        )}
         <hr className="h-px  bg-gray-200 border-0 dark:bg-gray-700" />
         <div className="flex justify-center mt-3">
           <Pagination

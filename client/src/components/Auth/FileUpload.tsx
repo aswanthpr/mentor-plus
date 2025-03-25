@@ -1,23 +1,28 @@
-import React, { useState } from "react";
+import React, { useCallback, useState } from "react";
 import { Upload } from "lucide-react";
-
+import { toast } from "react-toastify";
+import { Messages } from "../../Constants/message";
 
 export const FileUpload: React.FC<IFileUpload> = ({
   onFileSelect,
   accept = ".pdf,.doc,.docx",
 }) => {
   const [fileName, setFileName] = useState<string>("");
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file && file.size > 5 * 1024 * 1024) {
-      alert("File size exceeds the 5MB limit.");
-      return;
-    }
-    if (file) {
-      setFileName(file.name);
-      onFileSelect(file);
-    }
-  };
+
+  const handleFileChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      const file = e.target.files?.[0];
+      if (file && file.size > 5 * 1024 * 1024) {
+        toast.error(Messages?.FIILE_LIMIT_EXCEED);
+        return;
+      }
+      if (file) {
+        setFileName(file.name);
+        onFileSelect(file);
+      }
+    },
+    [onFileSelect]
+  );
   return (
     <div className="border-2 border-dashed border-orange-500 rounded-lg p-2 ">
       <label className="flex flex-col items-center justify-center cursor-pointer">
@@ -32,7 +37,7 @@ export const FileUpload: React.FC<IFileUpload> = ({
               PDF, DOC, DOCX (MAX 3MB)
             </span>
           </>
-        )}   
+        )}
 
         <input
           type="file"

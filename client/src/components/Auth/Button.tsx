@@ -1,13 +1,5 @@
-import React, { ButtonHTMLAttributes, ReactNode } from "react";
+import React from "react";
 import { clsx } from "clsx";
-
-interface IButton extends ButtonHTMLAttributes<HTMLButtonElement> {
-  variant?: Tvarient
-  children?: JSX.Element | ReactNode;
-  className?: string;
-  disabled?: boolean;
-  onClick?: () => void;
-}
 
 export const Button: React.FC<IButton> = ({
   children,
@@ -22,8 +14,8 @@ export const Button: React.FC<IButton> = ({
       <button
         onClick={onClick}
         className={clsx(
-          `px-4 py-2 rounded-md font-medium transition-colors`, // Default styles
-          className, // <-- This line was added to include the passed className prop (e.g., mt-4 ml-4)
+          `px-4 py-2 rounded-md font-medium transition-colors`,
+          className, 
           variant === "primary" &&
             "bg-orange-500 text-white hover:bg-orange-600 disabled:bg-orange-300",
           variant === "secondary" &&

@@ -1,227 +1,113 @@
-import React, { useCallback, useEffect, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import ProfileImageUpload from "../../components/Auth/ProfileImageUpload";
 import InputField from "../../components/Auth/InputField";
 import SkillInput from "../../components/Auth/SkillInput";
 import FileUpload from "../../components/Auth/FileUpload";
 import Button from "../../components/Auth/Button";
-import { unProtectedAPI } from "../../Config/Axios";
 import { toast } from "react-toastify";
 import { Link, useNavigate } from "react-router-dom";
 import Spinner from "../../components/Common/common4All/Spinner";
 import { EyeClosedIcon, EyeIcon } from "lucide-react";
-import { errorHandler } from "../../Utils/Reusable/Reusable";
-import { fetchMentorApplication } from "../../service/mentorApi";
-import { githubUrlPattern, linkedinUrlPattern, noNumbersOrSymbols } from "../../Validation/Validation";
-import bgImg from "../../Asset/background.jpg" 
+import {
+  fetchMentorApplication,
+  newMentorApply,
+} from "../../service/mentorApi";
+import { MentorApplyForm } from "../../Validation/Validation";
+import bgImg from "../../Asset/background.jpg";
+import { MENTOR_APPLY_INITIAL } from "../../Constants/initialStates";
+import { HttpStatusCode } from "axios";
+import { Messages, routesObj } from "../../Constants/message";
+
 const MentorApply: React.FC = () => {
-  const initialState = useMemo(() => ({
-    formData: {
-      name: "",
-      email: "",
-      password: "",
-      phone: "",
-      jobTitle: "",
-      category: "",
-      linkedinUrl: "",
-      githubUrl: "",
-      bio: "",
-      skills: [],
-      resume: null,
-      profileImage: null
-    },
-    errors: {
-      name: "",
-      email: "",
-      password: "",
-      phone: "",
-      jobTitle: "",
-      category: "",
-      linkedinUrl: "",
-      githubUrl: "",
-      bio: "",
-      skills: "",
-      resume: "",
-      profileImage: ""
-    }
-  }), []);
-  const [formData, setFormData] = useState<IFormData>(initialState?.formData);
-  const [errors, setErrors] = useState<IErrors>(initialState?.errors);
-  const[isPasswordVisible,setIsPasswordVisible]=useState<boolean>(false)
+  const [formData, setFormData] = useState<IFormData>(
+    MENTOR_APPLY_INITIAL?.formData
+  );
+  const [errors, setErrors] = useState<IErrors>(MENTOR_APPLY_INITIAL?.errors);
+  const [isPasswordVisible, setIsPasswordVisible] = useState<boolean>(false);
   const [skills, setSkills] = useState<string[]>([]);
   const [resume, setResume] = useState<File | null>(null);
   const [profileImage, setProfileImage] = useState<Blob | null>(null);
   const [categories, setCategories] = useState<ICategory[]>([]);
-  const [loading, setLoading] = useState<boolean>(false)
+  const [loading, setLoading] = useState<boolean>(false);
 
   const navigate = useNavigate();
 
   useEffect(() => {
     const fetchRole = async () => {
-      const response = await fetchMentorApplication()
-      console.log(response.data.categories, 'this is the response')
+      const response = await fetchMentorApplication();
+
       setCategories(response.data.categories);
     };
 
     fetchRole();
   }, []);
 
-
-  // Validation function
-  const validateForm = useCallback(() => {
-  const  formErrors: IErrors ={...initialState?.errors}
-
-
-    let isValid = true;
-
-    if (!formData.name || formData.name.length < 3) {
-      formErrors.name = "Name is required and must be at least 3 characters.";
-      isValid = false;
-    }
-
-    if (!formData.email || !/\S+@\S+\.\S+/.test(formData.email)) {
-      formErrors.email = "Valid email is required.";
-      isValid = false;
-    }
-
-    if (!formData.password || formData.password.length < 6) {
-      formErrors.password = "Password must be at least 6 characters.";
-      isValid = false;
-    }
-
-    if (!formData.phone || formData.phone.length < 10) {
-      formErrors.phone = "Phone number must be at least 10 characters.";
-      isValid = false;
-    }
-
-    if (
-      !formData.jobTitle ||
-      formData.jobTitle.length < 4 ||
-      formData.jobTitle.length > 50 ||
-      !noNumbersOrSymbols.test(formData.jobTitle)
-    ) {
-      formErrors.jobTitle =
-        "Job title must be between 4-50 characters and contain no numbers or symbols.";
-      isValid = false;
-    }
-
-    if (formData.category === "") {
-      formErrors.category = "Please select a valid category.";
-      isValid = false;
-    }
-    if (formData.bio.length < 20 || formData.bio.length < 200) {
-      formErrors.bio = "Bio must be between 20 and 200 characters.";
-      isValid = false
-    }
-    if (
-      skills.length === 0 ||
-      skills.some(
-        (skill) => skill.length < 3 || !noNumbersOrSymbols.test(skill)
-      )
-    ) {
-      formErrors.skills =
-        "Skills must be at least 3 characters long and contain no numbers or symbols.";
-      isValid = false;
-    }
-
-    if (!linkedinUrlPattern.test(formData.linkedinUrl)) {
-      formErrors.linkedinUrl =
-        "Please enter a valid LinkedIn URL (https://www.linkedin.com/in/...).";
-      isValid = false;
-    }
-
-    if (!githubUrlPattern.test(formData.githubUrl)) {
-      formErrors.githubUrl =
-        "Please enter a valid GitHub URL (https://github.com/...).";
-      isValid = false;
-    }
-
-    if (!profileImage) {
-      formErrors.profileImage =
-        "Profile image is required and must be in JPEG, PNG, or JPG format.";
-      isValid = false;
-    }
-
-    if (
-      resume &&
-      (resume.size > 2 * 1024 * 1024 ||
-        ![
-          "application/pdf",
-          "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-        ].includes(resume.type))
-    ) {
-      formErrors.resume =
-        "Resume must be a PDF or DOCX file and under 2MB in size.";
-      isValid = false;
-    }
-    if (!resume) {
-      formErrors.resume = 'resume cannot be empty'
-    }
-
-    setErrors(formErrors);
-    return isValid;
-  },[formData.bio.length, formData.category, formData.email, formData.githubUrl, formData.jobTitle, formData.linkedinUrl, formData.name, formData.password, formData.phone, initialState?.errors, profileImage, resume, skills]);
-
-  const handleSubmit =useCallback( async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-
-    if (!validateForm()) return;
-
-    const form = new FormData();
-
-    form.append("bio", formData.bio);
-    form.append("name", formData.name);
-    form.append("email", formData.email);
-    form.append("phone", formData.phone);
-    form.append("jobTitle", formData.jobTitle);
-    form.append("password", formData.password);
-    form.append("category", formData.category);
-    form.append("githubUrl", formData.githubUrl);
-    form.append("linkedinUrl", formData.linkedinUrl);
-
-    if (resume) form.append("resume", resume);
-    if (profileImage) form.append("profileImage", profileImage);
-    if (skills.length > 0) {
-      skills.forEach((skill) => {
-        form.append("skills", skill);
-      });
-    }
-
-    setLoading(true)
-    try {
-      const {status,data}= await unProtectedAPI.post(`/auth/apply_as_mentor`, form, {
-        headers: {
-          'Content-Type': 'multipart/form-data'
-        },
-      });
-
-      if (data.success && status == 200) {
-        console.log(data.message);
-
-        setFormData(initialState?.formData);
-        navigate('/auth/login/mentor')
-        
-        toast.info('"Your application is currently under review. Once verified, you will receive a notification via email within 3 working days. Have a great day!"')
+  const handleSubmit = useCallback(
+    async (e: React.FormEvent<HTMLFormElement>) => {
+      e.preventDefault();
+      const validateForm = MentorApplyForm(
+        formData,
+        resume,
+        skills,
+        profileImage
+      );
+      if (validateForm?.isValid) {
+        setErrors(validateForm?.formErrors);
       }
-    }catch (error:unknown) {
-          errorHandler(error)
-    } finally {
-      setLoading(false)
-    }
-  },[formData.bio, formData.category, formData.email, formData.githubUrl, formData.jobTitle, formData.linkedinUrl, formData.name, formData.password, formData.phone, initialState?.formData, navigate, profileImage, resume, skills, validateForm]);
+      if (!validateForm.isValid) return;
+
+      const form = new FormData();
+
+      form.append("bio", formData.bio);
+      form.append("name", formData.name);
+      form.append("email", formData.email);
+      form.append("phone", formData.phone);
+      form.append("jobTitle", formData.jobTitle);
+      form.append("password", formData.password);
+      form.append("category", formData.category);
+      form.append("githubUrl", formData.githubUrl);
+      form.append("linkedinUrl", formData.linkedinUrl);
+
+      if (resume) form.append("resume", resume);
+      if (profileImage) form.append("profileImage", profileImage);
+      if (skills.length > 0) {
+        skills.forEach((skill) => {
+          form.append("skills", skill);
+        });
+      }
+
+      setLoading(true);
+
+      const response = await newMentorApply(form);
+
+      if (response?.data?.success && response?.status == HttpStatusCode?.Ok) {
+        console.log(response?.data.message);
+
+        setFormData(MENTOR_APPLY_INITIAL?.formData);
+        navigate(routesObj?.MENTOR_LOGIN);
+
+        toast.info(Messages?.MENTOR_APPLY_INFO);
+      }
+
+      setLoading(false);
+    },
+    [formData, navigate, profileImage, resume, skills]
+  );
 
   const handleInputChange = useCallback((field: string, value: string) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
-  },[]);
+  }, []);
   return (
-    <div className="min-h-screen bg-gray-50 py-1 px-4 font-sans items-center justify-center flex"
-    style={{
-      backgroundImage: `url(${bgImg})`,
-      backgroundSize: "cover",
-      backgroundPosition: "center",
-      backgroundRepeat: "no-repeat",
-    }}
+    <div
+      className="min-h-screen bg-gray-50 py-1 px-4 font-sans items-center justify-center flex"
+      style={{
+        backgroundImage: `url(${bgImg})`,
+        backgroundSize: "cover",
+        backgroundPosition: "center",
+        backgroundRepeat: "no-repeat",
+      }}
     >
-    {  loading && <Spinner/>}
+      {loading && <Spinner />}
       <div className="max-w-3xl mx-auto bg-white rounded-lg shadow-lg p-6 flex flex-col ">
         <h1 className="text-2xl font-bold text-black mb-1 text-center">
           Apply as a Mentor
@@ -229,15 +115,17 @@ const MentorApply: React.FC = () => {
         <form onSubmit={handleSubmit} className="space-y-1">
           <ProfileImageUpload onImageChange={setProfileImage} />
           {errors.profileImage && (
-            <p className=" text-center text-red-500 text-sm">{errors.profileImage}</p>
-          )} 
+            <p className=" text-center text-red-500 text-sm">
+              {errors?.profileImage}
+            </p>
+          )}
           <div className="grid md:grid-cols-2 gap-5 ">
             <div className="space-y-5 ">
               <InputField
                 label="Full Name"
                 type="text"
                 name="name"
-                value={formData.name}
+                value={formData?.name}
                 error={errors.name}
                 onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
                   handleInputChange("name", e.target.value)
@@ -249,7 +137,7 @@ const MentorApply: React.FC = () => {
                 label="Email"
                 name="email"
                 type={"email"}
-                value={formData.email}
+                value={formData?.email}
                 error={errors.email}
                 placeholder="Enter Email"
                 className="border-orange-500"
@@ -257,35 +145,35 @@ const MentorApply: React.FC = () => {
                   handleInputChange("email", e.target.value)
                 }
               />
-               <div className="relative">
-              <InputField
-                label="Password"
-                name="password"
-                type={isPasswordVisible ? "text" : "password"}
-                value={formData.password}
-                error={errors.password}
-                placeholder="Enter Password"
-                className="border-orange-500"
-                onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                  handleInputChange("password", e.target.value)
-                }
-              />
-              <button
-                type="button"
-                onClick={()=>setIsPasswordVisible((pre)=>!pre)}
-                aria-label={
-                  isPasswordVisible ? "Hide Password" : "Show Password"
-                }
-                className="absolute right-4 top-12 transform -translate-y-1/2 text-gray-400" // Position the icon to the right of the input field
-              >
-                {isPasswordVisible ? <EyeClosedIcon /> : <EyeIcon />}
-              </button>
+              <div className="relative">
+                <InputField
+                  label="Password"
+                  name="password"
+                  type={isPasswordVisible ? "text" : "password"}
+                  value={formData?.password}
+                  error={errors.password}
+                  placeholder="Enter Password"
+                  className="border-orange-500"
+                  onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                    handleInputChange("password", e.target.value)
+                  }
+                />
+                <button
+                  type="button"
+                  onClick={() => setIsPasswordVisible((pre) => !pre)}
+                  aria-label={
+                    isPasswordVisible ? "Hide Password" : "Show Password"
+                  }
+                  className="absolute right-4 top-12 transform -translate-y-1/2 text-gray-400" // Position the icon to the right of the input field
+                >
+                  {isPasswordVisible ? <EyeClosedIcon /> : <EyeIcon />}
+                </button>
               </div>
               <InputField
                 label="Phone"
                 name="phone"
                 type={"text"}
-                value={formData.phone}
+                value={formData?.phone}
                 error={errors.phone}
                 placeholder="Enter Phone"
                 className="border-orange-500"
@@ -296,9 +184,9 @@ const MentorApply: React.FC = () => {
               <InputField
                 label="Job Title"
                 name="jobTitle"
-                error={errors.jobTitle}
+                error={errors?.jobTitle}
                 type={"text"}
-                value={formData.jobTitle}
+                value={formData?.jobTitle}
                 placeholder="Enter Job Title"
                 className="border-orange-500"
                 onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
@@ -321,7 +209,10 @@ const MentorApply: React.FC = () => {
                   <option value="">Select a category</option>
                   {categories.length ? (
                     categories.map((category) => (
-                      <option key={category.category} value={category.category}>
+                      <option
+                        key={category?.category}
+                        value={category.category}
+                      >
                         {category.category}
                       </option>
                     ))
@@ -340,7 +231,7 @@ const MentorApply: React.FC = () => {
                 name="linkedinUrl"
                 placeholder="Enter Linkedin url"
                 label="Linkdin URL"
-                value={formData.linkedinUrl}
+                value={formData?.linkedinUrl}
                 error={errors.linkedinUrl}
                 className="border-orange-500"
                 onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
@@ -351,8 +242,8 @@ const MentorApply: React.FC = () => {
                 type="text"
                 placeholder="Enter github url"
                 label="Github URL"
-                value={formData.githubUrl}
-                error={errors.githubUrl}
+                value={formData?.githubUrl}
+                error={errors?.githubUrl}
                 name="githubUrl"
                 className="border-orange-500"
                 onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
@@ -364,7 +255,7 @@ const MentorApply: React.FC = () => {
                   Bio
                 </label>
                 <textarea
-                  value={formData.bio}
+                  value={formData?.bio}
                   name="bio"
                   onChange={(e) => handleInputChange("bio", e.target.value)}
                   placeholder="Tell us about yourself and your experience..."
@@ -409,14 +300,13 @@ const MentorApply: React.FC = () => {
         <p className="text-sm text-center text-gray-600 mt-2">
           Already have an account?
           <Link
-            to="/auth/login/mentor"
+            to={routesObj?.MENTOR_LOGIN}
             className=" ml-1 font-medium text-[#ff8800] hover:text-[#ff9900]"
           >
             Sign in
           </Link>
         </p>
       </div>
-
     </div>
   );
 };

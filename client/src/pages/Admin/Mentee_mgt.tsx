@@ -1,6 +1,13 @@
 import { useCallback, useEffect, useState } from "react";
 import { toast } from "react-toastify";
-import { ArrowUpDown, BanIcon, CircleCheckBigIcon, Filter, Frown, Search } from "lucide-react";
+import {
+  ArrowUpDown,
+  BanIcon,
+  CircleCheckBigIcon,
+  Filter,
+  Frown,
+  Search,
+} from "lucide-react";
 import { Table } from "../../components/Admin/Table";
 import { StatusBadge } from "../../components/Admin/StatusBadge";
 import profile from "../../Asset/rb_2877.png";
@@ -10,45 +17,39 @@ import { errorHandler } from "../../Utils/Reusable/Reusable";
 import { Pagination } from "@mui/material";
 import { fetchAllMentee, ToggleMenteeStatus } from "../../service/adminApi";
 import InputField from "../../components/Auth/InputField";
+import { HttpStatusCode } from "axios";
 
-const MENTEES_PER_PAGE = 8; 
-
+const MENTEES_PER_PAGE = 8;
 
 export const Mentee_mgt: React.FC = () => {
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [loading, setLoading] = useState<boolean>(false);
   const [menteeData, setMenteeData] = useState<IMentee[]>([]);
-   const [searchQuery, setSearchQuery] = useState("");
-    const [sortField, setSortField] = useState<TSort>("createdAt");
-    const [sortOrder, setSortOrder] = useState<TSortOrder>("desc");
-    const [statusFilter, setStatusFilter] = useState<TFilter>("all");
-    const [totalPage, setTotalPage] = useState<number>(0);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [sortField, setSortField] = useState<TSort>("createdAt");
+  const [sortOrder, setSortOrder] = useState<TSortOrder>("desc");
+  const [statusFilter, setStatusFilter] = useState<TFilter>("all");
+  const [totalPage, setTotalPage] = useState<number>(0);
 
   useEffect(() => {
     const fetchUserData = async (): Promise<void> => {
       try {
-        // setLoading(true);
-
         const response = await fetchAllMentee(
           searchQuery,
           sortField,
           sortOrder,
           statusFilter,
           currentPage,
-          MENTEES_PER_PAGE,
+          MENTEES_PER_PAGE
         );
 
-        if (response.status == 200 && response.data.success) {
+        if (response.status == HttpStatusCode?.Ok && response.data.success) {
           setMenteeData(response.data?.Data);
-          setTotalPage(response?.data?.totalPage)
-          
+          setTotalPage(response?.data?.totalPage);
         }
       } catch (error: unknown) {
         errorHandler(error);
-      } 
-      // finally {
-      //   setLoading(false);
-      // }
+      }
     };
     fetchUserData();
   }, [currentPage, searchQuery, sortField, sortOrder, statusFilter]);
@@ -66,9 +67,13 @@ export const Mentee_mgt: React.FC = () => {
 
       console.log(response?.data, response.status, response.data?.message);
 
-      if (response.data?.success && response?.status === 200) {
+      if (response.data?.success && response?.status === HttpStatusCode?.Ok) {
         toast.dismiss();
-        setMenteeData((pre)=>pre.map((prev)=>prev?._id===id?{...prev,isBlocked:!prev?.isBlocked}:prev));
+        setMenteeData((pre) =>
+          pre.map((prev) =>
+            prev?._id === id ? { ...prev, isBlocked: !prev?.isBlocked } : prev
+          )
+        );
         setTimeout(() => {
           toast.success(response.data?.message);
         }, 500);
@@ -111,7 +116,6 @@ export const Mentee_mgt: React.FC = () => {
     <div className="p-4  mt-16">
       {loading && <Spinner />}
 
-
       <div className="bg-white rounded-lg shadow-md p-6 h-[87vh]">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
           {/* Search */}
@@ -127,7 +131,7 @@ export const Mentee_mgt: React.FC = () => {
               onChange={(e) => setSearchQuery(e.target.value)}
               className="pl-10"
             />
-          </div> 
+          </div>
 
           {/* Filter */}
           <div className="flex items-center gap-2">
@@ -163,62 +167,66 @@ export const Mentee_mgt: React.FC = () => {
           </div>
         </div>
         <hr className="h-px  bg-gray-200 border-0 dark:bg-gray-400" />
-        {
-  menteeData.length > 0 ? (
-    <Table headers={["Profile", "Name", "Email", "Status", "Actions"]}>
-      {menteeData?.map((mentee) => (
-        <tr key={mentee?._id}>
-          <td className="py-4 flex justify-center">
-            <img
-              src={mentee?.profileUrl ? mentee?.profileUrl : profile}
-              alt={mentee?.name}
-              className="w-10 h-10 rounded-full"
-            />
-          </td>
-          <td className="px-6 py-4 text-center text-sm">{mentee?.name}</td>
-          <td className="px-6 py-4 text-sm text-center">{mentee?.email}</td>
-          <td className="px-6 py-4 text-center">
-            <StatusBadge status={mentee?.isBlocked ? "blocked" : "active"} />
-          </td>
-          <td className="px-24 py-4 items-center text-center">
-            <button
-              onClick={() => handleMenteeBlock(mentee?._id as string)}
-              className={`${
-                mentee?.isBlocked
-                  ? "text-green-800 hover:text-green-400"
-                  : "text-red-800 hover:text-red-400"
-              } font-extrabold`}
-            >
-              {mentee?.isBlocked ? (
-                <CircleCheckBigIcon color="green" />
-              ) : (
-                <BanIcon color="red" />
-              )}
-            </button>
-          </td>
-        </tr>
-      ))}
-    </Table>
-  ) : (
-    <div className="text-center text-gray-500 mt-4  mb-8 flex justify-center items-center ">
-    < Frown className="w-5 mr-4"/> <span>No Data Available</span> 
-    </div>
-  )
-}
+        {menteeData.length > 0 ? (
+          <Table headers={["Profile", "Name", "Email", "Status", "Actions"]}>
+            {menteeData?.map((mentee) => (
+              <tr key={mentee?._id}>
+                <td className="py-4 flex justify-center">
+                  <img
+                    src={mentee?.profileUrl ? mentee?.profileUrl : profile}
+                    alt={mentee?.name}
+                    className="w-10 h-10 rounded-full"
+                  />
+                </td>
+                <td className="px-6 py-4 text-center text-sm">
+                  {mentee?.name}
+                </td>
+                <td className="px-6 py-4 text-sm text-center">
+                  {mentee?.email}
+                </td>
+                <td className="px-6 py-4 text-center">
+                  <StatusBadge
+                    status={mentee?.isBlocked ? "blocked" : "active"}
+                  />
+                </td>
+                <td className="px-24 py-4 items-center text-center">
+                  <button
+                    onClick={() => handleMenteeBlock(mentee?._id as string)}
+                    className={`${
+                      mentee?.isBlocked
+                        ? "text-green-800 hover:text-green-400"
+                        : "text-red-800 hover:text-red-400"
+                    } font-extrabold`}
+                  >
+                    {mentee?.isBlocked ? (
+                      <CircleCheckBigIcon color="green" />
+                    ) : (
+                      <BanIcon color="red" />
+                    )}
+                  </button>
+                </td>
+              </tr>
+            ))}
+          </Table>
+        ) : (
+          <div className="text-center text-gray-500 mt-4  mb-8 flex justify-center items-center ">
+            <Frown className="w-5 mr-4" /> <span>No Data Available</span>
+          </div>
+        )}
 
-      <hr className="h-px  bg-gray-200 border-0 dark:bg-gray-400" />
-      <div className="flex justify-center mt-2">
-        <Pagination
-          count={totalPage} // Total pages
-          page={currentPage} // Current page
-          onChange={handlePageChange} // Page change handler
-          color="standard" // Pagination color
-          shape="circular" // Rounded corners
-          size="small" // Size of pagination
-          siblingCount={1} // Number of sibling pages shown next to the current page
-          boundaryCount={1} // Number of boundary pages to show at the start and end
-        />
-      </div>
+        <hr className="h-px  bg-gray-200 border-0 dark:bg-gray-400" />
+        <div className="flex justify-center mt-2">
+          <Pagination
+            count={totalPage}
+            page={currentPage}
+            onChange={handlePageChange}
+            color="standard"
+            shape="circular"
+            size="small"
+            siblingCount={1}
+            boundaryCount={1}
+          />
+        </div>
       </div>
     </div>
   );

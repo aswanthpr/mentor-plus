@@ -1,63 +1,33 @@
 import React, { useState } from "react";
 import { X } from "lucide-react";
+import { MENTE_PROFILE_PASS_CHANGE } from "../../Constants/initialStates";
+import { validateProfilePass } from "../../Validation/Validation";
 
 const EditPassword: React.FC<EditPasswordModalProps> = ({
   isOpen,
   onClose,
   onUpdate,
 }) => {
-  const [passwords, setPasswords] = useState<IPass>({
-    currentPassword: "",
-    newPassword: "",
-    confirmPassword: "",
-  });
-
+  const [passwords, setPasswords] = useState<IPass>(MENTE_PROFILE_PASS_CHANGE);
   const [errors, setErrors] = useState<Partial<Record<keyof IPass, string>>>(
-    {}
+    MENTE_PROFILE_PASS_CHANGE
   );
 
   if (!isOpen) return null;
 
-  const validatePasswords = () => {
-    const newErrors: Partial<Record<keyof IPass, string>> = {};
-
-    if (!passwords.currentPassword) {
-      newErrors.currentPassword = "Current password is required";
-    }
-
-    if (!passwords.newPassword) {
-      newErrors.newPassword = "New password is required";
-    } else if (passwords.newPassword.length < 8) {
-      newErrors.newPassword = "Password must be at least 8 characters";
-    } else if (!/[A-Z]/.test(passwords.newPassword)) {
-      newErrors.newPassword =
-        "Password must contain at least one uppercase letter";
-    } else if (!/[a-z]/.test(passwords.newPassword)) {
-      newErrors.newPassword =
-        "Password must contain at least one lowercase letter";
-    } else if (!/[0-9]/.test(passwords.newPassword)) {
-      newErrors.newPassword = "Password must contain at least one number";
-    } else if (!/[!@#$%^&*]/.test(passwords.newPassword)) {
-      newErrors.newPassword =
-        "Password must contain at least one special character (!@#$%^&*)";
-    }
-
-    if (!passwords.confirmPassword) {
-      newErrors.confirmPassword = "Please confirm your password";
-    } else if (passwords.confirmPassword !== passwords.newPassword) {
-      newErrors.confirmPassword = "Passwords do not match";
-    }
-
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
-
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (validatePasswords()) {
-      onUpdate(passwords);
-      onClose();
+    const validatePasswords = validateProfilePass(
+      passwords?.newPassword as string,
+      passwords?.currentPassword as string,
+      passwords?.confirmPassword as string
+    );
+    if (Object.keys(validatePasswords).length != 0) {
+      setErrors(validatePasswords);
+      return;
     }
+    onUpdate(passwords);
+    onClose();
   };
 
   return (

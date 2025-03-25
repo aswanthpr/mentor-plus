@@ -11,6 +11,7 @@ import Header from "../../components/Common/common4All/Header";
 import SidePanel from "../../components/Common/common4All/SidePanel";
 import { connectToNotifications, disconnectNotificationSocket } from "../../Socket/connect";
 import { fetchMentorLogout, fetchMentorNotification, fetchReadNotification } from "../../service/mentorApi";
+import { HttpStatusCode } from "axios";
 
 
 const navItems: INavItem[] = [
@@ -37,7 +38,7 @@ const Mentor_Page: React.FC = () => {
       try {
         const response = await fetchMentorNotification()
 
-        if (flag && response?.status == 200 && response.data?.success) {
+        if (flag && response?.status == HttpStatusCode?.Ok && response.data?.success) {
           const user_Id = response.data?.result?.[0]?.["userId"] as string;
 
           dispatch(
@@ -69,7 +70,7 @@ const Mentor_Page: React.FC = () => {
     try {
       const response = await fetchReadNotification(id as string)
      
-      if (response?.status == 200 && response.data?.success) {
+      if (response?.status == HttpStatusCode?.Ok && response.data?.success) {
         dispatch(markAsRead({ userType: "mentor", id }));
       }
     } catch (error: unknown) {
@@ -85,7 +86,7 @@ const Mentor_Page: React.FC = () => {
   },[]);
   const mentorLogout = useCallback(async () => {
     const response = await fetchMentorLogout()
-    if (response.data?.success && response?.status == 200) {
+    if (response.data?.success && response?.status == HttpStatusCode?.Ok) {
       dispatch(clearMentorToken());
       localStorage.removeItem("mentorToken");
       localStorage.removeItem("mentor");

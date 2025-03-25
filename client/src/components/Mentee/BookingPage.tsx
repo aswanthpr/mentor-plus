@@ -1,6 +1,6 @@
 import * as Yup from "yup";
 import moment from "moment";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { Calendar, Clock10Icon, PlayCircle, Wallet } from "lucide-react";
 import Button from "../Auth/Button";
@@ -12,26 +12,23 @@ import {
   confirmSlotBooking,
   fetchSlotBookingPageData,
 } from "../../service/menteeApi";
-
-const initialState: IBookingError = {
-  message: "",
-  wallet: "",
-  stripe: "",
-};
+import { initialState } from "../../Constants/initialStates";
+import { routesObj } from "../../Constants/message";
 
 const BookingPage: React.FC = () => {
   const navigate = useNavigate();
   const { state, pathname } = useLocation();
-  const [selectedSlot, setSelectedSlot] = useState<Itime | null>(null);
   const [message, setMessage] = useState("");
   const [mentorId] = useState<string>(state);
-  const [selectedPayment, setSelectedPayment] = useState<Tpayment>("stripe");
   const [timeSlot, setTimeSlot] = useState<Itime[] | []>([]);
   const [errors, setErrors] = useState<IBookingError>(initialState);
+  const [selectedSlot, setSelectedSlot] = useState<Itime | null>(null);
+  const [selectedPayment, setSelectedPayment] = useState<Tpayment>("stripe");
   const [timeDifference, setTimeDifference] = useState<number | null>(null);
 
   const [mentorName] = useState<string>(pathname.split("/")[2]);
   const [sessionPrice, setSessionPrice] = useState<number>(0);
+
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -47,7 +44,7 @@ const BookingPage: React.FC = () => {
     fetchData();
   }, [mentorId]);
 
-  const handleBook = async () => {
+  const handleBook = useCallback(async () => {
     try {
       if (!selectedSlot) {
         toast.error("Please select a time slot");
@@ -78,7 +75,7 @@ const BookingPage: React.FC = () => {
           }
         } else if (selectedPayment == "wallet") {
           toast.success(response?.data?.message);
-          navigate("/mentee/bookings");
+          navigate(routesObj?.MENTEE_BOOKING);
         }
       }
 
@@ -93,13 +90,21 @@ const BookingPage: React.FC = () => {
         errorHandler(error);
       }
     }
-  };
+  }, [
+    mentorName,
+    message,
+    navigate,
+    selectedPayment,
+    selectedSlot,
+    sessionPrice,
+    timeDifference,
+  ]);
 
   // Function to handle time slot selection and check for future time
-  const handleSlotClick = (slot: Itime) => {
+  const handleSlotClick = useCallback((slot: Itime) => {
     setSelectedSlot(slot);
     setSessionPrice(Number(slot?.price));
-  };
+  }, []);
 
   return (
     <div className="min-h-screen bg-gray-50 py-8 px-4">

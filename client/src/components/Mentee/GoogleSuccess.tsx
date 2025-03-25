@@ -4,6 +4,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { setAccessToken } from '../../Redux/menteeSlice'
 import Spinner from '../Common/common4All/Spinner';
 import { toast } from 'react-toastify';
+import { routesObj } from '../../Constants/message';
 
 
 const GoogleSuccess: React.FC = () => {
@@ -22,13 +23,13 @@ const GoogleSuccess: React.FC = () => {
 
       dispatch(setAccessToken({ accessToken: token, role: 'mentee' }));
 
-      navigate('/mentee/home');
+      navigate(routesObj?.MENTEE_HOME);
       toast.success('Signin Successfull!')
 
 
     } else {
 
-      navigate('/auth/login/mentee');
+      navigate(routesObj?.LOGIN_MENTEE);
 
     }
     setLoading(false);

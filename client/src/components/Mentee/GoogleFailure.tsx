@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Spinner from "../Common/common4All/Spinner";
 import { toast } from "react-toastify";
+import { Messages, routesObj } from "../../Constants/message";
 
 const GoogleFailure: React.FC = () => {
   const navigate = useNavigate()
@@ -9,9 +10,8 @@ const GoogleFailure: React.FC = () => {
 
   useEffect(() => {
 
-    navigate("/auth/login/mentee");
-    toast.error('This email is already registered with a different provider')
-
+    navigate(routesObj?.LOGIN_MENTEE);
+    toast.error(Messages?.GOOGLE_AUTH_FAIL_MESSAGE)
 
     setLoading(false);
 
