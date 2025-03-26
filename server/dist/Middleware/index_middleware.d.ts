@@ -9,4 +9,5 @@ export declare const sessionConfig: express.RequestHandler<import("express-serve
 export declare const jsonParseOrRaw: (req: Request, res: Response, next: NextFunction) => void;
 export declare const urlEncoding: import("connect").NextHandleFunction;
 export declare const helmetConfig: (req: import("http").IncomingMessage, res: import("http").ServerResponse, next: (err?: unknown) => void) => void;
+export declare const cacheControl: (req: Request, res: Response, next: NextFunction) => void;
 //# sourceMappingURL=index_middleware.d.ts.map

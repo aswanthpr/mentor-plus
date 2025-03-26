@@ -21,7 +21,7 @@ export class SocketManager {
     this.setupWebRTC();
   }
   //Notification============================================================
-
+ 
   private setupNotifications() {
     //notificatin namespace set
     const notificationNamespace = this.io.of("/notifications");
@@ -94,7 +94,7 @@ export class SocketManager {
       });
       //geting new message
       socket.on("new-message", async ({ roomId, message }) => {
-        console.log('mesage vannu ttoh 0000000000000000000')
+       
         try {
           if (!roomId) {
             console.log("no room");
@@ -111,8 +111,7 @@ export class SocketManager {
           ) {
             throw new Error("Message cannot be empty.");
           }
-          
-         
+
           //create new message
           const result = await messageRepository.createMessage(message);
 
@@ -128,8 +127,8 @@ export class SocketManager {
           const messageContent =
             message?.messageType == "text"
               ? message?.content
-              : decodeURIComponent(message?.content.split("/").pop());
-
+              :message?.messageType;
+          
           //setting the last message
           await chatRepository.find_By_Id_And_Update(
             chatSchema,

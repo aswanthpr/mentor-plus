@@ -2,7 +2,6 @@ import React from "react";
 import { RotateCcw } from "lucide-react";
 
 const ErrorBound: React.FC = () => {
-  // const navigate =useNavigate()
 
   const handleRefresh = () => {
     window.location.reload();

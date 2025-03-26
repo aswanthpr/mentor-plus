@@ -1,12 +1,12 @@
-import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
 
 import { Imentee } from "../Model/menteeModel";
 import {
   genAccesssToken,
   genRefreshToken,
+  verifyAccessToken,
   verifyRefreshToken,
-} from "../Utils/jwt.utils"; 
+} from "../Utils/jwt.utils";
 
 import { Imentor } from "../Model/mentorModel";
 import hash_pass from "../Utils/hashPass.util";
@@ -38,31 +38,29 @@ export class menteeService implements ImenteeService {
     status: number;
   }> {
     try {
-      const decode = jwt.verify(
-        refreshToken,
-        process.env?.JWT_ACCESS_SECRET as string
-      ) as { userId: string };
+      const decode =verifyAccessToken(refreshToken,'mentee')
+      
 
-      if (!decode) {
+      if (!decode?.result?.userId) {
         return {
           success: false,
           message: "Your session has expired. Please log in again.",
-          status: 403,
+          status: Status?.Forbidden,
           result: null,
         };
       }
 
-      const result = await this._menteeRepository.findById(decode.userId);
+      const result = await this._menteeRepository.findById(decode?.result?.userId);
       if (!result) {
         return {
           success: false,
           message: "invalid credential",
-          status: 403,
+          status: Status?.BadRequest,
           result: null,
         };
       }
 
-      return { success: true, message: "success", result: result, status: 200 };
+      return { success: true, message: "success", result: result, status: Status?.Ok };
     } catch (error: unknown) {
       throw new Error(
         `Error while bl metneeProfile in service: ${
@@ -95,7 +93,7 @@ export class menteeService implements ImenteeService {
         return {
           success: false,
           message: "mentee not found",
-          status: 401,
+          status:Status?.NotFound,
           result: null,
         };
       }
@@ -132,12 +130,12 @@ export class menteeService implements ImenteeService {
         return {
           success: false,
           message: "new password cannto be same as current password",
-          status: 401,
+          status:Status?.BadRequest,
         };
       }
       const result = await this._menteeRepository.findById(_id);
       if (!result) {
-        return { success: false, message: "invalid credential ", status: 401 };
+        return { success: false, message: "invalid credential ", status: Status?.NotFound };
       }
 
       const passCompare = await bcrypt.compare(
@@ -148,7 +146,7 @@ export class menteeService implements ImenteeService {
         return {
           success: false,
           message: "incorrect current  password",
-          status: 401,
+          status: Status?.BadRequest,
         };
       }
       const hashPass = await hash_pass(newPassword);
@@ -159,7 +157,7 @@ export class menteeService implements ImenteeService {
       if (!response) {
         return { success: false, message: "updation failed", status: 503 };
       }
-      return { success: true, message: "updation successfull", status: 200 };
+      return { success: true, message: "updation successfull", status: Status?.Ok };
     } catch (error: unknown) {
       throw new Error(
         `Error while bl metneeProfile password change in service: ${
@@ -180,14 +178,14 @@ export class menteeService implements ImenteeService {
   }> {
     try {
       if (!image || !id) {
-        return { success: false, message: "credential not found", status: 400 };
+        return { success: false, message: "credential not found", status: Status?.BadRequest };
       }
       const profileUrl = await uploadImage(image?.buffer);
 
       const result = await this._menteeRepository.profileChange(profileUrl, id);
 
       if (!result) {
-        return { success: false, message: "user not found", status: 401 };
+        return { success: false, message: "user not found", status: Status?.BadRequest };
       }
       return {
         success: true,
@@ -212,25 +210,37 @@ export class menteeService implements ImenteeService {
   }> {
     try {
       if (!refresh) {
-        return { success: false, message: "RefreshToken missing", status: 401 };
-      }
-
-      const decode = verifyRefreshToken(refresh);
-
-      if (!decode) {
         return {
           success: false,
-          message: "Your session has expired. Please log in again.",
-          status: Status.NotFound,
+          message: "RefreshToken missing",
+          status: Status?.Unauthorized,
         };
       }
 
-      const { userId } = decode;
+      const decode = verifyRefreshToken(refresh, "mentee");
 
-      const accessToken: string | undefined = genAccesssToken(userId as string,"mentee");
+      if (
+        !decode?.isValid ||
+        !decode?.result?.userId ||
+        decode?.error == "TamperedToken" ||
+        decode?.error == "TokenExpired"
+      ) {
+        return {
+          success: false,
+          message: "You are not authorized. Please log in.",
+          status: Status?.Unauthorized,
+        };
+      }
+      const userId = decode?.result?.userId;
+
+      const accessToken: string | undefined = genAccesssToken(
+        userId as string,
+        "mentee"
+      );
 
       const refreshToken: string | undefined = genRefreshToken(
-        userId as string,"mentee"
+        userId as string,
+        "mentee"
       );
 
       return {
@@ -242,7 +252,11 @@ export class menteeService implements ImenteeService {
       };
     } catch (error: unknown) {
       console.error("Error while generating access or refresh token:", error);
-      return { success: false, message: "Internal server error", status: 500 };
+      return {
+        success: false,
+        message: "Internal server error",
+        status: Status?.InternalServerError,
+      };
     }
   }
 
@@ -427,43 +441,54 @@ export class menteeService implements ImenteeService {
     }
   }
   //this is for getting mentee home question data
-  async homeData(filter: string,search:string,sortField:string,
-    sortOrder:string,page:number,limit:number): Promise<{
+  async homeData(
+    filter: string,
+    search: string,
+    sortField: string,
+    sortOrder: string,
+    page: number,
+    limit: number
+  ): Promise<{
     success: boolean;
     message: string;
     status: number;
-    homeData: Iquestion[] | [],
-    totalPage:number
+    homeData: Iquestion[] | [];
+    totalPage: number;
   }> {
     try {
-      console.log(filter,search,page,limit)
-      if (!filter||page <1|| limit<1|| !sortField|| !sortOrder) {
+      console.log(filter, search, page, limit);
+      if (!filter || page < 1 || limit < 1 || !sortField || !sortOrder) {
         return {
           success: false,
           message: "credentials not found",
           status: Status.BadRequest,
           homeData: [],
-          totalPage:0,
+          totalPage: 0,
         };
       }
 
-      const pageNo = page||1;
-      const limitNo =limit || 6;
-      const skip = (pageNo-1)*limitNo;
-      
-     
+      const pageNo = page || 1;
+      const limitNo = limit || 6;
+      const skip = (pageNo - 1) * limitNo;
 
-      const response = await this._questionRepository.allQuestionData(filter,search,sortOrder,sortField,skip,limit);
+      const response = await this._questionRepository.allQuestionData(
+        filter,
+        search,
+        sortOrder,
+        sortField,
+        skip,
+        limit
+      );
       if (!response) {
         return {
           success: false,
           message: "Data not found",
           status: Status.NotFound,
           homeData: [],
-          totalPage:0,
+          totalPage: 0,
         };
       }
-      const totalPage = Math.ceil(response?.count/limitNo);
+      const totalPage = Math.ceil(response?.count / limitNo);
       return {
         success: true,
         message: "Data successfully fetched",
@@ -482,7 +507,7 @@ export class menteeService implements ImenteeService {
         message: "Internal server error",
         status: Status.InternalServerError,
         homeData: [],
-        totalPage:0
+        totalPage: 0,
       };
     }
   }

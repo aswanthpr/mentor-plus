@@ -16,6 +16,7 @@ import {
 import { joinSessionHandler } from "../../service/commonApi";
 import { Pagination } from "@mui/material";
 import { HttpStatusCode } from "axios";
+import { SESSION_STATUS } from "../../Constants/message";
 
 const Boooking: React.FC = () => {
   const limit = 5;
@@ -61,7 +62,7 @@ const Boooking: React.FC = () => {
         setSessions(
           sessions.map((session) =>
             session?._id === sessionId
-              ? { ...session, status: "CANCEL_REQUESTED" }
+              ? { ...session, status: SESSION_STATUS?.CANCEL_REQUESTED}
               : session
           )
         );
@@ -149,7 +150,7 @@ const Boooking: React.FC = () => {
           activeTab={activeTab}
           firstTab="upcoming"
           secondTab="history"
-          onTabChange={(tab) => setActiveTab(tab as "upcoming" | "history")}
+          onTabChange={(tab) => setActiveTab(tab as TsessionTab)}
         />
       </div>
 
@@ -187,12 +188,12 @@ const Boooking: React.FC = () => {
                 <option value="all">All Status</option>
                 {activeTab == "upcoming" ? (
                   <>
-                    <option value="RECLAIM_REQUESTED">Cancel Request</option>
+                    <option value={SESSION_STATUS?.CANCEL_REQUESTED}>Cancel Request</option>
                   </>
                 ) : (
                   <>
-                    <option value="COMPLETED">Completed</option>
-                    <option value="CANCELLED">Cancelled</option>
+                    <option value={SESSION_STATUS?.COMPLETED}>Completed</option>
+                    <option value={SESSION_STATUS?.CANCELLED}>Cancelled</option>
                   </>
                 )}
               </select>

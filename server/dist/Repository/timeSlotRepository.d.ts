@@ -13,6 +13,7 @@ declare class timeSlotRepository extends baseRepository<Itime> implements ItimeS
     getMentorSlots(mentorId: string): Promise<Itime[] | []>;
     makeTimeSlotBooked(slotId: string): Promise<Itime | null>;
     checkTimeSlots(mentorId: ObjectId, startDate: Date, endDate: Date): Promise<Itime[] | []>;
+    releaseTimeSlot(slotId: string): Promise<Itime | null>;
 }
 declare const _default: timeSlotRepository;
 export default _default;

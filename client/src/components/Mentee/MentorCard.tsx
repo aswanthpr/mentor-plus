@@ -1,15 +1,15 @@
 import { BadgeCheckIcon, Star } from "lucide-react";
 import React from "react";
 import { Link } from "react-router-dom";
-import { routesObj } from "../../Constants/message";
-
+import { ROUTES } from "../../Constants/message";
+import profileImg from "../../Asset/user.png";
 const MentorCard: React.FC<{ mentor: IMentor}> = ({ mentor }) => {
 
   return (
     <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-2 sm:p-6 hover:shadow-md transition-shadow mx-1">
       <div className="flex flex-col sm:flex-row sm:items-start gap-4">
         <img
-          src={mentor?.profileUrl}
+          src={mentor?.profileUrl??profileImg}
           alt={mentor?.name}
           className="w-16 h-16 rounded-full object-cover mx-auto sm:mx-0"
         />
@@ -55,7 +55,7 @@ const MentorCard: React.FC<{ mentor: IMentor}> = ({ mentor }) => {
       <div className=" flex space-x-2">
 
       <Link
-        to={`${routesObj?.MENTEE_EXPLORE}/${mentor?.name.toLowerCase()}`}
+        to={`${ROUTES?.MENTEE_EXPLORE}/${mentor?.name.toLowerCase()}`}
         state={mentor}
         className="mt-4 w-2/6 px-4 py-2 bg-[#ff8800] text-white rounded-lg hover:bg-[#ff9900] font-medium transition-colors block text-center mx-auto"
       >

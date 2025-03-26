@@ -1,6 +1,6 @@
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { useRef } from 'react';
-
+import profileImg from "../../../Asset/user.png";
 
 export const MentorListByCategory = ({
   title,
@@ -51,7 +51,7 @@ export const MentorListByCategory = ({
             >
               <div className="relative">
                 <img
-                  src={mentor?.profileUrl}
+                  src={mentor?.profileUrl??profileImg}
                   alt={mentor?.name}
                   className="w-full h-48 object-cover rounded-t-lg"
                 />

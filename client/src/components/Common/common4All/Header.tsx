@@ -4,7 +4,7 @@ import { AlignJustify, Bell, LogOut, User } from "lucide-react";
 // import InputField from '../../auth/InputField';
 import NotificationPanel from "./NotificationPanel";
 import { Link } from "react-router-dom";
-import profile from "../../../Asset/images.png";
+import profile from "../../../Asset/user.png";
 
 const Header: React.FC<IHeader> = React.memo((props) => {
   const { userType, ToggleSideBar, profileLink, logout, onRead, notifData } =

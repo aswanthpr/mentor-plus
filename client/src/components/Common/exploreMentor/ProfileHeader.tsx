@@ -1,7 +1,6 @@
 import { Clock, Github, Linkedin, Star } from "lucide-react";
-
 import { Link } from "react-router-dom";
-
+import profileImg from "../../../Asset/user.png";
 export const ProfileHeader = ({ mentorData }: ProfileHeaderProps) => {
   return (
     <div className="bg-gradient-to-l from-orange-300 to-orange-400 text-white rounded-md">
@@ -9,7 +8,7 @@ export const ProfileHeader = ({ mentorData }: ProfileHeaderProps) => {
         <div className="flex flex-col md:flex-row items-center md:items-start gap-6 ">
           <div className="relative">
             <img
-              src={mentorData?.profileUrl}
+              src={mentorData?.profileUrl??profileImg}
               alt={mentorData?.name}
               className="w-32 h-32 md:w-40 md:h-40 rounded-full border-4 border-white shadow-lg object-cover "
             />

@@ -1,9 +1,9 @@
 import bcrypt from "bcrypt";
-import jwt from "jsonwebtoken";
 import { RRule } from "rrule";
 import {
   genAccesssToken,
   genRefreshToken,
+  verifyAccessToken,
   verifyRefreshToken,
 } from "../Utils/jwt.utils";
 import { IcheckedSlot, ImentorChartData, ISchedule, ISlots } from "../Types";
@@ -42,29 +42,27 @@ export class mentorService implements ImentorService {
     categories: Icategory[] | [];
   }> {
     try {
-      const decode = jwt.verify(
-        token,
-        process.env?.JWT_ACCESS_SECRET as string
-      ) as { userId: string };
+      const decode =verifyAccessToken(token,"mentor");
+      
 
-      if (!decode) {
+      if (!decode?.result?.userId) {
         return {
           success: false,
           message: "Your session has expired. Please log in again.",
-          status: 403,
+          status: Status?.Forbidden,
           result: null,
           categories: [],
         };
       }
 
       const result = await this._mentorRepository.findMentorById(
-        decode?.userId
+        decode?.result?.userId
       );
       if (!result) {
         return {
           success: false,
           message: "invalid credential",
-          status: 204,
+          status: Status?.NoContent,
           result: null,
           categories: [],
         };
@@ -74,7 +72,7 @@ export class mentorService implements ImentorService {
         return {
           success: false,
           message: "invalid credential",
-          status: 204,
+          status: Status?.NoContent,
           result: null,
           categories: [],
         };
@@ -83,7 +81,7 @@ export class mentorService implements ImentorService {
       return {
         success: true,
         message: "successfull",
-        status: 200,
+        status: Status?.Ok,
         result: result,
         categories: categoryData,
       };
@@ -109,20 +107,21 @@ export class mentorService implements ImentorService {
         return {
           success: false,
           message: "You are not authorized. Please log in.",
-          status: 401,
+          status:Status?.Unauthorized,
         };
       }
 
-      const decode = verifyRefreshToken(refresh);
+      const decode = verifyRefreshToken(refresh,"mentor");
 
-      if (!decode || !decode.userId) {
+      if (!decode?.isValid || !decode?.result?.userId||decode?.error=="TamperedToken"||decode?.error=="TokenExpired") {
         return {
           success: false,
           message: "You are not authorized. Please log in.",
-          status: 401,
+          status: Status?.Unauthorized,
         };
       }
-      const { userId } = decode;
+
+      const  userId  = decode?.result?.userId;
 
       const accessToken: string | undefined = genAccesssToken(
         userId as string,
@@ -139,7 +138,7 @@ export class mentorService implements ImentorService {
         message: "Token refresh successfully",
         accessToken,
         refreshToken,
-        status: 200,
+        status: Status?.Ok,
       };
     } catch (error: unknown) {
       console.error("Error while generating BLRefreshToken", error);
@@ -161,14 +160,14 @@ export class mentorService implements ImentorService {
         return {
           success: false,
           message: "Please provide all required credentials.",
-          status: 400,
+          status: Status?.BadRequest,
         };
       }
       if (currentPassword == newPassword) {
         return {
           success: false,
           message: "New password cannot be the same as the current password.",
-          status: 400,
+          status: Status?.BadRequest,
         };
       }
       const result = await this._mentorRepository.findMentorById(id);
@@ -176,7 +175,7 @@ export class mentorService implements ImentorService {
         return {
           success: false,
           message: "User not found. Please check your credentials.",
-          status: 404,
+          status: Status?.NotFound,
         };
       }
 
@@ -188,7 +187,7 @@ export class mentorService implements ImentorService {
         return {
           success: false,
           message: "Incorrect current password. Please try again.",
-          status: 401,
+          status: Status?.BadRequest,
         };
       }
       const hashedPassword = await hash_pass(newPassword);
@@ -207,7 +206,7 @@ export class mentorService implements ImentorService {
       return {
         success: true,
         message: "Password updated successfully.",
-        status: 200,
+        status: Status?.Ok,
       };
     } catch (error: unknown) {
       throw new Error(
@@ -323,7 +322,7 @@ export class mentorService implements ImentorService {
         return {
           success: false,
           message: "credential is missing",
-          status: 400,
+          status: Status?.BadRequest,
           result: null,
         };
       }
@@ -335,7 +334,7 @@ export class mentorService implements ImentorService {
         return {
           success: false,
           message: "Mentor not existing",
-          status: 404,
+          status: Status?.NotFound,
           result: null,
         };
       }
@@ -369,7 +368,7 @@ export class mentorService implements ImentorService {
         return {
           success: false,
           message: "unable to update",
-          status: 404,
+          status: Status?.NotFound,
           result: null,
         };
       }
@@ -377,7 +376,7 @@ export class mentorService implements ImentorService {
       return {
         success: true,
         message: "Details changed Successfully!",
-        status: 200,
+        status: Status?.Ok,
         result: result,
       };
     } catch (error: unknown) {
@@ -408,7 +407,7 @@ export class mentorService implements ImentorService {
         return {
           success: false,
           message: "credentials not found",
-          status: 400,
+          status: Status?.BadRequest,
           homeData: [],
           totalPage: 0,
         };
@@ -425,11 +424,12 @@ export class mentorService implements ImentorService {
         skip,
         limit
       );
+     
       const totalPage = Math.ceil(response?.count / limitNo);
       return {
         success: true,
         message: "Data successfully fetched",
-        status: 200,
+        status: Status?.Ok,
         homeData: response?.question,
         totalPage,
       };

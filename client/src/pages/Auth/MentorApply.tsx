@@ -16,7 +16,7 @@ import { MentorApplyForm } from "../../Validation/Validation";
 import bgImg from "../../Asset/background.jpg";
 import { MENTOR_APPLY_INITIAL } from "../../Constants/initialStates";
 import { HttpStatusCode } from "axios";
-import { Messages, routesObj } from "../../Constants/message";
+import { Messages, ROUTES } from "../../Constants/message";
 
 const MentorApply: React.FC = () => {
   const [formData, setFormData] = useState<IFormData>(
@@ -84,7 +84,7 @@ const MentorApply: React.FC = () => {
         console.log(response?.data.message);
 
         setFormData(MENTOR_APPLY_INITIAL?.formData);
-        navigate(routesObj?.MENTOR_LOGIN);
+        navigate(ROUTES?.MENTOR_LOGIN);
 
         toast.info(Messages?.MENTOR_APPLY_INFO);
       }
@@ -300,7 +300,7 @@ const MentorApply: React.FC = () => {
         <p className="text-sm text-center text-gray-600 mt-2">
           Already have an account?
           <Link
-            to={routesObj?.MENTOR_LOGIN}
+            to={ROUTES?.MENTOR_LOGIN}
             className=" ml-1 font-medium text-[#ff8800] hover:text-[#ff9900]"
           >
             Sign in

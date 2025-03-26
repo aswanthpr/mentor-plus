@@ -90,7 +90,7 @@ const Category_mgt: React.FC = () => {
   const handleCategoryChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>): void => {
       e.preventDefault();
-      setCategory(e.target.value);
+      setCategory(e.target?.value);
     },
     []
   );
@@ -115,9 +115,7 @@ const Category_mgt: React.FC = () => {
       toast.success(response.data.message);
     }
 
-    setTimeout(() => {
-      setLoading(false);
-    }, 500);
+    setLoading(false);
   }, [category, handleCloseModal]);
 
   //handle edit category modal open
@@ -149,7 +147,7 @@ const Category_mgt: React.FC = () => {
 
     const response = await fetchEditCategory(editData?._id, editData?.category);
 
-    if (response.data.success && response.status === HttpStatusCode?.Ok) {
+    if (response?.data?.success && response?.status === HttpStatusCode?.Ok) {
       toast.success(response.data.message);
 
       setCategories((prevCategories) =>
@@ -159,9 +157,8 @@ const Category_mgt: React.FC = () => {
       );
     }
 
-    setTimeout(() => {
-      setLoading(false);
-    }, 500);
+    setLoading(false);
+
     handleEditCloseModal();
   }, [categories, editData?._id, editData.category, handleEditCloseModal]);
 
@@ -170,7 +167,6 @@ const Category_mgt: React.FC = () => {
     setLoading(true);
     const response = await fetchCategoryChange(id);
 
-    console.log(response.data, response.status, response.data.message);
     if (response.data.success && response.status === HttpStatusCode?.Ok) {
       toast.dismiss();
 
@@ -179,14 +175,11 @@ const Category_mgt: React.FC = () => {
           cat._id === id ? { ...cat, isBlocked: !cat.isBlocked } : cat
         )
       );
-      setTimeout(() => {
-        toast.success(response.data.message);
-      }, 500);
+
+      toast.success(response.data.message);
     }
 
-    setTimeout(() => {
-      setLoading(false);
-    }, 500);
+    setLoading(false);
   }, []);
 
   const notify = useCallback(
@@ -332,14 +325,14 @@ const Category_mgt: React.FC = () => {
         {/* Pagination component */}
         <div className="flex justify-center items-center mt-3 ">
           <Pagination
-            count={totalDocuments} 
+            count={totalDocuments}
             page={currentPage}
             onChange={handlePageChange}
-            color="standard" 
-            shape="circular" 
+            color="standard"
+            shape="circular"
             size="small"
-            siblingCount={1} 
-            boundaryCount={1} 
+            siblingCount={1}
+            boundaryCount={1}
           />
         </div>
       </div>

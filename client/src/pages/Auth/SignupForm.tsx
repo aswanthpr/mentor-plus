@@ -19,7 +19,7 @@ import {
 import bgImg from "../../Asset/background.jpg";
 import { MENTEE_SIGNUP_FORM_INIT } from "../../Constants/initialStates";
 import { HttpStatusCode } from "axios";
-import { Messages, routesObj } from "../../Constants/message";
+import { Messages, ROUTES } from "../../Constants/message";
 
 const SignupForm: React.FC = () => {
   const navigate = useNavigate();
@@ -115,7 +115,7 @@ const SignupForm: React.FC = () => {
       if (response.status == HttpStatusCode?.Ok && response.data.success) {
         toast.success(response.data.message);
         setShowOtpModal(false);
-        navigate(routesObj?.MENTEE_LOGIN);
+        navigate(ROUTES?.MENTEE_LOGIN);
       } else {
         toast.error(response.data.message);
       }
@@ -131,7 +131,7 @@ const SignupForm: React.FC = () => {
       const response = await fetchResendOtp(email);
 
       if (response.status == HttpStatusCode?.Ok) {
-        toast.success(response.data.message || "OTP resend successfull");
+        toast.success(response.data.message || Messages?.OTP_RESEND_SUCCESS );
       } else {
         toast.error(Messages?.OTP_FAILED_TO_SEND);
       }

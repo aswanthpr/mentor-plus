@@ -27,20 +27,24 @@ class adminService {
     }
     adminRefreshToken(refresh) {
         return __awaiter(this, void 0, void 0, function* () {
+            var _a, _b;
             try {
                 console.log(refresh, "thsi is admin refrsh");
                 if (!refresh) {
-                    return { success: false, message: "RefreshToken missing", status: 401 };
+                    return { success: false, message: "RefreshToken missing", status: httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.Unauthorized };
                 }
-                const decode = (0, jwt_utils_1.verifyRefreshToken)(refresh);
-                if (!decode) {
+                const decode = (0, jwt_utils_1.verifyRefreshToken)(refresh, "admin");
+                if (!(decode === null || decode === void 0 ? void 0 : decode.isValid) ||
+                    !((_a = decode === null || decode === void 0 ? void 0 : decode.result) === null || _a === void 0 ? void 0 : _a.userId) ||
+                    (decode === null || decode === void 0 ? void 0 : decode.error) == "TamperedToken" ||
+                    (decode === null || decode === void 0 ? void 0 : decode.error) == "TokenExpired") {
                     return {
                         success: false,
-                        message: "Your session has expired. Please log in again.",
-                        status: 401,
+                        message: "You are not authorized. Please log in.",
+                        status: httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.Unauthorized,
                     };
                 }
-                const { userId } = decode;
+                const userId = (_b = decode === null || decode === void 0 ? void 0 : decode.result) === null || _b === void 0 ? void 0 : _b.userId;
                 const accessToken = (0, jwt_utils_1.genAccesssToken)(userId, "admin");
                 const refreshToken = (0, jwt_utils_1.genRefreshToken)(userId, "admin");
                 return {
@@ -48,12 +52,12 @@ class adminService {
                     message: "Token refresh successfully",
                     accessToken,
                     refreshToken,
-                    status: 200,
+                    status: httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.Ok,
                 };
             }
             catch (error) {
                 console.error("Error while generating access or refresh token:", error);
-                return { success: false, message: "Internal server error", status: 500 };
+                return { success: false, message: "Internal server error", status: httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.InternalServerError };
             }
         });
     }
@@ -65,26 +69,26 @@ class adminService {
                     return {
                         success: false,
                         message: "input data is missing",
-                        status: 400,
+                        status: httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.BadRequest,
                     };
                 }
                 const result = yield this._categoryRepository.findCategory(category);
                 if (result) {
-                    return { success: false, message: "category is existing", status: 409 };
+                    return { success: false, message: "category is existing", status: httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.Conflict };
                 }
                 const response = yield this._categoryRepository.createCategory(category);
                 if ((response === null || response === void 0 ? void 0 : response.category) != category) {
                     return {
                         success: false,
                         message: "unexpected error happend",
-                        status: 409,
+                        status: httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.Conflict,
                     };
                 }
                 return {
                     success: true,
                     message: "category created successfully",
                     result: response,
-                    status: 201,
+                    status: httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.Created,
                 };
             }
             catch (error) {
@@ -163,17 +167,17 @@ class adminService {
                     return {
                         success: false,
                         message: "credential is missing",
-                        status: 400,
+                        status: httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.BadRequest,
                     };
                 }
                 const result = yield this._categoryRepository.changeCategoryStatus(id);
                 if (!result) {
-                    return { success: false, message: "category not found", status: 400 };
+                    return { success: false, message: "category not found", status: httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.BadRequest };
                 }
                 return {
                     success: true,
                     message: "category Edited successfully",
-                    status: 200,
+                    status: httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.Ok,
                 };
             }
             catch (error) {
@@ -208,7 +212,7 @@ class adminService {
                 return {
                     success: true,
                     message: "Data retrieved successfully",
-                    status: 200,
+                    status: httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.Ok,
                     Data: result === null || result === void 0 ? void 0 : result.mentees,
                     totalPage,
                 };
@@ -258,7 +262,7 @@ class adminService {
                 return {
                     success: true,
                     message: "Mentee updated successfully!",
-                    status: 200,
+                    status: httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.Ok,
                 };
             }
             catch (error) {
@@ -281,7 +285,7 @@ class adminService {
                 return {
                     success: true,
                     message: "mentee added successfully",
-                    status: 200,
+                    status: httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.Ok,
                     mentee: response,
                 };
             }
@@ -316,7 +320,7 @@ class adminService {
                     return {
                         success: false,
                         message: "Data not found",
-                        status: 204,
+                        status: httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.NoContent,
                         mentorData: [],
                         totalPage: 0
                     };
@@ -324,7 +328,7 @@ class adminService {
                 return {
                     success: true,
                     message: "data successfully retrieved ",
-                    status: 200,
+                    status: httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.Ok,
                     mentorData: result === null || result === void 0 ? void 0 : result.mentors,
                     totalPage
                 };
@@ -342,7 +346,7 @@ class adminService {
                     return {
                         success: false,
                         message: "invalid crdiential",
-                        status: 400,
+                        status: httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.BadRequest,
                         result: null,
                     };
                 }
@@ -352,7 +356,7 @@ class adminService {
                     return {
                         success: false,
                         message: "mentor not exist",
-                        status: 409,
+                        status: httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.Conflict,
                         result: null,
                     };
                 }
@@ -360,7 +364,7 @@ class adminService {
                 return {
                     success: true,
                     message: "mentor verified Successfully!",
-                    status: 200,
+                    status: httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.Ok,
                     result: response,
                 };
             }
@@ -374,7 +378,7 @@ class adminService {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 if (!id || !mongoose_1.default.Types.ObjectId.isValid(id)) {
-                    return { success: false, message: "invalid crdiential", status: 400 };
+                    return { success: false, message: "invalid crdiential", status: httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.BadRequest };
                 }
                 const mentorId = new mongoose_1.default.Types.ObjectId(id);
                 const result = yield this._mentorRepository.changeMentorStatus(mentorId);
@@ -382,13 +386,13 @@ class adminService {
                     return {
                         success: false,
                         message: "status updation failed!",
-                        status: 400,
+                        status: httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.BadRequest,
                     };
                 }
                 return {
                     success: true,
                     message: "status updated successfully!",
-                    status: 200,
+                    status: httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.Ok,
                 };
             }
             catch (error) {

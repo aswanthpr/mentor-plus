@@ -63,11 +63,14 @@ class questionRepository
     try {
       let matchCondition = {};
       if (filter === "answered") {
-        matchCondition = {
-          $and: [{ answers: { $gte: 0 } }, { "answerData.isBlocked": false }],
-        };
+       
+        matchCondition = { $expr: { $gt: [{ $size: "$answerData" }, 0] } }  
+         
       } else {
-        matchCondition = { answers: 0 };
+       
+        matchCondition = {
+          $expr: { $eq: [{ $size: "$answerData" }, 0] }, 
+        };
       }
       const pipeLine: PipelineStage[] = [
         {
@@ -128,9 +131,7 @@ class questionRepository
             as: "answerData.author2",
           },
         },
-        {
-          $match: matchCondition,
-        },
+        
         {
           $addFields: {
             "answerData.author": {
@@ -188,6 +189,20 @@ class questionRepository
             },
           },
         },
+        {
+          $addFields: {
+            answerData: {
+              $filter: {
+                input: "$answerData", 
+                as: "answer", 
+                cond: { $eq: ["$$answer.isBlocked", false] }
+              }
+            },
+          },
+        },
+        {
+          $match: matchCondition,
+        },
       ];
       if (search) {
         pipeLine.push({
@@ -239,11 +254,17 @@ class questionRepository
      
       let matchCondition = {};
       if (filter === "answered") {
+       
         matchCondition = {
-          $and: [{ answers: { $gte: 0 } }, { "answerData.isBlocked": false }],
+          $and: [  
+            { $expr: { $gt: [{ $size: "$answerData" }, 0] } }  
+          ],
         };
       } else {
-        matchCondition = { answers: 0 };
+       
+        matchCondition = {
+          $expr: { $eq: [{ $size: "$answerData" }, 0] }, 
+        };
       }
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const [updatedData, aggregateData] = await Promise.all([
@@ -309,9 +330,7 @@ class questionRepository
               as: "answerData.author2",
             },
           },
-          {
-            $match: matchCondition,
-          },
+          
           {
             $addFields: {
               "answerData.author": {
@@ -350,6 +369,20 @@ class questionRepository
               },
             },
           },
+          {
+            $addFields: {
+              answerData: {
+                $filter: {
+                  input: "$answerData", 
+                  as: "answer", 
+                  cond: { $eq: ["$$answer.isBlocked", false] }
+                }
+              },
+            },
+          },
+          {
+            $match: matchCondition,
+          },
         ]),
       ]);
 
@@ -374,14 +407,17 @@ class questionRepository
     try {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       let matchCondition: any = {};
-      if (filter === "answered") {
-        matchCondition = {
-          $and: [{ answers: { $gt: 0 } }, { "answerData.isBlocked": false }],
-        };
-      } else {
-        matchCondition = { answers: { $lte: 0 } };
-      }
 
+      if (filter === "answered") {
+       
+        matchCondition = { $expr: { $gt: [{ $size: "$answerData" }, 0] } }  
+         
+      } else {
+       
+        matchCondition = {
+          $expr: { $eq: [{ $size: "$answerData" }, 0] }, 
+        };
+      }
       if (search) {
         matchCondition.$or = [
           { title: { $regex: search, $options: "i" } },
@@ -451,12 +487,11 @@ class questionRepository
               as: "answerData.author2",
             },
           },
-          {
-            $match: matchCondition,
-          },
+         
           {
             $sort:{[sortField]:sortOrder==="asc"?1:-1}
           },
+          
           {
             $addFields: {
               "answerData.author": {
@@ -474,6 +509,7 @@ class questionRepository
               "answerData.author2": 0,
             },
           },
+          
           {
             $group: {
               _id: "$_id",
@@ -494,6 +530,20 @@ class questionRepository
                 },
               },
             },
+          },
+          {
+            $addFields: {
+              answerData: {
+                $filter: {
+                  input: "$answerData", 
+                  as: "answer", 
+                  cond: { $eq: ["$$answer.isBlocked", false] }
+                }
+              },
+            },
+          },
+          {
+            $match: matchCondition,
           },
           {
             $skip: skip,

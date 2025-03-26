@@ -12,7 +12,7 @@ import {
   EyeClosedIcon,
   EyeIcon,
 } from "lucide-react";
-import profile from "../../Asset/images.png";
+import profile from "../../Asset/user.png";
 import Modal from "../../components/Common/common4All/Modal";
 import { toast } from "react-toastify";
 import InputField from "../../components/Auth/InputField";
@@ -276,7 +276,7 @@ const MenteeProfile: React.FC = () => {
           <div className="ml-5 absolute bottom-0 left-auto transform translate-y-1/2 flex items-end">
             <div className="relative group">
               <img
-                src={mentee?.profileUrl ? mentee?.profileUrl : profile}
+                src={ mentee?.profileUrl ?? profile}
                 alt=""
                 className="w-32 h-32 rounded-full border-4 border-white shadow-lg"
               />

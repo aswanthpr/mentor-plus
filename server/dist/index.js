@@ -35,6 +35,7 @@ exports.io = new socket_io_1.Server(server, {
 exports.socketManager = new socket_1.SocketManager(exports.io);
 exports.socketManager.initialize();
 //using middlewares
+app.use(index_middleware_1.cacheControl);
 app.use(index_middleware_1.helmetConfig); // set security headers
 // app.use(limiter); //express rate limit
 app.use(index_middleware_1.compress); //response compresser for performance

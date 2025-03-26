@@ -14,7 +14,6 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.mentorService = void 0;
 const bcrypt_1 = __importDefault(require("bcrypt"));
-const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const rrule_1 = require("rrule");
 const jwt_utils_1 = require("../Utils/jwt.utils");
 const hashPass_util_1 = __importDefault(require("../Utils/hashPass.util"));
@@ -32,24 +31,24 @@ class mentorService {
     }
     mentorProfile(token) {
         return __awaiter(this, void 0, void 0, function* () {
-            var _a;
+            var _a, _b;
             try {
-                const decode = jsonwebtoken_1.default.verify(token, (_a = process.env) === null || _a === void 0 ? void 0 : _a.JWT_ACCESS_SECRET);
-                if (!decode) {
+                const decode = (0, jwt_utils_1.verifyAccessToken)(token, "mentor");
+                if (!((_a = decode === null || decode === void 0 ? void 0 : decode.result) === null || _a === void 0 ? void 0 : _a.userId)) {
                     return {
                         success: false,
                         message: "Your session has expired. Please log in again.",
-                        status: 403,
+                        status: httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.Forbidden,
                         result: null,
                         categories: [],
                     };
                 }
-                const result = yield this._mentorRepository.findMentorById(decode === null || decode === void 0 ? void 0 : decode.userId);
+                const result = yield this._mentorRepository.findMentorById((_b = decode === null || decode === void 0 ? void 0 : decode.result) === null || _b === void 0 ? void 0 : _b.userId);
                 if (!result) {
                     return {
                         success: false,
                         message: "invalid credential",
-                        status: 204,
+                        status: httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.NoContent,
                         result: null,
                         categories: [],
                     };
@@ -59,7 +58,7 @@ class mentorService {
                     return {
                         success: false,
                         message: "invalid credential",
-                        status: 204,
+                        status: httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.NoContent,
                         result: null,
                         categories: [],
                     };
@@ -67,7 +66,7 @@ class mentorService {
                 return {
                     success: true,
                     message: "successfull",
-                    status: 200,
+                    status: httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.Ok,
                     result: result,
                     categories: categoryData,
                 };
@@ -80,23 +79,24 @@ class mentorService {
     //mentor refresh token
     mentorRefreshToken(refresh) {
         return __awaiter(this, void 0, void 0, function* () {
+            var _a, _b;
             try {
                 if (!refresh) {
                     return {
                         success: false,
                         message: "You are not authorized. Please log in.",
-                        status: 401,
+                        status: httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.Unauthorized,
                     };
                 }
-                const decode = (0, jwt_utils_1.verifyRefreshToken)(refresh);
-                if (!decode || !decode.userId) {
+                const decode = (0, jwt_utils_1.verifyRefreshToken)(refresh, "mentor");
+                if (!(decode === null || decode === void 0 ? void 0 : decode.isValid) || !((_a = decode === null || decode === void 0 ? void 0 : decode.result) === null || _a === void 0 ? void 0 : _a.userId) || (decode === null || decode === void 0 ? void 0 : decode.error) == "TamperedToken" || (decode === null || decode === void 0 ? void 0 : decode.error) == "TokenExpired") {
                     return {
                         success: false,
                         message: "You are not authorized. Please log in.",
-                        status: 401,
+                        status: httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.Unauthorized,
                     };
                 }
-                const { userId } = decode;
+                const userId = (_b = decode === null || decode === void 0 ? void 0 : decode.result) === null || _b === void 0 ? void 0 : _b.userId;
                 const accessToken = (0, jwt_utils_1.genAccesssToken)(userId, "mentor");
                 const refreshToken = (0, jwt_utils_1.genRefreshToken)(userId, "mentor");
                 return {
@@ -104,7 +104,7 @@ class mentorService {
                     message: "Token refresh successfully",
                     accessToken,
                     refreshToken,
-                    status: 200,
+                    status: httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.Ok,
                 };
             }
             catch (error) {
@@ -125,14 +125,14 @@ class mentorService {
                     return {
                         success: false,
                         message: "Please provide all required credentials.",
-                        status: 400,
+                        status: httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.BadRequest,
                     };
                 }
                 if (currentPassword == newPassword) {
                     return {
                         success: false,
                         message: "New password cannot be the same as the current password.",
-                        status: 400,
+                        status: httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.BadRequest,
                     };
                 }
                 const result = yield this._mentorRepository.findMentorById(id);
@@ -140,7 +140,7 @@ class mentorService {
                     return {
                         success: false,
                         message: "User not found. Please check your credentials.",
-                        status: 404,
+                        status: httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.NotFound,
                     };
                 }
                 const passCompare = yield bcrypt_1.default.compare(currentPassword, `${result === null || result === void 0 ? void 0 : result.password}`);
@@ -148,7 +148,7 @@ class mentorService {
                     return {
                         success: false,
                         message: "Incorrect current password. Please try again.",
-                        status: 401,
+                        status: httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.BadRequest,
                     };
                 }
                 const hashedPassword = yield (0, hashPass_util_1.default)(newPassword);
@@ -163,7 +163,7 @@ class mentorService {
                 return {
                     success: true,
                     message: "Password updated successfully.",
-                    status: 200,
+                    status: httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.Ok,
                 };
             }
             catch (error) {
@@ -238,7 +238,7 @@ class mentorService {
                     return {
                         success: false,
                         message: "credential is missing",
-                        status: 400,
+                        status: httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.BadRequest,
                         result: null,
                     };
                 }
@@ -247,7 +247,7 @@ class mentorService {
                     return {
                         success: false,
                         message: "Mentor not existing",
-                        status: 404,
+                        status: httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.NotFound,
                         result: null,
                     };
                 }
@@ -287,14 +287,14 @@ class mentorService {
                     return {
                         success: false,
                         message: "unable to update",
-                        status: 404,
+                        status: httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.NotFound,
                         result: null,
                     };
                 }
                 return {
                     success: true,
                     message: "Details changed Successfully!",
-                    status: 200,
+                    status: httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.Ok,
                     result: result,
                 };
             }
@@ -311,7 +311,7 @@ class mentorService {
                     return {
                         success: false,
                         message: "credentials not found",
-                        status: 400,
+                        status: httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.BadRequest,
                         homeData: [],
                         totalPage: 0,
                     };
@@ -324,7 +324,7 @@ class mentorService {
                 return {
                     success: true,
                     message: "Data successfully fetched",
-                    status: 200,
+                    status: httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.Ok,
                     homeData: response === null || response === void 0 ? void 0 : response.question,
                     totalPage,
                 };

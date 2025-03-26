@@ -29,7 +29,7 @@ class qaService {
                     return {
                         success: false,
                         message: "Invalid input: title, content, and tags are required",
-                        status: 400,
+                        status: httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.BadRequest,
                         question: undefined,
                     };
                 }
@@ -38,7 +38,7 @@ class qaService {
                     return {
                         success: false,
                         message: "Question exist",
-                        status: 400,
+                        status: httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.Conflict,
                         question: undefined,
                     };
                 }
@@ -47,14 +47,14 @@ class qaService {
                     return {
                         success: false,
                         message: "Unexpected error occured",
-                        status: 400,
+                        status: httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.BadRequest,
                         question: undefined,
                     };
                 }
                 return {
                     success: true,
                     message: "Question created Successfully!",
-                    status: 200,
+                    status: httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.Ok,
                     question: response,
                 };
             }
@@ -70,7 +70,7 @@ class qaService {
                     return {
                         success: false,
                         message: "credential missing",
-                        status: 400,
+                        status: httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.BadRequest,
                         question: [],
                         totalPage: 0,
                     };
@@ -79,11 +79,12 @@ class qaService {
                 const limitNo = skipData === null || skipData === void 0 ? void 0 : skipData.limitNo;
                 const skip = skipData === null || skipData === void 0 ? void 0 : skipData.skip;
                 const response = yield this.__questionRepository.questionData(userId, filter, search, limitNo, skip, sortField, sortOrder);
+                console.log(response);
                 const totalPage = Math.ceil((response === null || response === void 0 ? void 0 : response.totalDocs) / limitNo);
                 return {
                     success: true,
                     message: "Data retrieved successfully",
-                    status: 200,
+                    status: httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.Ok,
                     question: response === null || response === void 0 ? void 0 : response.questions,
                     userId,
                     totalPage
@@ -262,6 +263,7 @@ class qaService {
                 const limitNo = skipData === null || skipData === void 0 ? void 0 : skipData.limitNo;
                 const skip = skipData === null || skipData === void 0 ? void 0 : skipData.skip;
                 const response = yield this.__questionRepository.allQaData(skip, search, status, limitNo, sortOrder, sortField);
+                console.log('skndfkjaskjnaskjfkajsfksajfkasjbfkjsbfjbfkjbsalkf');
                 const totalPage = Math.ceil((response === null || response === void 0 ? void 0 : response.docCount) / limitNo);
                 console.log(response === null || response === void 0 ? void 0 : response.docCount, totalPage, limit, skip, page);
                 return {

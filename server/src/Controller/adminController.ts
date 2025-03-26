@@ -26,7 +26,7 @@ export class adminController implements IadminController {
         });
     } catch (error: unknown) {
       res
-        .status(500)
+        .status(Status?.InternalServerError)
         .json({ success: false, message: "Internal server error" });
 
       throw new Error(
@@ -44,7 +44,7 @@ export class adminController implements IadminController {
       res.status(response.status).json(response);
     } catch (error: unknown) {
       res
-        .status(500)
+        .status(Status?.InternalServerError)
         .json({ success: false, message: "internal server error" });
 
       throw new Error(
@@ -67,7 +67,7 @@ export class adminController implements IadminController {
      
     } catch (error: unknown) {
       res
-        .status(500)
+        .status(Status?.InternalServerError)
         .json({ success: false, message: "Internal server error" });
 
       throw new Error(
@@ -84,7 +84,7 @@ export class adminController implements IadminController {
       console.log(req.body, "thsi is the data", id, category);
       const result = await this._adminService.editCategory(id, category);
       if (result.success) {
-        res.status(200).json(result);
+        res.status(Status?.Ok).json(result);
       } else {
         res.status(409).json(result);
       }
@@ -108,7 +108,7 @@ export class adminController implements IadminController {
         .json({ success: result.success, message: result.message });
     } catch (error: unknown) {
       res
-        .status(500)
+        .status(Status?.InternalServerError)
         .json({ success: false, message: "Internal server error" });
 
       throw new Error(
@@ -184,7 +184,7 @@ export class adminController implements IadminController {
     try {
       const response = await this._adminService.addMentee(req.body);
 
-      res.status(200).json(response);
+      res.status(Status?.Ok).json(response);
     } catch (error: unknown) {
       throw new Error(
         `error while add mentee Data  in controller ${
@@ -282,7 +282,7 @@ export class adminController implements IadminController {
       res.status(status).json({ success, message, status, salesData });
     } catch (error: unknown) {
       res
-        .status(500)
+        .status(Status?.InternalServerError)
         .json({ success: false, message: "Internal server error" });
       throw new Error(
         `Error while dashboard ${

@@ -93,7 +93,6 @@ class SocketManager {
             //geting new message
             socket.on("new-message", (_a) => __awaiter(this, [_a], void 0, function* ({ roomId, message }) {
                 var _b;
-                console.log('mesage vannu ttoh 0000000000000000000');
                 try {
                     if (!roomId) {
                         console.log("no room");
@@ -120,7 +119,7 @@ class SocketManager {
                     //decode the %$like code from the file name
                     const messageContent = (message === null || message === void 0 ? void 0 : message.messageType) == "text"
                         ? message === null || message === void 0 ? void 0 : message.content
-                        : decodeURIComponent(message === null || message === void 0 ? void 0 : message.content.split("/").pop());
+                        : message === null || message === void 0 ? void 0 : message.messageType;
                     //setting the last message
                     yield chatRepository_1.default.find_By_Id_And_Update(chatSchema_1.default, message === null || message === void 0 ? void 0 : message.chatId, { $set: { lastMessage: String(messageContent) } });
                 }

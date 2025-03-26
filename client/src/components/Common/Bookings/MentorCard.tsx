@@ -2,13 +2,13 @@
 import React from 'react';
 import { Calendar, Clock } from 'lucide-react';
 import { format } from 'date-fns';
-
+import profileImg from "../../../Asset/user.png"
 const MentorCard: React.FC<SessionCardProps> = ({ session, handleCancelSession }) => (
     <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200 hover:shadow-md transition-shadow">
     <div className="flex items-start justify-between">
       <div className="flex items-center gap-4">
         <img
-          src={session?.mentorAvatar}
+          src={session?.mentorAvatar??profileImg}
           alt={session?.mentorName}
           className="w-12 h-12 rounded-full"
           />

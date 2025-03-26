@@ -4,7 +4,7 @@ import { ArrowRight } from "lucide-react";
 import { Menu, X, Github, Twitter, Linkedin } from "lucide-react";
 import logo from "../../Asset/mentor+logo.png";
 import heroImg from "../../Asset/illustration-1.svg";
-import { routesObj } from "../../Constants/message";
+import { ROUTES } from "../../Constants/message";
 import { features } from "../../Constants/const Values";
 
 const Landing: React.FC = () => {
@@ -21,19 +21,19 @@ const Landing: React.FC = () => {
 
             <div className="hidden md:flex gap-4">
               <Link
-                to={routesObj?.MENTOR_APPLY}
+                to={ROUTES?.MENTOR_APPLY}
                 className="px-4 py-2   bg-white text-[#ff9900] rounded-lg hover:bg-[#ff8800] hover:text-white transition-colors font-normal items-center justify-center flex border"
               >
                 Become a Tech Mentor
               </Link>
               <Link
-                to={routesObj?.MENTEE_SINGUP}
+                to={ROUTES?.MENTEE_SINGUP}
                 className="px-4 py-2 border border-gray-200 text-black hover:bg-gray-800 hover:text-white rounded-lg transition-colors font-normal flex items-center justify-center group"
               >
                 Sign Up
               </Link>
               <Link
-                to={routesObj?.MENTEE_LOGIN}
+                to={ROUTES?.MENTEE_LOGIN}
                 className="px-4 py-2 bg-black text-white rounded-lg transition-colors font-normal items-center justify-center flex  hover:bg-gray-50 hover:text-gray-950 border "
               >
                 Login
@@ -69,7 +69,7 @@ const Landing: React.FC = () => {
               </p>
               <div className="mt-8 sm:mt-10">
                 <Link
-                  to={routesObj?.MENTEE_SINGUP}
+                  to={ROUTES?.MENTEE_SINGUP}
                   className="group inline-flex items-center justify-center rounded-lg py-2 px-4 text-sm font-semibold focus:outline-none bg-[#ff8800] text-white hover:bg-gray-100 hover:text-[#ff8800] border border-gray-200"
                 >
                   Get Started
@@ -127,7 +127,7 @@ const Landing: React.FC = () => {
             through mentorship
           </p>
           <Link
-            to={routesObj?.MENTEE_SINGUP}
+            to={ROUTES?.MENTEE_SINGUP}
             className="mt-8 inline-block px-8 py-3 bg-black text-white rounded-lg hover:bg-gray-900 transition-colors font-medium text-lg"
           >
             Start Your Journey

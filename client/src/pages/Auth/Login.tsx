@@ -16,7 +16,7 @@ import { validateEmail, validatePassword } from "../../Validation/Validation";
 import bgImg from "../../Asset/background.jpg";
 import { MENTEE_LOGIN_FORMDATA } from "../../Constants/initialStates";
 import { HttpStatusCode } from "axios";
-import { routesObj } from "../../Constants/message";
+import { ROUTES } from "../../Constants/message";
 
 const Login: React.FC = () => {
   const dispatch: AppDispatch = useDispatch();
@@ -100,7 +100,7 @@ const Login: React.FC = () => {
 
             toast.success(response.data.message);
 
-            navigate(routesObj?.MENTEE_HOME);
+            navigate(ROUTES?.MENTEE_HOME);
           } else {
             toast.error(response?.data?.message);
           }
@@ -122,7 +122,7 @@ const Login: React.FC = () => {
               response.data
             );
 
-            navigate(routesObj?.MENTOR_HOME);
+            navigate(ROUTES?.MENTOR_HOME);
           }
           toast.success(response.data.message);
         }

@@ -216,7 +216,6 @@ class bookingService {
                             !metadata.timeSlot ||
                             !metadata.messages ||
                             !metadata.paymentMethod) {
-                            console.log(metadata, metadata.menteeId, metadata.timeSlot, metadata.message, metadata.paymentMethod);
                             console.error("❌ Invalid or missing metadata in Stripe webhook");
                             // Redirect to error page when metadata is missing
                             const noti = yield this._notificationRepository.createNotification(metadata.menteeId, `Payment Failed`, `Your payment could not be processed. Please try again.`, `mentee`, "");
@@ -477,6 +476,7 @@ class bookingService {
     mentorSlotCancel(sessionId, statusValue) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
+                console.log(statusValue);
                 if (!sessionId || !statusValue) {
                     return {
                         success: false,
@@ -486,6 +486,7 @@ class bookingService {
                     };
                 }
                 const response = yield this._slotScheduleRepository.mentorSlotCancel(sessionId, statusValue);
+                yield this._timeSlotRepository.releaseTimeSlot(String(response === null || response === void 0 ? void 0 : response.slotId));
                 console.log(response);
                 if (!response) {
                     return {

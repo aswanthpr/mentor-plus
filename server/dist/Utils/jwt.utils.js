@@ -59,10 +59,11 @@ const genRefreshToken = (userId, role) => {
     }
 };
 exports.genRefreshToken = genRefreshToken;
-const verifyAccessToken = (token) => {
+const verifyAccessToken = (token, user) => {
     var _a;
     try {
-        return jsonwebtoken_1.default.verify(token, (_a = process.env) === null || _a === void 0 ? void 0 : _a.JWT_ACCESS_SECRET);
+        const result = jsonwebtoken_1.default.verify(token, (_a = process.env) === null || _a === void 0 ? void 0 : _a.JWT_ACCESS_SECRET);
+        return { result, isValid: (result === null || result === void 0 ? void 0 : result.role) === user };
     }
     catch (error) {
         console.log(`\x1b[35m%s\x1b[0m]`, `Error while verifying access token ${error instanceof Error ? error.message : String(error)}`);
@@ -77,10 +78,11 @@ const verifyAccessToken = (token) => {
     }
 };
 exports.verifyAccessToken = verifyAccessToken;
-const verifyRefreshToken = (token) => {
+const verifyRefreshToken = (token, user) => {
     var _a;
     try {
-        return jsonwebtoken_1.default.verify(token, (_a = process.env) === null || _a === void 0 ? void 0 : _a.JWT_REFRESH_SECRET);
+        const result = jsonwebtoken_1.default.verify(token, (_a = process.env) === null || _a === void 0 ? void 0 : _a.JWT_REFRESH_SECRET);
+        return { result, isValid: (result === null || result === void 0 ? void 0 : result.role) === user };
     }
     catch (error) {
         console.log(`\x1b[36m%s\x1b[0m]`, `Error while verifying refresh token ${error instanceof Error ? error.message : String(error)}`);

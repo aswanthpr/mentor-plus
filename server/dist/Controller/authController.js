@@ -79,7 +79,7 @@ class authController {
             }
             catch (error) {
                 res
-                    .status(500)
+                    .status(httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.InternalServerError)
                     .json({ success: false, message: "Internal server error" });
                 throw new Error(`error while resend otp ${error instanceof Error ? error.message : String(error)}`);
             }
@@ -109,7 +109,7 @@ class authController {
             catch (error) {
                 console.error(`Login error: ${error instanceof Error ? error.message : String(error)}`);
                 res
-                    .status(500)
+                    .status(httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.InternalServerError)
                     .json({ success: false, message: "Internal server error" });
                 throw new Error(`error while Login in getMainLogin ${error instanceof Error ? error.message : String(error)}`);
             }
@@ -128,7 +128,7 @@ class authController {
             catch (error) {
                 console.error(`Login error: ${error instanceof Error ? error.message : String(error)}`);
                 res
-                    .status(500)
+                    .status(httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.InternalServerError)
                     .json({ success: false, message: "Internal server error" });
                 throw new Error(`error while forgetpass in getforgetPassword ${error instanceof Error ? error.message : String(error)}`);
             }
@@ -159,7 +159,7 @@ class authController {
             catch (error) {
                 console.error(`Login error: ${error instanceof Error ? error.message : String(error)}`);
                 res
-                    .status(500)
+                    .status(httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.InternalServerError)
                     .json({ success: false, message: "Internal server error" });
                 throw new Error(`Error while handling forgot password request: ${error instanceof Error ? error.message : String(error)}`);
             }
@@ -184,9 +184,6 @@ class authController {
                 return;
             }
             catch (error) {
-                res
-                    .status(500)
-                    .json({ success: false, message: "Internal server error" });
                 throw new Error(`error while admin Login${error instanceof Error ? error.message : String(error)}`);
             }
         });
@@ -204,7 +201,7 @@ class authController {
             }
             catch (error) {
                 res
-                    .status(500)
+                    .status(httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.InternalServerError)
                     .json({ success: false, message: "Internal server error" });
                 throw new Error(`error while getting mentorRoles${error instanceof Error ? error.message : String(error)}`);
             }
@@ -245,7 +242,7 @@ class authController {
             }
             catch (error) {
                 res
-                    .status(500)
+                    .status(httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.InternalServerError)
                     .json({ success: false, message: "Internal server error" });
                 throw new Error(`error while mentor application ${error instanceof Error ? error.message : String(error)}`);
             }

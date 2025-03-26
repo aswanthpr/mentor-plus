@@ -16,11 +16,11 @@ const menteeModel_1 = __importDefault(require("../Model/menteeModel"));
 const jwt_utils_1 = require("../Utils/jwt.utils");
 const httpStatusCode_1 = require("../Utils/httpStatusCode");
 const adminAuthorization = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
-    var _a;
+    var _a, _b, _c, _d;
     try {
         //checking fresh token valid
         const refreshToken = (_a = req.cookies) === null || _a === void 0 ? void 0 : _a.adminToken;
-        if (!refreshToken || !(0, jwt_utils_1.verifyRefreshToken)(refreshToken)) {
+        if (!refreshToken || !(0, jwt_utils_1.verifyRefreshToken)(refreshToken, "admin")) {
             res.status(httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.Unauthorized).json({
                 success: false,
                 message: "Session expired. Please log in again.",
@@ -37,8 +37,8 @@ const adminAuthorization = (req, res, next) => __awaiter(void 0, void 0, void 0,
         }
         const token = authHeader === null || authHeader === void 0 ? void 0 : authHeader.split(" ")[1];
         //jwt verifying
-        const decode = (0, jwt_utils_1.verifyAccessToken)(token);
-        if ((decode === null || decode === void 0 ? void 0 : decode.error) == "TamperedToken") {
+        const decode = (0, jwt_utils_1.verifyAccessToken)(token, "admin");
+        if ((decode === null || decode === void 0 ? void 0 : decode.error) == "TamperedToken" || !(decode === null || decode === void 0 ? void 0 : decode.isValid)) {
             res
                 .status(httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.Unauthorized)
                 .json({ success: false, message: "Token Invalid." });
@@ -50,13 +50,13 @@ const adminAuthorization = (req, res, next) => __awaiter(void 0, void 0, void 0,
                 .json({ success: false, message: "Token Expired." });
             return;
         }
-        if (decode.role !== "admin") {
+        if (((_b = decode === null || decode === void 0 ? void 0 : decode.result) === null || _b === void 0 ? void 0 : _b.role) !== "admin") {
             res
                 .status(httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.Unauthorized)
                 .json({ success: false, message: "user role is invalid" });
             return;
         }
-        const adminData = yield menteeModel_1.default.findById(decode === null || decode === void 0 ? void 0 : decode.userId, {
+        const adminData = yield menteeModel_1.default.findById((_c = decode === null || decode === void 0 ? void 0 : decode.result) === null || _c === void 0 ? void 0 : _c.userId, {
             isAdmin: true,
         });
         if (!adminData) {
@@ -65,7 +65,7 @@ const adminAuthorization = (req, res, next) => __awaiter(void 0, void 0, void 0,
                 .json({ message: "admin not found", success: false });
             return;
         }
-        req.user = { adminId: decode === null || decode === void 0 ? void 0 : decode.userId };
+        req.user = { adminId: (_d = decode === null || decode === void 0 ? void 0 : decode.result) === null || _d === void 0 ? void 0 : _d.userId };
         next();
     }
     catch (error) {

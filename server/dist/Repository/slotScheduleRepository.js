@@ -169,8 +169,8 @@ class slotScheduleRepository extends baseRepo_1.baseRepository {
                 }
                 if (filter !== "all") {
                     matchFilter["status"] =
-                        filter === "RECLAIM_REQUESTED"
-                            ? "RECLAIM_REQUESTED"
+                        filter === "CANCEL_REQUESTED"
+                            ? "CANCEL_REQUESTED"
                             : { $in: [filter] };
                 }
                 // Pagination
@@ -277,8 +277,8 @@ class slotScheduleRepository extends baseRepo_1.baseRepository {
                 }
                 if (filter !== "all") {
                     matchFilter["status"] =
-                        filter === "RECLAIM_REQUESTED"
-                            ? "RECLAIM_REQUESTED"
+                        filter === "CANCEL_REQUESTED"
+                            ? "CANCEL_REQUESTED"
                             : { $in: [filter] };
                 }
                 // Pagination

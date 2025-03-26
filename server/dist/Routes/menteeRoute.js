@@ -65,7 +65,7 @@ mentee_Router.get(`/explore/similar-mentors`, menteeAuthMiddleware_1.default, __
 mentee_Router.get(`/slot-booking`, menteeAuthMiddleware_1.default, __bookingController.getTimeSlots.bind(__bookingController));
 //slot book with rzorpay
 mentee_Router.post(`/slot-booking`, menteeAuthMiddleware_1.default, __bookingController.slotBooking.bind(__bookingController));
-mentee_Router.post("/webhook", express_1.default.raw({ type: "application/json" }), __bookingController.stripeWebHook.bind(__bookingController));
+mentee_Router.post("/booking/webhook", express_1.default.raw({ type: "application/json" }), __bookingController.stripeWebHook.bind(__bookingController));
 // ./stripe listen --forward-to localhost:3000/mentee/webhook
 mentee_Router.get(`/sessions`, menteeAuthMiddleware_1.default, __bookingController.getBookedSlot.bind(__bookingController));
 mentee_Router.patch(`/sessions/cancel_request/:sessionId`, menteeAuthMiddleware_1.default, __bookingController.cancelSlot.bind(__bookingController));
@@ -77,6 +77,6 @@ mentee_Router.post(`/session/validate-session-join`, menteeAuthMiddleware_1.defa
 //wallet'
 mentee_Router.get(`/wallet`, menteeAuthMiddleware_1.default, __walletController.getWalletData.bind(__walletController));
 mentee_Router.post("/wallet/add-money-wallet", menteeAuthMiddleware_1.default, __walletController.addMoneyToWallet.bind(__walletController));
-mentee_Router.post("/wallet/webhook", express_1.default.raw({ type: "application/json" }), menteeAuthMiddleware_1.default, __walletController.walletStripeWebHook.bind(__walletController));
+mentee_Router.post("/wallet/webhook", express_1.default.raw({ type: "application/json" }), __walletController.walletStripeWebHook.bind(__walletController));
 mentee_Router.post("/review-and-rating", menteeAuthMiddleware_1.default, __reviewController.reviewNdRateMentor.bind(__reviewController));
 exports.default = mentee_Router;

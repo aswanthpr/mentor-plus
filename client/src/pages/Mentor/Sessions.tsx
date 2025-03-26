@@ -19,7 +19,7 @@ import {
 import { joinSessionHandler } from "../../service/commonApi";
 import { Pagination } from "@mui/material";
 import { HttpStatusCode } from "axios";
-import { Messages } from "../../Constants/message";
+import { Messages, SESSION_STATUS } from "../../Constants/message";
 
 const Sessions: React.FC = () => {
   const limit = 5;
@@ -61,7 +61,7 @@ const Sessions: React.FC = () => {
 
   const handleReclaimRequest = useCallback(
     (sessionId: string, val: string) => {
-      const value = val === "APPROVE" ? "CANCELLED" : "REJECTED";
+      const value = val === "APPROVE" ? SESSION_STATUS?.CANCELLED : SESSION_STATUS?.REJECTED;
 
       const handleRequest = async (sessionId: string, value: string) => {
         const response = await fetchCanceSessionResponse(sessionId, value);
@@ -76,7 +76,7 @@ const Sessions: React.FC = () => {
                   : session
               )
               .filter((session) =>
-                value !== "REJECTED" ? true : session?._id !== sessionId
+                value !== SESSION_STATUS?.REJECTED ? true : session?._id !== sessionId
               )
           );
         }
@@ -141,7 +141,7 @@ const Sessions: React.FC = () => {
         toast.success(response?.data?.message);
         setSessions((pre) =>
           pre.map((sess) =>
-            sess._id === bookingId ? { ...sess, status: "COMPLETED" } : sess
+            sess._id === bookingId ? { ...sess, status:SESSION_STATUS?.COMPLETED } : sess
           )
         );
       }
@@ -211,12 +211,12 @@ const Sessions: React.FC = () => {
                 <option value="all">All Status</option>
                 {activeTab == "upcoming" ? (
                   <>
-                    <option value="RECLAIM_REQUESTED">Cancel Request</option>
+                    <option value={SESSION_STATUS?.CANCEL_REQUESTED}>Cancel Request</option>
                   </>
                 ) : (
                   <>
-                    <option value="COMPLETED">Completed</option>
-                    <option value="CANCELLED">Cancelled</option>
+                    <option value={SESSION_STATUS?.COMPLETED}>Completed</option>
+                    <option value={SESSION_STATUS?.CANCELLED}>Cancelled</option>
                   </>
                 )}
               </select>

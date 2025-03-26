@@ -1,4 +1,3 @@
-//routes
 
 import {
   Award,

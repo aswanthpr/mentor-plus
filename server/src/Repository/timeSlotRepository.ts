@@ -148,8 +148,6 @@ class timeSlotRepository
             price: 1,
             startTime: "$slots.startTime",
             endTime: "$slots.endTime",
-            startStr: "$slots.startStr",
-            endStr: "$slots.endStr",
             duration: 1,
           },
         },
@@ -160,6 +158,9 @@ class timeSlotRepository
             isBooked: false,
           },
         },
+        {
+          $sort:{startTime:1}
+        }
       ]);
     } catch (error: unknown) {
       throw new Error(
@@ -205,6 +206,20 @@ class timeSlotRepository
           },
         },
       ]);
+    } catch (error: unknown) {
+      throw new Error(
+        `${"\x1b[35m%s\x1b[0m"}error while getting editing speific mentor time slots :${
+          error instanceof Error ? error.message : String(error)
+        }`
+      );
+    }
+  }
+
+  async releaseTimeSlot(slotId:string): Promise<Itime | null> {
+    try {
+      return await this.find_By_Id_And_Update(timeSchema, slotId, {
+        $set: { isBooked: false },
+      });
     } catch (error: unknown) {
       throw new Error(
         `${"\x1b[35m%s\x1b[0m"}error while getting editing speific mentor time slots :${

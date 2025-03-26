@@ -9,11 +9,10 @@ const adminAuthorization = async (
   next: NextFunction
 ): Promise<void> => {
   try {
-
     //checking fresh token valid
     const refreshToken = req.cookies?.adminToken;
 
-    if (!refreshToken || !verifyRefreshToken(refreshToken)) {
+    if (!refreshToken || !verifyRefreshToken(refreshToken, "admin")) {
       res.status(Status?.Unauthorized).json({
         success: false,
         message: "Session expired. Please log in again.",
@@ -23,7 +22,7 @@ const adminAuthorization = async (
 
     //get access token from authorizatoin header
     const authHeader = req.headers.authorization;
-   
+
     if (!authHeader || !authHeader.startsWith("Bearer")) {
       res
         .status(Status?.Unauthorized)
@@ -34,9 +33,9 @@ const adminAuthorization = async (
     const token: string | undefined = authHeader?.split(" ")[1];
 
     //jwt verifying
-    const decode = verifyAccessToken(token as string);
+    const decode = verifyAccessToken(token as string, "admin");
 
-    if (decode?.error == "TamperedToken") {
+    if (decode?.error == "TamperedToken" || !decode?.isValid) {
       res
         .status(Status?.Unauthorized)
         .json({ success: false, message: "Token Invalid." });
@@ -49,16 +48,15 @@ const adminAuthorization = async (
         .json({ success: false, message: "Token Expired." });
       return;
     }
-   
 
-    if (decode.role !== "admin") {
+    if (decode?.result?.role !== "admin") {
       res
         .status(Status?.Unauthorized)
         .json({ success: false, message: "user role is invalid" });
       return;
     }
-  
-    const adminData = await MenteeModel.findById(decode?.userId, {
+
+    const adminData = await MenteeModel.findById(decode?.result?.userId, {
       isAdmin: true,
     });
 
@@ -69,7 +67,7 @@ const adminAuthorization = async (
       return;
     }
 
-    req.user = { adminId: decode?.userId };
+    req.user = { adminId: decode?.result?.userId };
     next();
   } catch (error: unknown) {
     console.log(

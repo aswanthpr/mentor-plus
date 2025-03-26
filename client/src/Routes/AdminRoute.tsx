@@ -23,11 +23,10 @@ const AdminRoute: React.FC = () => (
           <Route index path="dashboard" element={<Dashboard />} />
           <Route path="category_management" element={<Category_mgt />} />
           <Route path="mentor_management" element={<Mentor_mgt />}>
-            <Route index path="verified" element={<Mentor_mgt />} />
+            <Route path="verified" element={<Mentor_mgt />} />
             <Route path="not_verified" element={<Mentor_mgt />} />
           </Route>
           <Route path="mentee_management" element={<Mentee_mgt />} />
-          <Route path="payment_management" element={<Category_mgt />} />
           <Route path="qa_management" element={<QA_mgt />} />
         </Route>
       </Route>

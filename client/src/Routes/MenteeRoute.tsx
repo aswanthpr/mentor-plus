@@ -10,6 +10,7 @@ import BookingPage from "../components/Mentee/BookingPage";
 import StripeCheckoutCancel from "../components/Common/Stripe/StripeCheckoutCancel";
 import VideoPage from "../components/Common/Bookings/VideoPage";
 import MenteeLogin from "../Utils/ProtectedRoute/MenteeProtectLogin";
+import { ROUTES } from "../Constants/message";
 
 const Message = lazy(() => import("../pages/Mentee/Message"));
 const StripeComplete = lazy(
@@ -28,31 +29,31 @@ const MenteeRoute: React.FC = () => (
   <Suspense fallback={<Spinner />}>
     ;
     <Routes>
-      <Route path="*" element={<NotFound />} />;
-      <Route path="/500" element={<InternalServer />} />;
+      <Route path="*" element={<NotFound />} />
+      <Route path="/500" element={<InternalServer />} />
       <Route path="/" element={<Mentee_Page />}>
         ;
-        <Route index element={<Navigate to="/mentee/home" />} />;
+        <Route index element={<Navigate to={ROUTES?.MENTEE_HOME} />} />;
         <Route element={<MenteeLogin />}>
-          <Route path="/home" element={<Home />} />;
-          <Route path="/profile/" element={<MenteeProfile />} />;
+          <Route path="/home" element={<Home />} />
+          <Route path="/profile/" element={<MenteeProfile />} />
           <Route path="explore">
             <Route index element={<Explore />} />
             <Route path="mentor/:mentorId" element={<MentorProfile />} />
-            <Route path=":name" element={<MentorProfile />} />;
+            <Route path=":name" element={<MentorProfile />} />
           </Route>
           <Route path="/:name/slot-booking" element={<BookingPage />} />
           ;
           <Route path="/bookings" element={<Bookings />} />
           <Route path="/bookings/:roomId" element={<VideoPage />} />
           <Route path="/messages" element={<Message />} />
-          <Route path="/wallet" element={<Wallet />} />;
-          <Route path="/qa" element={<QnA_page />} />;
+          <Route path="/wallet" element={<Wallet />} />
+          <Route path="/qa" element={<QnA_page />} />
           <Route path="/stripe-cancel" element={<StripeCheckoutCancel />} />
           <Route path="/stripe-success" element={<StripeComplete />} />
         </Route>
-        <Route path="/google/success" element={<GoogleSuccess />} />;
-        <Route path="/google/failure" element={<GoogleFailure />} />;
+        <Route path="/google/success" element={<GoogleSuccess />} />
+        <Route path="/google/failure" element={<GoogleFailure />} />
       </Route>
     </Routes>
   </Suspense>

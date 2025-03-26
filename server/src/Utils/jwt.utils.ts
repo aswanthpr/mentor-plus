@@ -27,12 +27,14 @@ export const genRefreshToken = (userId: string,role:string): string | undefined 
   }
 };
 
-export const verifyAccessToken=(token:string)=>{
+export const verifyAccessToken=(token:string,user:string)=>{
   try {
-   return  jwt.verify(
+    const result =  jwt.verify(
     token,
       process.env?.JWT_ACCESS_SECRET as string 
     ) as JwtPayload
+    
+    return {result,isValid:result?.role===user}
   } catch (error:unknown) {
     console.log(
       `\x1b[35m%s\x1b[0m]`,
@@ -51,12 +53,13 @@ export const verifyAccessToken=(token:string)=>{
 }
 
 
-export const verifyRefreshToken = (token: string) => {
+export const verifyRefreshToken = (token: string,user:string) => {
   try {
-    return jwt.verify(
+    const result =  jwt.verify(
       token,
       process.env?.JWT_REFRESH_SECRET as string
     ) as JwtPayload;
+    return {result,isValid:result?.role===user}
   } catch (error: unknown) {
     console.log(
       `\x1b[36m%s\x1b[0m]`,

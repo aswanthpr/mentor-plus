@@ -4,7 +4,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 var _a;
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.helmetConfig = exports.urlEncoding = exports.jsonParseOrRaw = exports.sessionConfig = exports.compress = exports.limiter = exports.corsConfig = exports.corsOptions = void 0;
+exports.cacheControl = exports.helmetConfig = exports.urlEncoding = exports.jsonParseOrRaw = exports.sessionConfig = exports.compress = exports.limiter = exports.corsConfig = exports.corsOptions = void 0;
 const express_rate_limit_1 = require("express-rate-limit");
 const compression_1 = __importDefault(require("compression"));
 const express_session_1 = __importDefault(require("express-session"));
@@ -64,8 +64,8 @@ exports.sessionConfig = (0, express_session_1.default)({
 });
 // determine request body parse to json or raw state
 const jsonParseOrRaw = (req, res, next) => {
-    if (req.originalUrl === "/mentee/webhook" ||
-        req.originalUrl == "/mentee/wallet/webhook") {
+    if (req.originalUrl === "/mentee/booking/webhook" ||
+        req.originalUrl === "/mentee/wallet/webhook") {
         next(); // Do nothing with the body because  need it in a raw state.
     }
     else {
@@ -84,3 +84,8 @@ exports.helmetConfig = (0, helmet_1.default)({
         },
     },
 });
+const cacheControl = (req, res, next) => {
+    res.set('Cache-Control', 'no-cache, private, no-store, must-revalidate, max-stale=0, post-check=0, pre-check=0');
+    next();
+};
+exports.cacheControl = cacheControl;

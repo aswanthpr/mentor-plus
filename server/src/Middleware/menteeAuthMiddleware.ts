@@ -12,7 +12,7 @@ const menteeAuthorization = async (
   try {
     const refreshToken = req.cookies?.refreshToken;
     //checking fresh token valid
-    if (!refreshToken || !verifyRefreshToken(refreshToken)) {
+    if (!refreshToken || !verifyRefreshToken(refreshToken, "mentee")) {
       res.status(Status?.Unauthorized).json({
         success: false,
         message: "Session expired. Please log in again.",
@@ -28,14 +28,20 @@ const menteeAuthorization = async (
       });
       return;
     }
- 
+
     const token: string | undefined = authHeader?.split(" ")[1];
     if (!token) {
-      res.status(Status.Unauthorized).json({ success: false, message: "You do not have permission to access this resource.", user: false });
-       return
-  }
+      res
+        .status(Status.Unauthorized)
+        .json({
+          success: false,
+          message: "You do not have permission to access this resource.",
+          user: false,
+        });
+      return;
+    }
     //jwt verifying
-    const decode = verifyAccessToken(token as string);
+    const decode = verifyAccessToken(token as string, "mentee");
 
     if (decode?.error == "TokenExpired") {
       res
@@ -44,21 +50,27 @@ const menteeAuthorization = async (
       return;
     }
 
-    if (decode?.error == "TamperedToken") {
+    if (decode?.error == "TamperedToken"||!decode?.isValid) {
       res
         .status(Status?.Unauthorized)
         .json({ success: false, message: "Token Invalid." });
       return;
     }
+    if (!decode?.isValid) {
+      res
+        .status(Status?.Unauthorized)
+        .json({ success: false, message: "User not Valid." });
+      return;
+    }
 
-    if (decode?.role !== "mentee") {
+    if (decode?.result?.role !== "mentee") {
       res
         .status(Status?.Unauthorized)
         .json({ success: false, message: "user role is invalid" });
       return;
     }
 
-    const menteeData = await menteeModel.findById(decode?.userId);
+    const menteeData = await menteeModel.findById(decode?.result?.userId);
 
     if (!menteeData || menteeData?.isBlocked) {
       res
@@ -67,13 +79,12 @@ const menteeAuthorization = async (
       return;
     }
 
-    req.user = new mongoose.Types.ObjectId(decode?.userId as string);
+    req.user = new mongoose.Types.ObjectId(decode?.result?.userId as string);
 
     next();
-
   } catch (error: unknown) {
     console.log(error instanceof Error ? error.message : String(error));
   }
 };
- 
+
 export default menteeAuthorization;

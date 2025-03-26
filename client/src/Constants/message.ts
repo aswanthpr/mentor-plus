@@ -1,9 +1,9 @@
-export const routesObj = {
+export const ROUTES = {
+  MENTEE_SINGUP:'/auth/signup',
   MENTEE_LOGIN: "/auth/login/mentee",
   MENTEE_HOME: "/mentee/home",
   MENTEE_EXPLORE: "/mentee/explore",
   MENTEE_BOOKING: "/mentee/bookings",
-  MENTEE_SINGUP:'/auth/signup',
 
   ADMIN_MGT_VERIFIED: "/admin/mentor_management/verified",
   ADMIN_MGT_NOT_VERIFIED: "/admin/mentor_management/not_verified",
@@ -23,9 +23,11 @@ export const Messages = {
   OTP_MUST_BE_NUMBERS: "OTP must contain only numbers",
   EMAIL_OTP_ERROR: "Please enter a valid email address before sending OTP",
   OTP_FAILED_TO_SEND: "Failed to send OTP",
+  OTP_RESEND_SUCCESS:"OTP resend successfull",
 
   NORMAL_TIMESLOT_LIMIT: "You can only add up to 10 time slots.",
   TIME_SLOT_CANNOT_OVERLAP: "Time slots cannot overlap",
+  SELECT_A_SLOT:"Please select a time slot",
 
   GOOGLE_AUTH_FAIL_MESSAGE:
     "This email is already registered with a different provider",
@@ -36,12 +38,26 @@ export const Messages = {
   CATEGORY_EXIST: "Category already exists. Please choose a different name.",
 
   CREDENTIAL_NOT_FOUND: "Credential not found",
+
   MENTOR_APPLY_INFO:
     '"Your application is currently under review. Once verified, you will receive a notification via email within 3 working days. Have a great day!"',
     FILE_CHANGE_ERROR:"invalid file type",
 
     NO_CHANGES_IN_FILE:"No changes detected. Please modify the question before updating.",
+
     UNEXPECTED_ERROR:"Unexpected error occured",
+
     CREATED_SESSION_CODE:"successfully created SessionCode ✔️",
-    WITHDRAW_LIMIT:"amount cannot be less than $500"
+
+    WITHDRAW_LIMIT:"amount cannot be less than $500",
+
+    SIGNUP_SUCCESS:'Signin Successfull!',
 };
+export const SESSION_STATUS = {
+  CANCEL_REQUESTED: "CANCEL_REQUESTED",
+  CONFIRMED:"CONFIRMED",
+  COMPLETED:"COMPLETED",
+  CANCELLED:"CANCELLED",
+  REJECTED:"REJECTED",
+  RESCHEDULED:"RESCHEDULED"
+} 

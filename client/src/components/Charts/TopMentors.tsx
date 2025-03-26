@@ -1,6 +1,6 @@
 import React from "react";
 import { Star } from "lucide-react";
-
+import profileImg  from "../../Asset/user.png"
 const TopMentors: React.FC<TopMentorsProps> = React.memo(({ mentors }) => {
   return (
     <div className="bg-white p-6 rounded-lg shadow-sm">
@@ -33,7 +33,7 @@ const TopMentors: React.FC<TopMentorsProps> = React.memo(({ mentors }) => {
                   <div className="flex items-center">
                     <img
                       className="h-10 w-10 rounded-full"
-                      src={mentor?.profileUrl}
+                      src={mentor?.profileUrl??profileImg}
                       alt={mentor?.mentorName}
                     />
                     <div className="ml-4">

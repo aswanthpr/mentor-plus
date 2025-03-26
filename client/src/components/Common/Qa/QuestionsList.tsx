@@ -12,7 +12,7 @@ import {
   X,
 } from "lucide-react";
 import AddQuestion from "./AddQuestion";
-import falseLogo from "../../../Asset/images.png"; 
+import profileImg from "../../../Asset/user.png"; 
 
 
 const QuestionList: React.FC<QuestionListProps> = ({
@@ -116,7 +116,7 @@ const QuestionList: React.FC<QuestionListProps> = ({
               <div className="mt-4 flex justify-between items-center">
                 <div className="flex items-center gap-2">
                   <img
-                    src={question.user?.profileUrl || falseLogo}
+                    src={question.user?.profileUrl??profileImg }
                     alt={question.user?.name}
                     className="w-8 h-8 rounded-full"
                   />
@@ -272,7 +272,7 @@ const QuestionList: React.FC<QuestionListProps> = ({
                     >
                       <div className="flex items-center gap-4 mb-3">
                         <img
-                          src={answer?.author?.profileUrl}
+                          src={answer?.author?.profileUrl??profileImg}
                           alt={answer?.author?.name}
                           className="w-10 h-10 rounded-full"
                         />

@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect, useCallback } from "react";
+import EmojiPicker, { EmojiClickData } from "emoji-picker-react";
 import { Search, Send, Paperclip, X, Smile } from "lucide-react";
-import dayjs  from "dayjs"
+import dayjs from "dayjs";
 import moment from "moment";
 import { Socket } from "socket.io-client";
 import { errorHandler } from "../../Utils/Reusable/Reusable";
@@ -8,7 +9,8 @@ import { connectToChat } from "../../Socket/connect";
 import { uploadFile } from "../../Utils/Reusable/cloudinary";
 import chatBg from "../../Asset/mpchatbg.png";
 import { fetchChats } from "../../service/commonApi";
-import EmojiPicker, { EmojiClickData } from "emoji-picker-react";
+import profileImg from "../../Asset/user.png";
+import { HttpStatusCode } from "axios";
 const Message: React.FC = () => {
   const [selectedUser, setSelectedUser] = useState<Ichat | null>(null);
   const [users, setUsers] = useState<Ichat[] | []>([]);
@@ -19,11 +21,12 @@ const Message: React.FC = () => {
   const [currentUser, setCurrentUser] = useState<string>("");
   const [btnDisable, setBtnDisable] = useState(false);
   const [messages, setMessages] = useState<Imessage[] | []>([]);
-  const [showPicker,setShowPicker] =useState<boolean>(false)
+  const [showPicker, setShowPicker] = useState<boolean>(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const userId = useRef<string>("");
   const chatSocket = useRef<Socket | null>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
 
 
   const usr = location.pathname.split("/")![1];
@@ -34,7 +37,7 @@ const Message: React.FC = () => {
       try {
         const response = await fetchChats(usr);
 
-        if (flag && response?.status == 200 && response?.data) {
+        if (flag && response?.status == HttpStatusCode?.Ok && response?.data) {
           setUsers([...response.data.result]);
           userId.current = response?.data?.userId;
         }
@@ -94,21 +97,29 @@ const Message: React.FC = () => {
     chatSocket.current.on("receive-message", (data) => {
       console.error(data.result, data.roomId, "messagerecieved");
       setMessages((prevMessages) => [...prevMessages, data.result]);
-      setUsers((pre) =>
-        pre.map((usr) =>
-          usr?._id == data?.result?.chatId
+
+      setUsers((prevUsers) => {
+        //update the lastMessage
+        let updatedUsers = prevUsers.map((usr) =>
+          usr?._id === data?.result?.chatId
             ? {
                 ...usr,
                 lastMessage:
-                  data?.result?.messageType == "text"
+                  data?.result?.messageType === "text"
                     ? data?.result?.content
-                    : decodeURIComponent(
-                        data?.result?.content.split("/").pop()
-                      ),
+                    :  data?.result?.messageType,
               }
             : usr
-        )
-      );
+        );
+    
+        // Find the updated user
+        const updatedUser = updatedUsers.find((usr) => usr._id === data?.result?.chatId);
+    
+        // Remove the user from the list and place them at the top
+        updatedUsers = updatedUsers.filter((usr) => usr._id !== data?.result?.chatId);
+    
+        return updatedUser ? [updatedUser, ...updatedUsers] : updatedUsers;
+      });
     });
 
     chatSocket.current.on("all-message", ({ result, roomId }) => {
@@ -147,17 +158,20 @@ const Message: React.FC = () => {
 
   const handleSelectedUser = useCallback(async (user: Ichat) => {
     setMessages([]);
-
-    setSelectedUser(user); 
+    if(inputRef?.current){
+      inputRef?.current.focus();
+    }
+    setSelectedUser(user);
     console.log(user, "thsi si the seledted user");
     if (!user?._id) return;
     if (chatSocket.current) {
       chatSocket.current.emit("join-room", { roomId: user["_id"] });
     }
+   
   }, []);
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const handleFileSelect =useCallback( (e: any) => {
+  const handleFileSelect = useCallback((e: any) => {
     const file: File | null = e.target.files?.[0];
     if (file) {
       setSelectedFile(file);
@@ -176,7 +190,6 @@ const Message: React.FC = () => {
     setBtnDisable(true);
 
     if (!selectedFile && !messageInput.trim()) {
-   
       return;
     }
     let senderId: string;
@@ -206,7 +219,6 @@ const Message: React.FC = () => {
       newMessage.content = await uploadFile(selectedFile);
     }
 
-
     console.log(newMessage, "thsi si the new mewsage");
 
     if (chatSocket.current) {
@@ -220,7 +232,6 @@ const Message: React.FC = () => {
     setSelectedFile(null);
     setPreviewUrl(null);
     setBtnDisable(false);
-  
   }, [
     currentUser,
     messageInput,
@@ -230,13 +241,12 @@ const Message: React.FC = () => {
     selectedUser?.mentorId,
   ]);
 
-  
   const handleEmojiClick = useCallback((emojiObject: EmojiClickData) => {
     setMessageInput((prev) => prev + emojiObject.emoji);
-    setShowPicker((pre)=>!pre)
+    setShowPicker((pre) => !pre);
   }, []);
 
-  console.log(users?.[0]?.updatedAt)
+  console.log(users?.[0]?.updatedAt);
   return (
     <div className="h-[calc(100vh-3rem)] pt-14 flex">
       {/* Users List */}
@@ -270,7 +280,7 @@ const Message: React.FC = () => {
               >
                 <div className="relative">
                   <img
-                    src={user?.users?.profileUrl}
+                    src={user?.users?.profileUrl ?? profileImg}
                     alt={user?.users?.name}
                     className="w-12 h-12 rounded-full"
                   />
@@ -281,20 +291,19 @@ const Message: React.FC = () => {
                     />
                   )}
                 </div>
-                <div className="flex-1 min-w-0 ">
-                  <div className="flex justify-between items-end">
-                    <p className="font-medium text-gray-900 truncate">
+                <div className="flex flex-col flex-1 min-w-0 ">
+                    <p className=" font-medium text-gray-900 truncate self-start">
                       {user?.users?.name}
                     </p>
-                    <span className="text-xs text-gray-600 justify-end ">
-                      {dayjs( user?.updatedAt).format("HH:mm")}
-                    </span>
-                  </div>
+                  <div className="flex justify-between items-end">
                   <p className="text-sm text-gray-500 truncate  ">
                     {user?.lastMessage?.slice(0, 10)}
                   </p>
+                    <span className="text-xs text-gray-600 justify-end ">
+                      {dayjs(user?.updatedAt).format("HH:mm")}
+                    </span>
+                  </div>
                 </div>
-                
               </button>
               <div className="h-0.5 bg-gray-100 w-full " />
             </>
@@ -312,7 +321,7 @@ const Message: React.FC = () => {
               key={selectedUser?._id}
             >
               <img
-                src={selectedUser?.users?.profileUrl}
+                src={selectedUser?.users?.profileUrl ?? profileImg}
                 alt={selectedUser?.users?.name}
                 className="w-10 h-10 rounded-full"
               />
@@ -320,13 +329,12 @@ const Message: React.FC = () => {
                 <h2 className="font-medium text-gray-900">
                   {selectedUser?.users?.name}
                 </h2>
-               
               </div>
             </div>
 
             {/* Messages */}
             <div
-              className="flex-1 overflow-y-auto p-4 break-words overflow-hidden bg-[url('../../Asset/background.jpg')] bg-cover bg-center"
+              className="flex-1 overflow-y-auto p-1 break-words overflow-hidden bg-[url('../../Asset/background.jpg')] bg-cover bg-center"
               style={{
                 backgroundImage: `url(${chatBg})`,
                 backgroundSize: "cover",
@@ -346,7 +354,7 @@ const Message: React.FC = () => {
                     }`}
                   >
                     <div
-                      className={`max-w-[100%] rounded-lg p-3  flex space-x-2 ${
+                      className={`max-w-[100%] rounded-lg p-4 space-x-2 relative ${
                         message?.receiverId ===
                         (currentUser === "mentee"
                           ? selectedUser?.menteeId
@@ -359,10 +367,10 @@ const Message: React.FC = () => {
                         <p>{message?.content}</p>
                       )}
                       {message?.messageType === "image" && message?.content && (
-                        <img
+                        <img 
                           src={message?.content}
-                          alt="Shared image"
-                          className="rounded-lg max-w-sm"
+                          alt="image"
+                          className="rounded-lg max-w-sm "
                         />
                       )}
                       {message?.messageType === "document" &&
@@ -401,9 +409,8 @@ const Message: React.FC = () => {
                           );
                         })()}
 
-                     
                       <span
-                        className={`text-xs flex ${
+                        className={`text-xs flex absolute right-3 bottom-0 ${
                           message.receiverId ===
                           (currentUser === "mentee"
                             ? selectedUser?.menteeId
@@ -445,33 +452,23 @@ const Message: React.FC = () => {
                 </div>
               )}
 
-              
-
-             
-
-              <div className="flex items-center gap-4" >
-                <button
-                onClick={()=>setShowPicker((pre)=>!pre)}
-                >
-                  <Smile/>
+              <div className="flex items-center gap-4">
+                <button onClick={() => setShowPicker((pre) => !pre)}>
+                  <Smile />
                 </button>
-                {
-                  showPicker&&(
-                    <div className="absolute bottom-32  z-10">
-                      <EmojiPicker
-                   onEmojiClick={handleEmojiClick}
-                   skinTonesDisabled={false}
-                   previewConfig={{ showPreview: false }}
-                   searchDisabled={false}
-                   
-                   
-                 />
+                {showPicker && (
+                  <div className="absolute bottom-32  z-10">
+                    <EmojiPicker
+                      onEmojiClick={handleEmojiClick}
+                      skinTonesDisabled={false}
+                      previewConfig={{ showPreview: false }}
+                      searchDisabled={false}
+                    />
+                  </div>
+                )}
 
-                    </div>
-                  )
-                }
-               
                 <input
+                ref={inputRef}
                   type="text"
                   value={messageInput}
                   disabled={selectedFile ? true : false}
@@ -502,8 +499,6 @@ const Message: React.FC = () => {
                 >
                   <Paperclip className="h-5 w-5" />
                 </button>
-
-               
 
                 <button
                   onClick={handleSendMessage}

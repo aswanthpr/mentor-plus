@@ -31,7 +31,7 @@ const slotScheduleSchema: Schema<IslotSchedule> = new Schema(
         "PENDING",
         "CONFIRMED",
         "COMPLETED",
-        "RECLAIM_REQUESTED",
+        "CANCEL_REQUESTED",
         "REJECTED"
       ],
       default: "PENDING",

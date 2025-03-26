@@ -13,7 +13,8 @@ import {
   fetchSlotBookingPageData,
 } from "../../service/menteeApi";
 import { initialState } from "../../Constants/initialStates";
-import { routesObj } from "../../Constants/message";
+import { Messages, ROUTES } from "../../Constants/message";
+import { HttpStatusCode } from "axios";
 
 const BookingPage: React.FC = () => {
   const navigate = useNavigate();
@@ -31,15 +32,13 @@ const BookingPage: React.FC = () => {
 
   useEffect(() => {
     const fetchData = async () => {
-      try {
+     
         const response = await fetchSlotBookingPageData(mentorId);
 
-        if (response?.status == 200 && response?.data?.success) {
+        if (response?.status == HttpStatusCode?.Ok && response?.data?.success) {
           setTimeSlot(response.data?.timeSlots);
         }
-      } catch (error: unknown) {
-        errorHandler(error);
-      }
+     
     };
     fetchData();
   }, [mentorId]);
@@ -47,7 +46,7 @@ const BookingPage: React.FC = () => {
   const handleBook = useCallback(async () => {
     try {
       if (!selectedSlot) {
-        toast.error("Please select a time slot");
+        toast.error(Messages?.SELECT_A_SLOT);
         return;
       }
       await bookingInputValidation.validate({ message });
@@ -68,14 +67,14 @@ const BookingPage: React.FC = () => {
         mentorName
       );
 
-      if (response?.status == 200 && response?.data.success) {
+      if (response?.status == HttpStatusCode?.Ok && response?.data.success) {
         if (selectedPayment == "stripe") {
           if (response?.data.session?.url) {
             window.location.href = response?.data.session?.url;
           }
         } else if (selectedPayment == "wallet") {
           toast.success(response?.data?.message);
-          navigate(routesObj?.MENTEE_BOOKING);
+          navigate(ROUTES?.MENTEE_BOOKING);
         }
       }
 

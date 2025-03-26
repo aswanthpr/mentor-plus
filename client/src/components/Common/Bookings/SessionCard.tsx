@@ -1,4 +1,4 @@
-import React, {useState } from "react";
+import React, { useState } from "react";
 import { Calendar, Clock, Star } from "lucide-react";
 import Modal from "../common4All/Modal";
 import { SelectChangeEvent, TextareaAutosize, Tooltip } from "@mui/material";
@@ -7,10 +7,8 @@ import SelectField from "../Schedule/SelectField";
 import moment from "moment";
 import Button from "../../Auth/Button";
 import { issues } from "../../../Constants/const Values";
-
-
-
-
+import { SESSION_STATUS } from "../../../Constants/message";
+import profileImg from "../../../Asset/user.png";
 const SessionCard: React.FC<ISessionCardProps> = ({
   session,
   handleCreateSessionCode,
@@ -51,7 +49,6 @@ const SessionCard: React.FC<ISessionCardProps> = ({
     }
   };
 
-
   const handleSubmit = () => {
     if (reason == "") {
       toast.error("select a reason");
@@ -78,7 +75,7 @@ const SessionCard: React.FC<ISessionCardProps> = ({
         {/* image */}
         <div className="flex items-center gap-4">
           <img
-            src={session?.user?.profileUrl}
+            src={session?.user?.profileUrl ?? profileImg}
             alt={session?.user?.name}
             className="w-12 h-12 rounded-full"
           />
@@ -99,7 +96,7 @@ const SessionCard: React.FC<ISessionCardProps> = ({
         <div className="flex space-x-3 flex-row">
           {role == "mentor" &&
             session?.sessionCode &&
-            session?.status !== "COMPLETED" && (
+            session?.status !== SESSION_STATUS?.COMPLETED && (
               <Tooltip title="Mark session as completed">
                 <span>
                   <button
@@ -113,8 +110,8 @@ const SessionCard: React.FC<ISessionCardProps> = ({
             )}
           {/* sessionCode generate */}
           {role === "mentor" &&
-            (session?.status === "CONFIRMED" ||
-              session?.status === "REJECTED") &&
+            (session?.status === SESSION_STATUS?.CONFIRMED ||
+              session?.status === SESSION_STATUS?.REJECTED) &&
             moment().diff(moment(session?.slotDetails?.startDate), "minutes") <=
               1440 &&
             !session?.sessionCode && (
@@ -128,15 +125,15 @@ const SessionCard: React.FC<ISessionCardProps> = ({
 
           <span
             className={`px-3 py-1 pt-2 rounded-full text-sm font-medium  items-center ${
-              session.status === "CONFIRMED"
+              session.status === SESSION_STATUS?.CONFIRMED
                 ? "bg-green-100 text-green-800"
-                : session.status === "CANCELLED"
+                : session.status === SESSION_STATUS?.CANCELLED
                 ? "bg-red-100 text-red-800"
-                : session.status === "COMPLETED"
+                : session.status === SESSION_STATUS?.COMPLETED
                 ? "bg-green-100 text-green-800"
-                : session.status === "RESCHEDULED"
+                : session.status === SESSION_STATUS?.RESCHEDULED
                 ? "bg-blue-100 text-blue-800"
-                : session.status === "CANCEL_REQUESTED"
+                : session.status === SESSION_STATUS?.CANCEL_REQUESTED
                 ? "bg-yellow-100 text-yellow-800"
                 : "bg-gray-100 text-gray-800"
             }`}
@@ -262,8 +259,8 @@ const SessionCard: React.FC<ISessionCardProps> = ({
                       }
                       className="w-full p-2 border  border-gray-400 rounded mt-2 focus:outline-none focus:border-gray-300"
                       placeholder="Write your reason here..."
-                      minRows={2} 
-                      maxRows={6} 
+                      minRows={2}
+                      maxRows={6}
                     />
                   </div>
                 )}

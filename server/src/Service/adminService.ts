@@ -36,19 +36,24 @@ export class adminService implements IadminService {
     try {
       console.log(refresh, "thsi is admin refrsh");
       if (!refresh) {
-        return { success: false, message: "RefreshToken missing", status: 401 };
+        return { success: false, message: "RefreshToken missing", status: Status?.Unauthorized };
       }
-      const decode = verifyRefreshToken(refresh);
+      const decode = verifyRefreshToken(refresh,"admin");
 
-      if (!decode) {
+      if (
+        !decode?.isValid ||
+        !decode?.result?.userId ||
+        decode?.error == "TamperedToken" ||
+        decode?.error == "TokenExpired"
+      ) {
         return {
           success: false,
-          message: "Your session has expired. Please log in again.",
-          status: 401,
+          message: "You are not authorized. Please log in.",
+          status: Status?.Unauthorized,
         };
       }
       
-      const { userId } = decode;
+      const userId  = decode?.result?.userId;
 
       const accessToken: string | undefined = genAccesssToken(userId as string,"admin");
 
@@ -61,11 +66,11 @@ export class adminService implements IadminService {
         message: "Token refresh successfully",
         accessToken,
         refreshToken,
-        status: 200,
+        status: Status?.Ok,
       };
     } catch (error: unknown) {
       console.error("Error while generating access or refresh token:", error);
-      return { success: false, message: "Internal server error", status: 500 };
+      return { success: false, message: "Internal server error", status: Status?.InternalServerError };
     }
   }
   async createCategory(Data: {
@@ -82,13 +87,13 @@ export class adminService implements IadminService {
         return {
           success: false,
           message: "input data is missing",
-          status: 400,
+          status: Status?.BadRequest,
         };
       }
       const result = await this._categoryRepository.findCategory(category);
 
       if (result) {
-        return { success: false, message: "category is existing", status: 409 };
+        return { success: false, message: "category is existing", status: Status?.Conflict };
       }
       const response = await this._categoryRepository.createCategory(
         category
@@ -98,14 +103,14 @@ export class adminService implements IadminService {
         return {
           success: false,
           message: "unexpected error happend",
-          status: 409,
+          status: Status?.Conflict,
         };
       }
       return {
         success: true,
         message: "category created successfully",
         result: response,
-        status: 201,
+        status: Status?.Created,
       };
     } catch (error: unknown) {
       throw new Error(
@@ -221,17 +226,17 @@ export class adminService implements IadminService {
         return {
           success: false,
           message: "credential is missing",
-          status: 400,
+          status: Status?.BadRequest,
         };
       }
       const result = await this._categoryRepository.changeCategoryStatus(id);
       if (!result) {
-        return { success: false, message: "category not found", status: 400 };
+        return { success: false, message: "category not found", status: Status?.BadRequest };
       }
       return {
         success: true,
         message: "category Edited successfully",
-        status: 200,
+        status: Status?.Ok,
       };
     } catch (error: unknown) {
       throw new Error(
@@ -289,7 +294,7 @@ const totalPage = Math.ceil(result?.totalDoc/limitNo)
       return {
         success: true,
         message: "Data retrieved successfully",
-        status: 200,
+        status: Status?.Ok,
         Data: result?.mentees,
         totalPage,
       };
@@ -347,7 +352,7 @@ const totalPage = Math.ceil(result?.totalDoc/limitNo)
       return {
         success: true,
         message: "Mentee updated successfully!",
-        status: 200,
+        status: Status?.Ok,
       };
     } catch (error: unknown) {
       throw new Error(
@@ -380,7 +385,7 @@ const totalPage = Math.ceil(result?.totalDoc/limitNo)
       return {
         success: true,
         message: "mentee added successfully",
-        status: 200,
+        status: Status?.Ok,
         mentee: response,
       };
     } catch (error: unknown) {
@@ -443,7 +448,7 @@ const totalPage = Math.ceil(result?.totalDoc/limitNo)
         return {
           success: false,
           message: "Data not found",
-          status: 204,
+          status: Status?.NoContent,
           mentorData: [],
           totalPage:0
         };
@@ -451,7 +456,7 @@ const totalPage = Math.ceil(result?.totalDoc/limitNo)
       return {
         success: true,
         message: "data successfully retrieved ",
-        status: 200,
+        status: Status?.Ok,
         mentorData: result?.mentors,
         totalPage
       };
@@ -478,7 +483,7 @@ const totalPage = Math.ceil(result?.totalDoc/limitNo)
         return {
           success: false,
           message: "invalid crdiential",
-          status: 400,
+          status: Status?.BadRequest,
           result: null,
         };
       }
@@ -490,7 +495,7 @@ const totalPage = Math.ceil(result?.totalDoc/limitNo)
         return {
           success: false,
           message: "mentor not exist",
-          status: 409,
+          status: Status?.Conflict,
           result: null,
         };
       }
@@ -505,7 +510,7 @@ const totalPage = Math.ceil(result?.totalDoc/limitNo)
       return {
         success: true,
         message: "mentor verified Successfully!",
-        status: 200,
+        status: Status?.Ok,
         result: response,
       };
     } catch (error: unknown) {
@@ -522,7 +527,7 @@ const totalPage = Math.ceil(result?.totalDoc/limitNo)
   ): Promise<{ success: boolean; message: string; status: number }> {
     try {
       if (!id || !mongoose.Types.ObjectId.isValid(id)) {
-        return { success: false, message: "invalid crdiential", status: 400 };
+        return { success: false, message: "invalid crdiential", status: Status?.BadRequest };
       }
       const mentorId: mongoose.Types.ObjectId = new mongoose.Types.ObjectId(id);
       const result = await this._mentorRepository.changeMentorStatus(
@@ -532,13 +537,13 @@ const totalPage = Math.ceil(result?.totalDoc/limitNo)
         return {
           success: false,
           message: "status updation failed!",
-          status: 400,
+          status: Status?.BadRequest,
         };
       }
       return {
         success: true,
         message: "status updated successfully!",
-        status: 200,
+        status: Status?.Ok,
       };
     } catch (error: unknown) {
       throw new Error(

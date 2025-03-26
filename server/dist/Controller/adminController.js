@@ -36,7 +36,7 @@ class adminController {
             }
             catch (error) {
                 res
-                    .status(500)
+                    .status(httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.InternalServerError)
                     .json({ success: false, message: "Internal server error" });
                 throw new Error(`error while geting refreshToken${error instanceof Error ? error.message : String(error)}`);
             }
@@ -50,7 +50,7 @@ class adminController {
             }
             catch (error) {
                 res
-                    .status(500)
+                    .status(httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.InternalServerError)
                     .json({ success: false, message: "internal server error" });
                 throw new Error(`error while create category in controller ${error instanceof Error ? error.message : String(error)}`);
             }
@@ -65,7 +65,7 @@ class adminController {
             }
             catch (error) {
                 res
-                    .status(500)
+                    .status(httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.InternalServerError)
                     .json({ success: false, message: "Internal server error" });
                 throw new Error(`error while getting category in controller ${error instanceof Error ? error.message : String(error)}`);
             }
@@ -78,7 +78,7 @@ class adminController {
                 console.log(req.body, "thsi is the data", id, category);
                 const result = yield this._adminService.editCategory(id, category);
                 if (result.success) {
-                    res.status(200).json(result);
+                    res.status(httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.Ok).json(result);
                 }
                 else {
                     res.status(409).json(result);
@@ -102,7 +102,7 @@ class adminController {
             }
             catch (error) {
                 res
-                    .status(500)
+                    .status(httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.InternalServerError)
                     .json({ success: false, message: "Internal server error" });
                 throw new Error(`error while getting category in controller ${error instanceof Error ? error.message : String(error)}`);
             }
@@ -154,7 +154,7 @@ class adminController {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 const response = yield this._adminService.addMentee(req.body);
-                res.status(200).json(response);
+                res.status(httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.Ok).json(response);
             }
             catch (error) {
                 throw new Error(`error while add mentee Data  in controller ${error instanceof Error ? error.message : String(error)}`);
@@ -232,7 +232,7 @@ class adminController {
             }
             catch (error) {
                 res
-                    .status(500)
+                    .status(httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.InternalServerError)
                     .json({ success: false, message: "Internal server error" });
                 throw new Error(`Error while dashboard ${error instanceof Error ? error.message : String(error)}`);
             }

@@ -14,7 +14,7 @@ import { InotificationRepository } from "../Interface/Notification/Inotification
 import { ObjectId } from "mongoose";
 import { socketManager } from "../index";
 import { Status } from "../Utils/httpStatusCode";
-
+ 
 export class authService implements IauthService {
   constructor(
     private _OtpService: IotpService,
@@ -339,10 +339,10 @@ export class authService implements IauthService {
       const response = await this._MentorRepository.findMentor(email, phone);
 
       if (response?.email) {
-        return { success: false, message: "Email already exist ", status: 409 };
+        return { success: false, message: "Email already exist ", status: Status?.Conflict };
       }
       if (response?.phone) {
-        return { success: false, message: "phone already exist ", status: 409 };
+        return { success: false, message: "phone already exist ", status: Status?.Conflict };
       }
 
       const hashPass = await hash_pass(mentorData.body.password);
@@ -369,7 +369,7 @@ export class authService implements IauthService {
         return {
           success: false,
           message: "unable to create user ",
-          status: 409,
+          status: Status?.Conflict,
         };
       }
       const admin = await this._MenteeRepository._find();

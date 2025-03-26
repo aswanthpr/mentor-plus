@@ -1,6 +1,6 @@
 import { Star } from 'lucide-react';
 import moment from 'moment';
-
+import profileImg from "../../Asset/user.png"
 export const ReviewSection = ({ mentorData }: {
   mentorData:IMentor;
 }) => {
@@ -9,7 +9,7 @@ export const ReviewSection = ({ mentorData }: {
     <div className="border-b pb-6 last:border-b-0">
       <div className="flex items-start gap-4">
         <img
-          src={review?.mentee?.profileUrl}
+          src={review?.mentee?.profileUrl??profileImg}
           alt={review?.mentee?.name}
           className="w-12 h-12 rounded-full object-cover"
         />

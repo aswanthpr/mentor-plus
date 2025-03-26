@@ -4,21 +4,15 @@ import Spinner from "../components/Common/common4All/Spinner";
 import InternalServer from "../pages/Error/InternalServer";
 import NotFound from "../pages/Error/NotFound";
 
+import MenteeLogout from "../Utils/ProtectedRoute/MenteeProtectLogout";
+import AdminProtectLogout from "../Utils/ProtectedRoute/AdminProtectLogout";
+import MentorProtectLogout from "../Utils/ProtectedRoute/MentorProtectLogout";
 const Login = lazy(() => import("../pages/Auth/Login"));
 const Landing = lazy(() => import("../pages/Landing/Landing"));
 const SignupForm = lazy(() => import("../pages/Auth/SignupForm"));
 const AdminLogin = lazy(() => import("../pages/Auth/AdminLogin"));
 const MentorApply = lazy(() => import("../pages/Auth/MentorApply"));
 const ForgotPassword = lazy(() => import("../pages/Auth/ForgotPassword"));
-const MenteeLogout = lazy(
-  () => import("../Utils/ProtectedRoute/MenteeProtectLogout")
-);
-const AdminProtectLogout = lazy(
-  () => import("../Utils/ProtectedRoute/AdminProtectLogout")
-);
-const MentorProtectLogout = lazy(
-  () => import("../Utils/ProtectedRoute/MentorProtectLogout")
-);
 
 const AuthRoute: React.FC = () => (
   <Suspense fallback={<Spinner />}>
@@ -32,14 +26,11 @@ const AuthRoute: React.FC = () => (
             <Route path="auth/signup" element={<SignupForm />} />
             <Route path="auth/login/mentee" element={<Login />} />
             <Route path="auth/login/mentor" element={<Login />} />
-
             <Route
               path="auth/forgot_password/:user"
               element={<ForgotPassword />}
             />
-
-            <Route path="auth/apply_as_mentor" element={<MentorApply />} />
-
+            <Route path="auth/apply_as_mentor" element={<MentorApply/>}/>
             <Route path="auth/login/admin" element={<AdminLogin />} />
           </Route>
         </Route>

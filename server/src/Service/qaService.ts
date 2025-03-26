@@ -38,7 +38,7 @@ class qaService implements IqaService {
         return {
           success: false,
           message: "Invalid input: title, content, and tags are required",
-          status: 400,
+          status: Status?.BadRequest,
           question: undefined,
         };
       }
@@ -50,7 +50,7 @@ class qaService implements IqaService {
         return {
           success: false,
           message: "Question exist",
-          status: 400,
+          status: Status?.Conflict,
           question: undefined,
         };
       }
@@ -64,7 +64,7 @@ class qaService implements IqaService {
         return {
           success: false,
           message: "Unexpected error occured",
-          status: 400,
+          status: Status?.BadRequest,
           question: undefined,
         };
       }
@@ -72,7 +72,7 @@ class qaService implements IqaService {
       return {
         success: true,
         message: "Question created Successfully!",
-        status: 200,
+        status: Status?.Ok,
         question: response,
       };
     } catch (error: unknown) {
@@ -106,7 +106,7 @@ class qaService implements IqaService {
         return {
           success: false,
           message: "credential missing",
-          status: 400,
+          status: Status?.BadRequest,
           question: [],
           totalPage:0,
         };
@@ -124,11 +124,12 @@ class qaService implements IqaService {
         sortOrder,
 
       );
+      console.log(response)
       const totalPage = Math.ceil(response?.totalDocs/limitNo);
       return {
         success: true,
         message: "Data retrieved successfully",
-        status: 200,
+        status: Status?.Ok,
         question: response?.questions,
         userId,
         totalPage
@@ -397,7 +398,7 @@ class qaService implements IqaService {
         sortOrder,
         sortField
       );
-
+console.log('skndfkjaskjnaskjfkajsfksajfkasjbfkjsbfjbfkjbsalkf')
       const totalPage = Math.ceil((response?.docCount as number) / limitNo);
       console.log(response?.docCount, totalPage, limit, skip, page);
       return {

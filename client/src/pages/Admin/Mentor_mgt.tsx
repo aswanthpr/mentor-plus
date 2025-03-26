@@ -3,7 +3,7 @@ import { Table } from "../../components/Admin/Table";
 import { useNavigate, useLocation } from "react-router-dom";
 import { StatusBadge } from "../../components/Admin/StatusBadge";
 import { toast } from "react-toastify";
-import profile from "../../Asset/rb_2877.png";
+import profile from "../../Asset/user.png";
 import {
   ArrowUpDown,
   BanIcon,
@@ -16,7 +16,6 @@ import {
 } from "lucide-react";
 import ConfirmToast from "../../components/Common/common4All/ConfirmToast";
 import Spinner from "../../components/Common/common4All/Spinner";
-import { errorHandler } from "../../Utils/Reusable/Reusable";
 import { Pagination } from "@mui/material";
 import InputField from "../../components/Auth/InputField";
 import {
@@ -25,7 +24,7 @@ import {
   toggleMentorStatus,
 } from "../../service/adminApi";
 import { HttpStatusCode } from "axios";
-import { routesObj } from "../../Constants/message";
+import { ROUTES } from "../../Constants/message";
 
 export const Mentor_mgt: React.FC = () => {
   const PAGE_LIMIT = 8;
@@ -79,9 +78,9 @@ export const Mentor_mgt: React.FC = () => {
 
   useEffect(() => {
     if (activeTab == "verified") {
-      navigate(routesObj?.ADMIN_MGT_VERIFIED);
+      navigate(ROUTES?.ADMIN_MGT_VERIFIED);
     } else {
-      navigate(routesObj?.ADMIN_MGT_NOT_VERIFIED);
+      navigate(ROUTES?.ADMIN_MGT_NOT_VERIFIED);
     }
   }, [activeTab, navigate]);
 
@@ -254,7 +253,7 @@ export const Mentor_mgt: React.FC = () => {
               <tr key={mentor?._id}>
                 <td className=" py-4 flex justify-center">
                   <img
-                    src={mentor?.profileUrl ? mentor?.profileUrl : profile}
+                    src={ mentor?.profileUrl ?? profile}
                     alt={mentor?.name}
                     className="w-10 h-10 rounded-full  "
                   />
@@ -332,7 +331,7 @@ export const Mentor_mgt: React.FC = () => {
         <hr className="h-px  bg-gray-200 border-0 dark:bg-gray-700 " />
         <div className="flex justify-center items-center mt-2">
           <Pagination
-            count={totalDoc} // Total pages
+            count={totalDoc??1} // Total pages
             page={currentPage} // Current page
             onChange={handlePageChange} // Page change handler
             color="standard" // Pagination color

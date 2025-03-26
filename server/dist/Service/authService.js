@@ -278,10 +278,10 @@ class authService {
                 }
                 const response = yield this._MentorRepository.findMentor(email, phone);
                 if (response === null || response === void 0 ? void 0 : response.email) {
-                    return { success: false, message: "Email already exist ", status: 409 };
+                    return { success: false, message: "Email already exist ", status: httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.Conflict };
                 }
                 if (response === null || response === void 0 ? void 0 : response.phone) {
-                    return { success: false, message: "phone already exist ", status: 409 };
+                    return { success: false, message: "phone already exist ", status: httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.Conflict };
                 }
                 const hashPass = yield (0, hashPass_util_1.default)(mentorData.body.password);
                 if (!hashPass) {
@@ -299,7 +299,7 @@ class authService {
                     return {
                         success: false,
                         message: "unable to create user ",
-                        status: 409,
+                        status: httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.Conflict,
                     };
                 }
                 const admin = yield this._MenteeRepository._find();

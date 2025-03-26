@@ -62,6 +62,7 @@ export class walletService implements IwalletService {
         metadata: {
           userId: userId.toString(),
           amount,
+       
         },
         custom_text: {
           submit: { message: "Complete Secure Payment" },
@@ -113,60 +114,63 @@ export class walletService implements IwalletService {
         case "checkout.session.completed": {
           const session = event.data.object as Stripe.Checkout.Session;
           const metaData = session.metadata || {};
-          if (!session.metadata) {
-            console.error("Missing metadata in Stripe session");
-            return;
-          }
-          const { amount, userId } = metaData;
-
-          if (!mongoose.Types.ObjectId.isValid(userId)) {
-            console.error("Invalid menteeId format:", userId);
-            return;
-          }
-          const menteeId = new mongoose.Types.ObjectId(
-            userId
-          ) as unknown as mongoose.Schema.Types.ObjectId;
-
-          const response = (await this.__walletRepository.findWallet(
-            menteeId as ObjectId
-          )) as Iwallet;
-
-          let newWallet: Iwallet | null = null;
-          if (!response) {
-            newWallet = await this.__walletRepository.createWallet({
-              userId: menteeId,
-              balance: 0,
-            } as Iwallet);
-          } else {
-            await this.__walletRepository.updateWalletAmount(
-              menteeId,
-              Number(amount)
-            );
-          }
-
-          const newTranasaction = {
-            amount: Number(amount),
-            walletId: (response
-              ? response?.["_id"]
-              : newWallet?._id) as ObjectId,
-            transactionType: "credit",
-            status: "completed",
-            note: "wallet top-up",
-          };
-          await this.__transactionRepository.createTransaction(newTranasaction);
-
-          const notification =
-            await this.__notificationRepository.createNotification(
-              menteeId,
-              "money added to wallet",
-              "wallet balance added successfully!",
-              "mentee",
-              `${process.env.CLIENT_ORIGIN_URL}/mentee/wallet`
-            );
-          //real time notification
-          if (menteeId && notification) {
-            socketManager.sendNotification(userId as string, notification);
-          }
+         
+            console.log("entered....................")
+            if (!session.metadata) {
+              console.error("Missing metadata in Stripe session");
+              return;
+            }
+            const { amount, userId } = metaData;
+  
+            if (!mongoose.Types.ObjectId.isValid(userId)) {
+              console.error("Invalid menteeId format:", userId);
+              return;
+            }
+            const menteeId = new mongoose.Types.ObjectId(
+              userId
+            ) as unknown as mongoose.Schema.Types.ObjectId;
+  
+            const response = (await this.__walletRepository.findWallet(
+              menteeId as ObjectId
+            )) as Iwallet;
+  
+            let newWallet: Iwallet | null = null;
+            if (!response) {
+              newWallet = await this.__walletRepository.createWallet({
+                userId: menteeId,
+                balance: 0,
+              } as Iwallet);
+            } else {
+              await this.__walletRepository.updateWalletAmount(
+                menteeId,
+                Number(amount)
+              );
+            }
+  
+            const newTranasaction = {
+              amount: Number(amount),
+              walletId: (response
+                ? response?.["_id"]
+                : newWallet?._id) as ObjectId,
+              transactionType: "credit",
+              status: "completed",
+              note: "wallet top-up",
+            };
+            await this.__transactionRepository.createTransaction(newTranasaction);
+  
+            const notification =
+              await this.__notificationRepository.createNotification(
+                menteeId,
+                "money added to wallet",
+                "wallet balance added successfully!",
+                "mentee",
+                `${process.env.CLIENT_ORIGIN_URL}/mentee/wallet`
+              );
+            //real time notification
+            if (menteeId && notification) {
+              socketManager.sendNotification(userId as string, notification);
+            }
+          
         }
       }
       return;
@@ -177,7 +181,7 @@ export class walletService implements IwalletService {
         } error while webhook handling in mentee service`
       );
     }
-  }
+  }  
   //fetch wallet data ;
   async getWalletData(
     userId: ObjectId,

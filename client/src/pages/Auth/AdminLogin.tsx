@@ -11,7 +11,7 @@ import { EyeClosedIcon, EyeIcon } from "lucide-react";
 import { fetchAdminLogin } from "../../service/adminApi";
 import bgImg from "../../Asset/background.jpg";
 import { ADMIN_LOGIN_ERROR } from "../../Constants/initialStates";
-import { routesObj } from "../../Constants/message";
+import { ROUTES } from "../../Constants/message";
 import { HttpStatusCode } from "axios";
 
 const AdminLogin: React.FC = () => {
@@ -56,7 +56,7 @@ const AdminLogin: React.FC = () => {
       const response = await fetchAdminLogin(email, password);
 
       if (
-        response.data?.accessToken &&
+        response?.data?.accessToken &&
         response?.status === HttpStatusCode?.Ok
       ) {
         dispatch(
@@ -65,10 +65,10 @@ const AdminLogin: React.FC = () => {
             adminRole: "admin",
           })
         );
-        setLoading(false);
+       
 
         toast.success(response.data.message);
-        navigate(routesObj?.ADMIN_DASHBOARD);
+        navigate(ROUTES?.ADMIN_DASHBOARD);
       }
 
         setLoading((pre)=>!pre);

@@ -135,8 +135,6 @@ class timeSlotRepository extends baseRepo_1.baseRepository {
                             price: 1,
                             startTime: "$slots.startTime",
                             endTime: "$slots.endTime",
-                            startStr: "$slots.startStr",
-                            endStr: "$slots.endStr",
                             duration: 1,
                         },
                     },
@@ -147,6 +145,9 @@ class timeSlotRepository extends baseRepo_1.baseRepository {
                             isBooked: false,
                         },
                     },
+                    {
+                        $sort: { startTime: 1 }
+                    }
                 ]);
             }
             catch (error) {
@@ -184,6 +185,18 @@ class timeSlotRepository extends baseRepo_1.baseRepository {
                         },
                     },
                 ]);
+            }
+            catch (error) {
+                throw new Error(`${"\x1b[35m%s\x1b[0m"}error while getting editing speific mentor time slots :${error instanceof Error ? error.message : String(error)}`);
+            }
+        });
+    }
+    releaseTimeSlot(slotId) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                return yield this.find_By_Id_And_Update(timeModel_1.default, slotId, {
+                    $set: { isBooked: false },
+                });
             }
             catch (error) {
                 throw new Error(`${"\x1b[35m%s\x1b[0m"}error while getting editing speific mentor time slots :${error instanceof Error ? error.message : String(error)}`);

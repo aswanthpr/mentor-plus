@@ -97,6 +97,7 @@ class walletService {
                     case "checkout.session.completed": {
                         const session = event.data.object;
                         const metaData = session.metadata || {};
+                        console.log("entered....................");
                         if (!session.metadata) {
                             console.error("Missing metadata in Stripe session");
                             return;

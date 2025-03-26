@@ -133,6 +133,7 @@ export class bookingService implements IbookingService {
             messages,
             paymentMethod,
             menteeId: String(menteeId),
+            
           },
         });
 
@@ -289,158 +290,153 @@ export class bookingService implements IbookingService {
         case "checkout.session.completed": {
           const session = event.data.object as Stripe.Checkout.Session;
           const metadata = session.metadata || {};
-
-          //if the data not exist send notification to mentee
-          if (
-            !metadata ||
-            !metadata.menteeId ||
-            !metadata.timeSlot ||
-            !metadata.messages ||
-            !metadata.paymentMethod
-          ) {
-            console.log(
-              metadata,
-              metadata.menteeId,
-              metadata.timeSlot,
-              metadata.message,
-              metadata.paymentMethod
-            );
-            console.error("❌ Invalid or missing metadata in Stripe webhook");
-
-            // Redirect to error page when metadata is missing
-            const noti = await this._notificationRepository.createNotification(
-              metadata.menteeId as unknown as ObjectId,
-              `Payment Failed`,
-              `Your payment could not be processed. Please try again.`,
-              `mentee`,
-              ""
-            );
-            if (metadata?.menteeId && noti) {
-              socketManager.sendNotification(
-                metadata?.menteeId as string,
-                noti
-              );
-            }
-            return;
-          }
-
-          const { timeSlot, messages, menteeId } = metadata;
-
-          if (!mongoose.Types.ObjectId.isValid(menteeId)) {
-            console.error("Invalid menteeId format:", menteeId);
-            return;
-          }
-          const menteeObjectId = new mongoose.Types.ObjectId(
-            menteeId
-          ) as unknown as mongoose.Schema.Types.ObjectId;
-          const slotId = new mongoose.Types.ObjectId(
-            JSON.parse(timeSlot)._id as string
-          ) as unknown as mongoose.Schema.Types.ObjectId;
-          const status = session.payment_status == "paid" ? "Paid" : "Failed";
-
-          if (status === "Failed") {
-            console.error("❌ Payment failed. Redirecting to error page.");
-
-            const notification =
-              await this._notificationRepository.createNotification(
-                menteeObjectId,
+          
+            
+            //if the data not exist send notification to mentee
+            if (
+              !metadata ||
+              !metadata.menteeId ||
+              !metadata.timeSlot ||
+              !metadata.messages ||
+              !metadata.paymentMethod
+            ) {
+              console.error("❌ Invalid or missing metadata in Stripe webhook");
+    
+              // Redirect to error page when metadata is missing
+              const noti = await this._notificationRepository.createNotification(
+                metadata.menteeId as unknown as ObjectId,
                 `Payment Failed`,
                 `Your payment could not be processed. Please try again.`,
                 `mentee`,
                 ""
               );
-            if (menteeId && notification) {
-              socketManager.sendNotification(menteeId as string, notification);
+              if (metadata?.menteeId && noti) {
+                socketManager.sendNotification(
+                  metadata?.menteeId as string,
+                  noti
+                );
+              }
+              return;
             }
-            return;
-          }
-          const totalAmount = (session?.amount_total || 0) / 100;
-          const time = new Date(session?.created * 1000).toISOString();
-
-          //checking wallet exist or not
-          const walletResponse = (await this.__walletRepository.findWallet(
-            menteeObjectId
-          )) as Iwallet;
-
-          let newWallet: Iwallet | null = null;
-          // if wallet not exist create new one
-          if (!walletResponse) {
-            newWallet = await this.__walletRepository.createWallet({
-              userId: menteeObjectId,
-              balance: 0,
-            } as Iwallet);
-          }
-          //create  new transaction
-          const newTranasaction = {
-            amount: totalAmount,
-            walletId: (walletResponse
-              ? walletResponse?.["_id"]
-              : newWallet!._id) as ObjectId,
-            transactionType: "paid",
-            status: "completed",
-            note: "slot booked successfully",
-          };
-
-          await this.__transactionRepository.createTransaction(newTranasaction);
-
-          // Insert data into newSlotSchedule
-          const newSlotSchedule: InewSlotSchedule = {
-            menteeId: menteeObjectId,
-            slotId,
-            paymentStatus: status,
-            paymentTime: time,
-            paymentMethod: "stripe",
-            paymentAmount: String(totalAmount),
-            duration: JSON.parse(timeSlot)?.duration,
-            description: messages,
-            status: "CONFIRMED",
-          };
-
-          const response = await this._slotScheduleRepository.newSlotBooking(
-            newSlotSchedule as IslotSchedule
-          );
-          if (!response) {
-            return;
-          }
-          const mentorId = response.times?.mentorId as ObjectId;
-          const mentorID = String(mentorId);
-
-          await this._timeSlotRepository.makeTimeSlotBooked(String(slotId));
-          //notification for mentee
-          const notific = await this._notificationRepository.createNotification(
-            menteeObjectId as unknown as ObjectId,
-            `Slot booked successfully`,
-            `Congratulations! You've been successfully booked your slot.`,
-            `mentee`,
-            `${process.env.CLIENT_ORIGIN_URL}/mentee/bookings`
-          );
-          if (menteeId && notific) {
-            socketManager.sendNotification(menteeId as string, notific);
-          }
-
-          if (mentorId) {
-            //notification for mentor
-            const notif = await this._notificationRepository.createNotification(
-              mentorId as mongoose.Schema.Types.ObjectId,
-              `Your new slot were Scheduled`,
-              `new slot were scheduled . checkout now`,
-              `mentor`,
-              `${process.env.CLIENT_ORIGIN_URL}/mentor/session`
+    
+            const { timeSlot, messages, menteeId } = metadata;
+    
+            if (!mongoose.Types.ObjectId.isValid(menteeId)) {
+              console.error("Invalid menteeId format:", menteeId);
+              return;
+            }
+            const menteeObjectId = new mongoose.Types.ObjectId(
+              menteeId
+            ) as unknown as mongoose.Schema.Types.ObjectId;
+            const slotId = new mongoose.Types.ObjectId(
+              JSON.parse(timeSlot)._id as string
+            ) as unknown as mongoose.Schema.Types.ObjectId;
+            const status = session.payment_status == "paid" ? "Paid" : "Failed";
+    
+            if (status === "Failed") {
+              console.error("❌ Payment failed. Redirecting to error page.");
+    
+              const notification =
+                await this._notificationRepository.createNotification(
+                  menteeObjectId,
+                  `Payment Failed`,
+                  `Your payment could not be processed. Please try again.`,
+                  `mentee`,
+                  ""
+                );
+              if (menteeId && notification) {
+                socketManager.sendNotification(menteeId as string, notification);
+              }
+              return;
+            }
+            const totalAmount = (session?.amount_total || 0) / 100;
+            const time = new Date(session?.created * 1000).toISOString();
+    
+            //checking wallet exist or not
+            const walletResponse = (await this.__walletRepository.findWallet(
+              menteeObjectId
+            )) as Iwallet;
+    
+            let newWallet: Iwallet | null = null;
+            // if wallet not exist create new one
+            if (!walletResponse) {
+              newWallet = await this.__walletRepository.createWallet({
+                userId: menteeObjectId,
+                balance: 0,
+              } as Iwallet);
+            }
+            //create  new transaction
+            const newTranasaction = {
+              amount: totalAmount,
+              walletId: (walletResponse
+                ? walletResponse?.["_id"]
+                : newWallet!._id) as ObjectId,
+              transactionType: "paid",
+              status: "completed",
+              note: "slot booked successfully",
+            };
+    
+            await this.__transactionRepository.createTransaction(newTranasaction);
+    
+            // Insert data into newSlotSchedule
+            const newSlotSchedule: InewSlotSchedule = {
+              menteeId: menteeObjectId,
+              slotId,
+              paymentStatus: status,
+              paymentTime: time,
+              paymentMethod: "stripe",
+              paymentAmount: String(totalAmount),
+              duration: JSON.parse(timeSlot)?.duration,
+              description: messages,
+              status: "CONFIRMED",
+            };
+    
+            const response = await this._slotScheduleRepository.newSlotBooking(
+              newSlotSchedule as IslotSchedule
             );
-            //make it realtime using socket
-            socketManager.sendNotification(
-              mentorID as string,
-              notif as Inotification
+            if (!response) {
+              return;
+            }
+            const mentorId = response.times?.mentorId as ObjectId;
+            const mentorID = String(mentorId);
+    
+            await this._timeSlotRepository.makeTimeSlotBooked(String(slotId));
+            //notification for mentee
+            const notific = await this._notificationRepository.createNotification(
+              menteeObjectId as unknown as ObjectId,
+              `Slot booked successfully`,
+              `Congratulations! You've been successfully booked your slot.`,
+              `mentee`,
+              `${process.env.CLIENT_ORIGIN_URL}/mentee/bookings`
             );
-          }
-          //creating chat document
-          const resp = await this._chatRepository.findChatRoom(
-            mentorId,
-            menteeObjectId
-          );
-          if (!resp) {
-            await this._chatRepository.createChatDocs(mentorId, menteeObjectId);
-          }
+            if (menteeId && notific) {
+              socketManager.sendNotification(menteeId as string, notific);
+            }
+    
+            if (mentorId) {
+              //notification for mentor
+              const notif = await this._notificationRepository.createNotification(
+                mentorId as mongoose.Schema.Types.ObjectId,
+                `Your new slot were Scheduled`,
+                `new slot were scheduled . checkout now`,
+                `mentor`,
+                `${process.env.CLIENT_ORIGIN_URL}/mentor/session`
+              );
+              //make it realtime using socket
+              socketManager.sendNotification(
+                mentorID as string,
+                notif as Inotification
+              );
+            }
+            //creating chat document
+            const resp = await this._chatRepository.findChatRoom(
+              mentorId,
+              menteeObjectId
+            );
+            if (!resp) {
+              await this._chatRepository.createChatDocs(mentorId, menteeObjectId);
+            }
+          
           return;
         }
         case "checkout.session.expired":
@@ -689,6 +685,8 @@ export class bookingService implements IbookingService {
         sessionId,
         issue
       );
+      
+
       if (!response) {
         return {
           success: false,
@@ -722,6 +720,7 @@ export class bookingService implements IbookingService {
     result: IslotSchedule | null;
   }> {
     try {
+      console.log(statusValue);
       if (!sessionId || !statusValue) {
         return {
           success: false,
@@ -735,6 +734,7 @@ export class bookingService implements IbookingService {
         sessionId,
         statusValue
       );
+      await this._timeSlotRepository.releaseTimeSlot(String(response?.slotId));
       console.log(response);
       if (!response) {
         return {

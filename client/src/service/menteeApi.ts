@@ -39,6 +39,7 @@ export const confirmSlotBooking = async (
       mentorName,
     });
   } catch (error: unknown) {
+    errorHandler(error)
     console.log(error instanceof Error ? error.message : String(error));
   }
 };
@@ -74,6 +75,7 @@ export const fetchSubmitRating = async (
       mentorId: selectedSession?.slotDetails?.mentorId,
     });
   } catch (error: unknown) {
+     errorHandler(error)
     console.log(error instanceof Error ? error.message : String(error));
   }
 };

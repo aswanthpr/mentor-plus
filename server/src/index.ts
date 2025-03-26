@@ -19,6 +19,7 @@ import {
   helmetConfig,
   sessionConfig,
   jsonParseOrRaw,
+  cacheControl,
 } from "./Middleware/index_middleware";
 import passport from "./Config/googleAuth";
 import { SocketManager } from "./Socket/socket";
@@ -43,6 +44,7 @@ export const socketManager = new SocketManager(io);
 socketManager.initialize();
 
 //using middlewares
+app.use(cacheControl)
 app.use(helmetConfig); // set security headers
 // app.use(limiter); //express rate limit
 app.use(compress); //response compresser for performance

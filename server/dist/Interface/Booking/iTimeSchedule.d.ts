@@ -10,5 +10,6 @@ export interface ItimeSlotRepository {
     getMentorSlots(mentorId: string): Promise<Itime[] | []>;
     makeTimeSlotBooked(slotId: string): Promise<Itime | null>;
     checkTimeSlots(mentorId: ObjectId, startDate: Date, endDate: Date): Promise<Itime[] | []>;
+    releaseTimeSlot(slotId: string): Promise<Itime | null>;
 }
 //# sourceMappingURL=iTimeSchedule.d.ts.map

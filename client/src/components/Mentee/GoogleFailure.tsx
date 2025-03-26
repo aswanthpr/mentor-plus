@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Spinner from "../Common/common4All/Spinner";
 import { toast } from "react-toastify";
-import { Messages, routesObj } from "../../Constants/message";
+import { Messages, ROUTES } from "../../Constants/message";
 
 const GoogleFailure: React.FC = () => {
   const navigate = useNavigate()
@@ -10,7 +10,7 @@ const GoogleFailure: React.FC = () => {
 
   useEffect(() => {
 
-    navigate(routesObj?.LOGIN_MENTEE);
+    navigate(ROUTES?.MENTEE_LOGIN);
     toast.error(Messages?.GOOGLE_AUTH_FAIL_MESSAGE)
 
     setLoading(false);

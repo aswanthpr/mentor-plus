@@ -49,7 +49,7 @@ const slotScheduleSchema = new mongoose_1.Schema({
             "PENDING",
             "CONFIRMED",
             "COMPLETED",
-            "RECLAIM_REQUESTED",
+            "CANCEL_REQUESTED",
             "REJECTED"
         ],
         default: "PENDING",

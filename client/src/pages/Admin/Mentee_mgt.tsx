@@ -10,7 +10,7 @@ import {
 } from "lucide-react";
 import { Table } from "../../components/Admin/Table";
 import { StatusBadge } from "../../components/Admin/StatusBadge";
-import profile from "../../Asset/rb_2877.png";
+import profile from "../../Asset/user.png";
 import ConfirmToast from "../../components/Common/common4All/ConfirmToast";
 import Spinner from "../../components/Common/common4All/Spinner";
 import { errorHandler } from "../../Utils/Reusable/Reusable";
@@ -43,8 +43,8 @@ export const Mentee_mgt: React.FC = () => {
           MENTEES_PER_PAGE
         );
 
-        if (response.status == HttpStatusCode?.Ok && response.data.success) {
-          setMenteeData(response.data?.Data);
+        if (response?.status == HttpStatusCode?.Ok && response?.data?.success) {
+          setMenteeData(response?.data?.Data);
           setTotalPage(response?.data?.totalPage);
         }
       } catch (error: unknown) {
@@ -65,7 +65,7 @@ export const Mentee_mgt: React.FC = () => {
 
       const response = await ToggleMenteeStatus(id);
 
-      console.log(response?.data, response.status, response.data?.message);
+      console.log(response?.data, response?.status, response.data?.message);
 
       if (response.data?.success && response?.status === HttpStatusCode?.Ok) {
         toast.dismiss();
@@ -173,7 +173,7 @@ export const Mentee_mgt: React.FC = () => {
               <tr key={mentee?._id}>
                 <td className="py-4 flex justify-center">
                   <img
-                    src={mentee?.profileUrl ? mentee?.profileUrl : profile}
+                    src={ mentee?.profileUrl?? profile}
                     alt={mentee?.name}
                     className="w-10 h-10 rounded-full"
                   />

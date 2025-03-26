@@ -19,7 +19,7 @@ import {
 } from "../../service/commonApi";
 import bgImg from "../../Asset/background.jpg";
 import { HttpStatusCode } from "axios";
-import { Messages, routesObj } from "../../Constants/message";
+import { Messages, ROUTES } from "../../Constants/message";
 
 const ForgetPassword: React.FC = () => {
   const { user } = useParams();
@@ -126,7 +126,7 @@ const ForgetPassword: React.FC = () => {
       setTimeout(() => {
         setLoading(false);
       }, 500);
-      navigate(routesObj?.MENTEE_LOGIN);
+      navigate(ROUTES?.MENTEE_LOGIN);
     },
     [email, navigate, user]
   );

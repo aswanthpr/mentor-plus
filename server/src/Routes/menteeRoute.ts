@@ -170,7 +170,7 @@ mentee_Router.post(
 );
 
 mentee_Router.post(
-  "/webhook",
+  "/booking/webhook",
   express.raw({ type: "application/json" }),
   __bookingController.stripeWebHook.bind(__bookingController)
 );
@@ -226,8 +226,9 @@ mentee_Router.post(
   __walletController.addMoneyToWallet.bind(__walletController)
 );
 
-mentee_Router.post("/wallet/webhook", express.raw({ type: "application/json" }),authorize,__walletController.walletStripeWebHook.bind(__walletController));
+mentee_Router.post("/wallet/webhook", express.raw({ type: "application/json" }),__walletController.walletStripeWebHook.bind(__walletController));
 
 mentee_Router.post("/review-and-rating", authorize,__reviewController.reviewNdRateMentor.bind(__reviewController));
 
 export default mentee_Router;
+ 

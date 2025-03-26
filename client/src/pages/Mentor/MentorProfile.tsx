@@ -7,7 +7,7 @@ import SkillInput from "../../components/Auth/SkillInput";
 import FileUpload from "../../components/Auth/FileUpload";
 import InputField from "../../components/Auth/InputField";
 import ImageCropper from "../../components/Auth/ImageCropper";
-import profile from "../../Asset/images.png";
+import profile from "../../Asset/user.png";
 import {
   Linkedin,
   Camera,
@@ -292,7 +292,7 @@ const MentorProfile: React.FC = () => {
           <div className="ml-14 absolute bottom-0 left-auto transform translate-y-20 flex items-end">
             <div className="relative group">
               <img
-                src={mentor?.profileUrl ? mentor?.profileUrl : profile}
+                src={ mentor?.profileUrl ?? profile}
                 alt=""
                 className="w-32 h-32 rounded-full border-4 border-white shadow-lg object-cover"
               />
