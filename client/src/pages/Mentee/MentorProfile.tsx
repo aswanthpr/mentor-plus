@@ -1,4 +1,3 @@
-
 import { ProfileHeader } from "../../components/Common/exploreMentor/ProfileHeader";
 import { Skills } from "../../components/Common/exploreMentor/Skills";
 
@@ -11,47 +10,50 @@ import { fetchSimilarMentors } from "../../service/menteeApi";
 import { HttpStatusCode } from "axios";
 import MentorListByCategory from "../../components/Common/exploreMentor/MentorListByCategory";
 
- const MentorProfile = () => {
+const MentorProfile = () => {
   const { state } = useLocation();
   const navigate = useNavigate();
 
-  const [mentorData,setMentorData] = useState<IMentor | null>(state);
-  
+  const [mentorData, setMentorData] = useState<IMentor | null>(state);
+
   const [similarMentor, setSimilarMentor] = useState<IMentor[] | []>([]);
 
   const [loading, setLoading] = useState(true);
 
-if(!state){
-  navigate(-1)
-}
+  if (!state) {
+    navigate(-1);
+  }
   useEffect(() => {
     const fetchMentorData = async () => {
- 
-        setLoading(true);
+      setLoading(true);
 
-        const response = await fetchSimilarMentors(mentorData?.category as string,mentorData?._id as string);
-       
-        if (response.status === HttpStatusCode?.Ok && response.data.success) {
-          setSimilarMentor(response.data.mentor);
-        }
+      const response = await fetchSimilarMentors(
+        mentorData?.category as string,
+        mentorData?._id as string
+      );
 
-        setLoading(false);
-    
+      if (response.status === HttpStatusCode?.Ok && response.data.success) {
+        setSimilarMentor(response.data.mentor);
+      }
+
+      setLoading(false);
     };
 
-   
     fetchMentorData();
-setMentorData(state)
+    setMentorData(state);
   }, [mentorData?._id, mentorData?.category, navigate, state]);
 
   const handleBooking = useCallback(() => {
-    navigate(`/mentee/${decodeURIComponent(mentorData?.name as string)}/slot-booking`,{state:{mentorId:mentorData?._id}});
-  },[mentorData?._id, mentorData?.name, navigate]);
+    navigate(
+      `/mentee/${decodeURIComponent(mentorData?.name as string)}/slot-booking`,
+      { state: { mentorId: mentorData?._id } }
+    );
+  }, [mentorData?._id, mentorData?.name, navigate]);
 
   return (
     <div className="min-h-screen bg-gray-50 pt-10">
       {loading && <Spinner />}
-     
+
       <ProfileHeader mentorData={mentorData} />
 
       <div className="container mx-auto px-4 py-4">
@@ -68,10 +70,9 @@ setMentorData(state)
                 <p>{mentorData?.bio}</p>
               </div>
             </div>
-            {
-           mentorData?.reviews &&
-            <ReviewSection  mentorData={mentorData as IMentor} />
-            }
+            {mentorData?.reviews && (
+              <ReviewSection mentorData={mentorData as IMentor} />
+            )}
           </div>
 
           <div className="space-y-6">
@@ -79,8 +80,6 @@ setMentorData(state)
               mentorName={mentorData?.name as string}
               onBook={handleBooking}
             />
-
-            
           </div>
         </div>
         {similarMentor?.length > 0 ? (
@@ -88,8 +87,6 @@ setMentorData(state)
             <MentorListByCategory
               title="Similar Mentors"
               mentors={similarMentor}
-             
-
             />
           </div>
         ) : (
@@ -99,4 +96,4 @@ setMentorData(state)
     </div>
   );
 };
-export default MentorProfile
+export default MentorProfile;
