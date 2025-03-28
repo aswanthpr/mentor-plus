@@ -48,8 +48,8 @@ export class mentorController implements ImentorController {
         .status(result?.status)
         .cookie("mentorToken", result?.refreshToken as string, {
           httpOnly: true,
-          secure: process.env.NODE_ENV === "production" || false, //in development fasle
-          sameSite: "lax",
+          secure:true, //in development fasle
+          sameSite:"lax",
           maxAge: 14 * 24 * 60 * 60 * 1000,
         })
         .json({

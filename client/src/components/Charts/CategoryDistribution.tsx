@@ -24,7 +24,7 @@ const CategoryDistribution: React.FC<CategoryDistributionProps> = React.memo(
                 {data.map((_, index) => (
                   <Cell
                     key={`cell-${index}`}
-                    fill={colors[index % colors.length]}
+                    fill={colors[index % colors?.length]}
                   />
                 ))}
               </Pie>
