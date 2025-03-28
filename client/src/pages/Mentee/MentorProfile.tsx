@@ -3,21 +3,20 @@ import { ProfileHeader } from "../../components/Common/exploreMentor/ProfileHead
 import { Skills } from "../../components/Common/exploreMentor/Skills";
 
 import { BookOption } from "../../components/Common/exploreMentor/BookOption";
-// import MentorListByCategory from "../../components/Common/exploreMentor/MentorListByCategory";
-
 import { useLocation, useNavigate } from "react-router-dom";
 import { useCallback, useEffect, useState } from "react";
 import Spinner from "../../components/Common/common4All/Spinner";
 import { ReviewSection } from "../../components/Mentee/ReviewSection";
 import { fetchSimilarMentors } from "../../service/menteeApi";
 import { HttpStatusCode } from "axios";
+import MentorListByCategory from "../../components/Common/exploreMentor/MentorListByCategory";
 
  const MentorProfile = () => {
   const { state } = useLocation();
   const navigate = useNavigate();
 
-  const [mentorData] = useState<IMentor | null>(state);
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const [mentorData,setMentorData] = useState<IMentor | null>(state);
+  
   const [similarMentor, setSimilarMentor] = useState<IMentor[] | []>([]);
 
   const [loading, setLoading] = useState(true);
@@ -42,8 +41,8 @@ if(!state){
 
    
     fetchMentorData();
-
-  }, [mentorData?._id, mentorData?.category,navigate]);
+setMentorData(state)
+  }, [mentorData?._id, mentorData?.category, navigate, state]);
 
   const handleBooking = useCallback(() => {
     navigate(`/mentee/${decodeURIComponent(mentorData?.name as string)}/slot-booking`,{state:{mentorId:mentorData?._id}});
@@ -84,7 +83,7 @@ if(!state){
             
           </div>
         </div>
-        {/* {similarMentor?.length > 0 ? (
+        {similarMentor?.length > 0 ? (
           <div className="mt-8">
             <MentorListByCategory
               title="Similar Mentors"
@@ -95,7 +94,7 @@ if(!state){
           </div>
         ) : (
           <p></p>
-        )} */}
+        )}
       </div>
     </div>
   );

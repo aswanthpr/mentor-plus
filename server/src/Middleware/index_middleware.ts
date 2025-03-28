@@ -36,7 +36,7 @@ export const corsConfig: CorsOptions = {
 
 export const limiter = rateLimit({
   windowMs: 10 * 60 * 1000, // 5 minutes
-  limit: 200, // each IP can make up to 10 requests per `windowsMs` (5 minutes)
+  limit: 50, // each IP can make up to 10 requests per `windowsMs` (5 minutes)
   standardHeaders: true, // add the `RateLimit-*` headers to the response
   legacyHeaders: false, // remove the `X-RateLimit-*` headers from the response
   message: "Too many requests from this IP, please try again later.",

@@ -1,6 +1,7 @@
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { useRef } from 'react';
 import profileImg from "../../../Asset/user.png";
+import { Link } from 'react-router-dom';
 
 
 
@@ -23,7 +24,7 @@ export const MentorListByCategory = ({
       });
     }
   };
-
+console.log(mentors)
   return (
     <div className="relative">
       <div className="flex justify-between items-center mb-6">
@@ -54,7 +55,8 @@ export const MentorListByCategory = ({
               key={mentor?._id}
               className="flex-shrink-0 w-[280px] bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow"
             >
-            
+            <Link to={`/mentee/explore/${mentor?.name}`} state={mentor}>
+
               <div className="relative">
                 <img
                   src={mentor?.profileUrl??profileImg}
@@ -66,6 +68,7 @@ export const MentorListByCategory = ({
                 </span>
               </div>
      
+            </Link>
           
             <div className="p-4" 
           >
