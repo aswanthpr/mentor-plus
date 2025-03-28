@@ -2,7 +2,7 @@ import { ObjectId } from "mongoose";
 import { IchatRepository } from "../Interface/chat/IchatRepository";
 import { IchatService } from "../Interface/chat/IchatService";
 import { Ichat } from "../Model/chatSchema";
-import { Imessage } from "src/Model/messageSchema";
+import { Imessage } from "../Model/messageSchema";
 declare class chatService implements IchatService {
     private _chatRespository;
     constructor(_chatRespository: IchatRepository);

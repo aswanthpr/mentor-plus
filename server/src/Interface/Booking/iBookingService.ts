@@ -100,7 +100,8 @@ export interface IbookingService {
   }>;
   validateSessionJoin(
     sessionId: string,
-    sessionCode: string
+    sessionCode: string,
+    userId:ObjectId,
   ): Promise<{
     message: string;
     status: number;

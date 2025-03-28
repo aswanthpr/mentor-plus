@@ -15,14 +15,14 @@ const MenteeLogin: React.FC = () => {
   useEffect(() => {
 
     if (!accessToken || role !== "mentee") {
-      console.log("Redirecting to login...");
+    
       navigate(ROUTES?.MENTEE_LOGIN);
     }
 
   }, [accessToken, role, navigate]);
 
 
-  console.log("User authenticated...");
+
   return accessToken && role === 'mentee' ? <Outlet /> : null;
 };
 

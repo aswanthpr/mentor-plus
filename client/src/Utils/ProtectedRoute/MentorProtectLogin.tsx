@@ -13,12 +13,12 @@ const MentorProtectLogin:React.FC = () => {
   
     useEffect(() => {
       if (!accessToken || role !== 'mentor') {
-        console.log("out.............")
+  
         navigate(ROUTES?.MENTOR_LOGIN);
       }
     }, [accessToken, role, navigate]);
 
-    console.log("in................")
+ 
   
     return accessToken && role === 'mentor' ? <Outlet /> : null;;
 }

@@ -1,8 +1,10 @@
 import { Request, Response, NextFunction } from "express";
 import menteeModel from "../Model/menteeModel";
-import { verifyAccessToken, verifyRefreshToken } from "../Utils/jwt.utils";
+import { verifyAccessToken } from "../Utils/jwt.utils";
 import mongoose from "mongoose";
-import { Status } from "../Utils/httpStatusCode";
+import { Status } from "../Constants/httpStatusCode";
+import { HttpError } from "../Utils/http-error-handler.util";
+import { HttpResponse } from "../Constants/httpResponse";
 
 const menteeAuthorization = async (
   req: Request,
@@ -12,10 +14,10 @@ const menteeAuthorization = async (
   try {
     const refreshToken = req.cookies?.refreshToken;
     //checking fresh token valid
-    if (!refreshToken || !verifyRefreshToken(refreshToken, "mentee")) {
+    if (!refreshToken) {
       res.status(Status?.Unauthorized).json({
         success: false,
-        message: "Session expired. Please log in again.",
+        message:  HttpResponse?.UNAUTHORIZED,
       });
       return;
     }
@@ -24,7 +26,7 @@ const menteeAuthorization = async (
     if (!authHeader || !authHeader.startsWith("Bearer")) {
       res.status(Status?.Unauthorized).json({
         success: false,
-        message: "Unauthorized. No token provided.",
+        message:  HttpResponse?.UNAUTHORIZED,
       });
       return;
     }
@@ -35,7 +37,7 @@ const menteeAuthorization = async (
         .status(Status.Unauthorized)
         .json({
           success: false,
-          message: "You do not have permission to access this resource.",
+          message:  HttpResponse?.UNAUTHORIZED,
           user: false,
         });
       return;
@@ -46,36 +48,30 @@ const menteeAuthorization = async (
     if (decode?.error == "TokenExpired") {
       res
         .status(Status?.Forbidden)
-        .json({ success: false, message: "Token Expired." });
+        .json({ success: false, message:  HttpResponse?.TOKEN_EXPIRED });
+      return;
+    }
+    console.log(".........................................")
+    if (decode?.result?.role !== "mentee"||!decode?.isValid) {
+      res
+        .status(Status?.Unauthorized)
+        .json({ success: false, message:  HttpResponse?.UNAUTHORIZED });
+      return;
+    }
+    if (decode?.error == "TamperedToken") {
+      res
+        .status(Status?.Unauthorized)
+        .json({ success: false, message: HttpResponse?.UNAUTHORIZED });
       return;
     }
 
-    if (decode?.error == "TamperedToken"||!decode?.isValid) {
-      res
-        .status(Status?.Unauthorized)
-        .json({ success: false, message: "Token Invalid." });
-      return;
-    }
-    if (!decode?.isValid) {
-      res
-        .status(Status?.Unauthorized)
-        .json({ success: false, message: "User not Valid." });
-      return;
-    }
-
-    if (decode?.result?.role !== "mentee") {
-      res
-        .status(Status?.Unauthorized)
-        .json({ success: false, message: "user role is invalid" });
-      return;
-    }
 
     const menteeData = await menteeModel.findById(decode?.result?.userId);
 
     if (!menteeData || menteeData?.isBlocked) {
       res
         .status(Status?.Unauthorized)
-        .json({ message: "Mentee Not Found", success: false });
+        .json({ message:  HttpResponse?.UNAUTHORIZED, success: false });
       return;
     }
 
@@ -83,7 +79,7 @@ const menteeAuthorization = async (
 
     next();
   } catch (error: unknown) {
-    console.log(error instanceof Error ? error.message : String(error));
+    throw new HttpError(error instanceof Error ? error.message : String(error), Status?.InternalServerError);
   }
 };
 

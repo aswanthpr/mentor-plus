@@ -10,34 +10,30 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.mentorController = void 0;
+const httpStatusCode_1 = require("../Constants/httpStatusCode");
 class mentorController {
     constructor(_mentorService) {
         this._mentorService = _mentorService;
     }
-    mentorLogout(req, res) {
+    mentorLogout(req, res, next) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 res
-                    .status(200)
+                    .status(httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.Ok)
                     .clearCookie("mentorToken", { httpOnly: true })
                     .json({ success: true, message: "Logged out successfully" });
             }
             catch (error) {
-                res.status(500).json({
-                    success: false,
-                    message: "An internal server error occurred. Please try again later.",
-                });
-                throw new Error(`Error while mentee  logout ${error instanceof Error ? error.message : String(error)}`);
+                next(error);
             }
         });
     }
-    mentorProfile(req, res) {
+    mentorProfile(req, res, next) {
         return __awaiter(this, void 0, void 0, function* () {
             var _a;
             try {
                 const token = (_a = req.headers["authorization"]) === null || _a === void 0 ? void 0 : _a.split(" ")[1];
                 const { result, categories, success, message, status } = yield this._mentorService.mentorProfile(token);
-                console.log(result, "...........................", req.user);
                 res.status(status).json({
                     success,
                     message,
@@ -46,18 +42,18 @@ class mentorController {
                 });
             }
             catch (error) {
-                throw new Error(`Error while mentee  logout ${error instanceof Error ? error.message : String(error)}`);
+                next(error);
             }
         });
     }
     //for creating new access token
-    mentorRefreshToken(req, res) {
+    mentorRefreshToken(req, res, next) {
         return __awaiter(this, void 0, void 0, function* () {
             var _a;
             try {
                 const result = yield this._mentorService.mentorRefreshToken((_a = req.cookies) === null || _a === void 0 ? void 0 : _a.mentorToken);
                 res
-                    .status(result.status)
+                    .status(result === null || result === void 0 ? void 0 : result.status)
                     .cookie("mentorToken", result === null || result === void 0 ? void 0 : result.refreshToken, {
                     httpOnly: true,
                     secure: process.env.NODE_ENV === "production" || false, //in development fasle
@@ -71,34 +67,25 @@ class mentorController {
                 });
             }
             catch (error) {
-                res.status(500).json({
-                    success: false,
-                    message: "An internal server error occurred. Please try again later.",
-                });
-                throw new Error(`error while geting refreshToken${error instanceof Error ? error.message : String(error)}`);
+                next(error);
             }
         });
     }
     //mentor password changing
-    profilePasswordChange(req, res) {
+    profilePasswordChange(req, res, next) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                console.log(req.body, "this is the password");
                 const { currentPassword, newPassword, _id } = req.body;
                 const result = yield this._mentorService.passwordChange(currentPassword, newPassword, _id);
                 res.status(result === null || result === void 0 ? void 0 : result.status).json(result);
             }
             catch (error) {
-                res.status(500).json({
-                    success: false,
-                    message: "An internal server error occurred. Please try again later.",
-                });
-                throw new Error(`error while profile password changing ${error instanceof Error ? error.message : String(error)}`);
+                next(error);
             }
         });
     }
     //metnor profile image change
-    mentorProfileImageChange(req, res) {
+    mentorProfileImageChange(req, res, next) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 const { _id } = req.body;
@@ -108,14 +95,14 @@ class mentorController {
                         .profileImage[0]
                     : null;
                 const result = yield this._mentorService.mentorProfileImageChange(profileImage, _id);
-                res.status(result.status).json(result);
+                res.status(result === null || result === void 0 ? void 0 : result.status).json(result);
             }
             catch (error) {
-                throw new Error(`error while mentor profile image change${error instanceof Error ? error.message : String(error)}`);
+                next(error);
             }
         });
     }
-    mentorEditProfile(req, res) {
+    mentorEditProfile(req, res, next) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 const resume = req.files &&
@@ -128,13 +115,13 @@ class mentorController {
                 res.status(status).json({ success, message, result });
             }
             catch (error) {
-                throw new Error(`error while mentor profile Edit ${error instanceof Error ? error.message : String(error)}`);
+                next(error);
             }
         });
     }
     //fetch mentor home data
     // /mentor/home/:filter
-    questionData(req, res) {
+    questionData(req, res, next) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 const { filter } = req.params;
@@ -146,14 +133,14 @@ class mentorController {
                     .json({ success, message, homeData, userId, totalPage });
             }
             catch (error) {
-                throw new Error(`error while mentor profile Edit ${error instanceof Error ? error.message : String(error)}`);
+                next(error);
             }
         });
     }
     //create time slots in mentor side
     // /mentor/schedule/create-slots
     // get the scheule time in the req.body 
-    createTimeSlots(req, res) {
+    createTimeSlots(req, res, next) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 const { type, schedule } = req.body;
@@ -162,12 +149,12 @@ class mentorController {
                 res.status(status).json({ success, message, status, timeSlots });
             }
             catch (error) {
-                throw new Error(`error while mentor creating time slots  ${error instanceof Error ? error.message : String(error)}`);
+                next(error);
             }
         });
     }
     //schedule getting data.  /schedule/get-time-slots
-    getTimeSlots(req, res) {
+    getTimeSlots(req, res, next) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 const { search, filter, sortField, sortOrder, page, limit } = req.query;
@@ -178,11 +165,11 @@ class mentorController {
                     .json({ success, message, status, timeSlots, totalPage });
             }
             catch (error) {
-                throw new Error(`error while mentor getting time slots  ${error instanceof Error ? error.message : String(error)}`);
+                next(error);
             }
         });
     }
-    removeTimeSlot(req, res) {
+    removeTimeSlot(req, res, next) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 const { slotId } = req.body;
@@ -191,11 +178,11 @@ class mentorController {
                 res.status(status).json({ message, success });
             }
             catch (error) {
-                throw new Error(`error while mentor getting time slots  ${error instanceof Error ? error.message : String(error)}`);
+                next(error);
             }
         });
     }
-    chartData(req, res) {
+    chartData(req, res, next) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 const { timeRange } = req.query;
@@ -204,7 +191,7 @@ class mentorController {
                 res.status(status).json({ message, success, result });
             }
             catch (error) {
-                throw new Error(`error while mentor getting time slots  ${error instanceof Error ? error.message : String(error)}`);
+                next(error);
             }
         });
     }

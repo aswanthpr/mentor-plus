@@ -1,7 +1,7 @@
 import mongoose, { ObjectId } from "mongoose";
 import { ItransactionRepository } from "../Interface/wallet/ItransactionRepository";
 import { IwalletService } from "../Interface/wallet/IwalletService";
-import { Status } from "../Utils/httpStatusCode";
+import { Status } from "../Constants/httpStatusCode";
 import Stripe from "stripe";
 import { IwalletRepository } from "../Interface/wallet/IwalletRepository";
 import { Iwallet } from "../Model/walletModel";
@@ -9,6 +9,8 @@ import { InotificationRepository } from "../Interface/Notification/Inotification
 import { socketManager } from "../index";
 import { Itransaction } from "../Model/transactionModel";
 import { createSkip } from "../Utils/reusable.util";
+import { HttpResponse } from "../Constants/httpResponse";
+import { HttpError } from "../Utils/http-error-handler.util";
 
 export class walletService implements IwalletService {
   constructor(
@@ -19,24 +21,24 @@ export class walletService implements IwalletService {
       process.env.STRIPE_SECRET_KEY as string,
       { maxNetworkRetries: 5 }
     )
-  ) {}
+  ) { }
   //add money wallet
   async addMoenyToWallet(
     amount: number,
     userId: ObjectId
   ): Promise<
     | {
-        message: string;
-        status: number;
-        success: boolean;
-        session?: Stripe.Response<Stripe.Checkout.Session>;
-      }
+      message: string;
+      status: number;
+      success: boolean;
+      session?: Stripe.Response<Stripe.Checkout.Session>;
+    }
     | undefined
   > {
     try {
       if (!amount || !userId) {
         return {
-          message: "credential not found",
+          message: HttpResponse?.INVALID_CREDENTIALS,
           status: Status?.BadRequest,
           success: false,
         };
@@ -62,26 +64,22 @@ export class walletService implements IwalletService {
         metadata: {
           userId: userId.toString(),
           amount,
-       
+
         },
         custom_text: {
           submit: { message: "Complete Secure Payment" },
         },
       });
 
-      console.log(session);
+    
       return {
-        message: "payment intent created",
+        message: HttpResponse?.PAYMENT_INTENT_CREATED,
         status: Status?.Ok,
         success: true,
         session,
       };
     } catch (error: unknown) {
-      throw new Error(
-        `error while add money to wallet ${
-          error instanceof Error ? error.message : String(error)
-        }`
-      );
+      throw new HttpError(error instanceof Error ? error.message : String(error), Status?.InternalServerError);
     }
   }
   async walletStripeWebHook(
@@ -90,9 +88,9 @@ export class walletService implements IwalletService {
   ): Promise<void> {
     try {
       if (!signature || !bodyData) {
-        throw new Error("Missing signature or body data in webhook request.");
+        throw new Error(HttpResponse?.WEBHOOK_SIGNATURE_MISSING);
       }
-      console.log(signature, bodyData, "singature and bodydata");
+     
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       let event: any;
       try {
@@ -101,12 +99,9 @@ export class walletService implements IwalletService {
           signature as string | Buffer,
           process.env.STRIPE_WEBHOOK_SECRET as string
         );
-      } catch (err: unknown) {
-        console.error(
-          "⚠️ Webhook signature verification failed.",
-          err instanceof Error ? err.message : String(err)
-        );
-        return;
+      } catch (error: unknown) {
+        throw new HttpError(error instanceof Error ? error.message : String(error), Status?.InternalServerError);
+
       }
       console.log("🔔 Received webhook event:");
 
@@ -114,74 +109,70 @@ export class walletService implements IwalletService {
         case "checkout.session.completed": {
           const session = event.data.object as Stripe.Checkout.Session;
           const metaData = session.metadata || {};
+
          
-            console.log("entered....................")
-            if (!session.metadata) {
-              console.error("Missing metadata in Stripe session");
-              return;
-            }
-            const { amount, userId } = metaData;
-  
-            if (!mongoose.Types.ObjectId.isValid(userId)) {
-              console.error("Invalid menteeId format:", userId);
-              return;
-            }
-            const menteeId = new mongoose.Types.ObjectId(
-              userId
-            ) as unknown as mongoose.Schema.Types.ObjectId;
-  
-            const response = (await this.__walletRepository.findWallet(
-              menteeId as ObjectId
-            )) as Iwallet;
-  
-            let newWallet: Iwallet | null = null;
-            if (!response) {
-              newWallet = await this.__walletRepository.createWallet({
-                userId: menteeId,
-                balance: 0,
-              } as Iwallet);
-            } else {
-              await this.__walletRepository.updateWalletAmount(
-                menteeId,
-                Number(amount)
-              );
-            }
-  
-            const newTranasaction = {
-              amount: Number(amount),
-              walletId: (response
-                ? response?.["_id"]
-                : newWallet?._id) as ObjectId,
-              transactionType: "credit",
-              status: "completed",
-              note: "wallet top-up",
-            };
-            await this.__transactionRepository.createTransaction(newTranasaction);
-  
-            const notification =
-              await this.__notificationRepository.createNotification(
-                menteeId,
-                "money added to wallet",
-                "wallet balance added successfully!",
-                "mentee",
-                `${process.env.CLIENT_ORIGIN_URL}/mentee/wallet`
-              );
-            //real time notification
-            if (menteeId && notification) {
-              socketManager.sendNotification(userId as string, notification);
-            }
-          
+          if (!session.metadata) {
+            console.error("Missing metadata in Stripe session");
+            return;
+          }
+          const { amount, userId } = metaData;
+
+          if (!mongoose.Types.ObjectId.isValid(userId)) {
+            console.error("Invalid menteeId format:", userId);
+            return;
+          }
+          const menteeId = new mongoose.Types.ObjectId(
+            userId
+          ) as unknown as mongoose.Schema.Types.ObjectId;
+
+          const response = (await this.__walletRepository.findWallet(
+            menteeId as ObjectId
+          )) as Iwallet;
+
+          let newWallet: Iwallet | null = null;
+          if (!response) {
+            newWallet = await this.__walletRepository.createWallet({
+              userId: menteeId,
+              balance: 0,
+            } as Iwallet);
+          } else {
+            await this.__walletRepository.updateWalletAmount(
+              menteeId,
+              Number(amount)
+            );
+          }
+
+          const newTranasaction = {
+            amount: Number(amount),
+            walletId: (response
+              ? response?.["_id"]
+              : newWallet?._id) as ObjectId,
+            transactionType: "credit",
+            status: "completed",
+            note: "wallet top-up",
+          };
+          await this.__transactionRepository.createTransaction(newTranasaction);
+
+          const notification =
+            await this.__notificationRepository.createNotification(
+              menteeId,
+              "money added to wallet",
+              "wallet balance added successfully!",
+              "mentee",
+              `${process.env.CLIENT_ORIGIN_URL}/mentee/wallet`
+            );
+          //real time notification
+          if (menteeId && notification) {
+            socketManager.sendNotification(userId as string, notification);
+          }
+
         }
       }
       return;
     } catch (error: unknown) {
-      throw new Error(
-        `${
-          error instanceof Error ? error.message : String(error)
-        } error while webhook handling in mentee service`
-      );
+      throw new HttpError(error instanceof Error ? error.message : String(error), Status?.InternalServerError);
     }
-  }  
+  }
   //fetch wallet data ;
   async getWalletData(
     userId: ObjectId,
@@ -190,25 +181,25 @@ export class walletService implements IwalletService {
     filter: string,
     page: number,
     limit: number): Promise<{
-    message: string;
-    status: number;
-    success: boolean;
-    walletData: Iwallet | null;
-    totalPage:number;
-  }> {
+      message: string;
+      status: number;
+      success: boolean;
+      walletData: Iwallet | null;
+      totalPage: number;
+    }> {
     try {
-      if (!userId||!role||!filter||page<1||limit<1) {
+      if (!userId || !role || !filter || page < 1 || limit < 1) {
         return {
-          message: "credential not found",
+          message: HttpResponse?.INVALID_CREDENTIALS,
           status: Status?.BadRequest,
           success: false,
           walletData: null,
-          totalPage:0
+          totalPage: 0
         };
       }
-const skipData = createSkip(page,limit);
-const limitNo = skipData?.limitNo;
-const skip = skipData?.skip;
+      const skipData = createSkip(page, limit);
+      const limitNo = skipData?.limitNo;
+      const skip = skipData?.skip;
 
 
       const result = await this.__walletRepository.findWalletWithTransaction(
@@ -219,20 +210,16 @@ const skip = skipData?.skip;
         filter,
       );
       const totalPage = result?.totalDocs > 0 ? Math.ceil(result?.totalDocs / limitNo) : 1;
-      console.log(result?.totalDocs,totalPage)
+      
       return {
-        message: "successfully receive data",
+        message: HttpResponse?.DATA_RETRIEVED,
         status: Status?.Ok,
         success: true,
         walletData: result?.transaction,
         totalPage
       };
     } catch (error: unknown) {
-      throw new Error(
-        `${
-          error instanceof Error ? error.message : String(error)
-        } error while fetching user wallet Data`
-      );
+      throw new HttpError(error instanceof Error ? error.message : String(error), Status?.InternalServerError);
     }
   }
   async withdrawMentorEarnings(
@@ -245,26 +232,26 @@ const skip = skipData?.skip;
     result: Itransaction | null;
   }> {
     try {
-      console.log('2222222222222222222222222222',amount,userId,typeof amount)
+
       if (!amount || !userId) {
-        console.log('haiiiiiiiiii',amount,userId,typeof amount)
+
         return {
-          message: "credential not found",
+          message: HttpResponse?.INVALID_CREDENTIALS,
           status: Status?.BadRequest,
           success: false,
           result: null,
         };
       }
-      if(typeof amount !== 'number'&& amount < 500){
-   
+      if (typeof amount !== 'number' && amount < 500) {
+
         return {
-          message:"Withdrawals below $500 are not allowed. Please enter a higher amount",
+          message: "Withdrawals below $500 are not allowed. Please enter a higher amount",
           status: Status?.BadRequest,
           success: false,
           result: null,
         };
       }
-    
+
       const result = await this.__walletRepository.deductAmountFromWallet(
         amount,
         userId
@@ -273,7 +260,7 @@ const skip = skipData?.skip;
       if (!result) {
 
         return {
-          message: "data not found",
+          message: HttpResponse?.RESOURCE_NOT_FOUND,
           status: Status?.BadRequest,
           success: false,
           result: null,
@@ -306,17 +293,13 @@ const skip = skipData?.skip;
         );
       }
       return {
-        message: "successfully applied for withdraw",
+        message: HttpResponse?.APPLIED_FOR_WITHDRAW,
         status: Status?.Ok,
         success: true,
         result: transaction as Itransaction,
       };
     } catch (error: unknown) {
-      throw new Error(
-        `${
-          error instanceof Error ? error.message : String(error)
-        } error while fetching user wallet Data`
-      );
+      throw new HttpError(error instanceof Error ? error.message : String(error), Status?.InternalServerError);
     }
   }
 }

@@ -8,11 +8,6 @@ var Status;
     Status[Status["Created"] = 201] = "Created";
     Status[Status["Accepted"] = 202] = "Accepted";
     Status[Status["NoContent"] = 204] = "NoContent";
-    Status[Status["PartialContent"] = 206] = "PartialContent";
-    // Redirection messages (300–399)
-    Status[Status["MultipleChoices"] = 300] = "MultipleChoices";
-    Status[Status["MovedPermanently"] = 301] = "MovedPermanently";
-    Status[Status["Found"] = 302] = "Found";
     // Client error responses (400–499)
     Status[Status["BadRequest"] = 400] = "BadRequest";
     Status[Status["Unauthorized"] = 401] = "Unauthorized";
@@ -22,8 +17,6 @@ var Status;
     Status[Status["MethodNotAllowed"] = 405] = "MethodNotAllowed";
     Status[Status["RequestTimeout"] = 408] = "RequestTimeout";
     Status[Status["Conflict"] = 409] = "Conflict";
-    Status[Status["Gone"] = 410] = "Gone";
-    Status[Status["UnprocessableEntity"] = 422] = "UnprocessableEntity";
     Status[Status["TooManyRequests"] = 429] = "TooManyRequests";
     // Server error responses (500–599)
     Status[Status["InternalServerError"] = 500] = "InternalServerError";

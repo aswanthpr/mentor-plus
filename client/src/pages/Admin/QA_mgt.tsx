@@ -53,7 +53,6 @@ const QA_mgt: React.FC = () => {
       QUESTIONS_PER_PAGE
     );
 
-    console.log(response?.data?.questions);
     if (
       response?.status === HttpStatusCode?.Ok &&
       response?.data?.success &&
@@ -105,8 +104,6 @@ const QA_mgt: React.FC = () => {
       }
       // setLoading(true)
       const response = await fetchChangeAnswerStatus(answerId);
-
-      console.log(response?.data, response.status, response.data?.message);
 
       if (response.data?.success && response?.status === HttpStatusCode?.Ok) {
         // toast.dismiss();

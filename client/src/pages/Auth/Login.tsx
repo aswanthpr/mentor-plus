@@ -108,7 +108,7 @@ const Login: React.FC = () => {
         if (userType == "mentor") {
           setLoading(true);
           const response = await fetchMentorLogin(formData);
-
+          setLoading((pre)=>!pre);
           if (response.status == HttpStatusCode?.Ok && response.data.success) {
             dispatch(
               setMentorToken({
@@ -116,21 +116,15 @@ const Login: React.FC = () => {
                 mentorRole: "mentor",
               })
             );
-            console.log(
-              response.data?.accessToken,
-              "thsi is from redux",
-              response.data
-            );
 
             navigate(ROUTES?.MENTOR_HOME);
           }
           toast.success(response.data.message);
+          
         }
-        setTimeout(() => {
-          setLoading(false);
-        }, 500);
-      }
 
+      }
+     
     },
     [dispatch, formData, navigate, userType, validateField]
   );

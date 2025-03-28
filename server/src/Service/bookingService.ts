@@ -5,7 +5,7 @@ import { ItimeSlotRepository } from "../Interface/Booking/iTimeSchedule";
 import mongoose, { ObjectId } from "mongoose";
 import { InewSlotSchedule, Itimes } from "../Types";
 import { IslotSchedule } from "../Model/slotSchedule";
-import { Status } from "../Utils/httpStatusCode";
+import { Status } from "../Constants/httpStatusCode";
 import { Itime } from "../Model/timeModel";
 import { InotificationRepository } from "../Interface/Notification/InotificationRepository";
 import moment from "moment";
@@ -16,6 +16,8 @@ import { createSkip, generateSessionCode } from "../Utils/reusable.util";
 import { Iwallet } from "../Model/walletModel";
 import { IwalletRepository } from "../Interface/wallet/IwalletRepository";
 import { ItransactionRepository } from "../Interface/wallet/ItransactionRepository";
+import { HttpResponse, NOTIFY } from "../Constants/httpResponse";
+import { HttpError } from "../Utils/http-error-handler.util";
 
 export class bookingService implements IbookingService {
   constructor(
@@ -32,7 +34,7 @@ export class bookingService implements IbookingService {
         maxNetworkRetries: 4,
       }
     )
-  ) {}
+  ) { }
 
   async getTimeSlots(mentorId: string): Promise<{
     success: boolean;
@@ -44,7 +46,7 @@ export class bookingService implements IbookingService {
       if (!mentorId) {
         return {
           status: Status.BadRequest,
-          message: "credential not found",
+          message: HttpResponse?.INVALID_CREDENTIALS,
           success: false,
           timeSlots: [],
         };
@@ -53,24 +55,20 @@ export class bookingService implements IbookingService {
       if (!response) {
         return {
           status: Status.Ok,
-          message: "Data not found",
+          message: HttpResponse?.RESOURCE_NOT_FOUND,
           success: false,
           timeSlots: [],
         };
       }
-      console.log(response, "from service");
+   
       return {
         status: Status.Ok,
-        message: "Data fetched successfully",
+        message: HttpResponse?.DATA_RETRIEVED,
         success: true,
         timeSlots: response,
       };
     } catch (error: unknown) {
-      throw new Error(
-        `${
-          error instanceof Error ? error.message : String(error)
-        } error while gettign Time Slots in mentee service`
-      );
+      throw new HttpError(error instanceof Error ? error.message : String(error), Status?.InternalServerError);
     }
   }
 
@@ -91,12 +89,12 @@ export class bookingService implements IbookingService {
     session?: Stripe.Response<Stripe.Checkout.Session>;
   }> {
     try {
-      console.log(timeSlot, messages, paymentMethod, totalAmount);
+    
 
       if (!timeSlot || !messages || !paymentMethod || !totalAmount) {
         return {
           status: Status.BadRequest,
-          message: "credential not found",
+          message: HttpResponse?.INVALID_CREDENTIALS,
           success: false,
         };
       }
@@ -117,9 +115,8 @@ export class bookingService implements IbookingService {
                   name: `Mentor is ${decodeURIComponent(
                     mentorName.toLocaleUpperCase()
                   )}`,
-                  description: `Slot date is: ${
-                    String(timeSlot?.startDate).split("T")[0]
-                  }
+                  description: `Slot date is: ${String(timeSlot?.startDate).split("T")[0]
+                    }
                 time is ${startStr}-${endStr}`,
                 },
               },
@@ -133,13 +130,13 @@ export class bookingService implements IbookingService {
             messages,
             paymentMethod,
             menteeId: String(menteeId),
-            
+
           },
         });
 
         return {
           success: true,
-          message: "stripe payment initiated successfully",
+          message: HttpResponse?.SUCCESS,
           status: Status.Ok,
           session,
         };
@@ -152,14 +149,14 @@ export class bookingService implements IbookingService {
 
         if (!deductAmountFromWallet) {
           return {
-            message: "Insufficient balance in wallet",
+            message: HttpResponse?.INSUFFICINET_BALANCE,
             status: Status?.BadRequest,
             success: false,
           };
         }
 
         const time = new Date().toLocaleString();
-        console.log(time, "times ");
+      
 
         //create  new transaction
         const newTranasaction = {
@@ -232,7 +229,7 @@ export class bookingService implements IbookingService {
           await this._chatRepository.createChatDocs(mentorId, menteeId);
         }
         return {
-          message: "slot booked successfully",
+          message: HttpResponse?.SLOT_BOOKED,
           status: Status?.Ok,
           success: true,
         };
@@ -240,15 +237,11 @@ export class bookingService implements IbookingService {
 
       return {
         success: false,
-        message: "error while payment",
+        message: HttpResponse?.SOMETHING_WENT_WRONG,
         status: Status.BadRequest,
       };
     } catch (error: unknown) {
-      throw new Error(
-        `${
-          error instanceof Error ? error.message : String(error)
-        } error while place Slot booking in mentee service`
-      );
+      throw new HttpError(error instanceof Error ? error.message : String(error), Status?.InternalServerError);
     }
   }
 
@@ -276,12 +269,9 @@ export class bookingService implements IbookingService {
           signature as string | Buffer,
           process.env.STRIPE_WEBHOOK_SECRET as string
         );
-      } catch (err: unknown) {
-        console.error(
-          "⚠️ Webhook signature verification failed.",
-          err instanceof Error ? err.message : String(err)
-        );
-        return;
+      } catch (error: unknown) {
+        throw new HttpError(error instanceof Error ? error.message : String(error), Status?.InternalServerError);
+
       }
 
       console.log("🔔 Received webhook event:", event.type);
@@ -290,153 +280,153 @@ export class bookingService implements IbookingService {
         case "checkout.session.completed": {
           const session = event.data.object as Stripe.Checkout.Session;
           const metadata = session.metadata || {};
-          
-            
-            //if the data not exist send notification to mentee
-            if (
-              !metadata ||
-              !metadata.menteeId ||
-              !metadata.timeSlot ||
-              !metadata.messages ||
-              !metadata.paymentMethod
-            ) {
-              console.error("❌ Invalid or missing metadata in Stripe webhook");
-    
-              // Redirect to error page when metadata is missing
-              const noti = await this._notificationRepository.createNotification(
-                metadata.menteeId as unknown as ObjectId,
+
+
+          //if the data not exist send notification to mentee
+          if (
+            !metadata ||
+            !metadata.menteeId ||
+            !metadata.timeSlot ||
+            !metadata.messages ||
+            !metadata.paymentMethod
+          ) {
+            console.error("❌ Invalid or missing metadata in Stripe webhook");
+
+            // Redirect to error page when metadata is missing
+            const noti = await this._notificationRepository.createNotification(
+              metadata.menteeId as unknown as ObjectId,
+              `Payment Failed`,
+              `Your payment could not be processed. Please try again.`,
+              `mentee`,
+              ""
+            );
+            if (metadata?.menteeId && noti) {
+              socketManager.sendNotification(
+                metadata?.menteeId as string,
+                noti
+              );
+            }
+            return;
+          }
+
+          const { timeSlot, messages, menteeId } = metadata;
+
+          if (!mongoose.Types.ObjectId.isValid(menteeId)) {
+            console.error("Invalid menteeId format:", menteeId);
+            return;
+          }
+          const menteeObjectId = new mongoose.Types.ObjectId(
+            menteeId
+          ) as unknown as mongoose.Schema.Types.ObjectId;
+          const slotId = new mongoose.Types.ObjectId(
+            JSON.parse(timeSlot)._id as string
+          ) as unknown as mongoose.Schema.Types.ObjectId;
+          const status = session.payment_status == "paid" ? "Paid" : "Failed";
+
+          if (status === "Failed") {
+            console.error("❌ Payment failed. Redirecting to error page.");
+
+            const notification =
+              await this._notificationRepository.createNotification(
+                menteeObjectId,
                 `Payment Failed`,
                 `Your payment could not be processed. Please try again.`,
                 `mentee`,
                 ""
               );
-              if (metadata?.menteeId && noti) {
-                socketManager.sendNotification(
-                  metadata?.menteeId as string,
-                  noti
-                );
-              }
-              return;
+            if (menteeId && notification) {
+              socketManager.sendNotification(menteeId as string, notification);
             }
-    
-            const { timeSlot, messages, menteeId } = metadata;
-    
-            if (!mongoose.Types.ObjectId.isValid(menteeId)) {
-              console.error("Invalid menteeId format:", menteeId);
-              return;
-            }
-            const menteeObjectId = new mongoose.Types.ObjectId(
-              menteeId
-            ) as unknown as mongoose.Schema.Types.ObjectId;
-            const slotId = new mongoose.Types.ObjectId(
-              JSON.parse(timeSlot)._id as string
-            ) as unknown as mongoose.Schema.Types.ObjectId;
-            const status = session.payment_status == "paid" ? "Paid" : "Failed";
-    
-            if (status === "Failed") {
-              console.error("❌ Payment failed. Redirecting to error page.");
-    
-              const notification =
-                await this._notificationRepository.createNotification(
-                  menteeObjectId,
-                  `Payment Failed`,
-                  `Your payment could not be processed. Please try again.`,
-                  `mentee`,
-                  ""
-                );
-              if (menteeId && notification) {
-                socketManager.sendNotification(menteeId as string, notification);
-              }
-              return;
-            }
-            const totalAmount = (session?.amount_total || 0) / 100;
-            const time = new Date(session?.created * 1000).toISOString();
-    
-            //checking wallet exist or not
-            const walletResponse = (await this.__walletRepository.findWallet(
-              menteeObjectId
-            )) as Iwallet;
-    
-            let newWallet: Iwallet | null = null;
-            // if wallet not exist create new one
-            if (!walletResponse) {
-              newWallet = await this.__walletRepository.createWallet({
-                userId: menteeObjectId,
-                balance: 0,
-              } as Iwallet);
-            }
-            //create  new transaction
-            const newTranasaction = {
-              amount: totalAmount,
-              walletId: (walletResponse
-                ? walletResponse?.["_id"]
-                : newWallet!._id) as ObjectId,
-              transactionType: "paid",
-              status: "completed",
-              note: "slot booked successfully",
-            };
-    
-            await this.__transactionRepository.createTransaction(newTranasaction);
-    
-            // Insert data into newSlotSchedule
-            const newSlotSchedule: InewSlotSchedule = {
-              menteeId: menteeObjectId,
-              slotId,
-              paymentStatus: status,
-              paymentTime: time,
-              paymentMethod: "stripe",
-              paymentAmount: String(totalAmount),
-              duration: JSON.parse(timeSlot)?.duration,
-              description: messages,
-              status: "CONFIRMED",
-            };
-    
-            const response = await this._slotScheduleRepository.newSlotBooking(
-              newSlotSchedule as IslotSchedule
+            return;
+          }
+          const totalAmount = (session?.amount_total || 0) / 100;
+          const time = new Date(session?.created * 1000).toISOString();
+
+          //checking wallet exist or not
+          const walletResponse = (await this.__walletRepository.findWallet(
+            menteeObjectId
+          )) as Iwallet;
+
+          let newWallet: Iwallet | null = null;
+          // if wallet not exist create new one
+          if (!walletResponse) {
+            newWallet = await this.__walletRepository.createWallet({
+              userId: menteeObjectId,
+              balance: 0,
+            } as Iwallet);
+          }
+          //create  new transaction
+          const newTranasaction = {
+            amount: totalAmount,
+            walletId: (walletResponse
+              ? walletResponse?.["_id"]
+              : newWallet!._id) as ObjectId,
+            transactionType: "paid",
+            status: "completed",
+            note: "slot booked successfully",
+          };
+
+          await this.__transactionRepository.createTransaction(newTranasaction);
+
+          // Insert data into newSlotSchedule
+          const newSlotSchedule: InewSlotSchedule = {
+            menteeId: menteeObjectId,
+            slotId,
+            paymentStatus: status,
+            paymentTime: time,
+            paymentMethod: "stripe",
+            paymentAmount: String(totalAmount),
+            duration: JSON.parse(timeSlot)?.duration,
+            description: messages,
+            status: "CONFIRMED",
+          };
+
+          const response = await this._slotScheduleRepository.newSlotBooking(
+            newSlotSchedule as IslotSchedule
+          );
+          if (!response) {
+            return;
+          }
+          const mentorId = response.times?.mentorId as ObjectId;
+          const mentorID = String(mentorId);
+
+          await this._timeSlotRepository.makeTimeSlotBooked(String(slotId));
+          //notification for mentee
+          const notific = await this._notificationRepository.createNotification(
+            menteeObjectId as unknown as ObjectId,
+            `Slot booked successfully`,
+            `Congratulations! You've been successfully booked your slot.`,
+            `mentee`,
+            `${process.env.CLIENT_ORIGIN_URL}/mentee/bookings`
+          );
+          if (menteeId && notific) {
+            socketManager.sendNotification(menteeId as string, notific);
+          }
+
+          if (mentorId) {
+            //notification for mentor
+            const notif = await this._notificationRepository.createNotification(
+              mentorId as mongoose.Schema.Types.ObjectId,
+              NOTIFY?.SLOT_SCHEDULE_TITLE,
+              NOTIFY?.SLOT_SCHEDULED,
+              `mentor`,
+              `${process.env.CLIENT_ORIGIN_URL}/mentor/session`
             );
-            if (!response) {
-              return;
-            }
-            const mentorId = response.times?.mentorId as ObjectId;
-            const mentorID = String(mentorId);
-    
-            await this._timeSlotRepository.makeTimeSlotBooked(String(slotId));
-            //notification for mentee
-            const notific = await this._notificationRepository.createNotification(
-              menteeObjectId as unknown as ObjectId,
-              `Slot booked successfully`,
-              `Congratulations! You've been successfully booked your slot.`,
-              `mentee`,
-              `${process.env.CLIENT_ORIGIN_URL}/mentee/bookings`
+            //make it realtime using socket
+            socketManager.sendNotification(
+              mentorID as string,
+              notif as Inotification
             );
-            if (menteeId && notific) {
-              socketManager.sendNotification(menteeId as string, notific);
-            }
-    
-            if (mentorId) {
-              //notification for mentor
-              const notif = await this._notificationRepository.createNotification(
-                mentorId as mongoose.Schema.Types.ObjectId,
-                `Your new slot were Scheduled`,
-                `new slot were scheduled . checkout now`,
-                `mentor`,
-                `${process.env.CLIENT_ORIGIN_URL}/mentor/session`
-              );
-              //make it realtime using socket
-              socketManager.sendNotification(
-                mentorID as string,
-                notif as Inotification
-              );
-            }
-            //creating chat document
-            const resp = await this._chatRepository.findChatRoom(
-              mentorId,
-              menteeObjectId
-            );
-            if (!resp) {
-              await this._chatRepository.createChatDocs(mentorId, menteeObjectId);
-            }
-          
+          }
+          //creating chat document
+          const resp = await this._chatRepository.findChatRoom(
+            mentorId,
+            menteeObjectId
+          );
+          if (!resp) {
+            await this._chatRepository.createChatDocs(mentorId, menteeObjectId);
+          }
+
           return;
         }
         case "checkout.session.expired":
@@ -447,8 +437,8 @@ export class bookingService implements IbookingService {
           if (session.metadata && session.metadata.menteeId) {
             await this._notificationRepository.createNotification(
               session.metadata.menteeId as unknown as ObjectId,
-              `Payment Failed`,
-              `Your payment attempt failed. Please try again.`,
+              NOTIFY?.PAYMENT_FAILED,
+              NOTIFY?.PAYMENT_ATTEMPT_FALED,
               `mentee`,
               ""
             );
@@ -463,8 +453,8 @@ export class bookingService implements IbookingService {
             const notific =
               await this._notificationRepository.createNotification(
                 session.metadata.menteeId as unknown as ObjectId,
-                `Payment Failed`,
-                `Your payment attempt failed. Please try again.`,
+                NOTIFY?.PAYMENT_FAILED,
+                NOTIFY?.PAYMENT_ATTEMPT_FALED,
                 `mentee`,
                 ""
               );
@@ -480,25 +470,12 @@ export class bookingService implements IbookingService {
           console.log(`Unhandled event type ${event.type}`);
       }
     } catch (error: unknown) {
-      throw new Error(
-        `${
-          error instanceof Error ? error.message : String(error)
-        } error while webhook handling in mentee service`
-      );
+      throw new HttpError(error instanceof Error ? error.message : String(error), Status?.InternalServerError);
     }
   }
 
   //fetch mentee booked slots
 
-  /**
-   * Fetches the booked slots for a given mentee.
-   *
-   * @param menteeId - The ObjectId of the mentee.
-   *
-   * @returns A promise resolving to an object containing success status, message, HTTP status number, and an array of booked slots.
-   *
-   * @throws Error - Throws an error if there is an issue while fetching the booked slots.
-   */
   async getBookedSlots(
     menteeId: ObjectId,
     currentTab: string,
@@ -528,7 +505,7 @@ export class bookingService implements IbookingService {
       ) {
         return {
           success: false,
-          message: "missing parameters",
+          message: HttpResponse?.INVALID_CREDENTIALS,
           status: Status.BadRequest,
           slots: [],
           totalPage: 0,
@@ -556,7 +533,7 @@ export class bookingService implements IbookingService {
       if (response?.slots.length < 0 || response?.totalDocs < 0) {
         return {
           success: false,
-          message: "No slots found",
+          message: HttpResponse?.RESOURCE_NOT_FOUND,
           status: Status.Ok,
           slots: [],
           totalPage: 0,
@@ -565,17 +542,13 @@ export class bookingService implements IbookingService {
       const totalPage = Math.ceil(response?.totalDocs / limitNo);
       return {
         success: true,
-        message: "slots found",
+        message: HttpResponse?.RESOURCE_FOUND,
         status: Status.Ok,
         slots: response?.slots,
         totalPage,
       };
     } catch (error: unknown) {
-      throw new Error(
-        `${
-          error instanceof Error ? error.message : String(error)
-        } error while webhook handling in mentee service`
-      );
+      throw new HttpError(error instanceof Error ? error.message : String(error), Status?.InternalServerError);
     }
   }
 
@@ -596,7 +569,7 @@ export class bookingService implements IbookingService {
     totalPage: number;
   }> {
     try {
-      console.log(currentTab, mentorId, "098765432");
+   
       if (
         !mentorId ||
         !currentTab ||
@@ -609,7 +582,7 @@ export class bookingService implements IbookingService {
       ) {
         return {
           success: false,
-          message: "credential not found",
+          message: HttpResponse?.INVALID_CREDENTIALS,
           status: Status.NotFound,
           slots: [],
           totalPage: 0,
@@ -629,30 +602,26 @@ export class bookingService implements IbookingService {
         tabCond,
         mentorId,
       );
-      if (response?.slots.length < 0 || response?.totalDoc <0 ) {
+      if (response?.slots.length < 0 || response?.totalDoc < 0) {
         return {
           success: false,
-          message: "No slots found",
+          message: HttpResponse?.RESOURCE_NOT_FOUND,
           status: Status.Ok,
           slots: [],
-          totalPage:0,
+          totalPage: 0,
         };
       }
-      const totalPage = Math.ceil(response?.totalDoc/limitNo);
+      const totalPage = Math.ceil(response?.totalDoc / limitNo);
 
       return {
         success: true,
-        message: "slots retrieved",
+        message: HttpResponse?.RESOURCE_FOUND,
         status: Status.Ok,
         slots: response?.slots,
         totalPage,
       };
     } catch (error: unknown) {
-      throw new Error(
-        `${
-          error instanceof Error ? error.message : String(error)
-        } error while webhook handling in mentee service`
-      );
+      throw new HttpError(error instanceof Error ? error.message : String(error), Status?.InternalServerError);
     }
   }
   async cancelSlot(
@@ -669,7 +638,7 @@ export class bookingService implements IbookingService {
       if (!sessionId || !reason || (reason == "other" && customReason == "")) {
         return {
           success: false,
-          message: "credential not found",
+          message: HttpResponse?.INVALID_CREDENTIALS,
           status: Status.BadRequest,
           result: null,
         };
@@ -685,28 +654,24 @@ export class bookingService implements IbookingService {
         sessionId,
         issue
       );
-      
+
 
       if (!response) {
         return {
           success: false,
-          message: "something went wrong",
+          message: HttpResponse?.FAILED,
           status: Status.NotFound,
           result: null,
         };
       }
       return {
         success: true,
-        message: "cancel requested successfully",
+        message: HttpResponse?.SLOT_CANCEL_REQUESTED,
         status: Status.Ok,
         result: response,
       };
     } catch (error: unknown) {
-      throw new Error(
-        `${
-          error instanceof Error ? error.message : String(error)
-        } error while slot cancel in  service`
-      );
+      throw new HttpError(error instanceof Error ? error.message : String(error), Status?.InternalServerError);
     }
   }
   //mentor handle cancel slot req
@@ -720,11 +685,11 @@ export class bookingService implements IbookingService {
     result: IslotSchedule | null;
   }> {
     try {
-      console.log(statusValue);
+    
       if (!sessionId || !statusValue) {
         return {
           success: false,
-          message: "credential not found",
+          message: HttpResponse?.INVALID_CREDENTIALS,
           status: Status.BadRequest,
           result: null,
         };
@@ -735,11 +700,11 @@ export class bookingService implements IbookingService {
         statusValue
       );
       await this._timeSlotRepository.releaseTimeSlot(String(response?.slotId));
-      console.log(response);
+    
       if (!response) {
         return {
           success: false,
-          message: "result not found ",
+          message: HttpResponse?.RESOURCE_NOT_FOUND,
           status: Status.NotFound,
           result: null,
         };
@@ -767,7 +732,7 @@ export class bookingService implements IbookingService {
             : createWallet?.["_id"]) as ObjectId,
           transactionType: "credit",
           status: "completed",
-          note: "slot cancelled amount refunded",
+          note: NOTIFY?.CANCELLD_AMOUNT_CREDIT,
         };
 
         await this.__transactionRepository.createTransaction(newTranasaction);
@@ -793,18 +758,13 @@ export class bookingService implements IbookingService {
       }
       return {
         success: true,
-        message: `${
-          statusValue == "CANCELLED" ? "cancel approved" : "cancel rejected"
-        } successfully`,
+        message: `${statusValue == "CANCELLED" ? "cancel approved" : "cancel rejected"
+          } successfully`,
         status: Status.Ok,
         result: response,
       };
     } catch (error: unknown) {
-      throw new Error(
-        `${
-          error instanceof Error ? error.message : String(error)
-        } error while metnor slot cancel  handle in  service`
-      );
+      throw new HttpError(error instanceof Error ? error.message : String(error), Status?.InternalServerError);
     }
   }
   //create session code
@@ -818,7 +778,7 @@ export class bookingService implements IbookingService {
       if (!bookingId) {
         return {
           success: false,
-          message: "credential not found",
+          message: HttpResponse?.INVALID_CREDENTIALS,
           status: Status.BadRequest,
           sessionCode: null,
         };
@@ -826,7 +786,7 @@ export class bookingService implements IbookingService {
       //generate sessionCode
       const session_Code = generateSessionCode();
 
-      console.log(session_Code, "sessionCode");
+    
       const response = await this._slotScheduleRepository.createSessionCode(
         bookingId,
         session_Code
@@ -835,24 +795,20 @@ export class bookingService implements IbookingService {
       if (!response) {
         return {
           success: false,
-          message: "result not found ",
+          message: HttpResponse?.RESOURCE_NOT_FOUND,
           status: Status.NotFound,
           sessionCode: null,
         };
       }
-      console.log("response");
+     
       return {
         success: true,
-        message: "session Code  created successfully",
+        message: HttpResponse?.SESSION_CODE_CREATED,
         status: Status.Ok,
         sessionCode: response,
       };
     } catch (error: unknown) {
-      throw new Error(
-        `${
-          error instanceof Error ? error.message : String(error)
-        } error while metnor create session code  in  service`
-      );
+      throw new HttpError(error instanceof Error ? error.message : String(error), Status?.InternalServerError);
     }
   }
   //session completed marking
@@ -869,7 +825,7 @@ export class bookingService implements IbookingService {
       if (!bookingId || !mentorId) {
         return {
           success: false,
-          message: "credential not found",
+          message: HttpResponse?.INVALID_CREDENTIALS,
           status: Status.BadRequest,
           sessionStatus: null,
         };
@@ -882,7 +838,7 @@ export class bookingService implements IbookingService {
       if (!response) {
         return {
           success: false,
-          message: "result not found ",
+          message: HttpResponse?.RESOURCE_NOT_FOUND,
           status: Status.NotFound,
           sessionStatus: null,
         };
@@ -913,7 +869,7 @@ export class bookingService implements IbookingService {
         walletId: (result ? result?._id : newWallet?.["_id"]) as ObjectId,
         transactionType: "credit",
         status: "completed",
-        note: "earnings credited to account",
+        note: NOTIFY?.EARNINGS_CREDITED_TO_WALLET,
       };
 
       await this.__transactionRepository.createTransaction(newTranasaction);
@@ -921,8 +877,8 @@ export class bookingService implements IbookingService {
       const notification =
         await this._notificationRepository.createNotification(
           mentorId,
-          "Earnings credited",
-          "your earnings credited to your wallet.have a nice day",
+          NOTIFY?.EARNING_CREDITED,
+          NOTIFY?.EARNING_CREDIT_MESSAGE,
           "mentor",
           `${process.env.CLIENT_ORIGIN_URL}/mentor/wallet`
         );
@@ -932,25 +888,22 @@ export class bookingService implements IbookingService {
           notification as Inotification
         );
       }
-      console.log(notification);
+   
       return {
         success: true,
-        message: "marked as completed!",
+        message: HttpResponse?.SESSION_COMPLETED,
         status: Status.Ok,
         sessionStatus: response?.status,
       };
     } catch (error: unknown) {
-      throw new Error(
-        `${
-          error instanceof Error ? error.message : String(error)
-        } error while chnage the session status as completed  in  service`
-      );
+      throw new HttpError(error instanceof Error ? error.message : String(error), Status?.InternalServerError);
     }
   }
   //validating user alloweded to join to the session
   async validateSessionJoin(
     sessionId: string,
-    sessionCode: string
+    sessionCode: string,
+    userId: ObjectId,
   ): Promise<{
     message: string;
     status: number;
@@ -958,39 +911,37 @@ export class bookingService implements IbookingService {
     session_Code: string;
   }> {
     try {
-      if (!sessionId || !sessionCode) {
+  
+      if (!sessionId || !sessionCode || !userId) {
         return {
           success: false,
-          message: "credential not found",
+          message: HttpResponse?.INVALID_CREDENTIALS,
           status: Status.BadRequest,
           session_Code: "",
         };
       }
 
       const response = await this._slotScheduleRepository.validateSessionJoin(
-        sessionId,
-        sessionCode
+        new mongoose.Types.ObjectId(sessionId) as unknown as mongoose.Schema.Types.ObjectId,
+        sessionCode,
+        userId,
       );
       if (!response) {
         return {
           success: false,
-          message: "result not found ",
+          message: HttpResponse?.RESOURCE_NOT_FOUND,
           status: Status.NotFound,
           session_Code: "",
         };
       }
       return {
         success: true,
-        message: "user Valid!",
+        message: HttpResponse?.USER_VERIFIED,
         status: Status.Ok,
         session_Code: response?.sessionCode as string,
       };
     } catch (error: unknown) {
-      throw new Error(
-        `${
-          error instanceof Error ? error.message : String(error)
-        } error while validating user is alloweded to join the session`
-      );
+      throw new HttpError(error instanceof Error ? error.message : String(error), Status?.InternalServerError);
     }
   }
 }

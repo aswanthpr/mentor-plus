@@ -9,7 +9,9 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const httpStatusCode_1 = require("../Utils/httpStatusCode");
+const httpStatusCode_1 = require("../Constants/httpStatusCode");
+const httpResponse_1 = require("../Constants/httpResponse");
+const http_error_handler_util_1 = require("../Utils/http-error-handler.util");
 class chatService {
     constructor(_chatRespository) {
         this._chatRespository = _chatRespository;
@@ -17,11 +19,10 @@ class chatService {
     getChats(userId, role) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                console.log('userId', userId);
                 if (!userId || !role) {
                     return {
                         success: false,
-                        message: "credential not found",
+                        message: httpResponse_1.HttpResponse === null || httpResponse_1.HttpResponse === void 0 ? void 0 : httpResponse_1.HttpResponse.INVALID_CREDENTIALS,
                         status: httpStatusCode_1.Status.BadRequest,
                         result: [],
                     };
@@ -33,16 +34,15 @@ class chatService {
                 else {
                     result = yield this._chatRespository.getMentorchats(userId);
                 }
-                console.log(result, 'thsi is the result');
                 return {
                     success: true,
-                    message: "successfully retrieved",
+                    message: httpResponse_1.HttpResponse === null || httpResponse_1.HttpResponse === void 0 ? void 0 : httpResponse_1.HttpResponse.RESOURCE_FOUND,
                     status: httpStatusCode_1.Status.Ok,
                     result: result,
                 };
             }
             catch (error) {
-                throw new Error(`Failed to send otp to mail1${error instanceof Error ? error.message : String(error)}`);
+                throw new http_error_handler_util_1.HttpError(error instanceof Error ? error.message : String(error), httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.InternalServerError);
             }
         });
     }
@@ -54,7 +54,7 @@ class chatService {
                     return {
                         success: false,
                         status: httpStatusCode_1.Status.BadRequest,
-                        message: "credential not found",
+                        message: httpResponse_1.HttpResponse === null || httpResponse_1.HttpResponse === void 0 ? void 0 : httpResponse_1.HttpResponse.INVALID_CREDENTIALS,
                         result: []
                     };
                 }
@@ -63,11 +63,10 @@ class chatService {
                     return {
                         success: false,
                         status: httpStatusCode_1.Status.NotFound,
-                        message: "no result",
+                        message: httpResponse_1.HttpResponse === null || httpResponse_1.HttpResponse === void 0 ? void 0 : httpResponse_1.HttpResponse.RESOURCE_NOT_FOUND,
                         result: []
                     };
                 }
-                console.log(result, 'result messages');
                 return {
                     success: true,
                     status: httpStatusCode_1.Status.Ok,
@@ -76,7 +75,7 @@ class chatService {
                 };
             }
             catch (error) {
-                throw new Error(`error while get all user message in service${error instanceof Error ? error.message : String(error)}`);
+                throw new http_error_handler_util_1.HttpError(error instanceof Error ? error.message : String(error), httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.InternalServerError);
             }
         });
     }

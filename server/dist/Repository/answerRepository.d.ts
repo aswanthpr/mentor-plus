@@ -1,4 +1,4 @@
-import { IanswerWithQuestion } from "src/Types";
+import { IanswerWithQuestion } from "../Types";
 import { IanswerRepository } from "../Interface/Qa/IanswerRepository";
 import { Ianswer } from "../Model/answerModel";
 import { baseRepository } from "./baseRepo";

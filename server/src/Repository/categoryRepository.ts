@@ -2,6 +2,8 @@ import { PipelineStage } from "mongoose";
 import { IcategoryRepository } from "../Interface/Category/iCategoryRepository";
 import categorySchema, { Icategory } from "../Model/categorySchema";
 import { baseRepository } from "./baseRepo";
+import { HttpError } from "../Utils/http-error-handler.util";
+import { Status } from "../Constants/httpStatusCode";
 
 class categoryRespository
   extends baseRepository<Icategory>
@@ -15,22 +17,14 @@ class categoryRespository
     try {
       return await this.find_One({ category });
     } catch (error: unknown) {
-      throw new Error(
-        `error while find category in repository ${
-          error instanceof Error ? error.message : String(error)
-        }`
-      );
+      throw new HttpError(error instanceof Error ? error.message : String(error), Status?.InternalServerError);
     }
   }
   async createCategory(category: string): Promise<Icategory | null> {
     try {
       return await this.createDocument({ category });
     } catch (error: unknown) {
-      throw new Error(
-        `error while create category in repository ${
-          error instanceof Error ? error.message : String(error)
-        } `
-      );
+       throw new HttpError(error instanceof Error ? error.message : String(error), Status?.InternalServerError);
     }
   }
 
@@ -43,7 +37,7 @@ class categoryRespository
     limit: number
   ): Promise<{category:Icategory[]|[],totalDoc:number}> {
     try {
-console.log( searchQuery, statusFilter, sortField, sortOrder, limit,skip)        
+       
       const pipeline: PipelineStage[] = [];
 
       if (searchQuery) {
@@ -80,22 +74,14 @@ console.log( searchQuery, statusFilter, sortField, sortOrder, limit,skip)
       };
      
     } catch (error: unknown) {
-      throw new Error(
-        `error while getting category Data in repository ${
-          error instanceof Error ? error.message : String(error)
-        } `
-      );
+      throw new HttpError(error instanceof Error ? error.message : String(error), Status?.InternalServerError);
     }
   }
   async allCategoryData(): Promise<Icategory[]> {
     try {
       return await this.find(categorySchema, {});
     } catch (error: unknown) {
-      throw new Error(
-        `error while getting category Data in repository ${
-          error instanceof Error ? error.message : String(error)
-        } `
-      );
+       throw new HttpError(error instanceof Error ? error.message : String(error), Status?.InternalServerError);
     }
   }
 
@@ -106,11 +92,7 @@ console.log( searchQuery, statusFilter, sortField, sortOrder, limit,skip)
         $set: { category: category },
       });
     } catch (error: unknown) {
-      throw new Error(
-        `error while editing category  in repository ${
-          error instanceof Error ? error.message : String(error)
-        } `
-      );
+      throw new HttpError(error instanceof Error ? error.message : String(error), Status?.InternalServerError);
     }
   }
 
@@ -120,11 +102,7 @@ console.log( searchQuery, statusFilter, sortField, sortOrder, limit,skip)
         { $set: { isBlocked: { $not: "$isBlocked" } } },
       ]);
     } catch (error: unknown) {
-      throw new Error(
-        `error while change category status in repository ${
-          error instanceof Error ? error.message : String(error)
-        } `
-      );
+      throw new HttpError(error instanceof Error ? error.message : String(error), Status?.InternalServerError);
     }
   }
 }

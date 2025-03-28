@@ -3,6 +3,8 @@ import { IquestionRepository } from "../Interface/Qa/IquestionRepository";
 import { baseRepository } from "./baseRepo";
 import mongoose, { DeleteResult, ObjectId, PipelineStage } from "mongoose";
 import questionModal from "../Model/questionModal";
+import { HttpError } from "../Utils/http-error-handler.util";
+import { Status } from "../Constants/httpStatusCode";
 
 class questionRepository
   extends baseRepository<Iquestion>
@@ -30,10 +32,9 @@ class questionRepository
         select: "name profileUrl githubUrl LinkedinUrl ",
       });
     } catch (error: unknown) {
-      throw new Error(
-        `error create new question ${
-          error instanceof Error ? error.message : String(error)
-        }`
+      throw new HttpError(
+        error instanceof Error ? error.message : String(error),
+        Status?.InternalServerError
       );
     }
   }
@@ -44,10 +45,9 @@ class questionRepository
     try {
       return await this.find(questionModal, { title: field1, content: field2 });
     } catch (error: unknown) {
-      throw new Error(
-        `error while checking data existing or not  ${
-          error instanceof Error ? error.message : String(error)
-        }`
+      throw new HttpError(
+        error instanceof Error ? error.message : String(error),
+        Status?.InternalServerError
       );
     }
   }
@@ -63,13 +63,10 @@ class questionRepository
     try {
       let matchCondition = {};
       if (filter === "answered") {
-       
-        matchCondition = { $expr: { $gt: [{ $size: "$answerData" }, 0] } }  
-         
+        matchCondition = { $expr: { $gt: [{ $size: "$answerData" }, 0] } };
       } else {
-       
         matchCondition = {
-          $expr: { $eq: [{ $size: "$answerData" }, 0] }, 
+          $expr: { $eq: [{ $size: "$answerData" }, 0] },
         };
       }
       const pipeLine: PipelineStage[] = [
@@ -131,7 +128,7 @@ class questionRepository
             as: "answerData.author2",
           },
         },
-        
+
         {
           $addFields: {
             "answerData.author": {
@@ -193,10 +190,10 @@ class questionRepository
           $addFields: {
             answerData: {
               $filter: {
-                input: "$answerData", 
-                as: "answer", 
-                cond: { $eq: ["$$answer.isBlocked", false] }
-              }
+                input: "$answerData",
+                as: "answer",
+                cond: { $eq: ["$$answer.isBlocked", false] },
+              },
             },
           },
         },
@@ -225,20 +222,19 @@ class questionRepository
       pipeLine.push({ $limit: limit });
       const countPipeline: PipelineStage[] = [
         ...pipeLine.slice(0, -2),
-        { $count: "totalDocuments" }
+        { $count: "totalDocuments" },
       ];
       const [questions, totalDocument] = await Promise.all([
         this.aggregateData(questionModal, pipeLine),
         questionModal.aggregate(countPipeline),
       ]);
-      const totalDocs = totalDocument?.[0]?.totalDocuments||0 ;
-      console.log(questions.length, totalDocs,'inshad kundan');
+      const totalDocs = totalDocument?.[0]?.totalDocuments || 0;
+      console.log(questions.length, totalDocs, "inshad kundan");
       return { questions, totalDocs };
     } catch (error: unknown) {
-      throw new Error(
-        `Error occured while fetch  questions ${
-          error instanceof Error ? error.message : String(error)
-        }`
+      throw new HttpError(
+        error instanceof Error ? error.message : String(error),
+        Status?.InternalServerError
       );
     }
   }
@@ -247,30 +243,23 @@ class questionRepository
     updatedQuestion: Iquestion,
     filter: string
   ): Promise<Iquestion[] | null> {
-    console.log(questionId,
-  
-    )
+    console.log(questionId);
     try {
-     
       let matchCondition = {};
       if (filter === "answered") {
-       
         matchCondition = {
-          $and: [  
-            { $expr: { $gt: [{ $size: "$answerData" }, 0] } }  
-          ],
+          $and: [{ $expr: { $gt: [{ $size: "$answerData" }, 0] } }],
         };
       } else {
-       
         matchCondition = {
-          $expr: { $eq: [{ $size: "$answerData" }, 0] }, 
+          $expr: { $eq: [{ $size: "$answerData" }, 0] },
         };
       }
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const [updatedData, aggregateData] = await Promise.all([
         await this.find_By_Id_And_Update(
           questionModal,
-          questionId ,
+          questionId,
           { $set: { ...updatedQuestion } },
           { new: true }
         ),
@@ -289,9 +278,9 @@ class questionRepository
           {
             $lookup: {
               from: "mentees",
-              localField:"menteeId",
+              localField: "menteeId",
               foreignField: "_id",
-              as:"user",
+              as: "user",
             },
           },
           {
@@ -330,7 +319,7 @@ class questionRepository
               as: "answerData.author2",
             },
           },
-          
+
           {
             $addFields: {
               "answerData.author": {
@@ -373,10 +362,10 @@ class questionRepository
             $addFields: {
               answerData: {
                 $filter: {
-                  input: "$answerData", 
-                  as: "answer", 
-                  cond: { $eq: ["$$answer.isBlocked", false] }
-                }
+                  input: "$answerData",
+                  as: "answer",
+                  cond: { $eq: ["$$answer.isBlocked", false] },
+                },
               },
             },
           },
@@ -388,10 +377,9 @@ class questionRepository
 
       return aggregateData;
     } catch (error: unknown) {
-      throw new Error(
-        `Error occured edit  questions ${
-          error instanceof Error ? error.message : String(error)
-        }`
+      throw new HttpError(
+        error instanceof Error ? error.message : String(error),
+        Status?.InternalServerError
       );
     }
   }
@@ -399,8 +387,8 @@ class questionRepository
   async allQuestionData(
     filter: string,
     search: string,
-    sortOrder:string,
-    sortField:string,
+    sortOrder: string,
+    sortField: string,
     skip: number,
     limit: number
   ): Promise<{ question: Iquestion[] | []; count: number }> {
@@ -409,13 +397,10 @@ class questionRepository
       let matchCondition: any = {};
 
       if (filter === "answered") {
-       
-        matchCondition = { $expr: { $gt: [{ $size: "$answerData" }, 0] } }  
-         
+        matchCondition = { $expr: { $gt: [{ $size: "$answerData" }, 0] } };
       } else {
-       
         matchCondition = {
-          $expr: { $eq: [{ $size: "$answerData" }, 0] }, 
+          $expr: { $eq: [{ $size: "$answerData" }, 0] },
         };
       }
       if (search) {
@@ -487,11 +472,11 @@ class questionRepository
               as: "answerData.author2",
             },
           },
-         
+
           {
-            $sort:{[sortField]:sortOrder==="asc"?1:-1}
+            $sort: { [sortField]: sortOrder === "asc" ? 1 : -1 },
           },
-          
+
           {
             $addFields: {
               "answerData.author": {
@@ -509,7 +494,7 @@ class questionRepository
               "answerData.author2": 0,
             },
           },
-          
+
           {
             $group: {
               _id: "$_id",
@@ -535,10 +520,10 @@ class questionRepository
             $addFields: {
               answerData: {
                 $filter: {
-                  input: "$answerData", 
-                  as: "answer", 
-                  cond: { $eq: ["$$answer.isBlocked", false] }
-                }
+                  input: "$answerData",
+                  as: "answer",
+                  cond: { $eq: ["$$answer.isBlocked", false] },
+                },
               },
             },
           },
@@ -583,13 +568,12 @@ class questionRepository
         ]),
       ]);
       const countResult = (count.length > 0 ? count[0]?.count : 0) as number;
-     
+
       return { question, count: countResult };
     } catch (error: unknown) {
-      throw new Error(
-        `Error occured while get all data  questions ${
-          error instanceof Error ? error.message : String(error)
-        }`
+      throw new HttpError(
+        error instanceof Error ? error.message : String(error),
+        Status?.InternalServerError
       );
     }
   }
@@ -598,10 +582,9 @@ class questionRepository
     try {
       return await this.deleteDocument(questionId);
     } catch (error: unknown) {
-      throw new Error(
-        `Error occured while delete  questions ${
-          error instanceof Error ? error.message : String(error)
-        }`
+      throw new HttpError(
+        error instanceof Error ? error.message : String(error),
+        Status?.InternalServerError
       );
     }
   }
@@ -613,10 +596,9 @@ class questionRepository
         $inc: { answers: 1 },
       });
     } catch (error: unknown) {
-      throw new Error(
-        `Error occured while count no of answers ${
-          error instanceof Error ? error.message : String(error)
-        }`
+      throw new HttpError(
+        error instanceof Error ? error.message : String(error),
+        Status?.InternalServerError
       );
     }
   }
@@ -626,10 +608,9 @@ class questionRepository
         $inc: { answers: -1 },
       });
     } catch (error: unknown) {
-      throw new Error(
-        `Error occured while reduce the count of  answers ${
-          error instanceof Error ? error.message : String(error)
-        }`
+      throw new HttpError(
+        error instanceof Error ? error.message : String(error),
+        Status?.InternalServerError
       );
     }
   }
@@ -646,7 +627,7 @@ class questionRepository
       const sortOptions = sortOrder === "asc" ? 1 : -1;
 
       const pipeline: PipelineStage[] = [];
- 
+
       if (search) {
         pipeline.push({
           $match: {
@@ -813,7 +794,7 @@ class questionRepository
       //count the total no of doc
       const countPipeline = [
         ...pipeline.slice(0, pipeline.length - 2),
-        
+
         {
           $count: "totalDocuments",
         },
@@ -825,10 +806,9 @@ class questionRepository
 
       return { questions, docCount: totalCount[0]?.totalDocuments };
     } catch (error: unknown) {
-      throw new Error(
-        `Error occured while reduce the count of  answers ${
-          error instanceof Error ? error.message : String(error)
-        }`
+      throw new HttpError(
+        error instanceof Error ? error.message : String(error),
+        Status?.InternalServerError
       );
     }
   }
@@ -838,10 +818,9 @@ class questionRepository
         { $set: { isBlocked: { $not: "$isBlocked" } } },
       ]);
     } catch (error: unknown) {
-      throw new Error(
-        `Error occured while Question STatus chagne ${
-          error instanceof Error ? error.message : String(error)
-        }`
+      throw new HttpError(
+        error instanceof Error ? error.message : String(error),
+        Status?.InternalServerError
       );
     }
   }

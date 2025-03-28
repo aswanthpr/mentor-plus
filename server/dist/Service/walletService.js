@@ -14,10 +14,12 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.walletService = void 0;
 const mongoose_1 = __importDefault(require("mongoose"));
-const httpStatusCode_1 = require("../Utils/httpStatusCode");
+const httpStatusCode_1 = require("../Constants/httpStatusCode");
 const stripe_1 = __importDefault(require("stripe"));
 const index_1 = require("../index");
 const reusable_util_1 = require("../Utils/reusable.util");
+const httpResponse_1 = require("../Constants/httpResponse");
+const http_error_handler_util_1 = require("../Utils/http-error-handler.util");
 class walletService {
     constructor(__walletRepository, __transactionRepository, __notificationRepository, stripe = new stripe_1.default(process.env.STRIPE_SECRET_KEY, { maxNetworkRetries: 5 })) {
         this.__walletRepository = __walletRepository;
@@ -32,7 +34,7 @@ class walletService {
             try {
                 if (!amount || !userId) {
                     return {
-                        message: "credential not found",
+                        message: httpResponse_1.HttpResponse === null || httpResponse_1.HttpResponse === void 0 ? void 0 : httpResponse_1.HttpResponse.INVALID_CREDENTIALS,
                         status: httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.BadRequest,
                         success: false,
                     };
@@ -63,16 +65,15 @@ class walletService {
                         submit: { message: "Complete Secure Payment" },
                     },
                 });
-                console.log(session);
                 return {
-                    message: "payment intent created",
+                    message: httpResponse_1.HttpResponse === null || httpResponse_1.HttpResponse === void 0 ? void 0 : httpResponse_1.HttpResponse.PAYMENT_INTENT_CREATED,
                     status: httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.Ok,
                     success: true,
                     session,
                 };
             }
             catch (error) {
-                throw new Error(`error while add money to wallet ${error instanceof Error ? error.message : String(error)}`);
+                throw new http_error_handler_util_1.HttpError(error instanceof Error ? error.message : String(error), httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.InternalServerError);
             }
         });
     }
@@ -80,24 +81,21 @@ class walletService {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 if (!signature || !bodyData) {
-                    throw new Error("Missing signature or body data in webhook request.");
+                    throw new Error(httpResponse_1.HttpResponse === null || httpResponse_1.HttpResponse === void 0 ? void 0 : httpResponse_1.HttpResponse.WEBHOOK_SIGNATURE_MISSING);
                 }
-                console.log(signature, bodyData, "singature and bodydata");
                 // eslint-disable-next-line @typescript-eslint/no-explicit-any
                 let event;
                 try {
                     event = this.stripe.webhooks.constructEvent(bodyData, signature, process.env.STRIPE_WEBHOOK_SECRET);
                 }
-                catch (err) {
-                    console.error("⚠️ Webhook signature verification failed.", err instanceof Error ? err.message : String(err));
-                    return;
+                catch (error) {
+                    throw new http_error_handler_util_1.HttpError(error instanceof Error ? error.message : String(error), httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.InternalServerError);
                 }
                 console.log("🔔 Received webhook event:");
                 switch (event.type) {
                     case "checkout.session.completed": {
                         const session = event.data.object;
                         const metaData = session.metadata || {};
-                        console.log("entered....................");
                         if (!session.metadata) {
                             console.error("Missing metadata in Stripe session");
                             return;
@@ -139,7 +137,7 @@ class walletService {
                 return;
             }
             catch (error) {
-                throw new Error(`${error instanceof Error ? error.message : String(error)} error while webhook handling in mentee service`);
+                throw new http_error_handler_util_1.HttpError(error instanceof Error ? error.message : String(error), httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.InternalServerError);
             }
         });
     }
@@ -149,7 +147,7 @@ class walletService {
             try {
                 if (!userId || !role || !filter || page < 1 || limit < 1) {
                     return {
-                        message: "credential not found",
+                        message: httpResponse_1.HttpResponse === null || httpResponse_1.HttpResponse === void 0 ? void 0 : httpResponse_1.HttpResponse.INVALID_CREDENTIALS,
                         status: httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.BadRequest,
                         success: false,
                         walletData: null,
@@ -161,9 +159,8 @@ class walletService {
                 const skip = skipData === null || skipData === void 0 ? void 0 : skipData.skip;
                 const result = yield this.__walletRepository.findWalletWithTransaction(userId, skip, limit, search, filter);
                 const totalPage = (result === null || result === void 0 ? void 0 : result.totalDocs) > 0 ? Math.ceil((result === null || result === void 0 ? void 0 : result.totalDocs) / limitNo) : 1;
-                console.log(result === null || result === void 0 ? void 0 : result.totalDocs, totalPage);
                 return {
-                    message: "successfully receive data",
+                    message: httpResponse_1.HttpResponse === null || httpResponse_1.HttpResponse === void 0 ? void 0 : httpResponse_1.HttpResponse.DATA_RETRIEVED,
                     status: httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.Ok,
                     success: true,
                     walletData: result === null || result === void 0 ? void 0 : result.transaction,
@@ -171,18 +168,16 @@ class walletService {
                 };
             }
             catch (error) {
-                throw new Error(`${error instanceof Error ? error.message : String(error)} error while fetching user wallet Data`);
+                throw new http_error_handler_util_1.HttpError(error instanceof Error ? error.message : String(error), httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.InternalServerError);
             }
         });
     }
     withdrawMentorEarnings(amount, userId) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                console.log('2222222222222222222222222222', amount, userId, typeof amount);
                 if (!amount || !userId) {
-                    console.log('haiiiiiiiiii', amount, userId, typeof amount);
                     return {
-                        message: "credential not found",
+                        message: httpResponse_1.HttpResponse === null || httpResponse_1.HttpResponse === void 0 ? void 0 : httpResponse_1.HttpResponse.INVALID_CREDENTIALS,
                         status: httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.BadRequest,
                         success: false,
                         result: null,
@@ -199,7 +194,7 @@ class walletService {
                 const result = yield this.__walletRepository.deductAmountFromWallet(amount, userId);
                 if (!result) {
                     return {
-                        message: "data not found",
+                        message: httpResponse_1.HttpResponse === null || httpResponse_1.HttpResponse === void 0 ? void 0 : httpResponse_1.HttpResponse.RESOURCE_NOT_FOUND,
                         status: httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.BadRequest,
                         success: false,
                         result: null,
@@ -219,14 +214,14 @@ class walletService {
                     index_1.socketManager.sendNotification(String(result === null || result === void 0 ? void 0 : result._id), notification);
                 }
                 return {
-                    message: "successfully applied for withdraw",
+                    message: httpResponse_1.HttpResponse === null || httpResponse_1.HttpResponse === void 0 ? void 0 : httpResponse_1.HttpResponse.APPLIED_FOR_WITHDRAW,
                     status: httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.Ok,
                     success: true,
                     result: transaction,
                 };
             }
             catch (error) {
-                throw new Error(`${error instanceof Error ? error.message : String(error)} error while fetching user wallet Data`);
+                throw new http_error_handler_util_1.HttpError(error instanceof Error ? error.message : String(error), httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.InternalServerError);
             }
         });
     }

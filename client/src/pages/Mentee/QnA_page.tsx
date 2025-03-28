@@ -64,7 +64,7 @@ const QnA_page: React.FC = () => {
         );
 
         if (response?.status === HttpStatusCode?.Ok && response.data?.success) {
-          console.log(response.data.question, "thsi is response data");
+       
 
           setQuestions(response.data?.question);
           setUserId(response.data.userId);
@@ -199,7 +199,7 @@ const QnA_page: React.FC = () => {
 
   const handleAnswerSubmit = useCallback(
     async (content: string) => {
-      console.log(answerQuestionId, "thsi sit he question id ");
+     
 
       setLoading(true);
       const response = await fetchCreateAnswer(
@@ -249,7 +249,7 @@ const QnA_page: React.FC = () => {
   }, []);
   const handleEditAnswerSubmit = useCallback(
     async (content: string, answerId?: string) => {
-      console.log(answerId, "thsi sit he question id ", content);
+     
 
       setLoading(true);
       const response = await fetchEditAnswer(content, answerId as string);

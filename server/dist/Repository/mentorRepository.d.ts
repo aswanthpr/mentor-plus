@@ -2,7 +2,7 @@ import { baseRepository } from "./baseRepo";
 import { ImentorRepository } from "../Interface/Mentor/iMentorRepository";
 import { Imentor } from "../Model/mentorModel";
 import mongoose, { PipelineStage } from "mongoose";
-import { ImentorApplication } from "src/Types";
+import { ImentorApplication } from "../Types";
 declare class mentorRepository extends baseRepository<Imentor> implements ImentorRepository {
     constructor();
     findMentor(email?: string, phone?: string): Promise<Imentor | null>;

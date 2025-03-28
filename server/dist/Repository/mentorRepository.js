@@ -15,6 +15,8 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const baseRepo_1 = require("./baseRepo");
 const mentorModel_1 = __importDefault(require("../Model/mentorModel"));
 const mongoose_1 = __importDefault(require("mongoose"));
+const http_error_handler_util_1 = require("../Utils/http-error-handler.util");
+const httpStatusCode_1 = require("../Constants/httpStatusCode");
 class mentorRepository extends baseRepo_1.baseRepository {
     constructor() {
         super(mentorModel_1.default);
@@ -33,7 +35,7 @@ class mentorRepository extends baseRepo_1.baseRepository {
                 return yield this.find_One({ $or: query });
             }
             catch (error) {
-                throw new Error(`error while finding mentor ${error instanceof Error ? error.message : String(error)}`);
+                throw new http_error_handler_util_1.HttpError(error instanceof Error ? error.message : String(error), httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.InternalServerError);
             }
         });
     }
@@ -56,7 +58,7 @@ class mentorRepository extends baseRepo_1.baseRepository {
                 });
             }
             catch (error) {
-                throw new Error(`error while creating mentor ${error instanceof Error ? error.message : String(error)}`);
+                throw new http_error_handler_util_1.HttpError(error instanceof Error ? error.message : String(error), httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.InternalServerError);
             }
         });
     }
@@ -78,20 +80,19 @@ class mentorRepository extends baseRepo_1.baseRepository {
                                 { category: { $regex: search, $options: "i" } },
                                 { skills: { $elemMatch: { $regex: search, $options: "i" } } },
                             ],
-                        }
+                        },
                     });
                 }
-                ;
                 pipeline.push({
                     $match: {
                         verified: activeTab === "verified",
-                    }
+                    },
                 });
                 if (sortField === "createdAt") {
                     pipeline.push({
                         $sort: {
-                            createdAt: sortOptions
-                        }
+                            createdAt: sortOptions,
+                        },
                     });
                 }
                 pipeline.push({
@@ -108,12 +109,12 @@ class mentorRepository extends baseRepo_1.baseRepository {
                 ];
                 const [mentors, totalDocuments] = yield Promise.all([
                     this.aggregateData(mentorModel_1.default, pipeline),
-                    mentorModel_1.default.aggregate(countPipeline)
+                    mentorModel_1.default.aggregate(countPipeline),
                 ]);
                 return { mentors, totalDoc: (_a = totalDocuments[0]) === null || _a === void 0 ? void 0 : _a.totalDocuments };
             }
             catch (error) {
-                throw new Error(`error while finding mentor data from data base${error instanceof Error ? error.message : String(error)}`);
+                throw new http_error_handler_util_1.HttpError(error instanceof Error ? error.message : String(error), httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.InternalServerError);
             }
         });
     }
@@ -129,7 +130,7 @@ class mentorRepository extends baseRepo_1.baseRepository {
                 return { mentor, count };
             }
             catch (error) {
-                throw new Error(`error while finding mentor data from data base${error instanceof Error ? error.message : String(error)}`);
+                throw new http_error_handler_util_1.HttpError(error instanceof Error ? error.message : String(error), httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.InternalServerError);
             }
         });
     }
@@ -142,7 +143,7 @@ class mentorRepository extends baseRepo_1.baseRepository {
                 ]);
             }
             catch (error) {
-                throw new Error(`error while verify mentor data from data base${error instanceof Error ? error.message : String(error)}`);
+                throw new http_error_handler_util_1.HttpError(error instanceof Error ? error.message : String(error), httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.InternalServerError);
             }
         });
     }
@@ -155,7 +156,7 @@ class mentorRepository extends baseRepo_1.baseRepository {
                 ]);
             }
             catch (error) {
-                throw new Error(`error while changing mentor status from data base${error instanceof Error ? error.message : String(error)}`);
+                throw new http_error_handler_util_1.HttpError(error instanceof Error ? error.message : String(error), httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.InternalServerError);
             }
         });
     }
@@ -165,7 +166,7 @@ class mentorRepository extends baseRepo_1.baseRepository {
                 return yield this.find_One_And_Update(mentorModel_1.default, { email }, { $set: { password: password } });
             }
             catch (error) {
-                throw new Error(`error while changing mentor password from data base${error instanceof Error ? error.message : String(error)}`);
+                throw new http_error_handler_util_1.HttpError(error instanceof Error ? error.message : String(error), httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.InternalServerError);
             }
         });
     }
@@ -176,7 +177,7 @@ class mentorRepository extends baseRepo_1.baseRepository {
                 return yield this.find_By_Id(mentorId, { isBlocked: false });
             }
             catch (error) {
-                throw new Error(`error while changing mentor password from data base${error instanceof Error ? error.message : String(error)}`);
+                throw new http_error_handler_util_1.HttpError(error instanceof Error ? error.message : String(error), httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.InternalServerError);
             }
         });
     }
@@ -189,7 +190,7 @@ class mentorRepository extends baseRepo_1.baseRepository {
                 });
             }
             catch (error) {
-                throw new Error(`Error while change mentro password${error instanceof Error ? error.message : String(error)}`);
+                throw new http_error_handler_util_1.HttpError(error instanceof Error ? error.message : String(error), httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.InternalServerError);
             }
         });
     }
@@ -200,7 +201,7 @@ class mentorRepository extends baseRepo_1.baseRepository {
                 return ((_a = (yield this.find_By_Id_And_Update(mentorModel_1.default, id, { $set: { profileUrl: profileUrl } }, { new: true, fields: { profileUrl: 1 } }))) !== null && _a !== void 0 ? _a : null);
             }
             catch (error) {
-                throw new Error(`Error while change mentro password${error instanceof Error ? error.message : String(error)}`);
+                throw new http_error_handler_util_1.HttpError(error instanceof Error ? error.message : String(error), httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.InternalServerError);
             }
         });
     }
@@ -224,7 +225,7 @@ class mentorRepository extends baseRepo_1.baseRepository {
                 });
             }
             catch (error) {
-                throw new Error(`Error while finding mentor by id and updatae${error instanceof Error ? error.message : String(error)}`);
+                throw new http_error_handler_util_1.HttpError(error instanceof Error ? error.message : String(error), httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.InternalServerError);
             }
         });
     }
@@ -253,7 +254,7 @@ class mentorRepository extends baseRepo_1.baseRepository {
                 return yield this.aggregateData(mentorModel_1.default, aggregationPipeline);
             }
             catch (error) {
-                throw new Error(`Error while finding category with skills ${error instanceof Error ? error.message : String(error)}`);
+                throw new http_error_handler_util_1.HttpError(error instanceof Error ? error.message : String(error), httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.InternalServerError);
             }
         });
     }
@@ -274,7 +275,7 @@ class mentorRepository extends baseRepo_1.baseRepository {
                 ]);
             }
             catch (error) {
-                throw new Error(`Error while finding  mentors by category  ${error instanceof Error ? error.message : String(error)}`);
+                throw new http_error_handler_util_1.HttpError(error instanceof Error ? error.message : String(error), httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.InternalServerError);
             }
         });
     }

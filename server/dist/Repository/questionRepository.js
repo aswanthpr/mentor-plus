@@ -16,6 +16,8 @@ const questionModal_1 = __importDefault(require("../Model/questionModal"));
 const baseRepo_1 = require("./baseRepo");
 const mongoose_1 = __importDefault(require("mongoose"));
 const questionModal_2 = __importDefault(require("../Model/questionModal"));
+const http_error_handler_util_1 = require("../Utils/http-error-handler.util");
+const httpStatusCode_1 = require("../Constants/httpStatusCode");
 class questionRepository extends baseRepo_1.baseRepository {
     constructor() {
         super(questionModal_1.default);
@@ -35,7 +37,7 @@ class questionRepository extends baseRepo_1.baseRepository {
                 });
             }
             catch (error) {
-                throw new Error(`error create new question ${error instanceof Error ? error.message : String(error)}`);
+                throw new http_error_handler_util_1.HttpError(error instanceof Error ? error.message : String(error), httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.InternalServerError);
             }
         });
     }
@@ -45,7 +47,7 @@ class questionRepository extends baseRepo_1.baseRepository {
                 return yield this.find(questionModal_2.default, { title: field1, content: field2 });
             }
             catch (error) {
-                throw new Error(`error while checking data existing or not  ${error instanceof Error ? error.message : String(error)}`);
+                throw new http_error_handler_util_1.HttpError(error instanceof Error ? error.message : String(error), httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.InternalServerError);
             }
         });
     }
@@ -181,8 +183,8 @@ class questionRepository extends baseRepo_1.baseRepository {
                                 $filter: {
                                     input: "$answerData",
                                     as: "answer",
-                                    cond: { $eq: ["$$answer.isBlocked", false] }
-                                }
+                                    cond: { $eq: ["$$answer.isBlocked", false] },
+                                },
                             },
                         },
                     },
@@ -212,18 +214,18 @@ class questionRepository extends baseRepo_1.baseRepository {
                 pipeLine.push({ $limit: limit });
                 const countPipeline = [
                     ...pipeLine.slice(0, -2),
-                    { $count: "totalDocuments" }
+                    { $count: "totalDocuments" },
                 ];
                 const [questions, totalDocument] = yield Promise.all([
                     this.aggregateData(questionModal_2.default, pipeLine),
                     questionModal_2.default.aggregate(countPipeline),
                 ]);
                 const totalDocs = ((_a = totalDocument === null || totalDocument === void 0 ? void 0 : totalDocument[0]) === null || _a === void 0 ? void 0 : _a.totalDocuments) || 0;
-                console.log(questions.length, totalDocs, 'inshad kundan');
+                console.log(questions.length, totalDocs, "inshad kundan");
                 return { questions, totalDocs };
             }
             catch (error) {
-                throw new Error(`Error occured while fetch  questions ${error instanceof Error ? error.message : String(error)}`);
+                throw new http_error_handler_util_1.HttpError(error instanceof Error ? error.message : String(error), httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.InternalServerError);
             }
         });
     }
@@ -234,9 +236,7 @@ class questionRepository extends baseRepo_1.baseRepository {
                 let matchCondition = {};
                 if (filter === "answered") {
                     matchCondition = {
-                        $and: [
-                            { $expr: { $gt: [{ $size: "$answerData" }, 0] } }
-                        ],
+                        $and: [{ $expr: { $gt: [{ $size: "$answerData" }, 0] } }],
                     };
                 }
                 else {
@@ -344,8 +344,8 @@ class questionRepository extends baseRepo_1.baseRepository {
                                     $filter: {
                                         input: "$answerData",
                                         as: "answer",
-                                        cond: { $eq: ["$$answer.isBlocked", false] }
-                                    }
+                                        cond: { $eq: ["$$answer.isBlocked", false] },
+                                    },
                                 },
                             },
                         },
@@ -357,7 +357,7 @@ class questionRepository extends baseRepo_1.baseRepository {
                 return aggregateData;
             }
             catch (error) {
-                throw new Error(`Error occured edit  questions ${error instanceof Error ? error.message : String(error)}`);
+                throw new http_error_handler_util_1.HttpError(error instanceof Error ? error.message : String(error), httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.InternalServerError);
             }
         });
     }
@@ -440,7 +440,7 @@ class questionRepository extends baseRepo_1.baseRepository {
                             },
                         },
                         {
-                            $sort: { [sortField]: sortOrder === "asc" ? 1 : -1 }
+                            $sort: { [sortField]: sortOrder === "asc" ? 1 : -1 },
                         },
                         {
                             $addFields: {
@@ -486,8 +486,8 @@ class questionRepository extends baseRepo_1.baseRepository {
                                     $filter: {
                                         input: "$answerData",
                                         as: "answer",
-                                        cond: { $eq: ["$$answer.isBlocked", false] }
-                                    }
+                                        cond: { $eq: ["$$answer.isBlocked", false] },
+                                    },
                                 },
                             },
                         },
@@ -534,7 +534,7 @@ class questionRepository extends baseRepo_1.baseRepository {
                 return { question, count: countResult };
             }
             catch (error) {
-                throw new Error(`Error occured while get all data  questions ${error instanceof Error ? error.message : String(error)}`);
+                throw new http_error_handler_util_1.HttpError(error instanceof Error ? error.message : String(error), httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.InternalServerError);
             }
         });
     }
@@ -544,7 +544,7 @@ class questionRepository extends baseRepo_1.baseRepository {
                 return yield this.deleteDocument(questionId);
             }
             catch (error) {
-                throw new Error(`Error occured while delete  questions ${error instanceof Error ? error.message : String(error)}`);
+                throw new http_error_handler_util_1.HttpError(error instanceof Error ? error.message : String(error), httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.InternalServerError);
             }
         });
     }
@@ -558,7 +558,7 @@ class questionRepository extends baseRepo_1.baseRepository {
                 });
             }
             catch (error) {
-                throw new Error(`Error occured while count no of answers ${error instanceof Error ? error.message : String(error)}`);
+                throw new http_error_handler_util_1.HttpError(error instanceof Error ? error.message : String(error), httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.InternalServerError);
             }
         });
     }
@@ -570,7 +570,7 @@ class questionRepository extends baseRepo_1.baseRepository {
                 });
             }
             catch (error) {
-                throw new Error(`Error occured while reduce the count of  answers ${error instanceof Error ? error.message : String(error)}`);
+                throw new http_error_handler_util_1.HttpError(error instanceof Error ? error.message : String(error), httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.InternalServerError);
             }
         });
     }
@@ -744,7 +744,7 @@ class questionRepository extends baseRepo_1.baseRepository {
                 return { questions, docCount: (_a = totalCount[0]) === null || _a === void 0 ? void 0 : _a.totalDocuments };
             }
             catch (error) {
-                throw new Error(`Error occured while reduce the count of  answers ${error instanceof Error ? error.message : String(error)}`);
+                throw new http_error_handler_util_1.HttpError(error instanceof Error ? error.message : String(error), httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.InternalServerError);
             }
         });
     }
@@ -756,7 +756,7 @@ class questionRepository extends baseRepo_1.baseRepository {
                 ]);
             }
             catch (error) {
-                throw new Error(`Error occured while Question STatus chagne ${error instanceof Error ? error.message : String(error)}`);
+                throw new http_error_handler_util_1.HttpError(error instanceof Error ? error.message : String(error), httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.InternalServerError);
             }
         });
     }

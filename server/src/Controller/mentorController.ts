@@ -1,38 +1,31 @@
-import { Request, Response } from "express";
+import { NextFunction, Request, Response } from "express";
 import { ImentorController } from "../Interface/Mentor/iMentorController";
 import { ImentorService } from "../Interface/Mentor/iMentorService";
 import { ObjectId } from "mongoose";
+import { Status } from "../Constants/httpStatusCode";
 
 export class mentorController implements ImentorController {
   constructor(private _mentorService: ImentorService) {}
 
-  async mentorLogout(req: Request, res: Response): Promise<void> {
+  async mentorLogout(req: Request, res: Response,next: NextFunction): Promise<void> {
     try {
       res
-        .status(200)
+        .status(Status?.Ok)
         .clearCookie("mentorToken", { httpOnly: true })
         .json({ success: true, message: "Logged out successfully" });
     } catch (error: unknown) {
-      res.status(500).json({
-        success: false,
-        message: "An internal server error occurred. Please try again later.",
-      });
-      throw new Error(
-        `Error while mentee  logout ${
-          error instanceof Error ? error.message : String(error)
-        }`
-      );
+      next(error)
     }
   }
 
-  async mentorProfile(req: Request, res: Response): Promise<void> {
+  async mentorProfile(req: Request, res: Response,next: NextFunction): Promise<void> {
     try {
       const token = req.headers["authorization"]?.split(" ")[1];
 
       const { result, categories, success, message, status } =
         await this._mentorService.mentorProfile(token as string);
 
-      console.log(result, "...........................", req.user);
+     
       res.status(status).json({
         success,
         message,
@@ -40,23 +33,19 @@ export class mentorController implements ImentorController {
         categories,
       });
     } catch (error: unknown) {
-      throw new Error(
-        `Error while mentee  logout ${
-          error instanceof Error ? error.message : String(error)
-        }`
-      );
+      next(error)
     }
   }
 
   //for creating new access token
-  async mentorRefreshToken(req: Request, res: Response): Promise<void> {
+  async mentorRefreshToken(req: Request, res: Response,next: NextFunction): Promise<void> {
     try {
       const result = await this._mentorService.mentorRefreshToken(
         req.cookies?.mentorToken
       );
 
       res
-        .status(result.status)
+        .status(result?.status)
         .cookie("mentorToken", result?.refreshToken as string, {
           httpOnly: true,
           secure: process.env.NODE_ENV === "production" || false, //in development fasle
@@ -69,22 +58,13 @@ export class mentorController implements ImentorController {
           accessToken: result?.accessToken,
         });
     } catch (error: unknown) {
-      res.status(500).json({
-        success: false,
-        message: "An internal server error occurred. Please try again later.",
-      });
-
-      throw new Error(
-        `error while geting refreshToken${
-          error instanceof Error ? error.message : String(error)
-        }`
-      );
+      next(error)
     }
   }
   //mentor password changing
-  async profilePasswordChange(req: Request, res: Response): Promise<void> {
+  async profilePasswordChange(req: Request, res: Response,next: NextFunction): Promise<void> {
     try {
-      console.log(req.body, "this is the password");
+    
       const { currentPassword, newPassword, _id } = req.body;
       const result = await this._mentorService.passwordChange(
         currentPassword,
@@ -93,21 +73,12 @@ export class mentorController implements ImentorController {
       );
       res.status(result?.status).json(result);
     } catch (error: unknown) {
-      res.status(500).json({
-        success: false,
-        message: "An internal server error occurred. Please try again later.",
-      });
-
-      throw new Error(
-        `error while profile password changing ${
-          error instanceof Error ? error.message : String(error)
-        }`
-      );
+      next(error)
     }
   }
 
   //metnor profile image change
-  async mentorProfileImageChange(req: Request, res: Response): Promise<void> {
+  async mentorProfileImageChange(req: Request, res: Response,next: NextFunction): Promise<void> {
     try {
       const { _id } = req.body;
 
@@ -123,17 +94,13 @@ export class mentorController implements ImentorController {
         _id
       );
 
-      res.status(result.status).json(result);
+      res.status(result?.status).json(result);
     } catch (error: unknown) {
-      throw new Error(
-        `error while mentor profile image change${
-          error instanceof Error ? error.message : String(error)
-        }`
-      );
+      next(error)
     }
   }
 
-  async mentorEditProfile(req: Request, res: Response): Promise<void> {
+  async mentorEditProfile(req: Request, res: Response,next: NextFunction): Promise<void> {
     try {
       const resume =
         req.files &&
@@ -150,16 +117,12 @@ export class mentorController implements ImentorController {
 
       res.status(status).json({ success, message, result });
     } catch (error: unknown) {
-      throw new Error(
-        `error while mentor profile Edit ${
-          error instanceof Error ? error.message : String(error)
-        }`
-      );
+      next(error)
     }
   }
   //fetch mentor home data
   // /mentor/home/:filter
-  async questionData(req: Request, res: Response): Promise<void> {
+  async questionData(req: Request, res: Response,next: NextFunction): Promise<void> {
     try {
       const { filter } = req.params;
       const { search, page=1, limit ,sortOrder,sortField} = req.query;
@@ -178,17 +141,13 @@ export class mentorController implements ImentorController {
         .status(status)
         .json({ success, message, homeData, userId, totalPage });
     } catch (error: unknown) {
-      throw new Error(
-        `error while mentor profile Edit ${
-          error instanceof Error ? error.message : String(error)
-        }`
-      );
+      next(error)
     }
   }
   //create time slots in mentor side
   // /mentor/schedule/create-slots
   // get the scheule time in the req.body 
-  async createTimeSlots(req: Request, res: Response): Promise<void> {
+  async createTimeSlots(req: Request, res: Response,next: NextFunction): Promise<void> {
     try {
       const { type, schedule } = req.body;
       console.log(type, schedule, "creaeSchedule");
@@ -200,16 +159,12 @@ export class mentorController implements ImentorController {
         );
       res.status(status).json({ success, message, status, timeSlots });
     } catch (error: unknown) {
-      throw new Error(
-        `error while mentor creating time slots  ${
-          error instanceof Error ? error.message : String(error)
-        }`
-      );
+      next(error)
     }
   }
 
   //schedule getting data.  /schedule/get-time-slots
-  async getTimeSlots(req: Request, res: Response): Promise<void> {
+  async getTimeSlots(req: Request, res: Response,next: NextFunction): Promise<void> {
     try {
       const { search, filter, sortField, sortOrder, page, limit } = req.query;
       console.log( search, filter, sortField, sortOrder, page, limit)
@@ -227,15 +182,11 @@ export class mentorController implements ImentorController {
         .status(status)
         .json({ success, message, status, timeSlots, totalPage });
     } catch (error: unknown) {
-      throw new Error(
-        `error while mentor getting time slots  ${
-          error instanceof Error ? error.message : String(error)
-        }`
-      );
+      next(error)
     }
   }
 
-  async removeTimeSlot(req: Request, res: Response): Promise<void> {
+  async removeTimeSlot(req: Request, res: Response,next: NextFunction): Promise<void> {
     try {
       const { slotId } = req.body;
       console.log(slotId, "ths is slot id");
@@ -243,14 +194,10 @@ export class mentorController implements ImentorController {
         await this._mentorService.removeTimeSlot(slotId as string);
       res.status(status).json({ message, success });
     } catch (error: unknown) {
-      throw new Error(
-        `error while mentor getting time slots  ${
-          error instanceof Error ? error.message : String(error)
-        }`
-      );
+      next(error)
     }
   }
-  async chartData(req: Request, res: Response): Promise<void> {
+  async chartData(req: Request, res: Response,next: NextFunction): Promise<void> {
     try {
       const { timeRange } = req.query;
       console.log(timeRange);
@@ -262,11 +209,7 @@ export class mentorController implements ImentorController {
 
       res.status(status).json({ message, success ,result});
     } catch (error: unknown) {
-      throw new Error(
-        `error while mentor getting time slots  ${
-          error instanceof Error ? error.message : String(error)
-        }`
-      );
+      next(error)
     }
   }
 }

@@ -12,18 +12,20 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+const http_error_handler_util_1 = require("../Utils/http-error-handler.util");
 const otpModel_1 = __importDefault(require("../Model/otpModel"));
+const httpStatusCode_1 = require("../Constants/httpStatusCode");
 class otpRepository {
     createOtp(email, otp) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 const saveOtp = new otpModel_1.default({ email, otp });
                 const data = yield saveOtp.save();
-                console.log(data, 'otp created');
+                console.log(data, "otp created");
                 return data;
             }
             catch (error) {
-                throw new Error(`${'\x1b[35m%s\x1b[0m'}error while creating otp:${error instanceof Error ? error.message : String(error)}`);
+                throw new http_error_handler_util_1.HttpError(error instanceof Error ? error.message : String(error), httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.InternalServerError);
             }
         });
     }
@@ -31,11 +33,11 @@ class otpRepository {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 const data = yield otpModel_1.default.findOne({ email, otp }).exec();
-                console.log('OTP found in database:', data);
+                console.log("OTP found in database:", data);
                 return data;
             }
             catch (error) {
-                throw new Error(`error while find on database in verify otp  ${error instanceof Error ? error.message : String(error)}`);
+                throw new http_error_handler_util_1.HttpError(error instanceof Error ? error.message : String(error), httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.InternalServerError);
             }
         });
     }

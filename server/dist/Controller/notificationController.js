@@ -14,18 +14,18 @@ class notificationController {
     constructor(_notificationService) {
         this._notificationService = _notificationService;
     }
-    getNotification(req, res) {
+    getNotification(req, res, next) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 const { status, message, success, result } = yield this._notificationService.getNotification(req.user);
                 res.status(status).json({ success, message, result });
             }
             catch (error) {
-                throw new Error(`error while getting notification ${error instanceof Error ? error.message : String(error)}`);
+                next(error);
             }
         });
     }
-    markAsReadNotif(req, res) {
+    markAsReadNotif(req, res, next) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 const { notificationId } = req.params;
@@ -33,7 +33,7 @@ class notificationController {
                 res.status(status).json({ message, success });
             }
             catch (error) {
-                throw new Error(`error while update  notification ${error instanceof Error ? error.message : String(error)}`);
+                next(error);
             }
         });
     }

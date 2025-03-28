@@ -48,12 +48,12 @@ export const validateConfirmPassword = (
   password: string
 ): string | undefined => {
   if (password === undefined || confirmPassword === undefined) {
-    console.log("Password or confirmPassword is undefined");
+    
     return "Passwords are required";
   }
 
   if (password !== confirmPassword) {
-    console.log("Passwords do not match:", { password, confirmPassword });
+  
     return "Passwords do not match";
   }
 
@@ -359,3 +359,24 @@ const formErrors: IErrors = { ...MENTOR_APPLY_INITIAL?.errors };
   
     return {formErrors,isValid};
 }
+export const validateWalletInput = (value: string): string => {
+  if (!/^\d*\.?\d{0,2}$/.test(value)) {
+    return "Invalid input. Only numbers with up to 2 decimal places are allowed.";
+  }
+
+  const numValue = parseFloat(value);
+  
+  if (isNaN(numValue)) {
+    return "Invalid amount. Please enter a valid number.";
+  }
+
+  if (numValue < 0) {
+    return "Amount cannot be negative.";
+  }
+
+  if (numValue > 5000) {
+    return "Amount cannot exceed 5000.";
+  }
+
+  return ""; // No error
+};

@@ -1,22 +1,37 @@
-import React, { useCallback, useState } from "react";
-import { DollarSign, X } from "lucide-react";
+import React, { useCallback, useEffect, useState } from "react";
+import { X } from "lucide-react";
+import { validateWalletInput } from "../../../Validation/Validation";
 
 const AddMoneyModal: React.FC<AddMoneyModalProps> = ({
   isOpen,
   onClose,
   onSubmit,
 }) => {
-  const [amount, setAmount] = useState("");
+  const [amount, setAmount] = useState<string>("");
+  const [error, setError] = useState<string>("");
+
+  useEffect(() => {
+    if (!isOpen) {
+      setAmount("");
+      setError("");
+    }
+  }, [isOpen]);
 
   const handleSubmit = useCallback(
     (e: React.FormEvent) => {
       e.preventDefault();
-      const numAmount = parseFloat(amount);
-      if (numAmount > 0) {
-        onSubmit(numAmount);
-        setAmount("");
-        onClose();
+      const result = validateWalletInput(amount);
+      if (result.length > 0) {
+        setError(result);
+        return;
       }
+      const numAmount = parseFloat(amount);
+
+      onSubmit(numAmount);
+      setAmount("");
+      onClose();
+
+      return;
     },
     [amount, onClose, onSubmit]
   );
@@ -45,16 +60,20 @@ const AddMoneyModal: React.FC<AddMoneyModalProps> = ({
               Amount
             </label>
             <div className="relative">
-              <DollarSign className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
+              {/* <DollarSign className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" /> */}
               <input
                 type="number"
                 value={amount}
-                onChange={(e) => setAmount(e.target.value)}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                  setAmount(e.target.value)
+                }
                 min="0"
-                step="0.01"
+                max="5000"
+                step="10"
                 className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#ff8800] focus:border-transparent"
                 placeholder="0.00"
               />
+              {error && <p className="text-red-500 text-sm mt-2">{error}</p>}
             </div>
           </div>
 
@@ -68,7 +87,7 @@ const AddMoneyModal: React.FC<AddMoneyModalProps> = ({
             </button>
             <button
               type="submit"
-              disabled={!amount || parseFloat(amount) <= 0}
+              disabled={!amount || parseInt(amount) <= 0}
               className="px-4 py-2 text-sm font-medium text-white bg-[#ff8800] hover:bg-[#ff9900] rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
               Add Money

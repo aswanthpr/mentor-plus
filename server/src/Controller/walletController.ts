@@ -1,42 +1,36 @@
 import { ObjectId } from "mongoose";
 import { IwalletController } from "../Interface/wallet/IwalletController";
 import { IwalletService } from "../Interface/wallet/IwalletService";
-import { Request,Response } from "express";
+import { NextFunction, Request,Response } from "express";
+import { Status } from "../Constants/httpStatusCode";
 
 export class walletController implements IwalletController{
     constructor(
        private __walletService:IwalletService
     ){}
 // mentee add money to wallet 
-async addMoneyToWallet(req:Request,res:Response): Promise<void> {
+async addMoneyToWallet(req:Request,res:Response, next: NextFunction): Promise<void> {
     try {
         const {amount} = req.body;
         
         const response =await this.__walletService?.addMoenyToWallet(amount,req.user as Express.User as ObjectId);
 res.json( response)
     } catch (error:unknown) {
-        throw new Error(
-            `error while add money to wallet ${error instanceof Error ? error.message : String(error)
-            }`
-          );
+      next(error)
     }
 }
-async walletStripeWebHook(req: Request, res: Response): Promise<void> {
+async walletStripeWebHook(req: Request, res: Response,next: NextFunction): Promise<void> {
   try{
     const signature = req.headers["stripe-signature"] as string;
 
     await this.__walletService.walletStripeWebHook(signature, req.body as Buffer);
-    res.status(200).json({ success: true });
+    res.status(Status?.Ok).json({ success: true });
   }catch(error: unknown) {
-    throw new Error(
-      `Error while  webhook config ${
-        error instanceof Error ? error.message : String(error)
-      }`
-    );
+    next(error)
   }
 }
 //fetch wallet data
-async getWalletData(req: Request, res: Response): Promise<void> {
+async getWalletData(req: Request, res: Response,next: NextFunction): Promise<void> {
   try {
     const {role,search,filter,page,limit} = req.query;
 console.log(role,search,filter,page,limit);
@@ -45,15 +39,11 @@ console.log(role,search,filter,page,limit);
     );
     res.status(status).json({message,success,walletData,totalPage});
   } catch (error:unknown){
-    throw new Error(
-      `Error while fetch walletData ${
-        error instanceof Error ? error.message : String(error)
-      }`
-    );
+    next(error)
   }
 }
 
-async withdrawMentorEarnings(req: Request, res: Response): Promise<void>{
+async withdrawMentorEarnings(req: Request, res: Response,next: NextFunction): Promise<void>{
   try {
     const {amount} = req.body;
 
@@ -61,11 +51,7 @@ async withdrawMentorEarnings(req: Request, res: Response): Promise<void>{
 console.log(result,success)
     res.status(status).json({message,success,result});
   } catch (error:unknown) {
-    throw new Error(
-      `Error while fetch walletData ${
-        error instanceof Error ? error.message : String(error)
-      }`
-    );
+    next(error)
   }
 }
 }

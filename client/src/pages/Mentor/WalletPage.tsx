@@ -49,17 +49,21 @@ const WalletPage: React.FC = () => {
     if (Number(amount) < 500 || !amount) {
       toast.error(Messages?.WITHDRAW_LIMIT);
     }
+    if(Number(walletData?.balance??0)<amount){
+      toast.error(Messages?.NOT_ENOUGH_FUND)
+      return
+    }
     const response = await fetchHandleWithdraw(amount);
 
     if (response?.status == HttpStatusCode?.Ok && response?.data?.result) {
-      console.log(response);
+    
       setWalletData((pre) => ({
         ...pre,
         balance: String(Number(pre.balance) - Number(amount)),
         transaction: [response?.data?.result, ...pre.transaction],
       }));
     }
-  }, []);
+  }, [walletData?.balance]);
     const handlePageChange = useCallback(
       (event: React.ChangeEvent<unknown>, value: number) => {
         event.preventDefault();

@@ -63,7 +63,7 @@ mentee_Router.post(`/qa/create-answer`, menteeAuthMiddleware_1.default, __qaCont
 mentee_Router.patch(`/qa/edit-answer`, menteeAuthMiddleware_1.default, __qaController.editAnswer.bind(__qaController));
 mentee_Router.get(`/explore/similar-mentors`, menteeAuthMiddleware_1.default, __menteeController.getSimilarMentors.bind(__menteeController));
 mentee_Router.get(`/slot-booking`, menteeAuthMiddleware_1.default, __bookingController.getTimeSlots.bind(__bookingController));
-//slot book with rzorpay
+//slot book with rzorpay 
 mentee_Router.post(`/slot-booking`, menteeAuthMiddleware_1.default, __bookingController.slotBooking.bind(__bookingController));
 mentee_Router.post("/booking/webhook", express_1.default.raw({ type: "application/json" }), __bookingController.stripeWebHook.bind(__bookingController));
 // ./stripe listen --forward-to localhost:3000/mentee/webhook
@@ -73,7 +73,7 @@ mentee_Router.get(`/notification`, menteeAuthMiddleware_1.default, __notificatio
 mentee_Router.patch(`/notification-read/:notificationId`, menteeAuthMiddleware_1.default, __notificationController.markAsReadNotif.bind(__notificationController));
 mentee_Router.get("/chats", menteeAuthMiddleware_1.default, __chatController.getChats.bind(__chatController));
 mentee_Router.get("/messages", menteeAuthMiddleware_1.default, __chatController.getUserMessage.bind(__chatController));
-mentee_Router.post(`/session/validate-session-join`, menteeAuthMiddleware_1.default, __bookingController.validateSessionJoin.bind(__bookingController));
+mentee_Router.get(`/session/validate-session-join`, menteeAuthMiddleware_1.default, __bookingController.validateSessionJoin.bind(__bookingController));
 //wallet'
 mentee_Router.get(`/wallet`, menteeAuthMiddleware_1.default, __walletController.getWalletData.bind(__walletController));
 mentee_Router.post("/wallet/add-money-wallet", menteeAuthMiddleware_1.default, __walletController.addMoneyToWallet.bind(__walletController));

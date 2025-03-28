@@ -35,7 +35,7 @@ const SignupForm: React.FC = () => {
 
   const handleChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const { id, value } = e.target;
-    console.log(e.target.value);
+  
     setFormData((prev) => ({ ...prev, [id]: value }));
 
     // Clear error when user starts typing
@@ -109,7 +109,7 @@ const SignupForm: React.FC = () => {
       const { email } = formData;
 
       setLoading(true);
-      console.log("Verifying OTP:", otp, email);
+     
       const response = await fetchVerifyOtp(email, otp);
 
       if (response.status == HttpStatusCode?.Ok && response.data.success) {

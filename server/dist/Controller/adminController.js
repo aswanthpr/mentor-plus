@@ -10,12 +10,12 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.adminController = void 0;
-const httpStatusCode_1 = require("../Utils/httpStatusCode");
+const httpStatusCode_1 = require("../Constants/httpStatusCode");
 class adminController {
     constructor(_adminService) {
         this._adminService = _adminService;
     }
-    adminRefreshToken(req, res) {
+    adminRefreshToken(req, res, next) {
         return __awaiter(this, void 0, void 0, function* () {
             var _a;
             try {
@@ -35,28 +35,22 @@ class adminController {
                 });
             }
             catch (error) {
-                res
-                    .status(httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.InternalServerError)
-                    .json({ success: false, message: "Internal server error" });
-                throw new Error(`error while geting refreshToken${error instanceof Error ? error.message : String(error)}`);
+                next(error);
             }
         });
     }
-    createCategory(req, res) {
+    createCategory(req, res, next) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 const response = yield this._adminService.createCategory(req.body);
                 res.status(response.status).json(response);
             }
             catch (error) {
-                res
-                    .status(httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.InternalServerError)
-                    .json({ success: false, message: "internal server error" });
-                throw new Error(`error while create category in controller ${error instanceof Error ? error.message : String(error)}`);
+                next(error);
             }
         });
     }
-    categoryData(req, res) {
+    categoryData(req, res, next) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 const { searchQuery, statusFilter, sortField, sortOrder, page, limit } = req.query;
@@ -64,14 +58,11 @@ class adminController {
                 res.status(status).json({ message, success, categories, totalPage });
             }
             catch (error) {
-                res
-                    .status(httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.InternalServerError)
-                    .json({ success: false, message: "Internal server error" });
-                throw new Error(`error while getting category in controller ${error instanceof Error ? error.message : String(error)}`);
+                next(error);
             }
         });
     }
-    editCategory(req, res) {
+    editCategory(req, res, next) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 const { id, category } = req.body;
@@ -81,18 +72,15 @@ class adminController {
                     res.status(httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.Ok).json(result);
                 }
                 else {
-                    res.status(409).json(result);
+                    res.status(httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.Conflict).json(result);
                 }
             }
             catch (error) {
-                res
-                    .status(500)
-                    .json({ success: false, message: "Internal server error" });
-                throw new Error(`error while getting category in controller ${error instanceof Error ? error.message : String(error)}`);
+                next(error);
             }
         });
     }
-    changeCategoryStatus(req, res) {
+    changeCategoryStatus(req, res, next) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 const result = yield this._adminService.changeCategoryStatus(req.body.id);
@@ -101,15 +89,12 @@ class adminController {
                     .json({ success: result.success, message: result.message });
             }
             catch (error) {
-                res
-                    .status(httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.InternalServerError)
-                    .json({ success: false, message: "Internal server error" });
-                throw new Error(`error while getting category in controller ${error instanceof Error ? error.message : String(error)}`);
+                next(error);
             }
         });
     }
     //-----------------------------------------------------------------------------------------------
-    menteeData(req, res) {
+    menteeData(req, res, next) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 const { search, sortField, sortOrder, statusFilter, page, limit } = req.query;
@@ -117,14 +102,11 @@ class adminController {
                 res.status(status).json({ message, success, totalPage, Data });
             }
             catch (error) {
-                res
-                    .status(httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.InternalServerError)
-                    .json({ success: false, message: "Internal server error" });
-                throw new Error(`error while getting category in controller ${error instanceof Error ? error.message : String(error)}`);
+                next(error);
             }
         });
     }
-    changeMenteeStatus(req, res) {
+    changeMenteeStatus(req, res, next) {
         return __awaiter(this, void 0, void 0, function* () {
             var _a;
             try {
@@ -134,11 +116,11 @@ class adminController {
                     .json({ success: result.success, message: result.message });
             }
             catch (error) {
-                throw new Error(`error while getting category in controller ${error instanceof Error ? error.message : String(error)}`);
+                next(error);
             }
         });
     }
-    editMentee(req, res) {
+    editMentee(req, res, next) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 console.log(req.body);
@@ -146,23 +128,23 @@ class adminController {
                 res.status(status).json({ success, message });
             }
             catch (error) {
-                throw new Error(`error while getting mentee Data  in controller ${error instanceof Error ? error.message : String(error)}`);
+                next(error);
             }
         });
     }
-    addMentee(req, res) {
+    addMentee(req, res, next) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 const response = yield this._adminService.addMentee(req.body);
                 res.status(httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.Ok).json(response);
             }
             catch (error) {
-                throw new Error(`error while add mentee Data  in controller ${error instanceof Error ? error.message : String(error)}`);
+                next(error);
             }
         });
     }
     //-----------------------------------------------------------
-    mentorData(req, res) {
+    mentorData(req, res, next) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 const { searchQuery, sortField, sortOrder, page, limit, activeTab } = req.query;
@@ -175,11 +157,11 @@ class adminController {
                 });
             }
             catch (error) {
-                throw new Error(`error while get mentor Data  in controller ${error instanceof Error ? error.message : String(error)}`);
+                next(error);
             }
         });
     }
-    mentorVerify(req, res) {
+    mentorVerify(req, res, next) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 console.log(req.body, "lkasndflnf");
@@ -191,12 +173,12 @@ class adminController {
                 });
             }
             catch (error) {
-                throw new Error(`error while mentor verify  in controller ${error instanceof Error ? error.message : String(error)}`);
+                next(error);
             }
         });
     }
     //mentor status change
-    changeMentorStatus(req, res) {
+    changeMentorStatus(req, res, next) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 const result = yield this._adminService.mentorStatusChange(req.body.id);
@@ -205,25 +187,24 @@ class adminController {
                     .json({ success: result.success, message: result.message });
             }
             catch (error) {
-                throw new Error(`error while mentor stutus  in controller ${error instanceof Error ? error.message : String(error)}`);
+                next(error);
             }
         });
     }
-    adminLogout(req, res) {
+    adminLogout(req, res, next) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 res.clearCookie("adminToken");
-                res.status(200).json({ success: true, message: "Logout successfully" });
+                res
+                    .status(httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.Ok)
+                    .json({ success: true, message: "Logout successfully" });
             }
             catch (error) {
-                res
-                    .status(500)
-                    .json({ success: false, message: "Internal server error" });
-                throw new Error(`Error while mentee  logout ${error instanceof Error ? error.message : String(error)}`);
+                next(error);
             }
         });
     }
-    getDashboardData(req, res) {
+    getDashboardData(req, res, next) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 const { timeRange } = req.query;
@@ -231,10 +212,7 @@ class adminController {
                 res.status(status).json({ success, message, status, salesData });
             }
             catch (error) {
-                res
-                    .status(httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.InternalServerError)
-                    .json({ success: false, message: "Internal server error" });
-                throw new Error(`Error while dashboard ${error instanceof Error ? error.message : String(error)}`);
+                next(error);
             }
         });
     }

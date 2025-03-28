@@ -7,6 +7,10 @@ import mongoose from "mongoose";
 import chatRepository from "../Repository/chatRepository";
 import chatSchema from "../Model/chatSchema";
 
+import slotScheduleRepository from "../Repository/slotScheduleRepository";
+import { IslotScheduleRepository } from "../Interface/Booking/iSlotScheduleRepository";
+const _slotScheduleRepo: IslotScheduleRepository = slotScheduleRepository;
+
 const chatMap = new Map();
 const rooms = new Map(); //webrtc
 export class SocketManager {
@@ -21,17 +25,17 @@ export class SocketManager {
     this.setupWebRTC();
   }
   //Notification============================================================
- 
+
   private setupNotifications() {
     //notificatin namespace set
     const notificationNamespace = this.io.of("/notifications");
 
     notificationNamespace.on("connection", (socket: Socket) => {
-      console.log(`Notification user connected: ${socket.id}`);
+    
       //join to specific users notification room
       socket.on("join-room", (userId: string) => {
         socket.join(userId);
-        console.log(`User ${userId} joined their notification room`);
+       
       });
       //disconnect user
       socket.on("disconnect", () => {
@@ -69,11 +73,11 @@ export class SocketManager {
 
       // user emit online status
       chatNsp.emit("userOnline", [...chatMap.keys()]);
-      console.log([...chatMap.keys()]);
+      
       //join the user to a specific room
       socket.on("join-room", async (data) => {
         if (!data?.roomId) return;
-        console.log(`user joined in the room`, data?.roomId);
+       
         socket.join(data?.roomId);
         try {
           //fetch all specific roomid message
@@ -94,10 +98,9 @@ export class SocketManager {
       });
       //geting new message
       socket.on("new-message", async ({ roomId, message }) => {
-       
         try {
           if (!roomId) {
-            console.log("no room");
+          
             throw new Error("Invalid or missing roomId.");
           }
           if (
@@ -127,8 +130,8 @@ export class SocketManager {
           const messageContent =
             message?.messageType == "text"
               ? message?.content
-              :message?.messageType;
-          
+              : message?.messageType;
+
           //setting the last message
           await chatRepository.find_By_Id_And_Update(
             chatSchema,
@@ -147,13 +150,9 @@ export class SocketManager {
       });
 
       socket.on("disconnect", () => {
-        console.log(`chatSocket with ID ${socket.id} is disconnected`);
+       
         //remove the disconnected user
         chatMap.delete(userId);
-
-        if (!chatMap.has(userId)) {
-          console.log(`User ${userId} removed from chatMap`);
-        }
 
         //emit if user is goes to offline
         chatNsp.emit("userOffline", userId); // Notify  user went offline
@@ -168,10 +167,30 @@ export class SocketManager {
     webrtcNamespace.on("connection", (socket: Socket) => {
       console.log(`WebRTC user connected: ${socket.id}`);
 
-      socket.on("join-call", (roomId) => {
-        socket.join(roomId);
-        console.log(`User ${socket.id} joined room: ${roomId}`);
+      socket.on("join-call", async ({ roomId, sessionId, userId }) => {
+        const result = await _slotScheduleRepo.validateSessionJoin(
+          new mongoose.Types.ObjectId(
+            sessionId as string
+          ) as unknown as mongoose.Schema.Types.ObjectId,
+          roomId,
+          new mongoose.Types.ObjectId(
+            userId as string
+          ) as unknown as mongoose.Schema.Types.ObjectId
+        );
 
+        if (!result) {
+         
+          socket.emit("join-fail", "Invalid session or user"); 
+          socket.disconnect();  
+          return;
+        }
+  
+
+        socket.join(roomId);
+        console.log(
+          `User ${socket.id} joined room: ${roomId}`
+        );
+        
         if (!rooms.has(roomId)) {
           rooms.set(roomId, new Set());
         }
@@ -205,7 +224,7 @@ export class SocketManager {
       });
 
       socket.on("disconnect", () => {
-        console.log(`User disconnected: ${socket.id}`);
+       
         rooms.forEach((users, roomId) => {
           if (users.has(socket.id)) {
             users.delete(socket.id);

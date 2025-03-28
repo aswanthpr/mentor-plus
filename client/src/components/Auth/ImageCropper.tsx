@@ -79,7 +79,7 @@ const ImageCropper: React.FC<ImageCroper> = ({
     <div className="fixed inset- top-10 bottom-9 bg-black bg-opacity-0 flex items-center justify-center p-0 z-10 ">
       <div className="bg-white rounded-lg p-6 max-w-4xl w-full">
         <h3 className="text-xl font-bold mb-4 text-center">Crop</h3>
-        <div className="mb-4">
+        <div className="w-80 ">
           <ReactCrop
             crop={crop}
             onChange={(c) => setCrop(c)}

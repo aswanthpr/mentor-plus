@@ -1,17 +1,17 @@
-import { Request, Response } from 'express';
+import { NextFunction, Request, Response } from 'express';
 export interface IadminController {
-    adminRefreshToken(req: Request, res: Response): Promise<void>;
-    createCategory(req: Request, res: Response): Promise<void>;
-    categoryData(req: Request, res: Response): Promise<void>;
-    editCategory(req: Request, res: Response): Promise<void>;
-    changeCategoryStatus(req: Request, res: Response): Promise<void>;
-    getDashboardData(req: Request, res: Response): Promise<void>;
-    menteeData(req: Request, res: Response): Promise<void>;
-    changeMenteeStatus(req: Request, res: Response): Promise<void>;
-    editMentee(req: Request, res: Response): Promise<void>;
-    addMentee(req: Request, res: Response): Promise<void>;
-    mentorData(req: Request, res: Response): Promise<void>;
-    mentorVerify(req: Request, res: Response): Promise<void>;
-    changeMentorStatus(req: Request, res: Response): Promise<void>;
+    adminRefreshToken(req: Request, res: Response, next: NextFunction): Promise<void>;
+    createCategory(req: Request, res: Response, next: NextFunction): Promise<void>;
+    categoryData(req: Request, res: Response, next: NextFunction): Promise<void>;
+    editCategory(req: Request, res: Response, next: NextFunction): Promise<void>;
+    changeCategoryStatus(req: Request, res: Response, next: NextFunction): Promise<void>;
+    getDashboardData(req: Request, res: Response, next: NextFunction): Promise<void>;
+    menteeData(req: Request, res: Response, next: NextFunction): Promise<void>;
+    changeMenteeStatus(req: Request, res: Response, next: NextFunction): Promise<void>;
+    editMentee(req: Request, res: Response, next: NextFunction): Promise<void>;
+    addMentee(req: Request, res: Response, next: NextFunction): Promise<void>;
+    mentorData(req: Request, res: Response, next: NextFunction): Promise<void>;
+    mentorVerify(req: Request, res: Response, next: NextFunction): Promise<void>;
+    changeMentorStatus(req: Request, res: Response, next: NextFunction): Promise<void>;
 }
 //# sourceMappingURL=iAdminController.d.ts.map

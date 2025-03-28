@@ -20,10 +20,12 @@ import { IquestionRepository } from "../Interface/Qa/IquestionRepository";
 import { WeekdayString } from "../Types/types";
 import { ObjectId } from "mongoose";
 import { ItimeSlotRepository } from "../Interface/Booking/iTimeSchedule";
-import { Status } from "../Utils/httpStatusCode";
+import { Status } from "../Constants/httpStatusCode";
 import moment from "moment";
 import { checkForOverlap, createSkip } from "../Utils/reusable.util";
 import { IslotScheduleRepository } from "../Interface/Booking/iSlotScheduleRepository";
+import { HttpResponse } from "../Constants/httpResponse";
+import { HttpError } from "../Utils/http-error-handler.util";
 
 export class mentorService implements ImentorService {
   constructor(
@@ -32,7 +34,7 @@ export class mentorService implements ImentorService {
     private _questionRepository: IquestionRepository,
     private _timeSlotRepository: ItimeSlotRepository,
     private readonly _slotScheduleRepository: IslotScheduleRepository
-  ) {}
+  ) { }
 
   async mentorProfile(token: string): Promise<{
     success: boolean;
@@ -42,13 +44,12 @@ export class mentorService implements ImentorService {
     categories: Icategory[] | [];
   }> {
     try {
-      const decode =verifyAccessToken(token,"mentor");
-      
+      const decode = verifyAccessToken(token, "mentor");
 
       if (!decode?.result?.userId) {
         return {
           success: false,
-          message: "Your session has expired. Please log in again.",
+          message: HttpResponse?.UNAUTHORIZED,
           status: Status?.Forbidden,
           result: null,
           categories: [],
@@ -61,7 +62,7 @@ export class mentorService implements ImentorService {
       if (!result) {
         return {
           success: false,
-          message: "invalid credential",
+          message: HttpResponse?.INVALID_CREDENTIALS,
           status: Status?.NoContent,
           result: null,
           categories: [],
@@ -71,7 +72,7 @@ export class mentorService implements ImentorService {
       if (!categoryData) {
         return {
           success: false,
-          message: "invalid credential",
+          message: HttpResponse?.INVALID_CREDENTIALS,
           status: Status?.NoContent,
           result: null,
           categories: [],
@@ -80,17 +81,13 @@ export class mentorService implements ImentorService {
 
       return {
         success: true,
-        message: "successfull",
+        message: HttpResponse?.SUCCESS,
         status: Status?.Ok,
         result: result,
         categories: categoryData,
       };
     } catch (error: unknown) {
-      throw new Error(
-        `Error while bl metneeProfile in service: ${
-          error instanceof Error ? error.message : String(error)
-        }`
-      );
+      throw new HttpError(error instanceof Error ? error.message : String(error), Status?.InternalServerError);
     }
   }
 
@@ -106,22 +103,27 @@ export class mentorService implements ImentorService {
       if (!refresh) {
         return {
           success: false,
-          message: "You are not authorized. Please log in.",
-          status:Status?.Unauthorized,
-        };
-      }
-
-      const decode = verifyRefreshToken(refresh,"mentor");
-
-      if (!decode?.isValid || !decode?.result?.userId||decode?.error=="TamperedToken"||decode?.error=="TokenExpired") {
-        return {
-          success: false,
-          message: "You are not authorized. Please log in.",
+          message: HttpResponse?.UNAUTHORIZED,
           status: Status?.Unauthorized,
         };
       }
 
-      const  userId  = decode?.result?.userId;
+      const decode = verifyRefreshToken(refresh, "mentor");
+
+      if (
+        !decode?.isValid ||
+        !decode?.result?.userId ||
+        decode?.error == "TamperedToken" ||
+        decode?.error == "TokenExpired"
+      ) {
+        return {
+          success: false,
+          message: HttpResponse?.UNAUTHORIZED,
+          status: Status?.Unauthorized,
+        };
+      }
+
+      const userId = decode?.result?.userId;
 
       const accessToken: string | undefined = genAccesssToken(
         userId as string,
@@ -135,18 +137,13 @@ export class mentorService implements ImentorService {
 
       return {
         success: true,
-        message: "Token refresh successfully",
+        message: HttpResponse?.TOKEN_GENERATED,
         accessToken,
         refreshToken,
         status: Status?.Ok,
       };
     } catch (error: unknown) {
-      console.error("Error while generating BLRefreshToken", error);
-      return {
-        success: false,
-        message: "An internal server error occurred. Please try again later.",
-        status: 500,
-      };
+      throw new HttpError(error instanceof Error ? error.message : String(error), Status?.InternalServerError);
     }
   }
   //mentor password change logic
@@ -159,14 +156,14 @@ export class mentorService implements ImentorService {
       if (!currentPassword || !newPassword || !id) {
         return {
           success: false,
-          message: "Please provide all required credentials.",
+          message: HttpResponse?.INVALID_CREDENTIALS,
           status: Status?.BadRequest,
         };
       }
       if (currentPassword == newPassword) {
         return {
           success: false,
-          message: "New password cannot be the same as the current password.",
+          message: HttpResponse?.NEW_PASS_REQUIRED,
           status: Status?.BadRequest,
         };
       }
@@ -174,7 +171,7 @@ export class mentorService implements ImentorService {
       if (!result) {
         return {
           success: false,
-          message: "User not found. Please check your credentials.",
+          message: HttpResponse?.USER_NOT_FOUND,
           status: Status?.NotFound,
         };
       }
@@ -186,7 +183,7 @@ export class mentorService implements ImentorService {
       if (!passCompare) {
         return {
           success: false,
-          message: "Incorrect current password. Please try again.",
+          message: HttpResponse?.PASSWORD_INCORRECT,
           status: Status?.BadRequest,
         };
       }
@@ -199,21 +196,17 @@ export class mentorService implements ImentorService {
       if (!response) {
         return {
           success: false,
-          message: "Failed to update the password. Please try again later.",
-          status: 503,
+          message: HttpResponse?.FAILED,
+          status: Status?.BadRequest,
         };
       }
       return {
         success: true,
-        message: "Password updated successfully.",
+        message: HttpResponse?.SUCCESS,
         status: Status?.Ok,
       };
     } catch (error: unknown) {
-      throw new Error(
-        `Error during password change${
-          error instanceof Error ? error.message : String(error)
-        }`
-      );
+      throw new HttpError(error instanceof Error ? error.message : String(error), Status?.InternalServerError);
     }
   }
 
@@ -229,10 +222,11 @@ export class mentorService implements ImentorService {
     profileUrl?: string;
   }> {
     try {
+
       if (!image || !id) {
         return {
           success: false,
-          message: "Image or ID is missing, please provide both.",
+          message: HttpResponse?.INVALID_CREDENTIALS,
           status: Status.BadRequest,
         };
       }
@@ -240,23 +234,10 @@ export class mentorService implements ImentorService {
       if (!profileUrl) {
         return {
           success: false,
-          message: "Failed to upload the image, please try again later.",
+          message: HttpResponse?.FAILED,
           status: Status.InternalServerError,
         };
       }
-      // const currentPublicId = this.extractPublicIdFromCloudinaryUrl(currentProfile.profileUrl);
-
-      // // If there's an existing image, delete it from Cloudinary
-      // if (currentPublicId) {
-      //   const deleteResult = await cloudinary.v2.uploader.destroy(currentPublicId);
-      //   if (deleteResult.result !== 'ok') {
-      //     return {
-      //       success: false,
-      //       message: "Failed to delete the old image from Cloudinary.",
-      //       status: 500,
-      //     };
-      //   }
-      // }
 
       const result = await this._mentorRepository.changeMentorProfileImage(
         profileUrl,
@@ -266,22 +247,18 @@ export class mentorService implements ImentorService {
       if (!result) {
         return {
           success: false,
-          message: "Mentor not found with the provided ID.",
+          message: HttpResponse?.USER_NOT_FOUND,
           status: Status.NotFound,
         };
       }
       return {
         success: true,
-        message: "Profile image updated successfully.",
+        message: HttpResponse?.PROFILE_PICTURE_CHANGED,
         status: Status.Ok,
         profileUrl: result.profileUrl,
       };
     } catch (error: unknown) {
-      throw new Error(
-        `Error while bl metnee Profile  change in service: ${
-          error instanceof Error ? error.message : String(error)
-        }`
-      );
+      throw new HttpError(error instanceof Error ? error.message : String(error), Status?.InternalServerError);
     }
   }
 
@@ -307,7 +284,7 @@ export class mentorService implements ImentorService {
         bio,
         skills,
       } = mentorData;
-      console.log("\x1b[32m%s\x1b[0m", _id);
+     
 
       if (
         !name ||
@@ -321,7 +298,7 @@ export class mentorService implements ImentorService {
       ) {
         return {
           success: false,
-          message: "credential is missing",
+          message: HttpResponse?.INVALID_CREDENTIALS,
           status: Status?.BadRequest,
           result: null,
         };
@@ -333,7 +310,7 @@ export class mentorService implements ImentorService {
       if (!existingMentor) {
         return {
           success: false,
-          message: "Mentor not existing",
+          message: HttpResponse?.USER_NOT_FOUND,
           status: Status?.NotFound,
           result: null,
         };
@@ -367,7 +344,7 @@ export class mentorService implements ImentorService {
       if (!result) {
         return {
           success: false,
-          message: "unable to update",
+          message: HttpResponse?.FAILED,
           status: Status?.NotFound,
           result: null,
         };
@@ -375,23 +352,19 @@ export class mentorService implements ImentorService {
 
       return {
         success: true,
-        message: "Details changed Successfully!",
+        message: HttpResponse?.SUCCESS,
         status: Status?.Ok,
         result: result,
       };
     } catch (error: unknown) {
-      throw new Error(
-        `Error while  mentor Profile  edit details in service: ${
-          error instanceof Error ? error.message : String(error)
-        }`
-      );
+      throw new HttpError(error instanceof Error ? error.message : String(error), Status?.InternalServerError);
     }
   }
   async questionData(
     filter: string,
     search: string,
-    sortField:string,
-    sortOrder:string,
+    sortField: string,
+    sortOrder: string,
     page: number,
     limit: number
   ): Promise<{
@@ -402,11 +375,11 @@ export class mentorService implements ImentorService {
     totalPage: number;
   }> {
     try {
-      console.log(filter, search, page, limit);
-      if (!filter || page <1|| limit<1|| !sortField|| !sortOrder) {
+     
+      if (!filter || page < 1 || limit < 1 || !sortField || !sortOrder) {
         return {
           success: false,
-          message: "credentials not found",
+          message: HttpResponse?.INVALID_CREDENTIALS,
           status: Status?.BadRequest,
           homeData: [],
           totalPage: 0,
@@ -424,21 +397,17 @@ export class mentorService implements ImentorService {
         skip,
         limit
       );
-     
+
       const totalPage = Math.ceil(response?.count / limitNo);
       return {
         success: true,
-        message: "Data successfully fetched",
+        message: HttpResponse?.DATA_RETRIEVED,
         status: Status?.Ok,
         homeData: response?.question,
         totalPage,
       };
     } catch (error: unknown) {
-      throw new Error(
-        `Error while  mentor home data fetching in service: ${
-          error instanceof Error ? error.message : String(error)
-        }`
-      );
+      throw new HttpError(error instanceof Error ? error.message : String(error), Status?.InternalServerError);
     }
   }
 
@@ -467,43 +436,30 @@ export class mentorService implements ImentorService {
           !endDate ||
           selectedDays?.length == 0
         ) {
-          console.log("haiiiii");
           return {
             success: false,
-            message: "crdential not found",
+            message: HttpResponse?.INVALID_CREDENTIALS,
             status: Status?.BadRequest,
             timeSlots: [],
           };
         }
-        let res: slot[] = [];
+
         const checkedSlots = await this._timeSlotRepository.checkTimeSlots(
           mentorId,
           new Date(startDate),
           new Date(endDate)
         );
-        console.log(checkedSlots);
-        if (checkedSlots.length > 0) {
-          res = checkForOverlap(checkedSlots as IcheckedSlot[], slots);
-        }
-        if (checkedSlots.length < 0 && res.length == 0) {
-        
-          return {
-            success: false,
-            message: "all time periods are  duplicates ",
-            status: Status?.BadRequest,
-            timeSlots: [],
-          };
-        }
+
+        const res = checkForOverlap(checkedSlots as IcheckedSlot[], slots);
 
         const today = new Date();
         const startDateStr = new Date(startDate);
         const endDateStr = new Date(endDate!);
 
         if (startDateStr < today) {
-          console.log("1111111111111111111");
           return {
             success: false,
-            message: "Start date cannot be in the past.",
+            message: HttpResponse?.START_DATE_CANNOT_BE_PAST,
             status: Status.Ok,
             timeSlots: [],
           };
@@ -511,10 +467,9 @@ export class mentorService implements ImentorService {
 
         // Ensure endDate is after startDate
         if (endDateStr.getTime() <= startDateStr.getTime()) {
-          console.log("2222222222222222");
           return {
             success: false,
-            message: "The time duration must be between 30 and 60 minutes.",
+            message: HttpResponse?.DURATION_DIFFERNT_REQUIRED,
             status: Status.Ok,
             timeSlots: [],
           };
@@ -544,7 +499,7 @@ export class mentorService implements ImentorService {
         const recurringDates = rrule.all();
 
         recurringDates.forEach((date) => {
-          (res.length > 0 ? res : slots).forEach((slot) => {
+          res.forEach((slot) => {
             const dateStr = date.toISOString();
 
             const start = moment(
@@ -559,19 +514,17 @@ export class mentorService implements ImentorService {
             const minutesDifference = duration.asMinutes();
 
             if (minutesDifference < 30 || minutesDifference > 60) {
-             
               return {
                 success: false,
-                message: "The time duration must be between 30 and 60 minutes.",
+                message: HttpResponse?.DURATION_DIFFERNT_REQUIRED,
                 status: Status.Ok,
                 timeSlots: [],
               };
             }
             if (end.isBefore(start)) {
-             
               return {
                 success: false,
-                message: "The End Time is Befor Start Time",
+                message: HttpResponse?.END_TIME_PAST,
                 status: Status.Ok,
                 timeSlots: [],
               };
@@ -594,170 +547,128 @@ export class mentorService implements ImentorService {
             timeSlotsToInsert.push(timeSlot as unknown as Itime);
           });
         });
-
-        result = await this._timeSlotRepository.createTimeSlot(
-          timeSlotsToInsert
-        );
       } else {
         for (const entry of schedule as ISchedule[]) {
           const { slots, price, startDate } = entry;
-          console.log(
-            "slot:",
-            slots,
-            "price",
-            price,
-            "strtDAte",
-            startDate,
-            entry
-          );
+
           if (!price || !startDate || !mentorId) {
             return {
               success: false,
-              message: "credential missing",
+              message: HttpResponse?.INVALID_CREDENTIALS,
               status: Status.BadRequest,
               timeSlots: [],
             };
           }
-          console.log('1111111')
-          let res: slot[] = [];
+
           const checkedSlots = await this._timeSlotRepository.checkTimeSlots(
             mentorId,
             new Date(`${startDate}T00:00:00.000Z`),
             new Date(`${startDate}T23:59:59.999Z`)
           );
-          if (checkedSlots.length > 0) {
-            res = checkForOverlap(checkedSlots as IcheckedSlot[], slots);
-          }
-          console.log('222222')
-          if (checkedSlots.length < 0 && res.length == 0) {
-            return {
-              success: false,
-              message: "all time periods are  duplicates ",
-              status: Status?.BadRequest,
-              timeSlots: [],
-            };
-          }
+
+          const res = checkForOverlap(checkedSlots as IcheckedSlot[], slots);
 
           const givenDate = moment(startDate, "YYYY-MM-DD");
           const currentDate = moment().startOf("day");
-          console.log('3333333')
+
           if (givenDate.isBefore(currentDate)) {
-            
-            console.log('00000000')
             return {
               success: false,
-              message: " The given date is in the past.",
+              message: HttpResponse?.DATE_CANNOT_BE_PAST,
               status: Status.BadRequest,
               timeSlots: [],
             };
           }
 
-          const entrySlots = (res.length > 0 ? res : slots).map(
-            (slot: slot) => {
-              const start = moment(
-                `${startDate} ${slot?.startTime}`,
-                "YYYY-MM-DD HH:mm:ss"
-              );
-              const end = moment(
-                `${startDate} ${slot?.endTime}`,
-                "YYYY-MM-DD HH:mm:ss"
-              );
-              console.log('55555')
-              const duration = moment.duration(end.diff(start));
-              if (!duration) {
-                return {
-                  success: false,
-                  message: "Time difference is not in between 20 to 60.",
-                  status: Status.BadRequest,
-                  timeSlots: [],
-                };
-              }
+          const entrySlots = res.map((slot: slot) => {
+            const start = moment(
+              `${startDate} ${slot?.startTime}`,
+              "YYYY-MM-DD HH:mm:ss"
+            );
+            const end = moment(
+              `${startDate} ${slot?.endTime}`,
+              "YYYY-MM-DD HH:mm:ss"
+            );
 
-              const minutesDifference = duration.asMinutes();
-              console.log(
-                start,
-                "start",
-                "end:",
-                end,
-                "minutesDifference:",
-                minutesDifference
-              );
-
-              if (minutesDifference < 30 || minutesDifference > 60) {
-                return {
-                  success: false,
-                  message:
-                    "The time duration must be between 30 and 60 minutes.",
-                  status: Status.Ok,
-                  timeSlots: [],
-                };
-              }
-
-              if (end.isBefore(start)) {
-                return {
-                  success: false,
-                  message: "The End Time is Befor Start Time",
-                  status: Status.Ok,
-                  timeSlots: [],
-                };
-              }
-
-              // Create a date string in ISO format
-
-              const startStr = start.format("YYYY-MM-DDTHH:mm:ss");
-              const endStr = end.format("YYYY-MM-DDTHH:mm:ss");
-
-              console.log(
-                start.format("YYYY-MM-DDTHH:mm:ss"),
-                end.format("YYYY-MM-DDTHH:mm:ss"),
-
-                end.toISOString(),
-                "this is the time i converted",
-                startStr,
-                endStr
-              );
-              const startDateInDate = new Date(startDate);
-
+            const duration = moment.duration(end.diff(start));
+            if (!duration) {
               return {
-                startDate: startDateInDate,
-                slots: [
-                  {
-                    startTime: startStr,
-                    endTime: endStr,
-                  },
-                ],
-                price,
-                mentorId,
-                duration: minutesDifference,
+                success: false,
+                message: HttpResponse?.TIME_DIFF_REQUIRED,
+                status: Status.BadRequest,
+                timeSlots: [],
               };
             }
-          );
+
+            const minutesDifference = duration.asMinutes();
+
+            if (minutesDifference < 30 || minutesDifference > 60) {
+              return {
+                success: false,
+                message: HttpResponse?.DURATION_DIFFERNT_REQUIRED,
+                status: Status.Ok,
+                timeSlots: [],
+              };
+            }
+
+            if (end.isBefore(start)) {
+              return {
+                success: false,
+                message: HttpResponse?.END_TIME_PAST,
+                status: Status.Ok,
+                timeSlots: [],
+              };
+            }
+
+            // Create a date string in ISO format
+
+            const startStr = start.format("YYYY-MM-DDTHH:mm:ss");
+            const endStr = end.format("YYYY-MM-DDTHH:mm:ss");
+            const startDateInDate = new Date(startDate);
+
+            return {
+              startDate: startDateInDate,
+              slots: [
+                {
+                  startTime: startStr,
+                  endTime: endStr,
+                },
+              ],
+              price,
+              mentorId,
+              duration: minutesDifference,
+            };
+          });
           timeSlotsToInsert.push(...(entrySlots as unknown as Itime[]));
         }
       }
-      result = await this._timeSlotRepository.createTimeSlot(timeSlotsToInsert);
-      console.log(result, "thsi is the result ");
-      if (!result) {
-        console.log("555555555555");
+      if (timeSlotsToInsert.length === 0) {
         return {
           success: false,
-          message: "error while slot creating ",
+          message: HttpResponse?.NO_SLOT_AVAIL_TO_CREATE,
+          status: Status.Ok,
+          timeSlots: [],
+        };
+      }
+
+      result = await this._timeSlotRepository.createTimeSlot(timeSlotsToInsert);
+
+      if (!result) {
+        return {
+          success: false,
+          message: HttpResponse?.FAILED,
           status: Status.BadRequest,
           timeSlots: [],
         };
       }
       return {
         success: true,
-        message: "slot created successfully",
+        message: HttpResponse?.SLOTS_CREATED,
         status: Status.Ok,
         timeSlots: result,
       };
     } catch (error: unknown) {
-      throw new Error(
-        `"\x1b[33m%s\x1b[0m",Error while mentor creating timeSlots in service: ${
-          error instanceof Error ? error.message : String(error)
-        }`
-      );
+      throw new HttpError(error instanceof Error ? error.message : String(error), Status?.InternalServerError);
     }
   }
   async getTimeSlots(
@@ -786,7 +697,7 @@ export class mentorService implements ImentorService {
       ) {
         return {
           success: false,
-          message: "credentials not found",
+          message: HttpResponse?.INVALID_CREDENTIALS,
           status: Status.BadRequest,
           timeSlots: [],
           totalPage: 0,
@@ -796,7 +707,7 @@ export class mentorService implements ImentorService {
       const skipData = createSkip(page, limit);
       const limitNo = skipData?.limitNo;
       const skip = skipData?.skip;
-      console.log(limit, limitNo, page, skip, "limit,skip");
+    
       const response = await this._timeSlotRepository.getTimeSlots(
         mentorId,
         limitNo,
@@ -806,20 +717,16 @@ export class mentorService implements ImentorService {
         sortField,
         sortOrder
       );
-      const totalPage = Math.ceil(response?.totalDocs/limitNo);
+      const totalPage = Math.ceil(response?.totalDocs / limitNo);
       return {
         success: true,
-        message: "Data successfully fetched",
+        message: HttpResponse?.DATA_RETRIEVED,
         status: Status.Ok,
         timeSlots: response?.timeSlots,
         totalPage,
       };
     } catch (error: unknown) {
-      throw new Error(
-        `Error while  get time slots in service: ${
-          error instanceof Error ? error.message : String(error)
-        }`
-      );
+      throw new HttpError(error instanceof Error ? error.message : String(error), Status?.InternalServerError);
     }
   }
   async removeTimeSlot(
@@ -829,7 +736,7 @@ export class mentorService implements ImentorService {
       if (!slotId) {
         return {
           success: false,
-          message: "credentials not found",
+          message: HttpResponse?.INVALID_CREDENTIALS,
           status: Status.BadRequest,
         };
       }
@@ -837,55 +744,52 @@ export class mentorService implements ImentorService {
       if (!result?.acknowledged || result.deletedCount === 0) {
         return {
           success: false,
-          message: "Slot not found or removal failed.",
+          message: HttpResponse?.FAILED,
           status: Status.NotFound,
         };
       }
-      console.log(result, "result");
+     
       return {
         success: true,
-        message: "successfully removed",
+        message: HttpResponse?.SUCCESS,
         status: Status.Ok,
       };
     } catch (error: unknown) {
-      throw new Error(
-        `Error while  remove slots  in service: ${
-          error instanceof Error ? error.message : String(error)
-        }`
-      );
+      throw new HttpError(error instanceof Error ? error.message : String(error), Status?.InternalServerError);
     }
   }
   async mentorChartData(
     mentorId: ObjectId,
     timeRange: string
-  ): Promise<{ success: boolean; message: string; status: number,result:ImentorChartData|null }> {
+  ): Promise<{
+    success: boolean;
+    message: string;
+    status: number;
+    result: ImentorChartData | null;
+  }> {
     try {
       if (!timeRange) {
         return {
           success: false,
-          message: "credentials not found",
+          message: HttpResponse?.INVALID_CREDENTIALS,
           status: Status.BadRequest,
-          result:null
+          result: null,
         };
       }
-      
+
       const result = await this._slotScheduleRepository.mentorChartData(
         mentorId,
         timeRange
       );
-     console.log(result,'this is the result')
+     
       return {
         success: true,
-        message: "successfully removed",
+        message: HttpResponse?.SUCCESS,
         status: Status.Ok,
-        result:result?.mentorChart
+        result: result?.mentorChart,
       };
     } catch (error: unknown) {
-      throw new Error(
-        `Error while while finding chart data: ${
-          error instanceof Error ? error.message : String(error)
-        }`
-      );
+      throw new HttpError(error instanceof Error ? error.message : String(error), Status?.InternalServerError);
     }
   }
 }

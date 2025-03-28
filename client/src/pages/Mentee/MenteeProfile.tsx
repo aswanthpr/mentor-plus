@@ -40,6 +40,7 @@ import {
   fetchProfileEdit,
 } from "../../service/menteeApi";
 import {
+  MENTE_PROFILE_PASS_CHANGE,
   MENTEE_EDIT_PASSWORD,
   MENTEE_PROFILE_ERROR,
   MENTEE_PROFILE_FORMDATA,
@@ -74,7 +75,7 @@ const MenteeProfile: React.FC = () => {
 
       if (error) {
         toast.error(Messages?.FILE_CHANGE_ERROR);
-        console.log(error);
+   
         return;
       }
       setProfileImage(file);
@@ -201,11 +202,7 @@ const MenteeProfile: React.FC = () => {
 
   const passModalClose = useCallback(() => {
     setShowEditPassword(false);
-    setEditPassword({
-      currentPassword: "",
-      newPassword: "",
-      confirmPassword: "",
-    });
+    setEditPassword(MENTE_PROFILE_PASS_CHANGE);
   }, []);
 
   const handleChangePassword = useCallback(async () => {
@@ -248,14 +245,14 @@ const MenteeProfile: React.FC = () => {
 
         setShowcropper(false);
         if (response.data && response.data.status == HttpStatusCode?.Ok) {
-          console.log(response.data?.message);
+     
           toast.success(response.data?.message);
 
           setMentee((prevMentee) => {
             if (prevMentee === null) {
               return null;
             }
-            return {
+            return { 
               ...prevMentee,
               profileUrl: response.data?.profileUrl,
             };
@@ -289,13 +286,7 @@ const MenteeProfile: React.FC = () => {
                   className="hidden"
                   onChange={handleFileChange}
                 />
-                {showCropper && profileImage && (
-                  <ImageCropper
-                    imageFile={profileImage}
-                    onCropComplete={handleCropComplete}
-                    onCancel={() => setShowcropper(false)}
-                  />
-                )}
+                
               </label>
             </div>
             <div className="ml-4 mb-0">
@@ -368,25 +359,45 @@ const MenteeProfile: React.FC = () => {
         <section className="mt-0 grid grid-cols-1 md:grid-cols-2 gap-8 ml-6">
           <div className="space-y-2">
             <div>
+              {
+                mentee?.email&&(
+
               <p className="mt-1 text-lg text-gray-900 flex">
                 <LucideMail className="mr-2" /> {mentee?.email}
               </p>
+                )
+              }
             </div>
             <div>
+            {
+                mentee?.phone&&(
+                  
               <p className="mt-1 text-lg text-gray-900 flex ">
                 <LucidePhone className="mr-2" /> {mentee?.phone}
               </p>
+                )
+              }
             </div>
             <div>
+            {
+                mentee?.education&&(
+                  
               <p className="mt-1 text-lg text-gray-900 flex">
                 <LucideSchool className="mr-2" /> {mentee?.education}
               </p>
+                )
+              }
             </div>
             <div>
-              <p className="mt-1 text-lg text-gray-900 flex">
-                <LucideBook className="mr-2 w-20" />
-                {mentee?.bio}
-              </p>
+              {
+                mentee?.bio&&(
+                <p className="mt-1 text-lg text-gray-900 flex">
+                  <LucideBook className="mr-2 w-20" />
+                  {mentee?.bio}
+                </p>
+                  
+                )
+              }
             </div>
           </div>
         </section>
@@ -623,6 +634,13 @@ const MenteeProfile: React.FC = () => {
           }
         />
       )}
+      {showCropper && profileImage && (
+                  <ImageCropper
+                    imageFile={profileImage}
+                    onCropComplete={handleCropComplete}
+                    onCancel={() => setShowcropper(false)}
+                  />
+                )}
     </div>
   );
 };

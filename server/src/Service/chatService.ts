@@ -2,8 +2,10 @@ import { ObjectId } from "mongoose";
 import { IchatRepository } from "../Interface/chat/IchatRepository";
 import { IchatService } from "../Interface/chat/IchatService";
 import { Ichat } from "../Model/chatSchema";
-import { Status } from "../Utils/httpStatusCode";
-import { Imessage } from "src/Model/messageSchema";
+import { Status } from "../Constants/httpStatusCode";
+import { Imessage } from "../Model/messageSchema";
+import { HttpResponse } from "../Constants/httpResponse";
+import { HttpError } from "../Utils/http-error-handler.util";
 
 class chatService implements IchatService {
   constructor(private _chatRespository: IchatRepository) {}
@@ -18,11 +20,11 @@ class chatService implements IchatService {
     result: Ichat[] | [];
   }> {
     try {
-      console.log('userId',userId)
+    
       if (!userId||!role) {
         return {
           success: false,
-          message: "credential not found",
+          message:  HttpResponse?.INVALID_CREDENTIALS,
           status: Status.BadRequest,
           result: [],
         };
@@ -34,19 +36,15 @@ class chatService implements IchatService {
       }else{
         result = await this._chatRespository.getMentorchats(userId);
       }
-      console.log(result,'thsi is the result')
+  
       return {
         success: true,
-        message: "successfully retrieved",
+        message: HttpResponse?.RESOURCE_FOUND,
         status: Status.Ok,
         result: result,
       };
     } catch (error: unknown) {
-      throw new Error(
-        `Failed to send otp to mail1${
-          error instanceof Error ? error.message : String(error)
-        }`
-      );
+          throw new HttpError(error instanceof Error ? error.message : String(error), Status?.InternalServerError);
     }
   }
   //get specific User chat
@@ -56,7 +54,7 @@ class chatService implements IchatService {
         return {
           success:false,
           status:Status.BadRequest,
-          message:"credential not found",
+          message: HttpResponse?.INVALID_CREDENTIALS,
           result:[]
         }
       }
@@ -65,11 +63,11 @@ class chatService implements IchatService {
         return {
           success:false,
           status:Status.NotFound,
-          message:"no result",
+          message: HttpResponse?.RESOURCE_NOT_FOUND,
           result:[]
         }
       }
-      console.log(result,'result messages')
+    
       return{
         success:true,
           status:Status.Ok,
@@ -77,11 +75,7 @@ class chatService implements IchatService {
           result:result
       }
     } catch (error:unknown) {
-      throw new Error(
-        `error while get all user message in service${
-          error instanceof Error ? error.message : String(error)
-        }`
-      );
+      throw new HttpError(error instanceof Error ? error.message : String(error), Status?.InternalServerError);
     }
   } 
 }

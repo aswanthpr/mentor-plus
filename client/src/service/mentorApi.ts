@@ -54,6 +54,7 @@ export const createSessionCodeApi = async (
       bookingId,
     });
   } catch (error: unknown) {
+    errorHandler(error);
     console.log(error instanceof Error ? error.message : String(error));
   }
 };
@@ -76,7 +77,8 @@ export const fetchHandleWithdraw = async (amount: number) => {
       amount,
     });
   } catch (error: unknown) {
-    console.log(error instanceof Error ? error.message : String(error));
+    errorHandler(error);
+
   }
 };
 export const createNewSlots = async (scheduleData: {
@@ -90,7 +92,7 @@ export const createNewSlots = async (scheduleData: {
     );
   } catch (error: unknown) {
     errorHandler(error);
-    console.log(error instanceof Error ? error.message : String(error));
+
   }
 };
 export const fetchTimeSlots = async (
@@ -176,6 +178,7 @@ export const fetchEditProfile = async (
       { headers: { "Content-Type": "multipart/form-data" } }
     );
   } catch (error: unknown) {
+    errorHandler(error);
     console.log(error instanceof Error ? error.message : String(error));
   }
 };
@@ -224,6 +227,7 @@ export const fetchReadNotification = async (
   try {
     return await axiosInstance.patch(`/mentor/notification-read/${id}`);
   } catch (error: unknown) {
+
     console.log(error instanceof Error ? error.message : String(error));
   }
 };
@@ -231,6 +235,7 @@ export const fetchMentorLogout = async (): Promise<AxiosResponse | any> => {
   try {
     return await axiosInstance.post(`/mentor/logout`);
   } catch (error: unknown) {
+    errorHandler(error);
     console.log(error instanceof Error ? error.message : String(error));
   }
 };
@@ -250,6 +255,7 @@ export const fetchMentorLogin = async (
     return await axiosInstance.post("/auth/login/mentor", formData);
   } catch (error: unknown) {
      errorHandler(error);
+     
     console.log(error instanceof Error ? error.message : String(error));
   }
 };

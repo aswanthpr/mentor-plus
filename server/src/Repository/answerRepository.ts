@@ -1,9 +1,11 @@
 
-import { IanswerWithQuestion } from "src/Types";
+import { IanswerWithQuestion } from "../Types";
 import { IanswerRepository } from "../Interface/Qa/IanswerRepository";
 import answerModel, { Ianswer } from "../Model/answerModel";
 import { baseRepository } from "./baseRepo";
 import { DeleteResult, ObjectId } from "mongoose";
+import { HttpError } from "../Utils/http-error-handler.util";
+import { Status } from "../Constants/httpStatusCode";
 
 class answerRespository
   extends baseRepository<Ianswer>
@@ -19,7 +21,7 @@ class answerRespository
     userType: string
   ): Promise<{ result: IanswerWithQuestion | null; menteeId: ObjectId }> {
     try {
-      const result = await (
+      const result = (
         await this.createDocument({
           answer,
           questionId,
@@ -66,11 +68,7 @@ class answerRespository
 
       return {result: data[0] , menteeId:data[0]?.question?.menteeId as IanswerWithQuestion['question']['menteeId'] }
     } catch (error: unknown) {
-      throw new Error(
-        `Error occured while create answer ${
-          error instanceof Error ? error.message : String(error)
-        }`
-      );
+      throw new HttpError(error instanceof Error ? error.message : String(error), Status?.InternalServerError);
     }
   }
   async editAnswer(content: string, answerId: string): Promise<Ianswer | null> {
@@ -79,22 +77,14 @@ class answerRespository
         $set: { answer: content },
       });
     } catch (error: unknown) {
-      throw new Error(
-        `Error occured while edit answer ${
-          error instanceof Error ? error.message : String(error)
-        }`
-      );
+      throw new HttpError(error instanceof Error ? error.message : String(error), Status?.InternalServerError);
     }
   }
   async deleteAnswer(questionId: string): Promise<DeleteResult | undefined> {
     try {
       return await this.deleteMany({ questionId });
     } catch (error: unknown) {
-      throw new Error(
-        `Error occured while delete answer ${
-          error instanceof Error ? error.message : String(error)
-        }`
-      );
+      throw new HttpError(error instanceof Error ? error.message : String(error), Status?.InternalServerError);
     }
   }
   async changeAnswerStatus(answerId: string): Promise<Ianswer | null> {
@@ -103,11 +93,7 @@ class answerRespository
         { $set: { isBlocked: { $not: "$isBlocked" } } },
       ]);
     } catch (error: unknown) {
-      throw new Error(
-        `Error occured while Question STatus chagne ${
-          error instanceof Error ? error.message : String(error)
-        }`
-      );
+      throw new HttpError(error instanceof Error ? error.message : String(error), Status?.InternalServerError);
     }
   }
 }

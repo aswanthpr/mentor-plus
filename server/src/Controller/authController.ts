@@ -1,10 +1,9 @@
-import { Request, Response } from "express";
+import { NextFunction, Request, Response } from "express";
 import { IauthController } from "../Interface/Auth/iAuthController";
 import IauthService from "../Interface/Auth/iAuthService";
 import IotpService from "../Interface/Otp/iOtpService";
 import { ImentorApplyData } from "../Types";
 import { Imentee } from "../Model/menteeModel";
-import { Status } from "../Utils/httpStatusCode";
 
 export class authController implements IauthController {
   constructor(
@@ -13,7 +12,11 @@ export class authController implements IauthController {
   ) {}
 
   //mentee sinup controll
-  async menteeSignup(req: Request, res: Response): Promise<void> {
+  async menteeSignup(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> {
     try {
       const [{ status, success, message }] = await Promise.all([
         this._AuthService.mentee_Signup(req.body),
@@ -26,68 +29,56 @@ export class authController implements IauthController {
         message,
       });
     } catch (error: unknown) {
-      res
-        .status(Status?.InternalServerError)
-        .json({ success: false, message: "Internal server error" });
-      throw new Error(
-        `error while mentee Signup ${
-          error instanceof Error ? error.message : error
-        }`
-      );
+      next(error);
     }
   }
   //get signup otp and email
-  async verifyOtp(req: Request, res: Response): Promise<void> {
+  async verifyOtp(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> {
     try {
       const { email, otp, type } = req.body;
-      console.log(otp, email, type);
-      const result = await this._OtpService.verifyOtp(email, otp, type);
-      console.log(result, "this is otp result");
-      if (result && result.success) {
-        res.status(200).json({
-          success: true,
-          message: "OTP verified successfully",
-        });
-      } else {
-        res
-          .status(Status?.BadRequest)
-          .json({ success: false, message: "Invalid OTP or email" });
-      }
-    } catch (error: unknown) {
-      res
-        .status(Status?.InternalServerError)
-        .json({ success: false, message: "Internal server error" });
-      throw new Error(
-        `Error while receving Otp${
-          error instanceof Error ? error.message : String(error)
-        }`
+
+      const { status, message, success } = await this._OtpService.verifyOtp(
+        email,
+        otp,
+        type
       );
+
+      res.status(status).json({
+        success,
+        message,
+      });
+    } catch (error: unknown) {
+      next(error);
     }
   }
 
   //for singup otpverify resend otp
-  async resendOtp(req: Request, res: Response): Promise<void> {
+  async resendOtp(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> {
     try {
       const { email } = req.body;
-      console.log(email, "this is from resend otp");
-      await this._OtpService.sentOtptoMail(email);
-      res.status(200).json({
-        success: true,
-        message: "OTP successfully sent to mail",
-      });
-    } catch (error: unknown) {
-      res
-        .status(Status?.InternalServerError)
-        .json({ success: false, message: "Internal server error" });
-      throw new Error(
-        `error while resend otp ${
-          error instanceof Error ? error.message : String(error)
-        }`
+
+      const { message, status, success } = await this._OtpService.sentOtptoMail(
+        email
       );
+      res.status(status).json({ message, success });
+    } catch (error: unknown) {
+      next(error);
     }
   }
 
-  async mainLogin(req: Request, res: Response): Promise<void> {
+  async mainLogin(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> {
     try {
       const { email, password } = req.body;
 
@@ -109,86 +100,48 @@ export class authController implements IauthController {
 
       return;
     } catch (error: unknown) {
-      console.error(
-        `Login error: ${error instanceof Error ? error.message : String(error)}`
-      );
-      res
-        .status(Status?.InternalServerError)
-        .json({ success: false, message: "Internal server error" });
-      throw new Error(
-        `error while Login in getMainLogin ${
-          error instanceof Error ? error.message : String(error)
-        }`
-      );
+      next(error);
     }
   }
-  async forgotPassword(req: Request, res: Response): Promise<void> {
+  async forgotPassword(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> {
     try {
       const result = await this._AuthService.forgotPassword(req.body.email);
 
-      if (result?.success == false) {
-        res.status(Status?.BadRequest).json(result);
-        return;
-      }
-
-      res.status(200).json(result);
+      res.status(result?.status as number).json(result);
     } catch (error: unknown) {
-      console.error(
-        `Login error: ${error instanceof Error ? error.message : String(error)}`
-      );
-
-      res
-        .status(Status?.InternalServerError)
-        .json({ success: false, message: "Internal server error" });
-
-      throw new Error(
-        `error while forgetpass in getforgetPassword ${
-          error instanceof Error ? error.message : String(error)
-        }`
-      );
+      next(error);
     }
   }
-  async forgot_PasswordChange(req: Request, res: Response): Promise<void> {
+  async forgot_PasswordChange(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> {
     try {
       const data = req.body;
-      console.log(data, "this is the datat");
-      const result = await this._AuthService.forgot_PasswordChange(
-        data.email,
-        data.password
-      );
-      if (result?.success && result?.message) {
-        res
-          .status(200)
-          .json({ success: true, message: "password changed successfully" });
-      }
-      if (result?.message === "credencial is missing") {
-        res
-          .status(Status?.BadRequest)
-          .json({ success: false, message: result.message });
-        return;
-      } else if (result?.message === "user not exist.Please signup") {
-        res.status(404).json({ success: false, message: result.message });
-        return;
-      }
+
+      const { message, status, success } =
+        await this._AuthService.forgot_PasswordChange(
+          data.email,
+          data.password
+        );
+
+      res.status(status).json({ success, message });
     } catch (error: unknown) {
-      console.error(
-        `Login error: ${error instanceof Error ? error.message : String(error)}`
-      );
-
-      res
-        .status(Status?.InternalServerError)
-        .json({ success: false, message: "Internal server error" });
-
-      throw new Error(
-        `Error while handling forgot password request: ${
-          error instanceof Error ? error.message : String(error)
-        }`
-      );
+      next(error);
     }
   }
 
   //admin Login
-  async adminLogin(req: Request, res: Response): Promise<void> {
+  async adminLogin(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> {
     try {
       const { email, password } = req.body;
 
@@ -208,15 +161,15 @@ export class authController implements IauthController {
 
       return;
     } catch (error: unknown) {
-      throw new Error(
-        `error while admin Login${
-          error instanceof Error ? error.message : String(error)
-        }`
-      );
+      next(error);
     }
   }
   //---------------------------------------------------------------------------
-  async mentorFields(req: Request, res: Response): Promise<void> {
+  async mentorFields(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> {
     try {
       const result = await this._AuthService.mentorFields();
 
@@ -226,19 +179,15 @@ export class authController implements IauthController {
         categories: result.categories,
       });
     } catch (error: unknown) {
-      res
-        .status(Status?.InternalServerError)
-        .json({ success: false, message: "Internal server error" });
-
-      throw new Error(
-        `error while getting mentorRoles${
-          error instanceof Error ? error.message : String(error)
-        }`
-      );
+      next(error);
     }
   }
 
-  async mentorApply(req: Request, res: Response): Promise<void> {
+  async mentorApply(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> {
     try {
       const {
         name,
@@ -287,19 +236,15 @@ export class authController implements IauthController {
         .status(result?.status)
         .json({ success: result?.success, message: result?.message });
     } catch (error: unknown) {
-      res
-        .status(Status?.InternalServerError)
-        .json({ success: false, message: "Internal server error" });
-
-      throw new Error(
-        `error while mentor application ${
-          error instanceof Error ? error.message : String(error)
-        }`
-      );
+      next(error);
     }
   }
   //metnor login;
-  async mentorLogin(req: Request, res: Response): Promise<void> {
+  async mentorLogin(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> {
     try {
       const { email, password } = req.body;
 
@@ -321,101 +266,54 @@ export class authController implements IauthController {
           accessToken,
         });
     } catch (error: unknown) {
-      res
-        .status(Status?.InternalServerError)
-        .json({ success: false, message: "Internal server error" });
-
-      throw new Error(
-        `error while mentor signup ${
-          error instanceof Error ? error.message : String(error)
-        }`
-      );
+      next(error);
     }
   }
 
   //forget password for mentor
 
-  async mentorForgotPassword(req: Request, res: Response): Promise<void> {
+  async mentorForgotPassword(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> {
     try {
-      const result = await this._AuthService.mentorForgotPassword(
-        req.body.email
-      );
+      const { message, status, success } =
+        await this._AuthService.mentorForgotPassword(req.body.email);
 
-      if (result?.success == false) {
-        res.status(Status?.BadRequest).json(result);
-        return;
-      }
-
-      res.status(200).json(result);
+      res.status(status).json({ message, success });
     } catch (error: unknown) {
-      console.error(
-        `Login error: ${error instanceof Error ? error.message : String(error)}`
-      );
-
-      res
-        .status(Status?.InternalServerError)
-        .json({ success: false, message: "Internal server error" });
-
-      throw new Error(
-        `error while forgetpass in getforgetPassword ${
-          error instanceof Error ? error.message : String(error)
-        }`
-      );
+      next(error);
     }
   }
   async mentorForgot_PasswordChange(
     req: Request,
-    res: Response
+    res: Response,
+    next: NextFunction
   ): Promise<void> {
     try {
       const data = req.body;
-      console.log(data, "this is the datat");
-      const result = await this._AuthService.mentorForgot_PasswordChange(
-        data.email,
-        data.password
-      );
-      if (result?.success && result?.message) {
-        res
-          .status(200)
-          .json({ success: true, message: "password changed successfully" });
-      }
-      if (result?.message === "credencial is missing") {
-        res
-          .status(Status?.BadRequest)
-          .json({ success: false, message: result.message });
-        return;
-      } else if (result?.message === "user not exist.Please signup") {
-        res.status(404).json({ success: false, message: result.message });
-        return;
-      }
+
+      const { message, success, status } =
+        await this._AuthService.mentorForgot_PasswordChange(
+          data.email,
+          data.password
+        );
+
+      res.status(status).json({ success, message });
     } catch (error: unknown) {
-      console.error(
-        `Login error: ${error instanceof Error ? error.message : String(error)}`
-      );
-
-      res
-        .status(Status?.InternalServerError)
-        .json({ success: false, message: "Internal server error" });
-
-      throw new Error(
-        `Error while handling metnor forgot password request: ${
-          error instanceof Error ? error.message : String(error)
-        }`
-      );
+      next(error);
     }
   }
 
-  async googleAuth(req: Request, res: Response): Promise<void> {
+  async googleAuth(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> {
     try {
       const { accessToken, refreshToken } = await this._AuthService.googleAuth(
         req.user as Imentee
-      );
-
-      console.log(
-        accessToken,
-        "jwt tokens",
-        refreshToken,
-        "thsi si the jwt tokens"
       );
 
       res.cookie("refreshToken", refreshToken, {
@@ -424,17 +322,12 @@ export class authController implements IauthController {
         sameSite: "lax",
         maxAge: 7 * 24 * 60 * 60 * 1000,
       });
-      console.log(process.env.CLIENT_ORIGIN_URL);
+
       res.redirect(
         `${process.env.CLIENT_ORIGIN_URL}/mentee/google/success?token=${accessToken}`
       );
     } catch (error: unknown) {
-      res.status(Status?.InternalServerError).json({
-        status: "error",
-        message: `Error while Google auth: ${
-          error instanceof Error ? error.message : String(error)
-        }`,
-      });
+      next(error);
     }
   }
 }

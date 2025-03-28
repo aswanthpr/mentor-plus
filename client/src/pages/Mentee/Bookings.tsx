@@ -84,7 +84,7 @@ const Boooking: React.FC = () => {
         selectedSession!,
         rating
       );
-      console.log(response?.data);
+     
       if (response?.data.success && response?.status == HttpStatusCode?.Ok) {
         toast.success(response?.data?.message);
 
@@ -103,7 +103,7 @@ const Boooking: React.FC = () => {
           )
         );
         if (response?.data?.oldReview) {
-          console.log(response?.data?.oldReview, "older one");
+         
           setSessions((prev) =>
             prev.map((session) =>
               session.review?._id === response?.data?.oldReview
@@ -120,14 +120,18 @@ const Boooking: React.FC = () => {
     [selectedSession]
   );
   const handleSessionJoin = useCallback(
-    async (sessionId: string, sessionCode: string, role: string) => {
-      console.log(sessionCode, sessionId, role);
+    async (
+      sessionId: string,
+       sessionCode: string,
+        role:string,userId:string) => {
+
       const response = await joinSessionHandler(sessionId, sessionCode, role);
       if (response?.status == HttpStatusCode?.Ok && response?.data?.success) {
+       
         navigate(
           `/${role}/${role == "mentor" ? "session" : "bookings"}/${
             response?.data?.session_Code
-          }`
+          }`,{state:{userId,sessionId}}
         );
       }
     },

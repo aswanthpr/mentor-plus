@@ -13,8 +13,10 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.reviewService = void 0;
-const httpStatusCode_1 = require("../Utils/httpStatusCode");
+const httpStatusCode_1 = require("../Constants/httpStatusCode");
 const mongoose_1 = __importDefault(require("mongoose"));
+const httpResponse_1 = require("../Constants/httpResponse");
+const http_error_handler_util_1 = require("../Utils/http-error-handler.util");
 class reviewService {
     constructor(__reviewRepository) {
         this.__reviewRepository = __reviewRepository;
@@ -25,7 +27,7 @@ class reviewService {
             try {
                 if (!review || !rating || !sessionId || !menteeId || !mentorId) {
                     return {
-                        message: "credential not found",
+                        message: httpResponse_1.HttpResponse === null || httpResponse_1.HttpResponse === void 0 ? void 0 : httpResponse_1.HttpResponse.INVALID_CREDENTIALS,
                         status: httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.BadRequest,
                         success: false,
                         feedback: null,
@@ -51,16 +53,15 @@ class reviewService {
                     result = yield ((_b = this.__reviewRepository) === null || _b === void 0 ? void 0 : _b.reviewNdRateMentor(newReviewRating));
                     if (!result) {
                         return {
-                            message: "whoops... ,review not created",
+                            message: httpResponse_1.HttpResponse === null || httpResponse_1.HttpResponse === void 0 ? void 0 : httpResponse_1.HttpResponse.REVIEW_NOT_CREATED,
                             status: httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.NotFound,
                             success: false,
                             feedback: null,
                         };
                     }
                 }
-                console.log(response);
                 return {
-                    message: "review created successfully",
+                    message: httpResponse_1.HttpResponse === null || httpResponse_1.HttpResponse === void 0 ? void 0 : httpResponse_1.HttpResponse.REVIEW_CREATED,
                     status: httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.Ok,
                     success: true,
                     feedback: result !== null && result !== void 0 ? result : updatedData,
@@ -68,7 +69,7 @@ class reviewService {
                 };
             }
             catch (error) {
-                throw new Error(`Error while rateMentor ${error instanceof Error ? error.message : String(error)}`);
+                throw new http_error_handler_util_1.HttpError(error instanceof Error ? error.message : String(error), httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.InternalServerError);
             }
         });
     }

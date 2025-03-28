@@ -24,7 +24,6 @@ import { Messages, SESSION_STATUS } from "../../Constants/message";
 const Sessions: React.FC = () => {
   const limit = 5;
   const navigate = useNavigate();
-
   const [activeTab, setActiveTab] = useState<TsessionTab>("upcoming");
   const [searchQuery, setSearchQuery] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
@@ -149,15 +148,15 @@ const Sessions: React.FC = () => {
   }, []);
 
   const handleSessionJoin = useCallback(
-    async (sessionId: string, session_Code: string, role: string) => {
-      console.log(sessionId, session_Code, role);
+    async (sessionId: string, session_Code: string, role: string,userId:string) => {
+      
       const response = await joinSessionHandler(sessionId, session_Code, role);
       if (response?.status == HttpStatusCode?.Ok && response?.data?.success) {
-        console.log(response?.session_Code, "sessionCode");
+       
         navigate(
           `/${role}/${role == "mentor" ? "session" : "bookings"}/${
             response?.data?.session_Code
-          }`
+          }`,{state:{userId,sessionId}}
         );
       }
     },
@@ -258,7 +257,7 @@ const Sessions: React.FC = () => {
         <hr className="h-px  bg-gray-200 border-0 dark:bg-gray-700 mt-2 " />
         <div className="flex justify-center mt-2">
           <Pagination
-            count={totalDocuments}
+            count={totalDocuments??0}
             page={currentPage} // Current page
             onChange={handlePageChange} // Page change handler
             color="standard" // Pagination color

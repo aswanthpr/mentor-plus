@@ -1,4 +1,4 @@
-import { Request, Response } from "express";
+import { NextFunction, Request, Response } from "express";
 import mongoose, { ObjectId } from "mongoose";
 import { IqaController } from "../Interface/Qa/IqaController";
 import { IqaService } from "../Interface/Qa/IqaService";
@@ -6,7 +6,7 @@ import { IqaService } from "../Interface/Qa/IqaService";
 class qaController implements IqaController {
   constructor(private _qaService: IqaService) {}
 
-  async addQuestion(req: Request, res: Response): Promise<void> {
+  async addQuestion(req: Request, res: Response,next: NextFunction): Promise<void> {
     try {
       const userId = req.user as Express.User;
 
@@ -14,10 +14,10 @@ class qaController implements IqaController {
         await this._qaService.addQuestionService(req.body, userId as ObjectId);
       res.status(status).json({ success, message, question });
     } catch (error: unknown) {
-      console.log(error instanceof Error ? error.message : String(error));
+      next(error)
     }
   }
-  async questionData(req: Request, res: Response): Promise<void> {
+  async questionData(req: Request, res: Response,next: NextFunction): Promise<void> {
     try {
       const { filter,search,limit,page,sortField,sortOrder } = req.query;
       console.log(filter,search, limit ,page, sortField,sortOrder,'sdfsdf')
@@ -35,11 +35,11 @@ class qaController implements IqaController {
 
       res.status(status).json({ message, success, status, question, userId });
     } catch (error: unknown) {
-      console.log(error instanceof Error ? error.message : String(error));
+      next(error)
     }
   }
   //edit question from mentee home && qa
-  async editQuestion(req: Request, res: Response): Promise<void> {
+  async editQuestion(req: Request, res: Response,next: NextFunction): Promise<void> {
     try {
       const { questionId, updatedQuestion, filter } = req.body;
       const { status, message, success, question } =
@@ -48,13 +48,10 @@ class qaController implements IqaController {
 
       res.status(status).json({ success, message, question: question![0] });
     } catch (error: unknown) {
-      console.log(
-        "error while editing question",
-        error instanceof Error ? error.message : String(error)
-      );
+      next(error)
     }
   }
-  async createNewAnswer(req: Request, res: Response): Promise<void> {
+  async createNewAnswer(req: Request, res: Response,next: NextFunction): Promise<void> {
     try {
       const { answer, questionId, userType } = req.body;
 
@@ -71,15 +68,11 @@ class qaController implements IqaController {
         );
       res.status(status).json({ success, message, answers });
     } catch (error: unknown) {
-      throw new Error(
-        `error while creating new Answer ${
-          error instanceof Error ? error.message : String(error)
-        }`
-      );
+      next(error)
     }
   }
   //edit answer in mentee
-  async editAnswer(req: Request, res: Response): Promise<void> {
+  async editAnswer(req: Request, res: Response,next: NextFunction): Promise<void> {
     try {
       const { answerId, content } = req.body;
 
@@ -88,14 +81,10 @@ class qaController implements IqaController {
 
       res.status(status).json({ success, message, answer });
     } catch (error: unknown) {
-      throw new Error(
-        `error while edit Answer ${
-          error instanceof Error ? error.message : String(error)
-        }`
-      );
+      next(error)
     }
   }
-  async deleteQuestion(req: Request, res: Response): Promise<void> {
+  async deleteQuestion(req: Request, res: Response,next: NextFunction): Promise<void> {
     try {
       const { questionId } = req.params;
 
@@ -105,17 +94,10 @@ class qaController implements IqaController {
 
       res.status(status).json({ success, message });
     } catch (error: unknown) {
-      res
-        .status(500)
-        .json({ success: false, message: "Internal server error" });
-      throw new Error(
-        `Error while delete questions ${
-          error instanceof Error ? error.message : String(error)
-        }`
-      );
+      next(error)
     }
   }
-  async allQaData(req: Request, res: Response): Promise<void> {
+  async allQaData(req: Request, res: Response,next: NextFunction): Promise<void> {
     try {
       const {
         search = "",
@@ -140,16 +122,12 @@ class qaController implements IqaController {
         .status(status)
         .json({ message, status, success, questions, totalPage });
     } catch (error: unknown) {
-      throw new Error(
-        `Error while getting all QA data ${
-          error instanceof Error ? error.message : String(error)
-        }`
-      );
+      next(error)
     }
   }
   //qa status change admin
   // /admin/qa-management/change-question-status
-  async blockQuestion(req: Request, res: Response): Promise<void> {
+  async blockQuestion(req: Request, res: Response,next: NextFunction): Promise<void> {
     try {
       const result = await this._qaService.changeQuestionStatus(
         req.body?.questionId
@@ -162,14 +140,10 @@ class qaController implements IqaController {
           result: result?.result,
         });
     } catch (error: unknown) {
-      throw new Error(
-        `error while edit qa status ${
-          error instanceof Error ? error.message : String(error)
-        }`
-      );
+      next(error)
     }
   }
-  async blockAnswer(req: Request, res: Response): Promise<void> {
+  async blockAnswer(req: Request, res: Response,next: NextFunction): Promise<void> {
     try {
       const result = await this._qaService.changeAnswerStatus(
         req.body?.answerId
@@ -183,11 +157,7 @@ class qaController implements IqaController {
           result: result?.result,
         });
     } catch (error: unknown) {
-      throw new Error(
-        `error while edit answer status ${
-          error instanceof Error ? error.message : String(error)
-        }`
-      );
+      next(error)
     }
   }
 }

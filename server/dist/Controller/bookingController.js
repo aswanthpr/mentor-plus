@@ -10,13 +10,14 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.bookingControlelr = void 0;
+const httpStatusCode_1 = require("../Constants/httpStatusCode");
 class bookingControlelr {
     constructor(_bookingService) {
         this._bookingService = _bookingService;
     }
     //mentee slot booking
     //get timeslots for booking page
-    getTimeSlots(req, res) {
+    getTimeSlots(req, res, next) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 const { mentorId } = req.query;
@@ -24,11 +25,11 @@ class bookingControlelr {
                 res.status(status).json({ success, message, timeSlots });
             }
             catch (error) {
-                throw new Error(`Error while  getting timeslots for booking  ${error instanceof Error ? error.message : String(error)}`);
+                next(error);
             }
         });
     }
-    slotBooking(req, res) {
+    slotBooking(req, res, next) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 const { timeSlot, message, paymentMethod, totalAmount, mentorName } = req.body;
@@ -40,23 +41,25 @@ class bookingControlelr {
                 });
             }
             catch (error) {
-                throw new Error(`Error while  getting timeslots for booking  ${error instanceof Error ? error.message : String(error)}`);
+                next(error);
             }
         });
     }
     //stripe webhook conifgureation
-    stripeWebHook(req, res) {
+    stripeWebHook(req, res, next) {
         return __awaiter(this, void 0, void 0, function* () {
-            const signature = req.headers["stripe-signature"];
-            yield this._bookingService.stripeWebHook(signature, req.body);
-            res.status(200).json({ success: true });
+            try {
+                const signature = req.headers["stripe-signature"];
+                yield this._bookingService.stripeWebHook(signature, req.body);
+                res.status(httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.Ok).json({ success: true });
+            }
+            catch (error) {
+                next(error);
+            }
         });
     }
-    catch(error) {
-        throw new Error(`Error while  webhook config ${error instanceof Error ? error.message : String(error)}`);
-    }
     //in mentee retrive the booked slot
-    getBookedSlot(req, res) {
+    getBookedSlot(req, res, next) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 const { activeTab, search, page, limit, sortField, sortOrder, filter } = req.query;
@@ -66,12 +69,12 @@ class bookingControlelr {
                 res.status(status).json({ success, message, slots, totalPage });
             }
             catch (error) {
-                throw new Error(`Error when fetching all the booked sessions in controller ${error instanceof Error ? error.message : String(error)}`);
+                next(error);
             }
         });
     }
     //in mentor side to get show the sessions
-    getBookedSession(req, res) {
+    getBookedSession(req, res, next) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 const { activeTab, search, sortField, sortOrder, filter, page, limit } = req.query;
@@ -80,11 +83,11 @@ class bookingControlelr {
                 res.status(status).json({ success, message, slots, totalPage });
             }
             catch (error) {
-                throw new Error(`Error when fetching all the booked sessions in controller ${error instanceof Error ? error.message : String(error)}`);
+                next(error);
             }
         });
     }
-    cancelSlot(req, res) {
+    cancelSlot(req, res, next) {
         return __awaiter(this, void 0, void 0, function* () {
             var _a, _b;
             try {
@@ -92,12 +95,12 @@ class bookingControlelr {
                 res.status(status).json({ success, result, message });
             }
             catch (error) {
-                throw new Error(`Error when cancelling booked sessions in controller ${error instanceof Error ? error.message : String(error)}`);
+                next(error);
             }
         });
     }
     //mentor side cancel request handle
-    mentorSlotCancel(req, res) {
+    mentorSlotCancel(req, res, next) {
         return __awaiter(this, void 0, void 0, function* () {
             var _a, _b;
             try {
@@ -106,12 +109,12 @@ class bookingControlelr {
                 res.status(status).json({ success, result, message });
             }
             catch (error) {
-                throw new Error(`Error when mentor handle cancel  booked sessions in controller ${error instanceof Error ? error.message : String(error)}`);
+                next(error);
             }
         });
     }
     //create sessionCode in MentorSide
-    createSessionCode(req, res) {
+    createSessionCode(req, res, next) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 const { bookingId } = req.body;
@@ -119,12 +122,12 @@ class bookingControlelr {
                 res.status(status).json({ message, success, sessionCode });
             }
             catch (error) {
-                throw new Error(`Error when mentor handle cancel  booked sessions in controller ${error instanceof Error ? error.message : String(error)}`);
+                next(error);
             }
         });
     }
     //mentor marking session completed
-    sessionCompleted(req, res) {
+    sessionCompleted(req, res, next) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 const { bookingId } = req.body;
@@ -132,20 +135,20 @@ class bookingControlelr {
                 res.status(status).json({ message, sessionStatus, success });
             }
             catch (error) {
-                throw new Error(`Error when mentor marking session completed in controller ${error instanceof Error ? error.message : String(error)}`);
+                next(error);
             }
         });
     }
     //check user is alloweded to join the sessin
-    validateSessionJoin(req, res) {
+    validateSessionJoin(req, res, next) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const { sessionId, sessionCode } = req.body;
-                const { message, status, success, session_Code } = yield this._bookingService.validateSessionJoin(sessionId, sessionCode);
+                const { sessionId, sessionCode } = req.query;
+                const { message, status, success, session_Code } = yield this._bookingService.validateSessionJoin(String(sessionId), String(sessionCode), req.user);
                 res.status(status).json({ message, success, session_Code });
             }
             catch (error) {
-                throw new Error(`Error when user is alloweded to join this session ${error instanceof Error ? error.message : String(error)}`);
+                next(error);
             }
         });
     }

@@ -3,7 +3,7 @@ import { ProfileHeader } from "../../components/Common/exploreMentor/ProfileHead
 import { Skills } from "../../components/Common/exploreMentor/Skills";
 
 import { BookOption } from "../../components/Common/exploreMentor/BookOption";
-import MentorListByCategory from "../../components/Common/exploreMentor/MentorListByCategory";
+// import MentorListByCategory from "../../components/Common/exploreMentor/MentorListByCategory";
 
 import { useLocation, useNavigate } from "react-router-dom";
 import { useCallback, useEffect, useState } from "react";
@@ -17,11 +17,14 @@ import { HttpStatusCode } from "axios";
   const navigate = useNavigate();
 
   const [mentorData] = useState<IMentor | null>(state);
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [similarMentor, setSimilarMentor] = useState<IMentor[] | []>([]);
 
   const [loading, setLoading] = useState(true);
 
-
+if(!state){
+  navigate(-1)
+}
   useEffect(() => {
     const fetchMentorData = async () => {
  
@@ -40,7 +43,7 @@ import { HttpStatusCode } from "axios";
    
     fetchMentorData();
 
-  }, [mentorData?._id, mentorData?.category]);
+  }, [mentorData?._id, mentorData?.category,navigate]);
 
   const handleBooking = useCallback(() => {
     navigate(`/mentee/${decodeURIComponent(mentorData?.name as string)}/slot-booking`,{state:{mentorId:mentorData?._id}});
@@ -67,7 +70,7 @@ import { HttpStatusCode } from "axios";
               </div>
             </div>
             {
-           
+           mentorData?.reviews &&
             <ReviewSection  mentorData={mentorData as IMentor} />
             }
           </div>
@@ -81,17 +84,18 @@ import { HttpStatusCode } from "axios";
             
           </div>
         </div>
-        {similarMentor.length > 0 ? (
+        {/* {similarMentor?.length > 0 ? (
           <div className="mt-8">
             <MentorListByCategory
               title="Similar Mentors"
               mentors={similarMentor}
-              onSeeAll={() => console.log("Navigate to see all mentors")}
+             
+
             />
           </div>
         ) : (
           <p></p>
-        )}
+        )} */}
       </div>
     </div>
   );

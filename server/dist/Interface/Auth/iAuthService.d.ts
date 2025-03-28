@@ -18,11 +18,13 @@ export default interface IauthService {
     forgotPassword(email: string): Promise<{
         success: boolean;
         message: string;
+        status: number;
     } | undefined>;
     forgot_PasswordChange(email: string, password: string): Promise<{
         success: boolean;
         message: string;
-    } | undefined>;
+        status: number;
+    }>;
     adminLogin(email: string, password: string): Promise<{
         success: boolean;
         message: string;
@@ -51,11 +53,13 @@ export default interface IauthService {
     mentorForgot_PasswordChange(email: string, password: string): Promise<{
         success: boolean;
         message: string;
-    } | undefined>;
+        status: number;
+    }>;
     mentorForgotPassword(email: string): Promise<{
         success: boolean;
         message: string;
-    } | undefined>;
+        status: number;
+    }>;
     googleAuth(user: Imentee | undefined): Promise<{
         success: boolean;
         message: string;

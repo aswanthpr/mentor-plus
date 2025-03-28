@@ -10,7 +10,9 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.notificationService = void 0;
-const httpStatusCode_1 = require("../Utils/httpStatusCode");
+const httpStatusCode_1 = require("../Constants/httpStatusCode");
+const httpResponse_1 = require("../Constants/httpResponse");
+const http_error_handler_util_1 = require("../Utils/http-error-handler.util");
 class notificationService {
     constructor(_notificationRepository) {
         this._notificationRepository = _notificationRepository;
@@ -21,7 +23,7 @@ class notificationService {
                 if (!menteeId) {
                     return {
                         success: false,
-                        message: "credential not found",
+                        message: httpResponse_1.HttpResponse === null || httpResponse_1.HttpResponse === void 0 ? void 0 : httpResponse_1.HttpResponse.INVALID_CREDENTIALS,
                         status: httpStatusCode_1.Status.BadRequest,
                         result: null
                     };
@@ -30,20 +32,20 @@ class notificationService {
                 if (!result) {
                     return {
                         success: false,
-                        message: "Data not found",
+                        message: httpResponse_1.HttpResponse === null || httpResponse_1.HttpResponse === void 0 ? void 0 : httpResponse_1.HttpResponse.RESOURCE_NOT_FOUND,
                         status: httpStatusCode_1.Status.NotFound,
                         result: null
                     };
                 }
                 return {
                     success: true,
-                    message: "successfully data retrieved",
+                    message: httpResponse_1.HttpResponse === null || httpResponse_1.HttpResponse === void 0 ? void 0 : httpResponse_1.HttpResponse.RESOURCE_FOUND,
                     status: httpStatusCode_1.Status.Ok,
                     result: result
                 };
             }
             catch (error) {
-                throw new Error(`error while getting notification ${error instanceof Error ? error.message : String(error)}`);
+                throw new http_error_handler_util_1.HttpError(error instanceof Error ? error.message : String(error), httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.InternalServerError);
             }
         });
     }
@@ -53,7 +55,7 @@ class notificationService {
                 if (!notificationId || !userId) {
                     return {
                         success: false,
-                        message: "credential not found",
+                        message: httpResponse_1.HttpResponse === null || httpResponse_1.HttpResponse === void 0 ? void 0 : httpResponse_1.HttpResponse.INVALID_CREDENTIALS,
                         status: httpStatusCode_1.Status.BadRequest
                     };
                 }
@@ -61,18 +63,18 @@ class notificationService {
                 if (!result) {
                     return {
                         success: false,
-                        message: "updation failed",
+                        message: httpResponse_1.HttpResponse === null || httpResponse_1.HttpResponse === void 0 ? void 0 : httpResponse_1.HttpResponse.FAILED,
                         status: httpStatusCode_1.Status.NotFound
                     };
                 }
                 return {
                     success: true,
-                    message: "successfully updated",
+                    message: httpResponse_1.HttpResponse === null || httpResponse_1.HttpResponse === void 0 ? void 0 : httpResponse_1.HttpResponse.SUCCESS,
                     status: httpStatusCode_1.Status.Ok
                 };
             }
             catch (error) {
-                throw new Error(`error while marking  notification as read ${error instanceof Error ? error.message : String(error)}`);
+                throw new http_error_handler_util_1.HttpError(error instanceof Error ? error.message : String(error), httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.InternalServerError);
             }
         });
     }

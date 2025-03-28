@@ -41,7 +41,7 @@ export const ScheduleModal = ({
           ...normalSchedule,
           {
             slots: [{ startTime: "", endTime: "" }],
-            price: null,
+            price:"",
             startDate: date,
           },
         ]);
@@ -83,11 +83,11 @@ export const ScheduleModal = ({
   );
 
   const handleNormalPriceChange = useCallback(
-    (dayIndex: number, price: number) => {
+    (dayIndex: number, price: string) => {
       setNormalSchedule((prev) => {
         const updated = [...prev];
 
-        updated[dayIndex].price = price ?? 0;
+        updated[dayIndex].price = price ?? "";
         return updated;
       });
     },
@@ -303,7 +303,7 @@ export const ScheduleModal = ({
                 onChange={(newValue: Moment | null) => {
                   if (newValue) {
                     const formattedDate = newValue.format("YYYY-MM-DD");
-                    // console.log(formattedDate,'formattedDate')
+                   
                     handleDateSelection(formattedDate);
                   } else {
                     handleDateSelection("");
@@ -338,11 +338,11 @@ export const ScheduleModal = ({
                     <MuiInput
                       label={`price of ${date.split("-").reverse().join("-")}`}
                       type="text"
-                      value={normalSchedule[dateIndex]?.price as number}
+                      value={normalSchedule[dateIndex]?.price as string}
                       onChange={(e) =>
                         handleNormalPriceChange(
                           dateIndex,
-                          Number(e.target?.value)
+                          e.target?.value
                         )
                       }
                       placeholder="Enter price"
@@ -375,7 +375,7 @@ export const ScheduleModal = ({
                             "startTime",
                             timeString
                           );
-                          console.log(timeString, "timeString", newValue);
+                       
                         }}
                       />
                       {errors[

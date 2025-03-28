@@ -20,6 +20,7 @@ export const fetchAddMoney = async (amount: number) => {
       amount,
     });
   } catch (error: unknown) {
+    errorHandler(error);
     console.log(error instanceof Error ? error.message : String(error));
   }
 };
@@ -112,6 +113,7 @@ export const fetchLogout = async (): Promise<AxiosResponse | any> => {
   try {
     return await protectedAPI.post(`/mentee/logout`);
   } catch (error: unknown) {
+    errorHandler(error);
     console.log(error instanceof Error ? error.message : String(error));
   }
 };
@@ -121,6 +123,7 @@ export const ReadNotification = async (
   try {
     return await protectedAPI.patch(`/mentee/notification-read/${id}`);
   } catch (error: unknown) {
+    errorHandler(error);
     console.log(error instanceof Error ? error.message : String(error));
   }
 };

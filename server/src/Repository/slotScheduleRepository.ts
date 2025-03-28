@@ -12,6 +12,8 @@ import {
   TimeData,
 } from "../Types";
 import { getTodayStartTime } from "../Utils/reusable.util";
+import { Status } from "../Constants/httpStatusCode";
+import { HttpError } from "../Utils/http-error-handler.util";
 
 class slotScheduleRepository
   extends baseRepository<IslotSchedule>
@@ -50,11 +52,10 @@ class slotScheduleRepository
       console.log(result, "result");
       return result[0];
     } catch (error: unknown) {
-      throw new Error(
-        ` error while creating new Booking slots${
-          error instanceof Error ? error.message : String(error)
-        }`
-      );
+      throw new HttpError(
+             error instanceof Error ? error.message : String(error),
+             Status?.InternalServerError
+           );
     }
   }
   /**
@@ -84,10 +85,12 @@ class slotScheduleRepository
 
       const matchFilter: Record<string, unknown> = {
         paymentStatus: "Paid",
+        menteeId: userId
       };
 
       if (tabCond) {
         matchFilter["status"] = { $in: ["CANCELLED", "COMPLETED"] };
+        matchFilter['menteeId'] = userId
       } else {
         matchFilter["status"] = {
           $in: [
@@ -98,6 +101,7 @@ class slotScheduleRepository
             "REJECTED",
           ],
         };
+      
       }
 
       const dateFilter = tabCond
@@ -214,9 +218,7 @@ class slotScheduleRepository
       console.log(slots, "resp", totalCount);
       return { slots: slots, totalDocs: totalCount[0]?.totalDocuments };
     } catch (error: unknown) {
-      throw new Error(
-        `${error instanceof Error ? error.message : String(error)}`
-      );
+      throw new HttpError(error instanceof Error ? error.message : String(error), Status?.InternalServerError);
     }
   }
   async getBookedSession(
@@ -336,9 +338,7 @@ class slotScheduleRepository
       console.log(slots, "resp", totalCount);
       return { slots: slots, totalDoc: totalCount[0]?.totalDocuments };
     } catch (error: unknown) {
-      throw new Error(
-        `${error instanceof Error ? error.message : String(error)}`
-      );
+      throw new HttpError(error instanceof Error ? error.message : String(error), Status?.InternalServerError);
     }
   }
 
@@ -354,11 +354,7 @@ class slotScheduleRepository
         { $set: { status: "CANCEL_REQUESTED", cancelReason: issue } }
       );
     } catch (error: unknown) {
-      throw new Error(
-        `error while cancel the slot in slot schedule repositry${
-          error instanceof Error ? error.message : String(error)
-        }`
-      );
+      throw new HttpError(error instanceof Error ? error.message : String(error), Status?.InternalServerError);
     }
   }
 
@@ -373,11 +369,7 @@ class slotScheduleRepository
         { $set: { status: slotValule } }
       );
     } catch (error: unknown) {
-      throw new Error(
-        `error while mentor handle  cancel  slot request  in slot schedule repositry${
-          error instanceof Error ? error.message : String(error)
-        }`
-      );
+      throw new HttpError(error instanceof Error ? error.message : String(error), Status?.InternalServerError);
     }
   }
   async createSessionCode(
@@ -393,11 +385,7 @@ class slotScheduleRepository
 
       return response?.sessionCode as string;
     } catch (error: unknown) {
-      throw new Error(
-        `error while mentor handle  cancel  slot request  in slot schedule repositry${
-          error instanceof Error ? error.message : String(error)
-        }`
-      );
+      throw new HttpError(error instanceof Error ? error.message : String(error), Status?.InternalServerError);
     }
   }
   //mentor  make as session completed
@@ -407,31 +395,50 @@ class slotScheduleRepository
         $set: { status: "COMPLETED" },
       });
     } catch (error: unknown) {
-      throw new Error(
-        `error while mentor handle  cancel  slot request  in slot schedule repositry${
-          error instanceof Error ? error.message : String(error)
-        }`
-      );
+      throw new HttpError(error instanceof Error ? error.message : String(error), Status?.InternalServerError);
     }
   }
   //checking user is alllowed to join session
 
   async validateSessionJoin(
-    sessionId: string,
-    sessionCode: string
+    sessionId: ObjectId,
+    sessionCode: string,
+    userId: ObjectId
   ): Promise<IslotSchedule | null> {
     try {
-      return await this.find_One({
-        _id: sessionId,
-        sessionCode,
-        status: "CONFIRMED",
-      });
+      const result = await this.aggregateData(slotSchedule, [
+        {
+          $lookup: {
+            from: "times",
+            localField: "slotId",
+            foreignField: "_id",
+            as: "slotDetails",
+          },
+        },
+        {
+          $unwind: {
+            path: "$slotDetails",
+            preserveNullAndEmptyArrays: true,
+          },
+        },
+        {
+          $match: {
+            _id: sessionId,
+            sessionCode,
+            status: "CONFIRMED",
+            $or: [
+              {
+                menteeId: userId,
+              },
+              { "slotDetails.mentorId": userId },
+            ],
+          },
+        },
+      ]);
+      console.log(result[0],'this is the session code and data')
+      return result[0];
     } catch (error: unknown) {
-      throw new Error(
-        ` error while validate user is allowed to join session ${
-          error instanceof Error ? error.message : String(error)
-        }`
-      );
+      throw new HttpError(error instanceof Error ? error.message : String(error), Status?.InternalServerError);
     }
   }
   async mentorDashboard(
@@ -791,11 +798,7 @@ class slotScheduleRepository
 
       return { ...res[0], ...timeData[0], categoryDistribution, topMentors };
     } catch (error: unknown) {
-      throw new Error(
-        ` error while find totalRevenue ${
-          error instanceof Error ? error.message : String(error)
-        }`
-      );
+      throw new HttpError(error instanceof Error ? error.message : String(error), Status?.InternalServerError);
     }
   }
   //mentor chart data
@@ -812,7 +815,11 @@ class slotScheduleRepository
         new Date().getMonth(),
         1
       );
-      const startOfNextMonth = new Date(new Date().getFullYear(), (new Date().getMonth() + 1) % 12, 1);
+      const startOfNextMonth = new Date(
+        new Date().getFullYear(),
+        (new Date().getMonth() + 1) % 12,
+        1
+      );
       const startOfDay = new Date(new Date().setHours(0, 0, 0, 0));
       const endOfDay = new Date(new Date().setHours(23, 59, 59, 999));
       const today = new Date();
@@ -1186,26 +1193,23 @@ class slotScheduleRepository
       ])) as unknown as ItopMentors[];
       const mentorChart = {
         currentMonthRevenue:
-          cardResult[0]?.currentMonthRevenue[0]?.totalRevenue?? 0,
+          cardResult[0]?.currentMonthRevenue[0]?.totalRevenue ?? 0,
         currentMonthTotalBookings:
-          cardResult[0]?.currentMonthTotalBookings[0]?.totalBookings?? 0,
+          cardResult[0]?.currentMonthTotalBookings[0]?.totalBookings ?? 0,
         currentMonthCancelledBookings:
           cardResult[0]?.currentMonthCancelledBookings[0]
-            ?.totalCancelledBookings?? 0,
+            ?.totalCancelledBookings ?? 0,
         currentDaySessionsToAttend:
-          cardResult[0]?.currentDaySessionsToAttend[0]?.totalSessionsToAttend?? 0,
-        period: timeData[0]?.period??[],
-        cumulativeSession: timeData?.[0]?.cumulativeSession??[],
-        topMentors:topMentors??[]
+          cardResult[0]?.currentDaySessionsToAttend[0]?.totalSessionsToAttend ??
+          0,
+        period: timeData[0]?.period ?? [],
+        cumulativeSession: timeData?.[0]?.cumulativeSession ?? [],
+        topMentors: topMentors ?? [],
       };
-     
+
       return { mentorChart };
     } catch (error: unknown) {
-      throw new Error(
-        ` error while find totalRevenue ${
-          error instanceof Error ? error.message : String(error)
-        }`
-      );
+      throw new HttpError(error instanceof Error ? error.message : String(error), Status?.InternalServerError);
     }
   }
 }

@@ -29,7 +29,7 @@ const AddQuestion: React.FC<IAddQuestionModalProps> = ({
       }
     }
     setErrors(newErrors);
-    console.log(errors)
+   
     return Object.keys(newErrors).length === 0;
   };
 

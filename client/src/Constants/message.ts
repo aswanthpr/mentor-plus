@@ -50,6 +50,7 @@ export const Messages = {
     CREATED_SESSION_CODE:"successfully created SessionCode ✔️",
 
     WITHDRAW_LIMIT:"amount cannot be less than $500",
+    NOT_ENOUGH_FUND:"Not enough balance",
 
     SIGNUP_SUCCESS:'Signin Successfull!',
 };

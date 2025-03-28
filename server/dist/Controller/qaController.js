@@ -17,7 +17,7 @@ class qaController {
     constructor(_qaService) {
         this._qaService = _qaService;
     }
-    addQuestion(req, res) {
+    addQuestion(req, res, next) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 const userId = req.user;
@@ -25,11 +25,11 @@ class qaController {
                 res.status(status).json({ success, message, question });
             }
             catch (error) {
-                console.log(error instanceof Error ? error.message : String(error));
+                next(error);
             }
         });
     }
-    questionData(req, res) {
+    questionData(req, res, next) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 const { filter, search, limit, page, sortField, sortOrder } = req.query;
@@ -38,12 +38,12 @@ class qaController {
                 res.status(status).json({ message, success, status, question, userId });
             }
             catch (error) {
-                console.log(error instanceof Error ? error.message : String(error));
+                next(error);
             }
         });
     }
     //edit question from mentee home && qa
-    editQuestion(req, res) {
+    editQuestion(req, res, next) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 const { questionId, updatedQuestion, filter } = req.body;
@@ -51,11 +51,11 @@ class qaController {
                 res.status(status).json({ success, message, question: question[0] });
             }
             catch (error) {
-                console.log("error while editing question", error instanceof Error ? error.message : String(error));
+                next(error);
             }
         });
     }
-    createNewAnswer(req, res) {
+    createNewAnswer(req, res, next) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 const { answer, questionId, userType } = req.body;
@@ -64,12 +64,12 @@ class qaController {
                 res.status(status).json({ success, message, answers });
             }
             catch (error) {
-                throw new Error(`error while creating new Answer ${error instanceof Error ? error.message : String(error)}`);
+                next(error);
             }
         });
     }
     //edit answer in mentee
-    editAnswer(req, res) {
+    editAnswer(req, res, next) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 const { answerId, content } = req.body;
@@ -77,11 +77,11 @@ class qaController {
                 res.status(status).json({ success, message, answer });
             }
             catch (error) {
-                throw new Error(`error while edit Answer ${error instanceof Error ? error.message : String(error)}`);
+                next(error);
             }
         });
     }
-    deleteQuestion(req, res) {
+    deleteQuestion(req, res, next) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 const { questionId } = req.params;
@@ -89,14 +89,11 @@ class qaController {
                 res.status(status).json({ success, message });
             }
             catch (error) {
-                res
-                    .status(500)
-                    .json({ success: false, message: "Internal server error" });
-                throw new Error(`Error while delete questions ${error instanceof Error ? error.message : String(error)}`);
+                next(error);
             }
         });
     }
-    allQaData(req, res) {
+    allQaData(req, res, next) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 const { search = "", Status = "all", sortField = "createdAt", sortOrder = "desc", page = 1, limit = 8, } = req.query;
@@ -106,13 +103,13 @@ class qaController {
                     .json({ message, status, success, questions, totalPage });
             }
             catch (error) {
-                throw new Error(`Error while getting all QA data ${error instanceof Error ? error.message : String(error)}`);
+                next(error);
             }
         });
     }
     //qa status change admin
     // /admin/qa-management/change-question-status
-    blockQuestion(req, res) {
+    blockQuestion(req, res, next) {
         return __awaiter(this, void 0, void 0, function* () {
             var _a;
             try {
@@ -126,11 +123,11 @@ class qaController {
                 });
             }
             catch (error) {
-                throw new Error(`error while edit qa status ${error instanceof Error ? error.message : String(error)}`);
+                next(error);
             }
         });
     }
-    blockAnswer(req, res) {
+    blockAnswer(req, res, next) {
         return __awaiter(this, void 0, void 0, function* () {
             var _a;
             try {
@@ -145,7 +142,7 @@ class qaController {
                 });
             }
             catch (error) {
-                throw new Error(`error while edit answer status ${error instanceof Error ? error.message : String(error)}`);
+                next(error);
             }
         });
     }

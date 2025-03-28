@@ -73,7 +73,7 @@ const Message: React.FC = () => {
     });
 
     chatSocket.current.on("userOnline", (data) => {
-      console.log(userId.current, data.userId, "User Online:", data);
+
       setUsers((pre) =>
         pre.map((usr) =>
           data.includes(usr.users?._id)
@@ -84,7 +84,7 @@ const Message: React.FC = () => {
     });
 
     chatSocket.current.on("userOffline", (data) => {
-      console.log(data, "this ios data");
+   
       setUsers((pre) =>
         pre.map((usr) =>
           data.includes(usr.users?._id)
@@ -125,7 +125,7 @@ const Message: React.FC = () => {
     chatSocket.current.on("all-message", ({ result, roomId }) => {
       if (selectedUser?._id == roomId) {
         setMessages(result);
-        console.log(roomId, `full messages ${result} `, result);
+  
       }
     });
 
@@ -154,7 +154,7 @@ const Message: React.FC = () => {
   const filteredUsers = users.filter((user) =>
     user?.users?.name.toLowerCase().includes(searchQuery.toLowerCase())
   );
-  console.log(currentUser, "currentUser");
+
 
   const handleSelectedUser = useCallback(async (user: Ichat) => {
     setMessages([]);
@@ -162,7 +162,7 @@ const Message: React.FC = () => {
       inputRef?.current.focus();
     }
     setSelectedUser(user);
-    console.log(user, "thsi si the seledted user");
+
     if (!user?._id) return;
     if (chatSocket.current) {
       chatSocket.current.emit("join-room", { roomId: user["_id"] });
@@ -219,7 +219,7 @@ const Message: React.FC = () => {
       newMessage.content = await uploadFile(selectedFile);
     }
 
-    console.log(newMessage, "thsi si the new mewsage");
+  
 
     if (chatSocket.current) {
       chatSocket.current?.emit("new-message", {
@@ -246,7 +246,7 @@ const Message: React.FC = () => {
     setShowPicker((pre) => !pre);
   }, []);
 
-  console.log(users?.[0]?.updatedAt);
+ 
   return (
     <div className="h-[calc(100vh-3rem)] pt-14 flex">
       {/* Users List */}
@@ -266,9 +266,9 @@ const Message: React.FC = () => {
         <div className="h-0.5 bg-gray-100 w-full " />
         <div className="overflow-y-auto h-[calc(100%-5rem)]">
           {filteredUsers.map((user) => (
-            <>
+            <div  key={user?.users?._id}>
               <button
-                key={user?.users?._id}
+               
                 onClick={() => handleSelectedUser(user as Ichat)}
                 className={`w-full p-4 flex items-center gap-4 hover:bg-gray-100 ${
                   (usr == "mentee"
@@ -306,7 +306,7 @@ const Message: React.FC = () => {
                 </div>
               </button>
               <div className="h-0.5 bg-gray-100 w-full " />
-            </>
+            </div>
           ))}
         </div>
       </div>

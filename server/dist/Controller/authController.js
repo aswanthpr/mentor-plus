@@ -10,14 +10,13 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.authController = void 0;
-const httpStatusCode_1 = require("../Utils/httpStatusCode");
 class authController {
     constructor(_AuthService, _OtpService) {
         this._AuthService = _AuthService;
         this._OtpService = _OtpService;
     }
     //mentee sinup controll
-    menteeSignup(req, res) {
+    menteeSignup(req, res, next) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 const [{ status, success, message }] = yield Promise.all([
@@ -30,62 +29,40 @@ class authController {
                 });
             }
             catch (error) {
-                res
-                    .status(httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.InternalServerError)
-                    .json({ success: false, message: "Internal server error" });
-                throw new Error(`error while mentee Signup ${error instanceof Error ? error.message : error}`);
+                next(error);
             }
         });
     }
     //get signup otp and email
-    verifyOtp(req, res) {
+    verifyOtp(req, res, next) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 const { email, otp, type } = req.body;
-                console.log(otp, email, type);
-                const result = yield this._OtpService.verifyOtp(email, otp, type);
-                console.log(result, "this is otp result");
-                if (result && result.success) {
-                    res.status(200).json({
-                        success: true,
-                        message: "OTP verified successfully",
-                    });
-                }
-                else {
-                    res
-                        .status(httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.BadRequest)
-                        .json({ success: false, message: "Invalid OTP or email" });
-                }
+                const { status, message, success } = yield this._OtpService.verifyOtp(email, otp, type);
+                res.status(status).json({
+                    success,
+                    message,
+                });
             }
             catch (error) {
-                res
-                    .status(httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.InternalServerError)
-                    .json({ success: false, message: "Internal server error" });
-                throw new Error(`Error while receving Otp${error instanceof Error ? error.message : String(error)}`);
+                next(error);
             }
         });
     }
     //for singup otpverify resend otp
-    resendOtp(req, res) {
+    resendOtp(req, res, next) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 const { email } = req.body;
-                console.log(email, "this is from resend otp");
-                yield this._OtpService.sentOtptoMail(email);
-                res.status(200).json({
-                    success: true,
-                    message: "OTP successfully sent to mail",
-                });
+                const { message, status, success } = yield this._OtpService.sentOtptoMail(email);
+                res.status(status).json({ message, success });
             }
             catch (error) {
-                res
-                    .status(httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.InternalServerError)
-                    .json({ success: false, message: "Internal server error" });
-                throw new Error(`error while resend otp ${error instanceof Error ? error.message : String(error)}`);
+                next(error);
             }
         });
     }
-    mainLogin(req, res) {
+    mainLogin(req, res, next) {
         return __awaiter(this, void 0, void 0, function* () {
             var _a;
             try {
@@ -107,66 +84,35 @@ class authController {
                 return;
             }
             catch (error) {
-                console.error(`Login error: ${error instanceof Error ? error.message : String(error)}`);
-                res
-                    .status(httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.InternalServerError)
-                    .json({ success: false, message: "Internal server error" });
-                throw new Error(`error while Login in getMainLogin ${error instanceof Error ? error.message : String(error)}`);
+                next(error);
             }
         });
     }
-    forgotPassword(req, res) {
+    forgotPassword(req, res, next) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 const result = yield this._AuthService.forgotPassword(req.body.email);
-                if ((result === null || result === void 0 ? void 0 : result.success) == false) {
-                    res.status(httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.BadRequest).json(result);
-                    return;
-                }
-                res.status(200).json(result);
+                res.status(result === null || result === void 0 ? void 0 : result.status).json(result);
             }
             catch (error) {
-                console.error(`Login error: ${error instanceof Error ? error.message : String(error)}`);
-                res
-                    .status(httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.InternalServerError)
-                    .json({ success: false, message: "Internal server error" });
-                throw new Error(`error while forgetpass in getforgetPassword ${error instanceof Error ? error.message : String(error)}`);
+                next(error);
             }
         });
     }
-    forgot_PasswordChange(req, res) {
+    forgot_PasswordChange(req, res, next) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 const data = req.body;
-                console.log(data, "this is the datat");
-                const result = yield this._AuthService.forgot_PasswordChange(data.email, data.password);
-                if ((result === null || result === void 0 ? void 0 : result.success) && (result === null || result === void 0 ? void 0 : result.message)) {
-                    res
-                        .status(200)
-                        .json({ success: true, message: "password changed successfully" });
-                }
-                if ((result === null || result === void 0 ? void 0 : result.message) === "credencial is missing") {
-                    res
-                        .status(httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.BadRequest)
-                        .json({ success: false, message: result.message });
-                    return;
-                }
-                else if ((result === null || result === void 0 ? void 0 : result.message) === "user not exist.Please signup") {
-                    res.status(404).json({ success: false, message: result.message });
-                    return;
-                }
+                const { message, status, success } = yield this._AuthService.forgot_PasswordChange(data.email, data.password);
+                res.status(status).json({ success, message });
             }
             catch (error) {
-                console.error(`Login error: ${error instanceof Error ? error.message : String(error)}`);
-                res
-                    .status(httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.InternalServerError)
-                    .json({ success: false, message: "Internal server error" });
-                throw new Error(`Error while handling forgot password request: ${error instanceof Error ? error.message : String(error)}`);
+                next(error);
             }
         });
     }
     //admin Login
-    adminLogin(req, res) {
+    adminLogin(req, res, next) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 const { email, password } = req.body;
@@ -184,12 +130,12 @@ class authController {
                 return;
             }
             catch (error) {
-                throw new Error(`error while admin Login${error instanceof Error ? error.message : String(error)}`);
+                next(error);
             }
         });
     }
     //---------------------------------------------------------------------------
-    mentorFields(req, res) {
+    mentorFields(req, res, next) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 const result = yield this._AuthService.mentorFields();
@@ -200,14 +146,11 @@ class authController {
                 });
             }
             catch (error) {
-                res
-                    .status(httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.InternalServerError)
-                    .json({ success: false, message: "Internal server error" });
-                throw new Error(`error while getting mentorRoles${error instanceof Error ? error.message : String(error)}`);
+                next(error);
             }
         });
     }
-    mentorApply(req, res) {
+    mentorApply(req, res, next) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 const { name, email, password, phone, jobTitle, category, linkedinUrl, githubUrl, bio, skills, } = req.body;
@@ -241,15 +184,12 @@ class authController {
                     .json({ success: result === null || result === void 0 ? void 0 : result.success, message: result === null || result === void 0 ? void 0 : result.message });
             }
             catch (error) {
-                res
-                    .status(httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.InternalServerError)
-                    .json({ success: false, message: "Internal server error" });
-                throw new Error(`error while mentor application ${error instanceof Error ? error.message : String(error)}`);
+                next(error);
             }
         });
     }
     //metnor login;
-    mentorLogin(req, res) {
+    mentorLogin(req, res, next) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 const { email, password } = req.body;
@@ -270,83 +210,48 @@ class authController {
                 });
             }
             catch (error) {
-                res
-                    .status(httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.InternalServerError)
-                    .json({ success: false, message: "Internal server error" });
-                throw new Error(`error while mentor signup ${error instanceof Error ? error.message : String(error)}`);
+                next(error);
             }
         });
     }
     //forget password for mentor
-    mentorForgotPassword(req, res) {
+    mentorForgotPassword(req, res, next) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const result = yield this._AuthService.mentorForgotPassword(req.body.email);
-                if ((result === null || result === void 0 ? void 0 : result.success) == false) {
-                    res.status(httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.BadRequest).json(result);
-                    return;
-                }
-                res.status(200).json(result);
+                const { message, status, success } = yield this._AuthService.mentorForgotPassword(req.body.email);
+                res.status(status).json({ message, success });
             }
             catch (error) {
-                console.error(`Login error: ${error instanceof Error ? error.message : String(error)}`);
-                res
-                    .status(httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.InternalServerError)
-                    .json({ success: false, message: "Internal server error" });
-                throw new Error(`error while forgetpass in getforgetPassword ${error instanceof Error ? error.message : String(error)}`);
+                next(error);
             }
         });
     }
-    mentorForgot_PasswordChange(req, res) {
+    mentorForgot_PasswordChange(req, res, next) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 const data = req.body;
-                console.log(data, "this is the datat");
-                const result = yield this._AuthService.mentorForgot_PasswordChange(data.email, data.password);
-                if ((result === null || result === void 0 ? void 0 : result.success) && (result === null || result === void 0 ? void 0 : result.message)) {
-                    res
-                        .status(200)
-                        .json({ success: true, message: "password changed successfully" });
-                }
-                if ((result === null || result === void 0 ? void 0 : result.message) === "credencial is missing") {
-                    res
-                        .status(httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.BadRequest)
-                        .json({ success: false, message: result.message });
-                    return;
-                }
-                else if ((result === null || result === void 0 ? void 0 : result.message) === "user not exist.Please signup") {
-                    res.status(404).json({ success: false, message: result.message });
-                    return;
-                }
+                const { message, success, status } = yield this._AuthService.mentorForgot_PasswordChange(data.email, data.password);
+                res.status(status).json({ success, message });
             }
             catch (error) {
-                console.error(`Login error: ${error instanceof Error ? error.message : String(error)}`);
-                res
-                    .status(httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.InternalServerError)
-                    .json({ success: false, message: "Internal server error" });
-                throw new Error(`Error while handling metnor forgot password request: ${error instanceof Error ? error.message : String(error)}`);
+                next(error);
             }
         });
     }
-    googleAuth(req, res) {
+    googleAuth(req, res, next) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 const { accessToken, refreshToken } = yield this._AuthService.googleAuth(req.user);
-                console.log(accessToken, "jwt tokens", refreshToken, "thsi si the jwt tokens");
                 res.cookie("refreshToken", refreshToken, {
                     httpOnly: true,
                     secure: process.env.NODE_ENV === "production",
                     sameSite: "lax",
                     maxAge: 7 * 24 * 60 * 60 * 1000,
                 });
-                console.log(process.env.CLIENT_ORIGIN_URL);
                 res.redirect(`${process.env.CLIENT_ORIGIN_URL}/mentee/google/success?token=${accessToken}`);
             }
             catch (error) {
-                res.status(httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.InternalServerError).json({
-                    status: "error",
-                    message: `Error while Google auth: ${error instanceof Error ? error.message : String(error)}`,
-                });
+                next(error);
             }
         });
     }

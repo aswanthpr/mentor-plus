@@ -14,28 +14,27 @@ class chatController {
     constructor(_chatService) {
         this._chatService = _chatService;
     }
-    getChats(req, res) {
+    getChats(req, res, next) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 const { result, message, status, success } = yield this._chatService.getChats(req.user, req.query.role);
                 res.status(status).json({ result, message, success, userId: req === null || req === void 0 ? void 0 : req.user });
             }
             catch (error) {
-                throw new Error(`Error while  getting chat from controller  ${error instanceof Error ? error.message : String(error)}`);
+                next(error);
             }
         });
     }
     // get user messages
-    getUserMessage(req, res) {
+    getUserMessage(req, res, next) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 const { chatId } = req.query;
-                console.log(chatId, 'this si the chat id');
                 const { message, result, status, success } = yield this._chatService.getUserMessage(chatId);
                 res.status(status).json({ message, result, success });
             }
             catch (error) {
-                throw new Error(`Error while  getting user messages  from  chat controller  ${error instanceof Error ? error.message : String(error)}`);
+                next(error);
             }
         });
     }

@@ -18,6 +18,8 @@ const messageRepository_1 = __importDefault(require("../Repository/messageReposi
 const mongoose_1 = __importDefault(require("mongoose"));
 const chatRepository_1 = __importDefault(require("../Repository/chatRepository"));
 const chatSchema_1 = __importDefault(require("../Model/chatSchema"));
+const slotScheduleRepository_1 = __importDefault(require("../Repository/slotScheduleRepository"));
+const _slotScheduleRepo = slotScheduleRepository_1.default;
 const chatMap = new Map();
 const rooms = new Map(); //webrtc
 class SocketManager {
@@ -41,11 +43,9 @@ class SocketManager {
         //notificatin namespace set
         const notificationNamespace = this.io.of("/notifications");
         notificationNamespace.on("connection", (socket) => {
-            console.log(`Notification user connected: ${socket.id}`);
             //join to specific users notification room
             socket.on("join-room", (userId) => {
                 socket.join(userId);
-                console.log(`User ${userId} joined their notification room`);
             });
             //disconnect user
             socket.on("disconnect", () => {
@@ -71,12 +71,10 @@ class SocketManager {
             chatMap.set(userId, socket === null || socket === void 0 ? void 0 : socket.id);
             // user emit online status
             chatNsp.emit("userOnline", [...chatMap.keys()]);
-            console.log([...chatMap.keys()]);
             //join the user to a specific room
             socket.on("join-room", (data) => __awaiter(this, void 0, void 0, function* () {
                 if (!(data === null || data === void 0 ? void 0 : data.roomId))
                     return;
-                console.log(`user joined in the room`, data === null || data === void 0 ? void 0 : data.roomId);
                 socket.join(data === null || data === void 0 ? void 0 : data.roomId);
                 try {
                     //fetch all specific roomid message
@@ -95,7 +93,6 @@ class SocketManager {
                 var _b;
                 try {
                     if (!roomId) {
-                        console.log("no room");
                         throw new Error("Invalid or missing roomId.");
                     }
                     if (!message ||
@@ -130,12 +127,8 @@ class SocketManager {
                 }
             }));
             socket.on("disconnect", () => {
-                console.log(`chatSocket with ID ${socket.id} is disconnected`);
                 //remove the disconnected user
                 chatMap.delete(userId);
-                if (!chatMap.has(userId)) {
-                    console.log(`User ${userId} removed from chatMap`);
-                }
                 //emit if user is goes to offline
                 chatNsp.emit("userOffline", userId); // Notify  user went offline
                 chatNsp.emit("userOnline", [...chatMap.keys()]);
@@ -147,7 +140,13 @@ class SocketManager {
         const webrtcNamespace = this.io.of("/webrtc");
         webrtcNamespace.on("connection", (socket) => {
             console.log(`WebRTC user connected: ${socket.id}`);
-            socket.on("join-call", (roomId) => {
+            socket.on("join-call", (_a) => __awaiter(this, [_a], void 0, function* ({ roomId, sessionId, userId }) {
+                const result = yield _slotScheduleRepo.validateSessionJoin(new mongoose_1.default.Types.ObjectId(sessionId), roomId, new mongoose_1.default.Types.ObjectId(userId));
+                if (!result) {
+                    socket.emit("join-fail", "Invalid session or user");
+                    socket.disconnect();
+                    return;
+                }
                 socket.join(roomId);
                 console.log(`User ${socket.id} joined room: ${roomId}`);
                 if (!rooms.has(roomId)) {
@@ -155,7 +154,7 @@ class SocketManager {
                 }
                 rooms.get(roomId).add(socket.id);
                 socket.to(roomId).emit("user-joined", socket.id);
-            });
+            }));
             socket.on("offer", (offer, roomId) => {
                 console.log(`Offer received in room ${roomId}`);
                 socket.to(roomId).emit("offer", offer, socket.id);
@@ -174,7 +173,6 @@ class SocketManager {
                 socket.to(roomId).emit("video:toggle", { userId: socket.id, isMuted });
             });
             socket.on("disconnect", () => {
-                console.log(`User disconnected: ${socket.id}`);
                 rooms.forEach((users, roomId) => {
                     if (users.has(socket.id)) {
                         users.delete(socket.id);

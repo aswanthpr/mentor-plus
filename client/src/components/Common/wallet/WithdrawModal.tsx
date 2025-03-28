@@ -1,26 +1,34 @@
 import React, { useCallback, useState } from "react";
 import { DollarSign, X } from "lucide-react";
+import { validateWalletInput } from "../../../Validation/Validation";
 
 const WithdrawModal: React.FC<WithdrawModalProps> = ({
   isOpen,
   onClose,
   onSubmit,
-  maxAmount,
+
 }) => {
   const [amount, setAmount] = useState("");
-
+  const [error, setError] = useState<string>("");
   const handleSubmit = useCallback(
     (e: React.FormEvent) => {
       e.preventDefault();
-      const numAmount = parseFloat(amount);
-      if (numAmount > 0 && numAmount <= maxAmount) {
-        onSubmit(numAmount);
-        setAmount("");
-        onClose();
+      const result = validateWalletInput(amount);
+      if (result.length > 0) {
+        setError(result);
+        return;
       }
+      const numAmount = parseFloat(amount);
+
+      onSubmit(numAmount);
+      setAmount("");
+      onClose();
+
+      return;
     },
-    [amount, maxAmount, onClose, onSubmit]
+    [amount, onClose, onSubmit]
   );
+
   if (!isOpen) return null;
 
   return (
@@ -39,20 +47,21 @@ const WithdrawModal: React.FC<WithdrawModalProps> = ({
         <form onSubmit={handleSubmit} className="space-y-6">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              Amount (Max: ${maxAmount})
+              Amount
             </label>
-            <div className="relative">
+            <div className="">
               <DollarSign className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
               <input
                 type="number"
                 value={amount}
                 onChange={(e) => setAmount(e.target.value)}
                 min="500"
-                max={maxAmount}
+                max={5000}
                 step="10"
                 className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#ff8800] focus:border-transparent"
                 placeholder="0.00"
               />
+              {error && <p className="text-red-500 text-sm mt-2">{error}</p>}
             </div>
           </div>
 

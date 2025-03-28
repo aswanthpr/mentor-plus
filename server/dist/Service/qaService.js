@@ -9,9 +9,11 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const httpStatusCode_1 = require("../Utils/httpStatusCode");
+const httpStatusCode_1 = require("../Constants/httpStatusCode");
 const index_1 = require("../index");
 const reusable_util_1 = require("../Utils/reusable.util");
+const httpResponse_1 = require("../Constants/httpResponse");
+const http_error_handler_util_1 = require("../Utils/http-error-handler.util");
 class qaService {
     constructor(__questionRepository, __answerRepository, __notificationRepository) {
         this.__questionRepository = __questionRepository;
@@ -28,7 +30,7 @@ class qaService {
                     !userId) {
                     return {
                         success: false,
-                        message: "Invalid input: title, content, and tags are required",
+                        message: httpResponse_1.HttpResponse === null || httpResponse_1.HttpResponse === void 0 ? void 0 : httpResponse_1.HttpResponse.INVALID_CREDENTIALS,
                         status: httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.BadRequest,
                         question: undefined,
                     };
@@ -37,7 +39,7 @@ class qaService {
                 if (!result) {
                     return {
                         success: false,
-                        message: "Question exist",
+                        message: httpResponse_1.HttpResponse === null || httpResponse_1.HttpResponse === void 0 ? void 0 : httpResponse_1.HttpResponse.QUESTION_EXIST,
                         status: httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.Conflict,
                         question: undefined,
                     };
@@ -53,13 +55,13 @@ class qaService {
                 }
                 return {
                     success: true,
-                    message: "Question created Successfully!",
+                    message: httpResponse_1.HttpResponse === null || httpResponse_1.HttpResponse === void 0 ? void 0 : httpResponse_1.HttpResponse.SUCCESS,
                     status: httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.Ok,
                     question: response,
                 };
             }
             catch (error) {
-                throw new Error(`Error during creating question${error instanceof Error ? error.message : String(error)}`);
+                throw new http_error_handler_util_1.HttpError(error instanceof Error ? error.message : String(error), httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.InternalServerError);
             }
         });
     }
@@ -69,7 +71,7 @@ class qaService {
                 if (!userId || !filter || !sortField || !sortOrder || 1 > limit || 1 > page) {
                     return {
                         success: false,
-                        message: "credential missing",
+                        message: httpResponse_1.HttpResponse === null || httpResponse_1.HttpResponse === void 0 ? void 0 : httpResponse_1.HttpResponse.INVALID_CREDENTIALS,
                         status: httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.BadRequest,
                         question: [],
                         totalPage: 0,
@@ -79,11 +81,10 @@ class qaService {
                 const limitNo = skipData === null || skipData === void 0 ? void 0 : skipData.limitNo;
                 const skip = skipData === null || skipData === void 0 ? void 0 : skipData.skip;
                 const response = yield this.__questionRepository.questionData(userId, filter, search, limitNo, skip, sortField, sortOrder);
-                console.log(response);
                 const totalPage = Math.ceil((response === null || response === void 0 ? void 0 : response.totalDocs) / limitNo);
                 return {
                     success: true,
-                    message: "Data retrieved successfully",
+                    message: httpResponse_1.HttpResponse === null || httpResponse_1.HttpResponse === void 0 ? void 0 : httpResponse_1.HttpResponse.DATA_RETRIEVED,
                     status: httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.Ok,
                     question: response === null || response === void 0 ? void 0 : response.questions,
                     userId,
@@ -91,7 +92,7 @@ class qaService {
                 };
             }
             catch (error) {
-                throw new Error(`Error during get questions ${error instanceof Error ? error.message : String(error)}`);
+                throw new http_error_handler_util_1.HttpError(error instanceof Error ? error.message : String(error), httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.InternalServerError);
             }
         });
     }
@@ -101,7 +102,7 @@ class qaService {
                 if (!questionId || !updatedQuestion || !filter) {
                     return {
                         success: false,
-                        message: "Invalid input: title, content, and tags are required",
+                        message: httpResponse_1.HttpResponse === null || httpResponse_1.HttpResponse === void 0 ? void 0 : httpResponse_1.HttpResponse.INVALID_CREDENTIALS,
                         status: httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.BadRequest,
                         question: null,
                     };
@@ -109,13 +110,13 @@ class qaService {
                 const response = yield this.__questionRepository.editQuestions(questionId, updatedQuestion, filter);
                 return {
                     success: true,
-                    message: "Edit Successfully!",
+                    message: httpResponse_1.HttpResponse === null || httpResponse_1.HttpResponse === void 0 ? void 0 : httpResponse_1.HttpResponse.SUCCESS,
                     status: httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.Ok,
                     question: response,
                 };
             }
             catch (error) {
-                throw new Error(`Error during edit questions ${error instanceof Error ? error.message : String(error)}`);
+                throw new http_error_handler_util_1.HttpError(error instanceof Error ? error.message : String(error), httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.InternalServerError);
             }
         });
     }
@@ -125,7 +126,7 @@ class qaService {
                 if (!answer || !questionId || !userId || !userType) {
                     return {
                         success: false,
-                        message: "Credential missing",
+                        message: httpResponse_1.HttpResponse === null || httpResponse_1.HttpResponse === void 0 ? void 0 : httpResponse_1.HttpResponse.INVALID_CREDENTIALS,
                         status: httpStatusCode_1.Status.BadRequest,
                         answers: null,
                     };
@@ -134,7 +135,7 @@ class qaService {
                 if (!(response === null || response === void 0 ? void 0 : response.menteeId) || !(response === null || response === void 0 ? void 0 : response.result)) {
                     return {
                         success: false,
-                        message: "Answer not saved !unexpected error",
+                        message: httpResponse_1.HttpResponse === null || httpResponse_1.HttpResponse === void 0 ? void 0 : httpResponse_1.HttpResponse.INVALID_CREDENTIALS,
                         status: httpStatusCode_1.Status.NotFound,
                         answers: null,
                     };
@@ -146,24 +147,23 @@ class qaService {
                 }
                 const questId = questionId;
                 const result = yield this.__questionRepository.countAnswer(questId);
-                console.log(response, "thsi is the respnose of answer tha tcreated me ", result);
                 if (!result) {
                     return {
                         success: false,
-                        message: "Unexpected Error ! answer not created",
+                        message: httpResponse_1.HttpResponse === null || httpResponse_1.HttpResponse === void 0 ? void 0 : httpResponse_1.HttpResponse.FAILED,
                         status: httpStatusCode_1.Status.NotFound,
                         answers: null,
                     };
                 }
                 return {
                     success: true,
-                    message: "Answer Created Successfully",
+                    message: httpResponse_1.HttpResponse === null || httpResponse_1.HttpResponse === void 0 ? void 0 : httpResponse_1.HttpResponse.SUCCESS,
                     status: httpStatusCode_1.Status.Ok,
                     answers: response === null || response === void 0 ? void 0 : response.result,
                 };
             }
             catch (error) {
-                throw new Error(`Error during create answer ${error instanceof Error ? error.message : String(error)}`);
+                throw new http_error_handler_util_1.HttpError(error instanceof Error ? error.message : String(error), httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.InternalServerError);
             }
         });
     }
@@ -173,30 +173,29 @@ class qaService {
                 if (!answerId || !content) {
                     return {
                         success: false,
-                        message: "Credential missing",
+                        message: httpResponse_1.HttpResponse === null || httpResponse_1.HttpResponse === void 0 ? void 0 : httpResponse_1.HttpResponse.INVALID_CREDENTIALS,
                         status: httpStatusCode_1.Status.BadRequest,
                         answer: null,
                     };
                 }
                 const result = yield this.__answerRepository.editAnswer(content, answerId);
-                console.log(result, "this is result");
                 if (!result) {
                     return {
                         success: false,
-                        message: "Data not found",
+                        message: httpResponse_1.HttpResponse === null || httpResponse_1.HttpResponse === void 0 ? void 0 : httpResponse_1.HttpResponse.RESOURCE_NOT_FOUND,
                         status: httpStatusCode_1.Status.NotFound,
                         answer: null,
                     };
                 }
                 return {
                     success: true,
-                    message: "edited successfully",
+                    message: httpResponse_1.HttpResponse === null || httpResponse_1.HttpResponse === void 0 ? void 0 : httpResponse_1.HttpResponse.SUCCESS,
                     status: httpStatusCode_1.Status.Ok,
                     answer: result === null || result === void 0 ? void 0 : result.answer,
                 };
             }
             catch (error) {
-                throw new Error(`Error during edit answer ${error instanceof Error ? error.message : String(error)}`);
+                throw new http_error_handler_util_1.HttpError(error instanceof Error ? error.message : String(error), httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.InternalServerError);
             }
         });
     }
@@ -207,16 +206,15 @@ class qaService {
                 if (!questionId) {
                     return {
                         success: false,
-                        message: "Question ID is required",
+                        message: httpResponse_1.HttpResponse === null || httpResponse_1.HttpResponse === void 0 ? void 0 : httpResponse_1.HttpResponse.INVALID_CREDENTIALS,
                         status: httpStatusCode_1.Status.BadRequest,
                     };
                 }
                 const response = yield this.__questionRepository.deleteQuestion(questionId);
-                // Check if the deletion was successful
                 if (!response || response.deletedCount !== 1) {
                     return {
                         success: false,
-                        message: "Question not found or could not be deleted",
+                        message: httpResponse_1.HttpResponse === null || httpResponse_1.HttpResponse === void 0 ? void 0 : httpResponse_1.HttpResponse.RESOURCE_NOT_FOUND,
                         status: httpStatusCode_1.Status.NotFound,
                     };
                 }
@@ -224,24 +222,14 @@ class qaService {
                 yield this.__questionRepository.reduceAnswerCount(questionId);
                 //Delete the quesiton with its answer
                 yield this.__answerRepository.deleteAnswer(questionId);
-                //returning the success response
                 return {
                     success: true,
-                    message: "Data successfully fetched",
+                    message: httpResponse_1.HttpResponse === null || httpResponse_1.HttpResponse === void 0 ? void 0 : httpResponse_1.HttpResponse.DATA_RETRIEVED,
                     status: httpStatusCode_1.Status.Ok,
                 };
             }
             catch (error) {
-                //console the error
-                console.error(
-                //using different color in terminal to show the error
-                "\x1b[34m%s\x1b[0m", "Error while getting home data:", error instanceof Error ? error.message : String(error));
-                //internal server error response
-                return {
-                    success: false,
-                    message: "Internal server error",
-                    status: httpStatusCode_1.Status.InternalServerError,
-                };
+                throw new http_error_handler_util_1.HttpError(error instanceof Error ? error.message : String(error), httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.InternalServerError);
             }
         });
     }
@@ -253,7 +241,7 @@ class qaService {
                 if (!status || !sortField || !sortOrder || page < 1 || limit < 1) {
                     return {
                         success: false,
-                        message: "Invalid pagination or missing parameters",
+                        message: httpResponse_1.HttpResponse === null || httpResponse_1.HttpResponse === void 0 ? void 0 : httpResponse_1.HttpResponse.INVALID_CREDENTIALS,
                         status: httpStatusCode_1.Status.BadRequest,
                         questions: undefined,
                         totalPage: undefined,
@@ -263,19 +251,17 @@ class qaService {
                 const limitNo = skipData === null || skipData === void 0 ? void 0 : skipData.limitNo;
                 const skip = skipData === null || skipData === void 0 ? void 0 : skipData.skip;
                 const response = yield this.__questionRepository.allQaData(skip, search, status, limitNo, sortOrder, sortField);
-                console.log('skndfkjaskjnaskjfkajsfksajfkasjbfkjsbfjbfkjbsalkf');
                 const totalPage = Math.ceil((response === null || response === void 0 ? void 0 : response.docCount) / limitNo);
-                console.log(response === null || response === void 0 ? void 0 : response.docCount, totalPage, limit, skip, page);
                 return {
                     success: true,
-                    message: "data fetched successfully",
+                    message: httpResponse_1.HttpResponse === null || httpResponse_1.HttpResponse === void 0 ? void 0 : httpResponse_1.HttpResponse.DATA_RETRIEVED,
                     status: httpStatusCode_1.Status.Ok,
                     questions: response === null || response === void 0 ? void 0 : response.questions,
                     totalPage,
                 };
             }
             catch (error) {
-                throw new Error(`Error during fetch all data to admin ${error instanceof Error ? error.message : String(error)}`);
+                throw new http_error_handler_util_1.HttpError(error instanceof Error ? error.message : String(error), httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.InternalServerError);
             }
         });
     }
@@ -285,7 +271,7 @@ class qaService {
                 if (!questionId) {
                     return {
                         success: false,
-                        message: "credential is missing",
+                        message: httpResponse_1.HttpResponse === null || httpResponse_1.HttpResponse === void 0 ? void 0 : httpResponse_1.HttpResponse.INVALID_CREDENTIALS,
                         status: httpStatusCode_1.Status.BadRequest,
                     };
                 }
@@ -293,19 +279,19 @@ class qaService {
                 if (!result) {
                     return {
                         success: false,
-                        message: "Question not found",
+                        message: httpResponse_1.HttpResponse === null || httpResponse_1.HttpResponse === void 0 ? void 0 : httpResponse_1.HttpResponse.RESOURCE_NOT_FOUND,
                         status: httpStatusCode_1.Status.NotFound,
                     };
                 }
                 return {
                     success: true,
-                    message: "Status changed successfully",
+                    message: httpResponse_1.HttpResponse === null || httpResponse_1.HttpResponse === void 0 ? void 0 : httpResponse_1.HttpResponse.SUCCESS,
                     status: httpStatusCode_1.Status.Ok,
                     result: result === null || result === void 0 ? void 0 : result.isBlocked,
                 };
             }
             catch (error) {
-                throw new Error(`Error while change category status in service: ${error instanceof Error ? error.message : String(error)}`);
+                throw new http_error_handler_util_1.HttpError(error instanceof Error ? error.message : String(error), httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.InternalServerError);
             }
         });
     }
@@ -317,7 +303,7 @@ class qaService {
                 if (!answerId) {
                     return {
                         success: false,
-                        message: "credential is missing",
+                        message: httpResponse_1.HttpResponse === null || httpResponse_1.HttpResponse === void 0 ? void 0 : httpResponse_1.HttpResponse.INVALID_CREDENTIALS,
                         status: httpStatusCode_1.Status.BadRequest,
                     };
                 }
@@ -325,19 +311,19 @@ class qaService {
                 if (!result) {
                     return {
                         success: false,
-                        message: "answer not found",
+                        message: httpResponse_1.HttpResponse === null || httpResponse_1.HttpResponse === void 0 ? void 0 : httpResponse_1.HttpResponse.RESOURCE_NOT_FOUND,
                         status: httpStatusCode_1.Status.NotFound,
                     };
                 }
                 return {
                     success: true,
-                    message: "Status changed successfully",
+                    message: httpResponse_1.HttpResponse === null || httpResponse_1.HttpResponse === void 0 ? void 0 : httpResponse_1.HttpResponse.SUCCESS,
                     status: httpStatusCode_1.Status.Ok,
                     result: result === null || result === void 0 ? void 0 : result.isBlocked,
                 };
             }
             catch (error) {
-                throw new Error(`Error while change answer status admin side: ${error instanceof Error ? error.message : String(error)}`);
+                throw new http_error_handler_util_1.HttpError(error instanceof Error ? error.message : String(error), httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.InternalServerError);
             }
         });
     }

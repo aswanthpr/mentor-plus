@@ -1,25 +1,23 @@
-import React,{useEffect} from 'react';
-import { useSelector } from 'react-redux';
-import { Outlet, useNavigate } from 'react-router-dom';
-import { RootState } from '../../Redux/store';
-import { ROUTES } from '../../Constants/message';
+import React, { useEffect } from "react";
+import { useSelector } from "react-redux";
+import { Outlet, useNavigate } from "react-router-dom";
+import { RootState } from "../../Redux/store";
+import { ROUTES } from "../../Constants/message";
 
-const MentorProtectLogout:React.FC = () => {
-    const navigate = useNavigate();
-    const accessToken = useSelector((state: RootState) => state.menter?.mentorToken);
-    const role = useSelector((state: RootState) => state.menter.mentorRole);
+const MentorProtectLogout: React.FC = () => {
+  const navigate = useNavigate();
+  const accessToken = useSelector(
+    (state: RootState) => state.menter?.mentorToken
+  );
+  const role = useSelector((state: RootState) => state.menter.mentorRole);
 
+  useEffect(() => {
+    if (accessToken && role === "mentor") {
+      navigate(ROUTES?.MENTOR_HOME);
+    }
+  }, [accessToken, role, navigate]);
 
-    useEffect(() => {
-        if (accessToken && role === 'mentor') {
-            console.log("you are aleary logged in")
-          navigate(ROUTES?.MENTOR_HOME);
-        }
-      }, [accessToken, role, navigate]);
-    
-    console.log("you are out.........")
-    
-      return !accessToken || role !== 'mentor' ? <Outlet /> : null;;
-}
+  return !accessToken || role !== "mentor" ? <Outlet /> : null;
+};
 
-export default MentorProtectLogout
+export default MentorProtectLogout;

@@ -14,6 +14,8 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const walletModel_1 = __importDefault(require("../Model/walletModel"));
 const baseRepo_1 = require("./baseRepo");
+const http_error_handler_util_1 = require("../Utils/http-error-handler.util");
+const httpStatusCode_1 = require("../Constants/httpStatusCode");
 class walletRepository extends baseRepo_1.baseRepository {
     constructor() {
         super(walletModel_1.default);
@@ -24,7 +26,7 @@ class walletRepository extends baseRepo_1.baseRepository {
                 return yield this.createDocument(walletData);
             }
             catch (error) {
-                throw new Error(`${error instanceof Error ? error.message : String(error)}`);
+                throw new http_error_handler_util_1.HttpError(error instanceof Error ? error.message : String(error), httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.InternalServerError);
             }
         });
     }
@@ -34,7 +36,7 @@ class walletRepository extends baseRepo_1.baseRepository {
                 return yield this.find_One({ userId });
             }
             catch (error) {
-                throw new Error(`${error instanceof Error ? error.message : String(error)}`);
+                throw new http_error_handler_util_1.HttpError(error instanceof Error ? error.message : String(error), httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.InternalServerError);
             }
         });
     }
@@ -47,7 +49,7 @@ class walletRepository extends baseRepo_1.baseRepository {
                 });
             }
             catch (error) {
-                throw new Error(`${error instanceof Error ? error.message : String(error)}`);
+                throw new http_error_handler_util_1.HttpError(error instanceof Error ? error.message : String(error), httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.InternalServerError);
             }
         });
     }
@@ -136,7 +138,7 @@ class walletRepository extends baseRepo_1.baseRepository {
                 };
             }
             catch (error) {
-                throw new Error(`${error instanceof Error ? error.message : String(error)}`);
+                throw new http_error_handler_util_1.HttpError(error instanceof Error ? error.message : String(error), httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.InternalServerError);
             }
         });
     }
@@ -151,7 +153,7 @@ class walletRepository extends baseRepo_1.baseRepository {
                 }, { new: true });
             }
             catch (error) {
-                throw new Error(`${error instanceof Error ? error.message : String(error)}`);
+                throw new http_error_handler_util_1.HttpError(error instanceof Error ? error.message : String(error), httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.InternalServerError);
             }
         });
     }

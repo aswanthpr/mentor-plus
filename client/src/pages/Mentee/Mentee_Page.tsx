@@ -68,11 +68,13 @@ const Mentee_Page: React.FC = () => {
         }
       }
     };
-
-    fetchData();
+    const timer = setTimeout(() => {
+      fetchData();
+    }, 3000);
     return () => {
       flag = false;
-      disconnectNotificationSocket();
+      clearTimeout(timer);
+      disconnectNotificationSocket()
     };
   }, [dispatch]);
 

@@ -4,18 +4,20 @@ import { IqaService } from "../Interface/Qa/IqaService";
 import { IquestionRepository } from "../Interface/Qa/IquestionRepository";
 import { Iquestion } from "../Model/questionModal";
 import { IanswerWithQuestion, IcreateQuestion } from "../Types";
-import { Status } from "../Utils/httpStatusCode";
+import { Status } from "../Constants/httpStatusCode";
 import { InotificationRepository } from "../Interface/Notification/InotificationRepository";
 import { socketManager } from "../index";
 import { Inotification } from "../Model/notificationModel";
 import { createSkip } from "../Utils/reusable.util";
+import { HttpResponse } from "../Constants/httpResponse";
+import { HttpError } from "../Utils/http-error-handler.util";
 
 class qaService implements IqaService {
   constructor(
     private readonly __questionRepository: IquestionRepository,
     private readonly __answerRepository: IanswerRepository,
     private readonly __notificationRepository: InotificationRepository
-  ) {}
+  ) { }
 
   async addQuestionService(
     Data: IcreateQuestion,
@@ -28,7 +30,7 @@ class qaService implements IqaService {
   }> {
     try {
       const { title, content, tags } = Data;
-      
+
       if (
         !title ||
         !content ||
@@ -37,7 +39,7 @@ class qaService implements IqaService {
       ) {
         return {
           success: false,
-          message: "Invalid input: title, content, and tags are required",
+          message: HttpResponse?.INVALID_CREDENTIALS,
           status: Status?.BadRequest,
           question: undefined,
         };
@@ -49,7 +51,7 @@ class qaService implements IqaService {
       if (!result) {
         return {
           success: false,
-          message: "Question exist",
+          message: HttpResponse?.QUESTION_EXIST,
           status: Status?.Conflict,
           question: undefined,
         };
@@ -71,28 +73,24 @@ class qaService implements IqaService {
 
       return {
         success: true,
-        message: "Question created Successfully!",
+        message: HttpResponse?.SUCCESS,
         status: Status?.Ok,
         question: response,
       };
     } catch (error: unknown) {
-      throw new Error(
-        `Error during creating question${
-          error instanceof Error ? error.message : String(error)
-        }`
-      );
+      throw new HttpError(error instanceof Error ? error.message : String(error), Status?.InternalServerError);
     }
   }
 
   async questionData(
 
-     userId: ObjectId,
-        filter: string,
-        search: string,
-        sortField: string,
-        sortOrder: string,
-        limit: number,
-        page: number
+    userId: ObjectId,
+    filter: string,
+    search: string,
+    sortField: string,
+    sortOrder: string,
+    limit: number,
+    page: number
   ): Promise<{
     success: boolean;
     message: string;
@@ -102,16 +100,16 @@ class qaService implements IqaService {
     totalPage: number;
   }> {
     try {
-      if (!userId || !filter|| !sortField|| !sortOrder|| 1>limit|| 1>page) {
+      if (!userId || !filter || !sortField || !sortOrder || 1 > limit || 1 > page) {
         return {
           success: false,
-          message: "credential missing",
+          message: HttpResponse?.INVALID_CREDENTIALS,
           status: Status?.BadRequest,
           question: [],
-          totalPage:0,
+          totalPage: 0,
         };
       }
-      const skipData = createSkip(page,limit);
+      const skipData = createSkip(page, limit);
       const limitNo = skipData?.limitNo;
       const skip = skipData?.skip;
       const response = await this.__questionRepository.questionData(
@@ -124,22 +122,18 @@ class qaService implements IqaService {
         sortOrder,
 
       );
-      console.log(response)
-      const totalPage = Math.ceil(response?.totalDocs/limitNo);
+     
+      const totalPage = Math.ceil(response?.totalDocs / limitNo);
       return {
         success: true,
-        message: "Data retrieved successfully",
+        message: HttpResponse?.DATA_RETRIEVED,
         status: Status?.Ok,
         question: response?.questions,
         userId,
         totalPage
       };
     } catch (error: unknown) {
-      throw new Error(
-        `Error during get questions ${
-          error instanceof Error ? error.message : String(error)
-        }`
-      );
+      throw new HttpError(error instanceof Error ? error.message : String(error), Status?.InternalServerError);
     }
   }
 
@@ -157,7 +151,7 @@ class qaService implements IqaService {
       if (!questionId || !updatedQuestion || !filter) {
         return {
           success: false,
-          message: "Invalid input: title, content, and tags are required",
+          message: HttpResponse?.INVALID_CREDENTIALS,
           status: Status?.BadRequest,
           question: null,
         };
@@ -171,16 +165,12 @@ class qaService implements IqaService {
 
       return {
         success: true,
-        message: "Edit Successfully!",
+        message: HttpResponse?.SUCCESS,
         status: Status?.Ok,
         question: response,
       };
     } catch (error: unknown) {
-      throw new Error(
-        `Error during edit questions ${
-          error instanceof Error ? error.message : String(error)
-        }`
-      );
+      throw new HttpError(error instanceof Error ? error.message : String(error), Status?.InternalServerError);
     }
   }
   async createNewAnswer(
@@ -198,7 +188,7 @@ class qaService implements IqaService {
       if (!answer || !questionId || !userId || !userType) {
         return {
           success: false,
-          message: "Credential missing",
+          message: HttpResponse?.INVALID_CREDENTIALS,
           status: Status.BadRequest,
           answers: null,
         };
@@ -213,7 +203,7 @@ class qaService implements IqaService {
       if (!response?.menteeId || !response?.result) {
         return {
           success: false,
-          message: "Answer not saved !unexpected error",
+          message: HttpResponse?.INVALID_CREDENTIALS,
           status: Status.NotFound,
           answers: null,
         };
@@ -233,15 +223,11 @@ class qaService implements IqaService {
       const questId = questionId as unknown as string;
 
       const result = await this.__questionRepository.countAnswer(questId);
-      console.log(
-        response,
-        "thsi is the respnose of answer tha tcreated me ",
-        result
-      );
+ 
       if (!result) {
         return {
           success: false,
-          message: "Unexpected Error ! answer not created",
+          message: HttpResponse?.FAILED,
           status: Status.NotFound,
           answers: null,
         };
@@ -249,16 +235,12 @@ class qaService implements IqaService {
 
       return {
         success: true,
-        message: "Answer Created Successfully",
+        message: HttpResponse?.SUCCESS,
         status: Status.Ok,
         answers: response?.result,
       };
     } catch (error: unknown) {
-      throw new Error(
-        `Error during create answer ${
-          error instanceof Error ? error.message : String(error)
-        }`
-      );
+      throw new HttpError(error instanceof Error ? error.message : String(error), Status?.InternalServerError);
     }
   }
   async editAnswer(
@@ -274,7 +256,7 @@ class qaService implements IqaService {
       if (!answerId || !content) {
         return {
           success: false,
-          message: "Credential missing",
+          message: HttpResponse?.INVALID_CREDENTIALS,
           status: Status.BadRequest,
           answer: null,
         };
@@ -284,27 +266,23 @@ class qaService implements IqaService {
         content,
         answerId
       );
-      console.log(result, "this is result");
+     
       if (!result) {
         return {
           success: false,
-          message: "Data not found",
+          message: HttpResponse?.RESOURCE_NOT_FOUND,
           status: Status.NotFound,
           answer: null,
         };
       }
       return {
         success: true,
-        message: "edited successfully",
+        message: HttpResponse?.SUCCESS,
         status: Status.Ok,
         answer: result?.answer,
       };
     } catch (error: unknown) {
-      throw new Error(
-        `Error during edit answer ${
-          error instanceof Error ? error.message : String(error)
-        }`
-      );
+      throw new HttpError(error instanceof Error ? error.message : String(error), Status?.InternalServerError);
     }
   }
   async deleteQuestion(
@@ -315,7 +293,7 @@ class qaService implements IqaService {
       if (!questionId) {
         return {
           success: false,
-          message: "Question ID is required",
+          message: HttpResponse?.INVALID_CREDENTIALS,
           status: Status.BadRequest,
         };
       }
@@ -323,11 +301,11 @@ class qaService implements IqaService {
         questionId
       );
 
-      // Check if the deletion was successful
+
       if (!response || response.deletedCount !== 1) {
         return {
           success: false,
-          message: "Question not found or could not be deleted",
+          message: HttpResponse?.RESOURCE_NOT_FOUND,
           status: Status.NotFound,
         };
       }
@@ -336,26 +314,14 @@ class qaService implements IqaService {
       //Delete the quesiton with its answer
       await this.__answerRepository.deleteAnswer(questionId);
 
-      //returning the success response
+
       return {
         success: true,
-        message: "Data successfully fetched",
+        message: HttpResponse?.DATA_RETRIEVED,
         status: Status.Ok,
       };
     } catch (error: unknown) {
-      //console the error
-      console.error(
-        //using different color in terminal to show the error
-        "\x1b[34m%s\x1b[0m",
-        "Error while getting home data:",
-        error instanceof Error ? error.message : String(error)
-      );
-      //internal server error response
-      return {
-        success: false,
-        message: "Internal server error",
-        status: Status.InternalServerError,
-      };
+      throw new HttpError(error instanceof Error ? error.message : String(error), Status?.InternalServerError);
     }
   }
 
@@ -380,13 +346,13 @@ class qaService implements IqaService {
       if (!status || !sortField || !sortOrder || page < 1 || limit < 1) {
         return {
           success: false,
-          message: "Invalid pagination or missing parameters",
+          message: HttpResponse?.INVALID_CREDENTIALS,
           status: Status.BadRequest,
           questions: undefined,
           totalPage: undefined,
         };
       }
-      const skipData = createSkip(page,limit);
+      const skipData = createSkip(page, limit);
       const limitNo = skipData?.limitNo;
       const skip = skipData?.skip
 
@@ -398,22 +364,18 @@ class qaService implements IqaService {
         sortOrder,
         sortField
       );
-console.log('skndfkjaskjnaskjfkajsfksajfkasjbfkjsbfjbfkjbsalkf')
+
       const totalPage = Math.ceil((response?.docCount as number) / limitNo);
-      console.log(response?.docCount, totalPage, limit, skip, page);
+     
       return {
         success: true,
-        message: "data fetched successfully",
+        message: HttpResponse?.DATA_RETRIEVED,
         status: Status.Ok,
         questions: response?.questions,
         totalPage,
       };
     } catch (error: unknown) {
-      throw new Error(
-        `Error during fetch all data to admin ${
-          error instanceof Error ? error.message : String(error)
-        }`
-      );
+      throw new HttpError(error instanceof Error ? error.message : String(error), Status?.InternalServerError);
     }
   }
 
@@ -429,7 +391,7 @@ console.log('skndfkjaskjnaskjfkajsfksajfkasjbfkjsbfjbfkjbsalkf')
       if (!questionId) {
         return {
           success: false,
-          message: "credential is missing",
+          message: HttpResponse?.INVALID_CREDENTIALS,
           status: Status.BadRequest,
         };
       }
@@ -439,22 +401,18 @@ console.log('skndfkjaskjnaskjfkajsfksajfkasjbfkjsbfjbfkjbsalkf')
       if (!result) {
         return {
           success: false,
-          message: "Question not found",
+          message: HttpResponse?.RESOURCE_NOT_FOUND,
           status: Status.NotFound,
         };
       }
       return {
         success: true,
-        message: "Status changed successfully",
+        message: HttpResponse?.SUCCESS,
         status: Status.Ok,
         result: result?.isBlocked,
       };
     } catch (error: unknown) {
-      throw new Error(
-        `Error while change category status in service: ${
-          error instanceof Error ? error.message : String(error)
-        }`
-      );
+      throw new HttpError(error instanceof Error ? error.message : String(error), Status?.InternalServerError);
     }
   }
   //answer status change in admin
@@ -471,7 +429,7 @@ console.log('skndfkjaskjnaskjfkajsfksajfkasjbfkjsbfjbfkjbsalkf')
       if (!answerId) {
         return {
           success: false,
-          message: "credential is missing",
+          message: HttpResponse?.INVALID_CREDENTIALS,
           status: Status.BadRequest,
         };
       }
@@ -480,22 +438,18 @@ console.log('skndfkjaskjnaskjfkajsfksajfkasjbfkjsbfjbfkjbsalkf')
       if (!result) {
         return {
           success: false,
-          message: "answer not found",
+          message: HttpResponse?.RESOURCE_NOT_FOUND,
           status: Status.NotFound,
         };
       }
       return {
         success: true,
-        message: "Status changed successfully",
+        message: HttpResponse?.SUCCESS,
         status: Status.Ok,
         result: result?.isBlocked,
       };
     } catch (error: unknown) {
-      throw new Error(
-        `Error while change answer status admin side: ${
-          error instanceof Error ? error.message : String(error)
-        }`
-      );
+      throw new HttpError(error instanceof Error ? error.message : String(error), Status?.InternalServerError);
     }
   }
 }

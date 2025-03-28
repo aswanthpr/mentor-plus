@@ -15,13 +15,13 @@ const AdminProtectLogout:React.FC = () => {
 
     useEffect(() => {
         if (adminToken && role === 'admin') {
-            console.log("you are aleary logged in")
+           
           navigate(ROUTES?.ADMIN_DASHBOARD);
         }
       }, [adminToken, role, navigate]);
     
   
-    console.log("admin out.........")
+
     
       return !adminToken || role !== 'admin' ? <Outlet /> : null;;
 }

@@ -1,7 +1,9 @@
 import { Request, Response, NextFunction } from "express";
 import MenteeModel from "../Model/menteeModel";
-import { verifyAccessToken, verifyRefreshToken } from "../Utils/jwt.utils";
-import { Status } from "../Utils/httpStatusCode";
+import { verifyAccessToken } from "../Utils/jwt.utils";
+import { Status } from "../Constants/httpStatusCode";
+import { HttpResponse } from "../Constants/httpResponse";
+import { HttpError } from "../Utils/http-error-handler.util";
 
 const adminAuthorization = async (
   req: Request,
@@ -11,11 +13,11 @@ const adminAuthorization = async (
   try {
     //checking fresh token valid
     const refreshToken = req.cookies?.adminToken;
-
-    if (!refreshToken || !verifyRefreshToken(refreshToken, "admin")) {
+    
+    if (!refreshToken) {
       res.status(Status?.Unauthorized).json({
         success: false,
-        message: "Session expired. Please log in again.",
+        message: HttpResponse?.UNAUTHORIZED,
       });
       return;
     }
@@ -26,7 +28,7 @@ const adminAuthorization = async (
     if (!authHeader || !authHeader.startsWith("Bearer")) {
       res
         .status(Status?.Unauthorized)
-        .json({ success: false, message: "Unauthorized. No token provided." });
+        .json({ success: false, message:  HttpResponse?.UNAUTHORIZED });
       return;
     }
 
@@ -34,27 +36,27 @@ const adminAuthorization = async (
 
     //jwt verifying
     const decode = verifyAccessToken(token as string, "admin");
-
-    if (decode?.error == "TamperedToken" || !decode?.isValid) {
-      res
-        .status(Status?.Unauthorized)
-        .json({ success: false, message: "Token Invalid." });
-      return;
-    }
-
+    
     if (decode?.error == "TokenExpired") {
       res
         .status(Status?.Forbidden)
-        .json({ success: false, message: "Token Expired." });
+        .json({ success: false, message: HttpResponse?.TOKEN_EXPIRED });
+      return;
+    }
+    console.log('.............................................')
+        if (decode?.result?.role !== "admin"||!decode?.isValid) {
+          res
+            .status(Status?.Unauthorized)
+            .json({ success: false, message: HttpResponse?.INVALID_USER_ROLE });
+          return;
+        }
+    if (decode?.error == "TamperedToken" ) {
+      res
+        .status(Status?.Unauthorized)
+        .json({ success: false, message: HttpResponse?.UNAUTHORIZED });
       return;
     }
 
-    if (decode?.result?.role !== "admin") {
-      res
-        .status(Status?.Unauthorized)
-        .json({ success: false, message: "user role is invalid" });
-      return;
-    }
 
     const adminData = await MenteeModel.findById(decode?.result?.userId, {
       isAdmin: true,
@@ -63,17 +65,14 @@ const adminAuthorization = async (
     if (!adminData) {
       res
         .status(Status?.Unauthorized)
-        .json({ message: "admin not found", success: false });
+        .json({ message: HttpResponse?.UNAUTHORIZED, success: false });
       return;
     }
 
     req.user = { adminId: decode?.result?.userId };
     next();
   } catch (error: unknown) {
-    console.log(
-      `\x1b[35m%s\x1b[0m`,
-      error instanceof Error ? error.message : String(error)
-    );
+    throw new HttpError(error instanceof Error ? error.message : String(error), Status?.InternalServerError);
   }
 };
 

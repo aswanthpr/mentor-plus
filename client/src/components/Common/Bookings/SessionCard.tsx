@@ -177,8 +177,9 @@ const SessionCard: React.FC<ISessionCardProps> = ({
                       handleSessionJoin!(
                         session?._id,
                         session?.sessionCode as string,
-                        role as string
-                      )
+                        role as string,
+                        session?.user?._id as string,
+                      ) 
                     }
                     className="text-[#ff8800] hover:text-[#ff9900] text-lg font-medium"
                   >

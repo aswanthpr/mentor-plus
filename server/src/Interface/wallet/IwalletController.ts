@@ -1,8 +1,8 @@
-import { Request,Response } from "express";
+import { NextFunction, Request,Response } from "express";
 
 
 export interface IwalletController {
-    addMoneyToWallet(req:Request,res:Response):Promise<void>;
-    getWalletData(req:Request,res:Response):Promise<void>;
-    withdrawMentorEarnings(req: Request, res: Response): Promise<void>
+    addMoneyToWallet(req:Request,res:Response,next: NextFunction):Promise<void>;
+    getWalletData(req:Request,res:Response,next: NextFunction):Promise<void>;
+    withdrawMentorEarnings(req: Request, res: Response,next: NextFunction): Promise<void>
 } 

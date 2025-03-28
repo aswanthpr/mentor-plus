@@ -92,7 +92,7 @@ const ForgetPassword: React.FC = () => {
 
     const response = await fetchForgotPassOtpVerify(email, otp);
 
-    console.log(response?.data && response?.status);
+
 
     if (response?.status == HttpStatusCode?.Ok && response?.data?.success) {
       setLoading(false);
@@ -109,7 +109,7 @@ const ForgetPassword: React.FC = () => {
   const handlePassChange = useCallback(
     async (password: string) => {
       setLoading(true);
-      console.log("password  changed", password);
+     
       setIsModalOpen(false);
 
       const response = await fetchForgotPassword(
@@ -118,7 +118,7 @@ const ForgetPassword: React.FC = () => {
         password
       );
 
-      console.log(response?.data.message, response?.status);
+     
       if (response?.status == HttpStatusCode?.Ok && response.data?.success) {
         toast.success(response.data?.message);
       }

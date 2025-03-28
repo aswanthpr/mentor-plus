@@ -15,6 +15,8 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.menteeRepository = void 0;
 const menteeModel_1 = __importDefault(require("../Model/menteeModel"));
 const baseRepo_1 = require("./baseRepo");
+const http_error_handler_util_1 = require("../Utils/http-error-handler.util");
+const httpStatusCode_1 = require("../Constants/httpStatusCode");
 class menteeRepository extends baseRepo_1.baseRepository {
     constructor() {
         super(menteeModel_1.default);
@@ -67,7 +69,7 @@ class menteeRepository extends baseRepo_1.baseRepository {
                 };
             }
             catch (error) {
-                throw new Error(`error while Checking mentee data ${error instanceof Error ? error.message : String(error)}`);
+                throw new http_error_handler_util_1.HttpError(error instanceof Error ? error.message : String(error), httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.InternalServerError);
             }
         });
     }
@@ -79,7 +81,7 @@ class menteeRepository extends baseRepo_1.baseRepository {
                 ]);
             }
             catch (error) {
-                throw new Error(`error while change mentee status in repository ${error instanceof Error ? error.message : String(error)} `);
+                throw new http_error_handler_util_1.HttpError(error instanceof Error ? error.message : String(error), httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.InternalServerError);
             }
         });
     }
@@ -100,7 +102,7 @@ class menteeRepository extends baseRepo_1.baseRepository {
                 });
             }
             catch (error) {
-                throw new Error(`error while edit mentee data in repository ${error instanceof Error ? error.message : String(error)} `);
+                throw new http_error_handler_util_1.HttpError(error instanceof Error ? error.message : String(error), httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.InternalServerError);
             }
         });
     }
@@ -110,7 +112,7 @@ class menteeRepository extends baseRepo_1.baseRepository {
                 return yield this.find_One({ email });
             }
             catch (error) {
-                throw new Error(`error find mentee data in repository ${error instanceof Error ? error.message : String(error)} `);
+                throw new http_error_handler_util_1.HttpError(error instanceof Error ? error.message : String(error), httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.InternalServerError);
             }
         });
     }
@@ -125,7 +127,7 @@ class menteeRepository extends baseRepo_1.baseRepository {
                 });
             }
             catch (error) {
-                throw new Error(`error add mentee data in repository ${error instanceof Error ? error.message : String(error)} `);
+                throw new http_error_handler_util_1.HttpError(error instanceof Error ? error.message : String(error), httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.InternalServerError);
             }
         });
     }
@@ -140,7 +142,7 @@ class menteeRepository extends baseRepo_1.baseRepository {
                 });
             }
             catch (error) {
-                throw new Error(`error google add mentee data in repository ${error instanceof Error ? error.message : String(error)} `);
+                throw new http_error_handler_util_1.HttpError(error instanceof Error ? error.message : String(error), httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.InternalServerError);
             }
         });
     }
@@ -150,7 +152,7 @@ class menteeRepository extends baseRepo_1.baseRepository {
                 return yield this.find_By_Id(id, { isBlocked: false });
             }
             catch (error) {
-                throw new Error(`error fetch metnee data by id  in repository ${error instanceof Error ? error.message : String(error)} `);
+                throw new http_error_handler_util_1.HttpError(error instanceof Error ? error.message : String(error), httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.InternalServerError);
             }
         });
     }
@@ -162,7 +164,7 @@ class menteeRepository extends baseRepo_1.baseRepository {
                 });
             }
             catch (error) {
-                throw new Error(`error fetch metnee password change by id  in repository ${error instanceof Error ? error.message : String(error)} `);
+                throw new http_error_handler_util_1.HttpError(error instanceof Error ? error.message : String(error), httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.InternalServerError);
             }
         });
     }
@@ -174,7 +176,7 @@ class menteeRepository extends baseRepo_1.baseRepository {
                 });
             }
             catch (error) {
-                throw new Error(`error fetch metnee password change by id  in repository ${error instanceof Error ? error.message : String(error)} `);
+                throw new http_error_handler_util_1.HttpError(error instanceof Error ? error.message : String(error), httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.InternalServerError);
             }
         });
     }
@@ -186,7 +188,7 @@ class menteeRepository extends baseRepo_1.baseRepository {
                 return data;
             }
             catch (error) {
-                throw new Error(`error while updating mentee${error instanceof Error ? error.message : String(error)}`);
+                throw new http_error_handler_util_1.HttpError(error instanceof Error ? error.message : String(error), httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.InternalServerError);
             }
         });
     }
@@ -196,8 +198,7 @@ class menteeRepository extends baseRepo_1.baseRepository {
                 return yield this.find_One({ email }); //find one in base repo
             }
             catch (error) {
-                console.log('Error while finding user with email', email, error);
-                throw new Error(`Error while finding user by Email${error instanceof Error ? error.message : String(error)}`);
+                throw new http_error_handler_util_1.HttpError(error instanceof Error ? error.message : String(error), httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.InternalServerError);
             }
         });
     }
@@ -207,8 +208,7 @@ class menteeRepository extends baseRepo_1.baseRepository {
                 return yield this.createDocument(userData);
             }
             catch (error) {
-                console.log(`error while doing signup ${error}`);
-                throw new Error(`error while mentee Signup${error instanceof Error ? error.message : String(error)}`);
+                throw new http_error_handler_util_1.HttpError(error instanceof Error ? error.message : String(error), httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.InternalServerError);
             }
         });
     }
@@ -218,7 +218,7 @@ class menteeRepository extends baseRepo_1.baseRepository {
                 return yield this.find_One({ email });
             }
             catch (error) {
-                throw new Error(`error  in DBMainLogin  while Checking User ${error instanceof Error ? error.message : String(error)}`);
+                throw new http_error_handler_util_1.HttpError(error instanceof Error ? error.message : String(error), httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.InternalServerError);
             }
         });
     }
@@ -228,7 +228,7 @@ class menteeRepository extends baseRepo_1.baseRepository {
                 return yield this.find_One_And_Update(menteeModel_1.default, { email: email }, { $set: { password: password } });
             }
             catch (error) {
-                console.log(`error while find and update on DBforget_passwordChange ${error instanceof Error ? error.message : String(error)}`);
+                throw new http_error_handler_util_1.HttpError(error instanceof Error ? error.message : String(error), httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.InternalServerError);
             }
         });
     }
@@ -239,8 +239,7 @@ class menteeRepository extends baseRepo_1.baseRepository {
                 return yield this.find_One({ email });
             }
             catch (error) {
-                console.log(`error while finding admin ${error instanceof Error ? error.message : String(error)}`);
-                return null;
+                throw new http_error_handler_util_1.HttpError(error instanceof Error ? error.message : String(error), httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.InternalServerError);
             }
         });
     }
@@ -250,7 +249,7 @@ class menteeRepository extends baseRepo_1.baseRepository {
                 return this.find_One({ isAdmin: true });
             }
             catch (error) {
-                throw new Error(`${error instanceof Error ? error.message : String(error)}`);
+                throw new http_error_handler_util_1.HttpError(error instanceof Error ? error.message : String(error), httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.InternalServerError);
             }
         });
     }

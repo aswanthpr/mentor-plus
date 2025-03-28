@@ -90,6 +90,7 @@ export const fetchAdminLogout = async (): Promise<AxiosResponse | any> => {
   try {
     return await API.post(`/admin/logout`);
   } catch (error: unknown) {
+    errorHandler(error);
     console.log(error instanceof Error ? error?.message : String(error));
   }
 };
@@ -99,6 +100,7 @@ export const fetchNotificaitionRead = async (
   try {
     return await API.patch(`/admin/notification-read/${id}`);
   } catch (error: unknown) {
+    errorHandler(error);
     console.log(error instanceof Error ? error?.message : String(error));
   }
 };
@@ -200,6 +202,7 @@ export const ToggleMenteeStatus = async (
       id,
     });
   } catch (error: unknown) {
+    errorHandler(error);
     console.log(error instanceof Error ? error?.message : String(error));
   }
 };

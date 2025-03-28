@@ -16,8 +16,10 @@ exports.menteeService = void 0;
 const bcrypt_1 = __importDefault(require("bcrypt"));
 const jwt_utils_1 = require("../Utils/jwt.utils");
 const hashPass_util_1 = __importDefault(require("../Utils/hashPass.util"));
-const httpStatusCode_1 = require("../Utils/httpStatusCode");
+const httpStatusCode_1 = require("../Constants/httpStatusCode");
 const cloudinary_util_1 = require("../Config/cloudinary.util");
+const httpResponse_1 = require("../Constants/httpResponse");
+const http_error_handler_util_1 = require("../Utils/http-error-handler.util");
 // const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string)
 class menteeService {
     constructor(_menteeRepository, _mentorRepository, _categoryRepository, _questionRepository) {
@@ -34,7 +36,7 @@ class menteeService {
                 if (!((_a = decode === null || decode === void 0 ? void 0 : decode.result) === null || _a === void 0 ? void 0 : _a.userId)) {
                     return {
                         success: false,
-                        message: "Your session has expired. Please log in again.",
+                        message: httpResponse_1.HttpResponse === null || httpResponse_1.HttpResponse === void 0 ? void 0 : httpResponse_1.HttpResponse.TOKEN_EXPIRED,
                         status: httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.Forbidden,
                         result: null,
                     };
@@ -43,7 +45,7 @@ class menteeService {
                 if (!result) {
                     return {
                         success: false,
-                        message: "invalid credential",
+                        message: httpResponse_1.HttpResponse === null || httpResponse_1.HttpResponse === void 0 ? void 0 : httpResponse_1.HttpResponse.INVALID_CREDENTIALS,
                         status: httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.BadRequest,
                         result: null,
                     };
@@ -51,41 +53,39 @@ class menteeService {
                 return { success: true, message: "success", result: result, status: httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.Ok };
             }
             catch (error) {
-                throw new Error(`Error while bl metneeProfile in service: ${error instanceof Error ? error.message : String(error)}`);
+                throw new http_error_handler_util_1.HttpError(error instanceof Error ? error.message : String(error), httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.InternalServerError);
             }
         });
     }
     editMenteeProfile(formData) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                console.log(formData);
                 if (!formData) {
                     return {
                         success: false,
-                        message: "credential is  missing",
+                        message: httpResponse_1.HttpResponse === null || httpResponse_1.HttpResponse === void 0 ? void 0 : httpResponse_1.HttpResponse.INVALID_CREDENTIALS,
                         status: httpStatusCode_1.Status.BadRequest,
                         result: null,
                     };
                 }
                 const result = yield this._menteeRepository.editMentee(formData);
-                console.log(result, "this is edit mentee result");
                 if (!result) {
                     return {
                         success: false,
-                        message: "mentee not found",
+                        message: httpResponse_1.HttpResponse === null || httpResponse_1.HttpResponse === void 0 ? void 0 : httpResponse_1.HttpResponse.USER_NOT_FOUND,
                         status: httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.NotFound,
                         result: null,
                     };
                 }
                 return {
                     success: true,
-                    message: "edit successfully",
+                    message: httpResponse_1.HttpResponse === null || httpResponse_1.HttpResponse === void 0 ? void 0 : httpResponse_1.HttpResponse.SUCCESS,
                     status: httpStatusCode_1.Status.Ok,
                     result: result,
                 };
             }
             catch (error) {
-                throw new Error(`Error while bl metneeProfile edit in service: ${error instanceof Error ? error.message : String(error)}`);
+                throw new http_error_handler_util_1.HttpError(error instanceof Error ? error.message : String(error), httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.InternalServerError);
             }
         });
     }
@@ -96,38 +96,38 @@ class menteeService {
                 if (!currentPassword || !newPassword || !_id) {
                     return {
                         success: false,
-                        message: "credentials not found",
+                        message: httpResponse_1.HttpResponse === null || httpResponse_1.HttpResponse === void 0 ? void 0 : httpResponse_1.HttpResponse.INVALID_CREDENTIALS,
                         status: httpStatusCode_1.Status.BadRequest,
                     };
                 }
                 if (currentPassword == newPassword) {
                     return {
                         success: false,
-                        message: "new password cannto be same as current password",
+                        message: httpResponse_1.HttpResponse === null || httpResponse_1.HttpResponse === void 0 ? void 0 : httpResponse_1.HttpResponse.NEW_PASS_REQUIRED,
                         status: httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.BadRequest,
                     };
                 }
                 const result = yield this._menteeRepository.findById(_id);
                 if (!result) {
-                    return { success: false, message: "invalid credential ", status: httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.NotFound };
+                    return { success: false, message: httpResponse_1.HttpResponse === null || httpResponse_1.HttpResponse === void 0 ? void 0 : httpResponse_1.HttpResponse.INVALID_CREDENTIALS, status: httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.NotFound };
                 }
                 const passCompare = yield bcrypt_1.default.compare(currentPassword, `${result === null || result === void 0 ? void 0 : result.password}`);
                 if (!passCompare) {
                     return {
                         success: false,
-                        message: "incorrect current  password",
+                        message: httpResponse_1.HttpResponse === null || httpResponse_1.HttpResponse === void 0 ? void 0 : httpResponse_1.HttpResponse.PASSWORD_INCORRECT,
                         status: httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.BadRequest,
                     };
                 }
                 const hashPass = yield (0, hashPass_util_1.default)(newPassword);
                 const response = yield this._menteeRepository.changePassword(_id, hashPass);
                 if (!response) {
-                    return { success: false, message: "updation failed", status: 503 };
+                    return { success: false, message: httpResponse_1.HttpResponse === null || httpResponse_1.HttpResponse === void 0 ? void 0 : httpResponse_1.HttpResponse.RESOURCE_UPDATE_FAILED, status: httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.BadRequest };
                 }
-                return { success: true, message: "updation successfull", status: httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.Ok };
+                return { success: true, message: httpResponse_1.HttpResponse === null || httpResponse_1.HttpResponse === void 0 ? void 0 : httpResponse_1.HttpResponse.SUCCESS, status: httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.Ok };
             }
             catch (error) {
-                throw new Error(`Error while bl metneeProfile password change in service: ${error instanceof Error ? error.message : String(error)}`);
+                throw new http_error_handler_util_1.HttpError(error instanceof Error ? error.message : String(error), httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.InternalServerError);
             }
         });
     }
@@ -135,22 +135,22 @@ class menteeService {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 if (!image || !id) {
-                    return { success: false, message: "credential not found", status: httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.BadRequest };
+                    return { success: false, message: httpResponse_1.HttpResponse === null || httpResponse_1.HttpResponse === void 0 ? void 0 : httpResponse_1.HttpResponse.INVALID_CREDENTIALS, status: httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.BadRequest };
                 }
                 const profileUrl = yield (0, cloudinary_util_1.uploadImage)(image === null || image === void 0 ? void 0 : image.buffer);
                 const result = yield this._menteeRepository.profileChange(profileUrl, id);
                 if (!result) {
-                    return { success: false, message: "user not found", status: httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.BadRequest };
+                    return { success: false, message: httpResponse_1.HttpResponse === null || httpResponse_1.HttpResponse === void 0 ? void 0 : httpResponse_1.HttpResponse.USER_NOT_FOUND, status: httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.BadRequest };
                 }
                 return {
                     success: true,
-                    message: "updation successfull",
+                    message: httpResponse_1.HttpResponse === null || httpResponse_1.HttpResponse === void 0 ? void 0 : httpResponse_1.HttpResponse.SUCCESS,
                     status: httpStatusCode_1.Status.Ok,
                     profileUrl: result.profileUrl,
                 };
             }
             catch (error) {
-                throw new Error(`Error while bl metnee Profile  change in service: ${error instanceof Error ? error.message : String(error)}`);
+                throw new http_error_handler_util_1.HttpError(error instanceof Error ? error.message : String(error), httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.InternalServerError);
             }
         });
     }
@@ -161,18 +161,19 @@ class menteeService {
                 if (!refresh) {
                     return {
                         success: false,
-                        message: "RefreshToken missing",
+                        message: httpResponse_1.HttpResponse === null || httpResponse_1.HttpResponse === void 0 ? void 0 : httpResponse_1.HttpResponse.UNAUTHORIZED,
                         status: httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.Unauthorized,
                     };
                 }
                 const decode = (0, jwt_utils_1.verifyRefreshToken)(refresh, "mentee");
+                console.log('..................refresh');
                 if (!(decode === null || decode === void 0 ? void 0 : decode.isValid) ||
                     !((_a = decode === null || decode === void 0 ? void 0 : decode.result) === null || _a === void 0 ? void 0 : _a.userId) ||
                     (decode === null || decode === void 0 ? void 0 : decode.error) == "TamperedToken" ||
                     (decode === null || decode === void 0 ? void 0 : decode.error) == "TokenExpired") {
                     return {
                         success: false,
-                        message: "You are not authorized. Please log in.",
+                        message: httpResponse_1.HttpResponse === null || httpResponse_1.HttpResponse === void 0 ? void 0 : httpResponse_1.HttpResponse.UNAUTHORIZED,
                         status: httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.Unauthorized,
                     };
                 }
@@ -181,19 +182,14 @@ class menteeService {
                 const refreshToken = (0, jwt_utils_1.genRefreshToken)(userId, "mentee");
                 return {
                     success: true,
-                    message: "Token refresh successfully",
+                    message: httpResponse_1.HttpResponse === null || httpResponse_1.HttpResponse === void 0 ? void 0 : httpResponse_1.HttpResponse.TOKEN_GENERATED,
                     accessToken,
                     refreshToken,
                     status: httpStatusCode_1.Status.Ok,
                 };
             }
             catch (error) {
-                console.error("Error while generating access or refresh token:", error);
-                return {
-                    success: false,
-                    message: "Internal server error",
-                    status: httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.InternalServerError,
-                };
+                throw new http_error_handler_util_1.HttpError(error instanceof Error ? error.message : String(error), httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.InternalServerError);
             }
         });
     }
@@ -306,7 +302,7 @@ class menteeService {
                 if (!mentorData) {
                     return {
                         success: false,
-                        message: "Data not found",
+                        message: httpResponse_1.HttpResponse === null || httpResponse_1.HttpResponse === void 0 ? void 0 : httpResponse_1.HttpResponse.RESOURCE_NOT_FOUND,
                         status: httpStatusCode_1.Status.NotFound,
                         skills: undefined,
                     };
@@ -318,7 +314,7 @@ class menteeService {
                 if (!categoryData) {
                     return {
                         success: false,
-                        message: "Data not found",
+                        message: httpResponse_1.HttpResponse === null || httpResponse_1.HttpResponse === void 0 ? void 0 : httpResponse_1.HttpResponse.RESOURCE_NOT_FOUND,
                         status: httpStatusCode_1.Status.NotFound,
                         skills: undefined,
                     };
@@ -327,7 +323,7 @@ class menteeService {
                 const categoryWithSkill = yield this._mentorRepository.categoryWithSkills();
                 return {
                     success: false,
-                    message: "Data fetch successfully ",
+                    message: httpResponse_1.HttpResponse === null || httpResponse_1.HttpResponse === void 0 ? void 0 : httpResponse_1.HttpResponse.RESOURCE_FOUND,
                     status: httpStatusCode_1.Status.Ok,
                     mentor: mentorData === null || mentorData === void 0 ? void 0 : mentorData.mentor,
                     category: categoryData,
@@ -337,13 +333,7 @@ class menteeService {
                 };
             }
             catch (error) {
-                console.error("\x1b[34m%s\x1b[0m", "Error while generating access or refresh token:", error);
-                return {
-                    success: false,
-                    message: "Internal server error",
-                    status: 500,
-                    skills: undefined,
-                };
+                throw new http_error_handler_util_1.HttpError(error instanceof Error ? error.message : String(error), httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.InternalServerError);
             }
         });
     }
@@ -355,7 +345,7 @@ class menteeService {
                 if (!filter || page < 1 || limit < 1 || !sortField || !sortOrder) {
                     return {
                         success: false,
-                        message: "credentials not found",
+                        message: httpResponse_1.HttpResponse === null || httpResponse_1.HttpResponse === void 0 ? void 0 : httpResponse_1.HttpResponse.INVALID_CREDENTIALS,
                         status: httpStatusCode_1.Status.BadRequest,
                         homeData: [],
                         totalPage: 0,
@@ -368,7 +358,7 @@ class menteeService {
                 if (!response) {
                     return {
                         success: false,
-                        message: "Data not found",
+                        message: httpResponse_1.HttpResponse === null || httpResponse_1.HttpResponse === void 0 ? void 0 : httpResponse_1.HttpResponse.RESOURCE_NOT_FOUND,
                         status: httpStatusCode_1.Status.NotFound,
                         homeData: [],
                         totalPage: 0,
@@ -377,21 +367,14 @@ class menteeService {
                 const totalPage = Math.ceil((response === null || response === void 0 ? void 0 : response.count) / limitNo);
                 return {
                     success: true,
-                    message: "Data successfully fetched",
+                    message: httpResponse_1.HttpResponse === null || httpResponse_1.HttpResponse === void 0 ? void 0 : httpResponse_1.HttpResponse.DATA_RETRIEVED,
                     status: httpStatusCode_1.Status.Ok,
                     homeData: response === null || response === void 0 ? void 0 : response.question,
                     totalPage,
                 };
             }
             catch (error) {
-                console.error("\x1b[34m%s\x1b[0m", "Error while generating access or refresh token:", error);
-                return {
-                    success: false,
-                    message: "Internal server error",
-                    status: httpStatusCode_1.Status.InternalServerError,
-                    homeData: [],
-                    totalPage: 0,
-                };
+                throw new http_error_handler_util_1.HttpError(error instanceof Error ? error.message : String(error), httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.InternalServerError);
             }
         });
     }
@@ -402,7 +385,7 @@ class menteeService {
                 if (!mentorId) {
                     return {
                         status: httpStatusCode_1.Status.BadRequest,
-                        message: "credential not found",
+                        message: httpResponse_1.HttpResponse === null || httpResponse_1.HttpResponse === void 0 ? void 0 : httpResponse_1.HttpResponse.INVALID_CREDENTIALS,
                         success: false,
                         mentor: [],
                     };
@@ -411,20 +394,20 @@ class menteeService {
                 if (!response) {
                     return {
                         status: httpStatusCode_1.Status.Ok,
-                        message: "Data not found",
+                        message: httpResponse_1.HttpResponse === null || httpResponse_1.HttpResponse === void 0 ? void 0 : httpResponse_1.HttpResponse.RESOURCE_NOT_FOUND,
                         success: false,
                         mentor: [],
                     };
                 }
                 return {
                     status: httpStatusCode_1.Status.Ok,
-                    message: "Data fetched successfully",
+                    message: httpResponse_1.HttpResponse === null || httpResponse_1.HttpResponse === void 0 ? void 0 : httpResponse_1.HttpResponse.DATA_RETRIEVED,
                     success: true,
                     mentor: response,
                 };
             }
             catch (error) {
-                throw new Error(`${error instanceof Error ? error.message : String(error)} error while gettign mentor data in mentee service`);
+                throw new http_error_handler_util_1.HttpError(error instanceof Error ? error.message : String(error), httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.InternalServerError);
             }
         });
     }

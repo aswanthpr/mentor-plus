@@ -1,12 +1,17 @@
-import { Request, Response } from "express";
+import { NextFunction, Request, Response } from "express";
 import { ImenteeService } from "../Interface/Mentee/iMenteeService";
 import { ImenteeController } from "../Interface/Mentee/iMenteeController";
+import { Status } from "../Constants/httpStatusCode";
 
 export class menteeController implements ImenteeController {
   constructor(private _menteeService: ImenteeService) {}
 
   //for creating new access token
-  async refreshToken(req: Request, res: Response): Promise<void> {
+  async refreshToken(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> {
     try {
       const result = await this._menteeService.refreshToken(
         req.cookies?.refreshToken
@@ -27,38 +32,31 @@ export class menteeController implements ImenteeController {
         accessToken: result?.accessToken,
       });
     } catch (error: unknown) {
-      res
-        .status(500)
-        .json({ success: false, message: "Internal server error" });
-
-      throw new Error(
-        `error while geting refreshToken${
-          error instanceof Error ? error.message : String(error)
-        }`
-      );
+      next(error);
     }
   }
 
-  async menteeLogout(req: Request, res: Response): Promise<void> {
+  async menteeLogout(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> {
     try {
       console.log(req.path.split("/"));
       res.clearCookie("refreshToken");
       res
-        .status(200)
+        .status(Status?.Ok)
         .json({ success: true, message: "Logged out successfully" });
     } catch (error: unknown) {
-      res
-        .status(500)
-        .json({ success: false, message: "Internal server error" });
-      throw new Error(
-        `Error while mentee  logout ${
-          error instanceof Error ? error.message : String(error)
-        }`
-      );
+      next(error);
     }
   }
 
-  async menteeProfile(req: Request, res: Response): Promise<void> {
+  async menteeProfile(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> {
     try {
       const token = req.headers["authorization"]?.split(" ")[1];
       const result = await this._menteeService.menteeProfile(token as string);
@@ -69,36 +67,30 @@ export class menteeController implements ImenteeController {
         result: result?.result,
       });
     } catch (error: unknown) {
-      res
-        .status(500)
-        .json({ success: false, message: "Internal server error" });
-      throw new Error(
-        `Error while get mentee  profile data ${
-          error instanceof Error ? error.message : String(error)
-        }`
-      );
+      next(error);
     }
   }
-  async menteeProfileEdit(req: Request, res: Response): Promise<void> {
+  async menteeProfileEdit(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> {
     try {
       console.log(req.body, "this is req.body of profile edit data");
       const result = await this._menteeService.editMenteeProfile(req.body);
 
       res.status(result?.status).json(result);
     } catch (error: unknown) {
-      res
-        .status(500)
-        .json({ success: false, message: "Internal server error" });
-      throw new Error(
-        `Error while get mentee  profile editing ${
-          error instanceof Error ? error.message : String(error)
-        }`
-      );
+      next(error);
     }
   }
 
   //mentee profile password change
-  async passwordChange(req: Request, res: Response): Promise<void> {
+  async passwordChange(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> {
     try {
       console.log(req.body, "thsi isthe passwords");
       const { currentPassword, newPassword, _id } = req.body;
@@ -109,17 +101,14 @@ export class menteeController implements ImenteeController {
       );
       res.status(result?.status).json(result);
     } catch (error: unknown) {
-      res
-        .status(500)
-        .json({ success: false, message: "Internal server error" });
-      throw new Error(
-        `Error while get mentee  profile password changing ${
-          error instanceof Error ? error.message : String(error)
-        }`
-      );
+      next(error);
     }
   }
-  async profileChange(req: Request, res: Response): Promise<void> {
+  async profileChange(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> {
     try {
       const { _id } = req.body;
       const profileImage =
@@ -131,20 +120,17 @@ export class menteeController implements ImenteeController {
 
       const result = await this._menteeService.profileChange(profileImage, _id);
 
-      res.status(result.status).json(result);
+      res.status(result?.status).json(result);
     } catch (error: unknown) {
-      res
-        .status(500)
-        .json({ success: false, message: "Internal server error" });
-      throw new Error(
-        `Error while get mentee  profile changing ${
-          error instanceof Error ? error.message : String(error)
-        }`
-      );
+      next(error);
     }
   }
   //get mentor data in explore
-  async exploreData(req: Request, res: Response): Promise<void> {
+  async exploreData(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> {
     try {
       const { search, categories, skill, page = "1", limit, sort } = req.query;
 
@@ -194,22 +180,19 @@ export class menteeController implements ImenteeController {
         totalPage,
       });
     } catch (error: unknown) {
-      res
-        .status(500)
-        .json({ success: false, message: "Internal server error" });
-      throw new Error(
-        `Error getting mentor data in explore ${
-          error instanceof Error ? error.message : String(error)
-        }`
-      );
+      next(error);
     }
   }
-  async homeData(req: Request, res: Response): Promise<void> {
+  async homeData(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> {
     try {
       const { filter } = req.params;
-      const { page = 1, search, limit ,sortOrder,sortField} = req.query;
+      const { page = 1, search, limit, sortOrder, sortField } = req.query;
 
-      const { status, success, message, homeData,totalPage } =
+      const { status, success, message, homeData, totalPage } =
         await this._menteeService.homeData(
           filter as string,
           String(search),
@@ -220,21 +203,20 @@ export class menteeController implements ImenteeController {
         );
       const userId = req.user as Express.User;
 
-      res.status(status).json({ success, message, homeData, userId,totalPage });
-    } catch (error: unknown) {
       res
-        .status(500)
-        .json({ success: false, message: "Internal server error" });
-      throw new Error(
-        `Error getting mentor data in explore ${
-          error instanceof Error ? error.message : String(error)
-        }`
-      );
+        .status(status)
+        .json({ success, message, homeData, userId, totalPage });
+    } catch (error: unknown) {
+      next(error);
     }
   }
   // /mentee/explore/mentor/:id
 
-  async getSimilarMentors(req: Request, res: Response): Promise<void> {
+  async getSimilarMentors(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> {
     try {
       const { category, mentorId } = req.query;
 
@@ -245,11 +227,7 @@ export class menteeController implements ImenteeController {
         );
       res.status(status).json({ success, message, mentor });
     } catch (error: unknown) {
-      throw new Error(
-        `Error while  getting mentor data in explore ${
-          error instanceof Error ? error.message : String(error)
-        }`
-      );
+      next(error);
     }
   }
 }

@@ -10,7 +10,7 @@ import { ADMIN_DASH_INITIAL_VALUE } from "../../Constants/initialStates";
 
 const Dashboard: React.FC = () => {
   const role = location.pathname.split("/")[1];
-  console.log(role);
+
   const [timeRange, setTimeRange] = useState("month");
   const [cardData, setCardData] = useState<IcardData>(ADMIN_DASH_INITIAL_VALUE);
   useEffect(() => {

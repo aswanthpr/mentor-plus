@@ -8,6 +8,8 @@ import mongoose, {
   // InsertManyOptions,
 } from "mongoose";
 import { IbaseRepository } from "../Interface/Base/iBaseRepository";
+import { HttpError } from "../Utils/http-error-handler.util";
+import { Status } from "../Constants/httpStatusCode";
 
 export class baseRepository<T extends Document> implements IbaseRepository<T> {
   constructor(private readonly model: Model<T>) {}
@@ -17,11 +19,7 @@ export class baseRepository<T extends Document> implements IbaseRepository<T> {
     try {
       return await this.model.findOne(filter).exec();
     } catch (error: unknown) {
-      throw new Error(
-        `Error while finding entity: ${
-          error instanceof Error ? error.message : String(error)
-        }`
-      );
+       throw new HttpError(error instanceof Error ? error.message : String(error), Status?.InternalServerError);
     }
   }
 
@@ -31,11 +29,7 @@ export class baseRepository<T extends Document> implements IbaseRepository<T> {
       const entity = new this.model(docData);
       return await entity.save();
     } catch (error: unknown) {
-      throw new Error(
-        `Error while creating document: ${
-          error instanceof Error ? error.message : String(error)
-        }`
-      );
+      throw new HttpError(error instanceof Error ? error.message : String(error), Status?.InternalServerError);
     }
   }
 
@@ -43,12 +37,7 @@ export class baseRepository<T extends Document> implements IbaseRepository<T> {
     try {
       return await this.model.findById(Id, filter).exec();
     } catch (error: unknown) {
-      console.log(
-        `Error while finding by ID: ${
-          error instanceof Error ? error.message : String(error)
-        }`
-      );
-      return null; // Return null if there's an error
+      throw new HttpError(error instanceof Error ? error.message : String(error), Status?.InternalServerError);
     }
   }
 
@@ -61,11 +50,7 @@ export class baseRepository<T extends Document> implements IbaseRepository<T> {
     try {
       return await model.findOneAndUpdate(filter, update, options).exec();
     } catch (error: unknown) {
-      throw new Error(
-        `${"\x1b[35m%s\x1b[0m"} Error while updating entity: ${
-          error instanceof Error ? error.message : String(error)
-        }`
-      );
+      throw new HttpError(error instanceof Error ? error.message : String(error), Status?.InternalServerError);
     }
   }
   async find<T extends Document>(
@@ -76,11 +61,7 @@ export class baseRepository<T extends Document> implements IbaseRepository<T> {
     try {
       return await model.find(filter, null, options).exec();
     } catch (error: unknown) {
-      throw new Error(
-        `Error while finding entities: ${
-          error instanceof Error ? error.message : String(error)
-        }`
-      );
+      throw new HttpError(error instanceof Error ? error.message : String(error), Status?.InternalServerError);
     }
   }
   async find_By_Id_And_Update<T extends Document>(
@@ -107,11 +88,7 @@ export class baseRepository<T extends Document> implements IbaseRepository<T> {
       }
       return await query.exec();
     } catch (error: unknown) {
-      throw new Error(
-        `Error while finding entities: ${
-          error instanceof Error ? error.message : String(error)
-        }`
-      );
+      throw new HttpError(error instanceof Error ? error.message : String(error), Status?.InternalServerError);
     }
   }
 
@@ -124,11 +101,7 @@ export class baseRepository<T extends Document> implements IbaseRepository<T> {
       // Execute the aggregation pipeline
       return await model.aggregate(aggregationPipeline).exec();
     } catch (error: unknown) {
-      throw new Error(
-        `Error while aggregating entities: ${
-          error instanceof Error ? error.message : String(error)
-        }`
-      );
+      throw new HttpError(error instanceof Error ? error.message : String(error), Status?.InternalServerError);
     }
   }
 
@@ -138,11 +111,7 @@ export class baseRepository<T extends Document> implements IbaseRepository<T> {
       return await this.model.deleteOne({ _id: Id }).exec();
   
     } catch (error: unknown) {
-      console.error(
-        `Error while deleting document: ${
-          error instanceof Error ? error.message : String(error)
-        }`
-      );
+      throw new HttpError(error instanceof Error ? error.message : String(error), Status?.InternalServerError);
     }
   }
   async deleteMany(filter: FilterQuery<T>): Promise<DeleteResult| undefined> {
@@ -150,11 +119,7 @@ export class baseRepository<T extends Document> implements IbaseRepository<T> {
       return await this.model.deleteMany(filter).exec();
   
     } catch (error: unknown) {
-      console.error(
-        `Error while deleting document: ${
-          error instanceof Error ? error.message : String(error)
-        }`
-      );
+      throw new HttpError(error instanceof Error ? error.message : String(error), Status?.InternalServerError);
     }
   }
 
@@ -166,11 +131,7 @@ export class baseRepository<T extends Document> implements IbaseRepository<T> {
     try {
       return await model.insertMany(documents);
     } catch (error: unknown) {
-      throw new Error(
-        `Error while inserting entities: ${
-          error instanceof Error ? error.message : String(error)
-        }`
-      );
+      throw new HttpError(error instanceof Error ? error.message : String(error), Status?.InternalServerError);
     }
   }
 
@@ -179,8 +140,7 @@ export class baseRepository<T extends Document> implements IbaseRepository<T> {
     try {
       return await this.model.countDocuments(filter);
     } catch (error:unknown) {
-      console.error("Error while counting documents:", error instanceof Error?error.message:String(error));
-      throw new Error("Failed to count documents");
+      throw new HttpError(error instanceof Error ? error.message : String(error), Status?.InternalServerError);
     }
   }
 }

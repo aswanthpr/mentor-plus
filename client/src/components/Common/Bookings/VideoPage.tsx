@@ -1,7 +1,9 @@
-import React, { useCallback, useEffect, useRef, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import React, { useEffect, useRef, useState } from "react";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { Mic, MicOff, Video, VideoOff, PhoneOff } from "lucide-react";
 import { io, Socket } from "socket.io-client";
+import { toast } from "react-toastify";
+import { constraints } from "../../../Constants/const Values";
 
 const ICE_SERVERS = {
   iceServers: [{ urls: "stun:stun.l.google.com:19302" }],
@@ -11,6 +13,9 @@ const SIGNALING_SERVER_URL = `${import.meta.env?.VITE_SERVER_URL}/webrtc`;
 
 const VideoPage: React.FC = () => {
   const navigate = useNavigate();
+  const location = useLocation();
+  const sessionId: string | null = location.state?.sessionId;
+  const userId: string | null = location.state?.userId;
   const role = location.pathname.split("/")?.[1];
   const { roomId } = useParams<{ roomId: string }>();
   const localVideoRef = useRef<HTMLVideoElement>(null);
@@ -20,24 +25,7 @@ const VideoPage: React.FC = () => {
   const [localStream, setLocalStream] = useState<MediaStream | null>(null);
   const [isVideoOn, setIsVideoOn] = useState(true);
   const [isAudioOn, setIsAudioOn] = useState(true);
-  const constraints = {
-    video: {
-      width: { ideal: 1920 }, // Full HD
-      height: { ideal: 720 },
-      frameRate: { ideal: 30, max: 60 }, // Smooth motion
-      facingMode: "user",
-      noiseSuppression: true, // Ensure front camera is used
-    },
-    audio: {
-      echoCancellation: true, // Removes echo
-      noiseSuppression: true, // Removes background noise
-      autoGainControl: true, // Balances volume
-      sampleRate: 48000, // Studio-quality audio
-      sampleSize: 24, // Higher bit depth for clearer sound
-      channelCount: 2, // Stereo audio
-      latency: 0, // Reduce delay
-    },
-  };
+
   useEffect(() => {
     const initCall = async () => {
       try {
@@ -74,9 +62,15 @@ const VideoPage: React.FC = () => {
 
         //  Initialize signaling socket
         signalingSocket.current = io(SIGNALING_SERVER_URL);
-
+        if (!roomId || !sessionId || !userId) {
+          navigate(-1);
+        }
         signalingSocket.current.on("connect", () => {
-          signalingSocket.current?.emit("join-call", roomId);
+          signalingSocket.current?.emit("join-call", {
+            roomId,
+            sessionId,
+            userId,
+          });
         });
 
         signalingSocket.current.on("offer", async (offer, senderId) => {
@@ -113,6 +107,10 @@ const VideoPage: React.FC = () => {
             signalingSocket.current?.emit("offer", offer, roomId, senderId);
           }
         });
+        signalingSocket.current.on("join-fail", (message) => {
+          toast.error(message);
+          navigate(-1);
+        });
       } catch (error) {
         console.error("Error accessing media devices:", error);
       }
@@ -131,11 +129,12 @@ const VideoPage: React.FC = () => {
       }
       if (localStream) {
         localStream.getTracks().forEach((track) => track.stop());
+        setLocalStream(null);
       }
     };
-  
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [localStream, roomId]);
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [roomId]);
 
   const toggleVideo = () => {
     if (localStream) {
@@ -147,7 +146,7 @@ const VideoPage: React.FC = () => {
     }
   };
 
-  const toggleAudio = useCallback(() => {
+  const toggleAudio = () => {
     if (localStream) {
       const audioTrack = localStream.getAudioTracks()[0];
       if (audioTrack) {
@@ -155,8 +154,8 @@ const VideoPage: React.FC = () => {
         setIsAudioOn(audioTrack.enabled);
       }
     }
-  }, [localStream]);
-  const endCall = useCallback(() => {
+  };
+  const endCall = () => {
     // Close Peer Connection
     if (peerConnection.current) {
       peerConnection.current.close();
@@ -177,7 +176,7 @@ const VideoPage: React.FC = () => {
 
     // Redirect to Home Page
     navigate(`/${role}/${role == "mentor" ? "session" : "bookings"}`);
-  }, [localStream, navigate, role]);
+  };
   return (
     <div className="fixed  lg:ml-64  mt-32   mb-2  inset-0 flex items-center justify-center">
       <video

@@ -55,7 +55,7 @@ export interface IbookingService {
         status: number;
         sessionStatus: string | null;
     }>;
-    validateSessionJoin(sessionId: string, sessionCode: string): Promise<{
+    validateSessionJoin(sessionId: string, sessionCode: string, userId: ObjectId): Promise<{
         message: string;
         status: number;
         success: boolean;

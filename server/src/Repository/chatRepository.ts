@@ -3,7 +3,8 @@ import chatSchema, { Ichat } from "../Model/chatSchema";
 import { IchatRepository } from "../Interface/chat/IchatRepository";
 import { ObjectId } from "mongoose";
 import messageSchema, { Imessage } from "../Model/messageSchema";
-
+import { HttpError } from "../Utils/http-error-handler.util";
+import { Status } from "../Constants/httpStatusCode";
 class chatRepository extends baseRepository<Ichat> implements IchatRepository {
   constructor() {
     super(chatSchema);
@@ -53,11 +54,7 @@ class chatRepository extends baseRepository<Ichat> implements IchatRepository {
         },
       ]);
     } catch (error: unknown) {
-      throw new Error(
-        `${"\x1b[35m%s\x1b[0m"}error while mentor chats:${
-          error instanceof Error ? error.message : String(error)
-        }`
-      );
+      throw new HttpError(error instanceof Error ? error.message : String(error), Status?.InternalServerError);
     }
   }
 
@@ -101,11 +98,7 @@ class chatRepository extends baseRepository<Ichat> implements IchatRepository {
         },
       ]);
     } catch (error: unknown) {
-      throw new Error(
-        `${"\x1b[35m%s\x1b[0m"}error while creating mentor chats :${
-          error instanceof Error ? error.message : String(error)
-        }`
-      );
+      throw new HttpError(error instanceof Error ? error.message : String(error), Status?.InternalServerError);
     }
   }
   //creating chat document
@@ -116,11 +109,7 @@ class chatRepository extends baseRepository<Ichat> implements IchatRepository {
     try {
       return this.createDocument({ menteeId, mentorId });
     } catch (error: unknown) {
-      throw new Error(
-        `${"\x1b[35m%s\x1b[0m"}error while creating  chats :${
-          error instanceof Error ? error.message : String(error)
-        }`
-      );
+      throw new HttpError(error instanceof Error ? error.message : String(error), Status?.InternalServerError);
     }
   }
 
@@ -149,11 +138,7 @@ class chatRepository extends baseRepository<Ichat> implements IchatRepository {
         }
       ]);
     } catch (error: unknown) {
-      throw new Error(
-        `${"\x1b[35m%s\x1b[0m"}error while getting user message :${
-          error instanceof Error ? error.message : String(error)
-        }`
-      );
+      throw new HttpError(error instanceof Error ? error.message : String(error), Status?.InternalServerError);
     }
   }
 
@@ -163,9 +148,7 @@ class chatRepository extends baseRepository<Ichat> implements IchatRepository {
       return await this.find_One({menteeId,mentorId});
    
     } catch (error:unknown) {
-      throw new Error(
-        `error while finding chat Room  in slot schedule repositry${error instanceof Error ? error.message : String(error)}`
-      );
+      throw new HttpError(error instanceof Error ? error.message : String(error), Status?.InternalServerError);
     }
   }
 }

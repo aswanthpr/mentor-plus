@@ -65,8 +65,6 @@ export const Mentee_mgt: React.FC = () => {
 
       const response = await ToggleMenteeStatus(id);
 
-      console.log(response?.data, response?.status, response.data?.message);
-
       if (response.data?.success && response?.status === HttpStatusCode?.Ok) {
         toast.dismiss();
         setMenteeData((pre) =>
@@ -173,7 +171,7 @@ export const Mentee_mgt: React.FC = () => {
               <tr key={mentee?._id}>
                 <td className="py-4 flex justify-center">
                   <img
-                    src={ mentee?.profileUrl?? profile}
+                    src={mentee?.profileUrl ?? profile}
                     alt={mentee?.name}
                     className="w-10 h-10 rounded-full"
                   />

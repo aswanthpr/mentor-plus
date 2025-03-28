@@ -140,7 +140,8 @@ interface ISessionCardProps {
   handleSessionJoin?(
     sessionId: string,
     sessionCode: string,
-    role: string
+    role: string,
+    userId:string
   ): void;
 }
 interface TabNavigationProps {
@@ -199,11 +200,12 @@ interface BreadcrumbProps {
 interface MentorListByCategoryProps {
   title: string;
   mentors: IMentor[];
-  onSeeAll: () => void;
+
+  // onSeeAll: () => void;
 }
 
 interface ProfileHeaderProps {
-  mentorData: IMentor | null;
+  mentorData?: IMentor |null;
 }
 interface SkillsProps {
   skills: string[];

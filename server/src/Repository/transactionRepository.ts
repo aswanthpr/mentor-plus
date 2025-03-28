@@ -2,6 +2,8 @@ import { ObjectId } from "mongoose";
 import { ItransactionRepository } from "../Interface/wallet/ItransactionRepository";
 import transactionSchema, { Itransaction} from "../Model/transactionModel";
 import { baseRepository } from "./baseRepo";
+import { HttpError } from "../Utils/http-error-handler.util";
+import { Status } from "../Constants/httpStatusCode";
 
 class transactionRepository extends baseRepository<Itransaction> implements ItransactionRepository{
     constructor(){
@@ -11,7 +13,7 @@ class transactionRepository extends baseRepository<Itransaction> implements Itra
         try {
             return await this.createDocument(newTranasaction);
         } catch (error:unknown) {
-            throw new Error(`${error instanceof Error ? error.message:String(error)}`);
+                throw new HttpError(error instanceof Error ? error.message : String(error), Status?.InternalServerError);
         }
     }
 

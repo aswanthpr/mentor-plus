@@ -14,6 +14,8 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const categorySchema_1 = __importDefault(require("../Model/categorySchema"));
 const baseRepo_1 = require("./baseRepo");
+const http_error_handler_util_1 = require("../Utils/http-error-handler.util");
+const httpStatusCode_1 = require("../Constants/httpStatusCode");
 class categoryRespository extends baseRepo_1.baseRepository {
     constructor() {
         super(categorySchema_1.default);
@@ -24,7 +26,7 @@ class categoryRespository extends baseRepo_1.baseRepository {
                 return yield this.find_One({ category });
             }
             catch (error) {
-                throw new Error(`error while find category in repository ${error instanceof Error ? error.message : String(error)}`);
+                throw new http_error_handler_util_1.HttpError(error instanceof Error ? error.message : String(error), httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.InternalServerError);
             }
         });
     }
@@ -34,7 +36,7 @@ class categoryRespository extends baseRepo_1.baseRepository {
                 return yield this.createDocument({ category });
             }
             catch (error) {
-                throw new Error(`error while create category in repository ${error instanceof Error ? error.message : String(error)} `);
+                throw new http_error_handler_util_1.HttpError(error instanceof Error ? error.message : String(error), httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.InternalServerError);
             }
         });
     }
@@ -42,7 +44,6 @@ class categoryRespository extends baseRepo_1.baseRepository {
         return __awaiter(this, void 0, void 0, function* () {
             var _a;
             try {
-                console.log(searchQuery, statusFilter, sortField, sortOrder, limit, skip);
                 const pipeline = [];
                 if (searchQuery) {
                     pipeline.push({
@@ -79,7 +80,7 @@ class categoryRespository extends baseRepo_1.baseRepository {
                 };
             }
             catch (error) {
-                throw new Error(`error while getting category Data in repository ${error instanceof Error ? error.message : String(error)} `);
+                throw new http_error_handler_util_1.HttpError(error instanceof Error ? error.message : String(error), httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.InternalServerError);
             }
         });
     }
@@ -89,7 +90,7 @@ class categoryRespository extends baseRepo_1.baseRepository {
                 return yield this.find(categorySchema_1.default, {});
             }
             catch (error) {
-                throw new Error(`error while getting category Data in repository ${error instanceof Error ? error.message : String(error)} `);
+                throw new http_error_handler_util_1.HttpError(error instanceof Error ? error.message : String(error), httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.InternalServerError);
             }
         });
     }
@@ -102,7 +103,7 @@ class categoryRespository extends baseRepo_1.baseRepository {
                 });
             }
             catch (error) {
-                throw new Error(`error while editing category  in repository ${error instanceof Error ? error.message : String(error)} `);
+                throw new http_error_handler_util_1.HttpError(error instanceof Error ? error.message : String(error), httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.InternalServerError);
             }
         });
     }
@@ -114,7 +115,7 @@ class categoryRespository extends baseRepo_1.baseRepository {
                 ]);
             }
             catch (error) {
-                throw new Error(`error while change category status in repository ${error instanceof Error ? error.message : String(error)} `);
+                throw new http_error_handler_util_1.HttpError(error instanceof Error ? error.message : String(error), httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.InternalServerError);
             }
         });
     }

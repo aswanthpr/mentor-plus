@@ -1,11 +1,15 @@
-import { Request, Response } from "express";
+import { NextFunction, Request, Response } from "express";
 import { IadminController } from "../Interface/Admin/iAdminController";
 import { IadminService } from "../Interface/Admin/iAdminService";
-import { Status } from "../Utils/httpStatusCode";
+import { Status } from "../Constants/httpStatusCode";
 
 export class adminController implements IadminController {
   constructor(private _adminService: IadminService) {}
-  async adminRefreshToken(req: Request, res: Response): Promise<void> {
+  async adminRefreshToken(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> {
     try {
       const result = await this._adminService.adminRefreshToken(
         req.cookies?.adminToken
@@ -25,60 +29,53 @@ export class adminController implements IadminController {
           accessToken: result?.accessToken,
         });
     } catch (error: unknown) {
-      res
-        .status(Status?.InternalServerError)
-        .json({ success: false, message: "Internal server error" });
-
-      throw new Error(
-        `error while geting refreshToken${
-          error instanceof Error ? error.message : String(error)
-        }`
-      );
+      next(error);
     }
   }
 
-  async createCategory(req: Request, res: Response): Promise<void> {
+  async createCategory(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> {
     try {
       const response = await this._adminService.createCategory(req.body!);
 
       res.status(response.status).json(response);
     } catch (error: unknown) {
-      res
-        .status(Status?.InternalServerError)
-        .json({ success: false, message: "internal server error" });
-
-      throw new Error(
-        `error while create category in controller ${
-          error instanceof Error ? error.message : String(error)
-        }`
-      );
+      next(error);
     }
   }
 
-  async categoryData(req: Request, res: Response): Promise<void> {
+  async categoryData(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> {
     try {
       const { searchQuery, statusFilter, sortField, sortOrder, page, limit } =
         req.query;
 
-      const {message,success,categories,totalPage,status} = await this._adminService.categoryData(
-       String(searchQuery) , String(statusFilter) , String(sortField) ,  String(sortOrder), Number(page) , Number(limit)  
-      );
-        res.status(status).json({message,success,categories,totalPage});
-     
+      const { message, success, categories, totalPage, status } =
+        await this._adminService.categoryData(
+          String(searchQuery),
+          String(statusFilter),
+          String(sortField),
+          String(sortOrder),
+          Number(page),
+          Number(limit)
+        );
+      res.status(status).json({ message, success, categories, totalPage });
     } catch (error: unknown) {
-      res
-        .status(Status?.InternalServerError)
-        .json({ success: false, message: "Internal server error" });
-
-      throw new Error(
-        `error while getting category in controller ${
-          error instanceof Error ? error.message : String(error)
-        }`
-      );
+      next(error);
     }
   }
 
-  async editCategory(req: Request, res: Response): Promise<void> {
+  async editCategory(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> {
     try {
       const { id, category } = req.body;
       console.log(req.body, "thsi is the data", id, category);
@@ -86,41 +83,33 @@ export class adminController implements IadminController {
       if (result.success) {
         res.status(Status?.Ok).json(result);
       } else {
-        res.status(409).json(result);
+        res.status(Status?.Conflict).json(result);
       }
     } catch (error: unknown) {
-      res
-        .status(500)
-        .json({ success: false, message: "Internal server error" });
-
-      throw new Error(
-        `error while getting category in controller ${
-          error instanceof Error ? error.message : String(error)
-        }`
-      );
+      next(error);
     }
   }
-  async changeCategoryStatus(req: Request, res: Response): Promise<void> {
+  async changeCategoryStatus(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> {
     try {
       const result = await this._adminService.changeCategoryStatus(req.body.id);
       res
         .status(result.status)
         .json({ success: result.success, message: result.message });
     } catch (error: unknown) {
-      res
-        .status(Status?.InternalServerError)
-        .json({ success: false, message: "Internal server error" });
-
-      throw new Error(
-        `error while getting category in controller ${
-          error instanceof Error ? error.message : String(error)
-        }`
-      );
+      next(error);
     }
   }
 
   //-----------------------------------------------------------------------------------------------
-  async menteeData(req: Request, res: Response): Promise<void> {
+  async menteeData(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> {
     try {
       const { search, sortField, sortOrder, statusFilter, page, limit } =
         req.query;
@@ -137,34 +126,30 @@ export class adminController implements IadminController {
 
       res.status(status).json({ message, success, totalPage, Data });
     } catch (error: unknown) {
-      res
-        .status(Status?.InternalServerError)
-        .json({ success: false, message: "Internal server error" });
-
-      throw new Error(
-        `error while getting category in controller ${
-          error instanceof Error ? error.message : String(error)
-        }`
-      );
+      next(error);
     }
   }
 
-  async changeMenteeStatus(req: Request, res: Response): Promise<void> {
+  async changeMenteeStatus(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> {
     try {
       const result = await this._adminService.changeMenteeStatus(req.body?.id);
       res
         .status(result.status)
         .json({ success: result.success, message: result.message });
     } catch (error: unknown) {
-      throw new Error(
-        `error while getting category in controller ${
-          error instanceof Error ? error.message : String(error)
-        }`
-      );
+      next(error);
     }
   }
 
-  async editMentee(req: Request, res: Response): Promise<void> {
+  async editMentee(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> {
     try {
       console.log(req.body);
       const { status, success, message } = await this._adminService.editMentee(
@@ -173,29 +158,29 @@ export class adminController implements IadminController {
 
       res.status(status!).json({ success, message });
     } catch (error: unknown) {
-      throw new Error(
-        `error while getting mentee Data  in controller ${
-          error instanceof Error ? error.message : String(error)
-        }`
-      );
+      next(error);
     }
   }
-  async addMentee(req: Request, res: Response): Promise<void> {
+  async addMentee(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> {
     try {
       const response = await this._adminService.addMentee(req.body);
 
       res.status(Status?.Ok).json(response);
     } catch (error: unknown) {
-      throw new Error(
-        `error while add mentee Data  in controller ${
-          error instanceof Error ? error.message : String(error)
-        }`
-      );
+      next(error);
     }
   }
 
   //-----------------------------------------------------------
-  async mentorData(req: Request, res: Response): Promise<void> {
+  async mentorData(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> {
     try {
       const { searchQuery, sortField, sortOrder, page, limit, activeTab } =
         req.query;
@@ -214,14 +199,14 @@ export class adminController implements IadminController {
         totalPage: result?.totalPage,
       });
     } catch (error: unknown) {
-      throw new Error(
-        `error while get mentor Data  in controller ${
-          error instanceof Error ? error.message : String(error)
-        }`
-      );
+      next(error);
     }
   }
-  async mentorVerify(req: Request, res: Response): Promise<void> {
+  async mentorVerify(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> {
     try {
       console.log(req.body, "lkasndflnf");
       const result = await this._adminService.mentorVerify(req.body as string);
@@ -232,15 +217,15 @@ export class adminController implements IadminController {
         metnorData: result.result,
       });
     } catch (error: unknown) {
-      throw new Error(
-        `error while mentor verify  in controller ${
-          error instanceof Error ? error.message : String(error)
-        }`
-      );
+      next(error);
     }
   }
   //mentor status change
-  async changeMentorStatus(req: Request, res: Response): Promise<void> {
+  async changeMentorStatus(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> {
     try {
       const result = await this._adminService.mentorStatusChange(
         req.body.id as string
@@ -249,30 +234,29 @@ export class adminController implements IadminController {
         .status(result.status)
         .json({ success: result.success, message: result.message });
     } catch (error: unknown) {
-      throw new Error(
-        `error while mentor stutus  in controller ${
-          error instanceof Error ? error.message : String(error)
-        }`
-      );
+      next(error);
     }
   }
-  async adminLogout(req: Request, res: Response): Promise<void> {
+  async adminLogout(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> {
     try {
       res.clearCookie("adminToken");
-      res.status(200).json({ success: true, message: "Logout successfully" });
-    } catch (error: unknown) {
       res
-        .status(500)
-        .json({ success: false, message: "Internal server error" });
-      throw new Error(
-        `Error while mentee  logout ${
-          error instanceof Error ? error.message : String(error)
-        }`
-      );
+        .status(Status?.Ok)
+        .json({ success: true, message: "Logout successfully" });
+    } catch (error: unknown) {
+      next(error);
     }
   }
 
-  async getDashboardData(req: Request, res: Response): Promise<void> {
+  async getDashboardData(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> {
     try {
       const { timeRange } = req.query;
 
@@ -281,14 +265,7 @@ export class adminController implements IadminController {
 
       res.status(status).json({ success, message, status, salesData });
     } catch (error: unknown) {
-      res
-        .status(Status?.InternalServerError)
-        .json({ success: false, message: "Internal server error" });
-      throw new Error(
-        `Error while dashboard ${
-          error instanceof Error ? error.message : String(error)
-        }`
-      );
+      next(error);
     }
   }
 }

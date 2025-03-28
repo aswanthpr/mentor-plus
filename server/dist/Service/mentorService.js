@@ -18,9 +18,11 @@ const rrule_1 = require("rrule");
 const jwt_utils_1 = require("../Utils/jwt.utils");
 const hashPass_util_1 = __importDefault(require("../Utils/hashPass.util"));
 const cloudinary_util_1 = require("../Config/cloudinary.util");
-const httpStatusCode_1 = require("../Utils/httpStatusCode");
+const httpStatusCode_1 = require("../Constants/httpStatusCode");
 const moment_1 = __importDefault(require("moment"));
 const reusable_util_1 = require("../Utils/reusable.util");
+const httpResponse_1 = require("../Constants/httpResponse");
+const http_error_handler_util_1 = require("../Utils/http-error-handler.util");
 class mentorService {
     constructor(_mentorRepository, _categoryRepository, _questionRepository, _timeSlotRepository, _slotScheduleRepository) {
         this._mentorRepository = _mentorRepository;
@@ -37,7 +39,7 @@ class mentorService {
                 if (!((_a = decode === null || decode === void 0 ? void 0 : decode.result) === null || _a === void 0 ? void 0 : _a.userId)) {
                     return {
                         success: false,
-                        message: "Your session has expired. Please log in again.",
+                        message: httpResponse_1.HttpResponse === null || httpResponse_1.HttpResponse === void 0 ? void 0 : httpResponse_1.HttpResponse.UNAUTHORIZED,
                         status: httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.Forbidden,
                         result: null,
                         categories: [],
@@ -47,7 +49,7 @@ class mentorService {
                 if (!result) {
                     return {
                         success: false,
-                        message: "invalid credential",
+                        message: httpResponse_1.HttpResponse === null || httpResponse_1.HttpResponse === void 0 ? void 0 : httpResponse_1.HttpResponse.INVALID_CREDENTIALS,
                         status: httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.NoContent,
                         result: null,
                         categories: [],
@@ -57,7 +59,7 @@ class mentorService {
                 if (!categoryData) {
                     return {
                         success: false,
-                        message: "invalid credential",
+                        message: httpResponse_1.HttpResponse === null || httpResponse_1.HttpResponse === void 0 ? void 0 : httpResponse_1.HttpResponse.INVALID_CREDENTIALS,
                         status: httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.NoContent,
                         result: null,
                         categories: [],
@@ -65,14 +67,14 @@ class mentorService {
                 }
                 return {
                     success: true,
-                    message: "successfull",
+                    message: httpResponse_1.HttpResponse === null || httpResponse_1.HttpResponse === void 0 ? void 0 : httpResponse_1.HttpResponse.SUCCESS,
                     status: httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.Ok,
                     result: result,
                     categories: categoryData,
                 };
             }
             catch (error) {
-                throw new Error(`Error while bl metneeProfile in service: ${error instanceof Error ? error.message : String(error)}`);
+                throw new http_error_handler_util_1.HttpError(error instanceof Error ? error.message : String(error), httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.InternalServerError);
             }
         });
     }
@@ -84,15 +86,18 @@ class mentorService {
                 if (!refresh) {
                     return {
                         success: false,
-                        message: "You are not authorized. Please log in.",
+                        message: httpResponse_1.HttpResponse === null || httpResponse_1.HttpResponse === void 0 ? void 0 : httpResponse_1.HttpResponse.UNAUTHORIZED,
                         status: httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.Unauthorized,
                     };
                 }
                 const decode = (0, jwt_utils_1.verifyRefreshToken)(refresh, "mentor");
-                if (!(decode === null || decode === void 0 ? void 0 : decode.isValid) || !((_a = decode === null || decode === void 0 ? void 0 : decode.result) === null || _a === void 0 ? void 0 : _a.userId) || (decode === null || decode === void 0 ? void 0 : decode.error) == "TamperedToken" || (decode === null || decode === void 0 ? void 0 : decode.error) == "TokenExpired") {
+                if (!(decode === null || decode === void 0 ? void 0 : decode.isValid) ||
+                    !((_a = decode === null || decode === void 0 ? void 0 : decode.result) === null || _a === void 0 ? void 0 : _a.userId) ||
+                    (decode === null || decode === void 0 ? void 0 : decode.error) == "TamperedToken" ||
+                    (decode === null || decode === void 0 ? void 0 : decode.error) == "TokenExpired") {
                     return {
                         success: false,
-                        message: "You are not authorized. Please log in.",
+                        message: httpResponse_1.HttpResponse === null || httpResponse_1.HttpResponse === void 0 ? void 0 : httpResponse_1.HttpResponse.UNAUTHORIZED,
                         status: httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.Unauthorized,
                     };
                 }
@@ -101,19 +106,14 @@ class mentorService {
                 const refreshToken = (0, jwt_utils_1.genRefreshToken)(userId, "mentor");
                 return {
                     success: true,
-                    message: "Token refresh successfully",
+                    message: httpResponse_1.HttpResponse === null || httpResponse_1.HttpResponse === void 0 ? void 0 : httpResponse_1.HttpResponse.TOKEN_GENERATED,
                     accessToken,
                     refreshToken,
                     status: httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.Ok,
                 };
             }
             catch (error) {
-                console.error("Error while generating BLRefreshToken", error);
-                return {
-                    success: false,
-                    message: "An internal server error occurred. Please try again later.",
-                    status: 500,
-                };
+                throw new http_error_handler_util_1.HttpError(error instanceof Error ? error.message : String(error), httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.InternalServerError);
             }
         });
     }
@@ -124,14 +124,14 @@ class mentorService {
                 if (!currentPassword || !newPassword || !id) {
                     return {
                         success: false,
-                        message: "Please provide all required credentials.",
+                        message: httpResponse_1.HttpResponse === null || httpResponse_1.HttpResponse === void 0 ? void 0 : httpResponse_1.HttpResponse.INVALID_CREDENTIALS,
                         status: httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.BadRequest,
                     };
                 }
                 if (currentPassword == newPassword) {
                     return {
                         success: false,
-                        message: "New password cannot be the same as the current password.",
+                        message: httpResponse_1.HttpResponse === null || httpResponse_1.HttpResponse === void 0 ? void 0 : httpResponse_1.HttpResponse.NEW_PASS_REQUIRED,
                         status: httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.BadRequest,
                     };
                 }
@@ -139,7 +139,7 @@ class mentorService {
                 if (!result) {
                     return {
                         success: false,
-                        message: "User not found. Please check your credentials.",
+                        message: httpResponse_1.HttpResponse === null || httpResponse_1.HttpResponse === void 0 ? void 0 : httpResponse_1.HttpResponse.USER_NOT_FOUND,
                         status: httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.NotFound,
                     };
                 }
@@ -147,7 +147,7 @@ class mentorService {
                 if (!passCompare) {
                     return {
                         success: false,
-                        message: "Incorrect current password. Please try again.",
+                        message: httpResponse_1.HttpResponse === null || httpResponse_1.HttpResponse === void 0 ? void 0 : httpResponse_1.HttpResponse.PASSWORD_INCORRECT,
                         status: httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.BadRequest,
                     };
                 }
@@ -156,18 +156,18 @@ class mentorService {
                 if (!response) {
                     return {
                         success: false,
-                        message: "Failed to update the password. Please try again later.",
-                        status: 503,
+                        message: httpResponse_1.HttpResponse === null || httpResponse_1.HttpResponse === void 0 ? void 0 : httpResponse_1.HttpResponse.FAILED,
+                        status: httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.BadRequest,
                     };
                 }
                 return {
                     success: true,
-                    message: "Password updated successfully.",
+                    message: httpResponse_1.HttpResponse === null || httpResponse_1.HttpResponse === void 0 ? void 0 : httpResponse_1.HttpResponse.SUCCESS,
                     status: httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.Ok,
                 };
             }
             catch (error) {
-                throw new Error(`Error during password change${error instanceof Error ? error.message : String(error)}`);
+                throw new http_error_handler_util_1.HttpError(error instanceof Error ? error.message : String(error), httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.InternalServerError);
             }
         });
     }
@@ -178,7 +178,7 @@ class mentorService {
                 if (!image || !id) {
                     return {
                         success: false,
-                        message: "Image or ID is missing, please provide both.",
+                        message: httpResponse_1.HttpResponse === null || httpResponse_1.HttpResponse === void 0 ? void 0 : httpResponse_1.HttpResponse.INVALID_CREDENTIALS,
                         status: httpStatusCode_1.Status.BadRequest,
                     };
                 }
@@ -186,39 +186,27 @@ class mentorService {
                 if (!profileUrl) {
                     return {
                         success: false,
-                        message: "Failed to upload the image, please try again later.",
+                        message: httpResponse_1.HttpResponse === null || httpResponse_1.HttpResponse === void 0 ? void 0 : httpResponse_1.HttpResponse.FAILED,
                         status: httpStatusCode_1.Status.InternalServerError,
                     };
                 }
-                // const currentPublicId = this.extractPublicIdFromCloudinaryUrl(currentProfile.profileUrl);
-                // // If there's an existing image, delete it from Cloudinary
-                // if (currentPublicId) {
-                //   const deleteResult = await cloudinary.v2.uploader.destroy(currentPublicId);
-                //   if (deleteResult.result !== 'ok') {
-                //     return {
-                //       success: false,
-                //       message: "Failed to delete the old image from Cloudinary.",
-                //       status: 500,
-                //     };
-                //   }
-                // }
                 const result = yield this._mentorRepository.changeMentorProfileImage(profileUrl, id);
                 if (!result) {
                     return {
                         success: false,
-                        message: "Mentor not found with the provided ID.",
+                        message: httpResponse_1.HttpResponse === null || httpResponse_1.HttpResponse === void 0 ? void 0 : httpResponse_1.HttpResponse.USER_NOT_FOUND,
                         status: httpStatusCode_1.Status.NotFound,
                     };
                 }
                 return {
                     success: true,
-                    message: "Profile image updated successfully.",
+                    message: httpResponse_1.HttpResponse === null || httpResponse_1.HttpResponse === void 0 ? void 0 : httpResponse_1.HttpResponse.PROFILE_PICTURE_CHANGED,
                     status: httpStatusCode_1.Status.Ok,
                     profileUrl: result.profileUrl,
                 };
             }
             catch (error) {
-                throw new Error(`Error while bl metnee Profile  change in service: ${error instanceof Error ? error.message : String(error)}`);
+                throw new http_error_handler_util_1.HttpError(error instanceof Error ? error.message : String(error), httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.InternalServerError);
             }
         });
     }
@@ -226,7 +214,6 @@ class mentorService {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 const { _id, name, email, phone, jobTitle, category, linkedinUrl, githubUrl, bio, skills, } = mentorData;
-                console.log("\x1b[32m%s\x1b[0m", _id);
                 if (!name ||
                     !email ||
                     !jobTitle ||
@@ -237,7 +224,7 @@ class mentorService {
                     !skills) {
                     return {
                         success: false,
-                        message: "credential is missing",
+                        message: httpResponse_1.HttpResponse === null || httpResponse_1.HttpResponse === void 0 ? void 0 : httpResponse_1.HttpResponse.INVALID_CREDENTIALS,
                         status: httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.BadRequest,
                         result: null,
                     };
@@ -246,7 +233,7 @@ class mentorService {
                 if (!existingMentor) {
                     return {
                         success: false,
-                        message: "Mentor not existing",
+                        message: httpResponse_1.HttpResponse === null || httpResponse_1.HttpResponse === void 0 ? void 0 : httpResponse_1.HttpResponse.USER_NOT_FOUND,
                         status: httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.NotFound,
                         result: null,
                     };
@@ -286,31 +273,30 @@ class mentorService {
                 if (!result) {
                     return {
                         success: false,
-                        message: "unable to update",
+                        message: httpResponse_1.HttpResponse === null || httpResponse_1.HttpResponse === void 0 ? void 0 : httpResponse_1.HttpResponse.FAILED,
                         status: httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.NotFound,
                         result: null,
                     };
                 }
                 return {
                     success: true,
-                    message: "Details changed Successfully!",
+                    message: httpResponse_1.HttpResponse === null || httpResponse_1.HttpResponse === void 0 ? void 0 : httpResponse_1.HttpResponse.SUCCESS,
                     status: httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.Ok,
                     result: result,
                 };
             }
             catch (error) {
-                throw new Error(`Error while  mentor Profile  edit details in service: ${error instanceof Error ? error.message : String(error)}`);
+                throw new http_error_handler_util_1.HttpError(error instanceof Error ? error.message : String(error), httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.InternalServerError);
             }
         });
     }
     questionData(filter, search, sortField, sortOrder, page, limit) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                console.log(filter, search, page, limit);
                 if (!filter || page < 1 || limit < 1 || !sortField || !sortOrder) {
                     return {
                         success: false,
-                        message: "credentials not found",
+                        message: httpResponse_1.HttpResponse === null || httpResponse_1.HttpResponse === void 0 ? void 0 : httpResponse_1.HttpResponse.INVALID_CREDENTIALS,
                         status: httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.BadRequest,
                         homeData: [],
                         totalPage: 0,
@@ -323,14 +309,14 @@ class mentorService {
                 const totalPage = Math.ceil((response === null || response === void 0 ? void 0 : response.count) / limitNo);
                 return {
                     success: true,
-                    message: "Data successfully fetched",
+                    message: httpResponse_1.HttpResponse === null || httpResponse_1.HttpResponse === void 0 ? void 0 : httpResponse_1.HttpResponse.DATA_RETRIEVED,
                     status: httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.Ok,
                     homeData: response === null || response === void 0 ? void 0 : response.question,
                     totalPage,
                 };
             }
             catch (error) {
-                throw new Error(`Error while  mentor home data fetching in service: ${error instanceof Error ? error.message : String(error)}`);
+                throw new http_error_handler_util_1.HttpError(error instanceof Error ? error.message : String(error), httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.InternalServerError);
             }
         });
     }
@@ -347,46 +333,31 @@ class mentorService {
                         slots.length === 0 ||
                         !endDate ||
                         (selectedDays === null || selectedDays === void 0 ? void 0 : selectedDays.length) == 0) {
-                        console.log("haiiiii");
                         return {
                             success: false,
-                            message: "crdential not found",
+                            message: httpResponse_1.HttpResponse === null || httpResponse_1.HttpResponse === void 0 ? void 0 : httpResponse_1.HttpResponse.INVALID_CREDENTIALS,
                             status: httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.BadRequest,
                             timeSlots: [],
                         };
                     }
-                    let res = [];
                     const checkedSlots = yield this._timeSlotRepository.checkTimeSlots(mentorId, new Date(startDate), new Date(endDate));
-                    console.log(checkedSlots);
-                    if (checkedSlots.length > 0) {
-                        res = (0, reusable_util_1.checkForOverlap)(checkedSlots, slots);
-                    }
-                    if (checkedSlots.length < 0 && res.length == 0) {
-                        return {
-                            success: false,
-                            message: "all time periods are  duplicates ",
-                            status: httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.BadRequest,
-                            timeSlots: [],
-                        };
-                    }
+                    const res = (0, reusable_util_1.checkForOverlap)(checkedSlots, slots);
                     const today = new Date();
                     const startDateStr = new Date(startDate);
                     const endDateStr = new Date(endDate);
                     if (startDateStr < today) {
-                        console.log("1111111111111111111");
                         return {
                             success: false,
-                            message: "Start date cannot be in the past.",
+                            message: httpResponse_1.HttpResponse === null || httpResponse_1.HttpResponse === void 0 ? void 0 : httpResponse_1.HttpResponse.START_DATE_CANNOT_BE_PAST,
                             status: httpStatusCode_1.Status.Ok,
                             timeSlots: [],
                         };
                     }
                     // Ensure endDate is after startDate
                     if (endDateStr.getTime() <= startDateStr.getTime()) {
-                        console.log("2222222222222222");
                         return {
                             success: false,
-                            message: "The time duration must be between 30 and 60 minutes.",
+                            message: httpResponse_1.HttpResponse === null || httpResponse_1.HttpResponse === void 0 ? void 0 : httpResponse_1.HttpResponse.DURATION_DIFFERNT_REQUIRED,
                             status: httpStatusCode_1.Status.Ok,
                             timeSlots: [],
                         };
@@ -410,7 +381,7 @@ class mentorService {
                     });
                     const recurringDates = rrule.all();
                     recurringDates.forEach((date) => {
-                        (res.length > 0 ? res : slots).forEach((slot) => {
+                        res.forEach((slot) => {
                             const dateStr = date.toISOString();
                             const start = (0, moment_1.default)(`${dateStr.split("T")[0]} ${slot === null || slot === void 0 ? void 0 : slot.startTime}`, "YYYY-MM-DD HH:mm:ss");
                             const end = (0, moment_1.default)(`${dateStr.split("T")[0]} ${slot === null || slot === void 0 ? void 0 : slot.endTime}`, "YYYY-MM-DD HH:mm:ss");
@@ -419,7 +390,7 @@ class mentorService {
                             if (minutesDifference < 30 || minutesDifference > 60) {
                                 return {
                                     success: false,
-                                    message: "The time duration must be between 30 and 60 minutes.",
+                                    message: httpResponse_1.HttpResponse === null || httpResponse_1.HttpResponse === void 0 ? void 0 : httpResponse_1.HttpResponse.DURATION_DIFFERNT_REQUIRED,
                                     status: httpStatusCode_1.Status.Ok,
                                     timeSlots: [],
                                 };
@@ -427,7 +398,7 @@ class mentorService {
                             if (end.isBefore(start)) {
                                 return {
                                     success: false,
-                                    message: "The End Time is Befor Start Time",
+                                    message: httpResponse_1.HttpResponse === null || httpResponse_1.HttpResponse === void 0 ? void 0 : httpResponse_1.HttpResponse.END_TIME_PAST,
                                     status: httpStatusCode_1.Status.Ok,
                                     timeSlots: [],
                                 };
@@ -449,66 +420,47 @@ class mentorService {
                             timeSlotsToInsert.push(timeSlot);
                         });
                     });
-                    result = yield this._timeSlotRepository.createTimeSlot(timeSlotsToInsert);
                 }
                 else {
                     for (const entry of schedule) {
                         const { slots, price, startDate } = entry;
-                        console.log("slot:", slots, "price", price, "strtDAte", startDate, entry);
                         if (!price || !startDate || !mentorId) {
                             return {
                                 success: false,
-                                message: "credential missing",
+                                message: httpResponse_1.HttpResponse === null || httpResponse_1.HttpResponse === void 0 ? void 0 : httpResponse_1.HttpResponse.INVALID_CREDENTIALS,
                                 status: httpStatusCode_1.Status.BadRequest,
                                 timeSlots: [],
                             };
                         }
-                        console.log('1111111');
-                        let res = [];
                         const checkedSlots = yield this._timeSlotRepository.checkTimeSlots(mentorId, new Date(`${startDate}T00:00:00.000Z`), new Date(`${startDate}T23:59:59.999Z`));
-                        if (checkedSlots.length > 0) {
-                            res = (0, reusable_util_1.checkForOverlap)(checkedSlots, slots);
-                        }
-                        console.log('222222');
-                        if (checkedSlots.length < 0 && res.length == 0) {
-                            return {
-                                success: false,
-                                message: "all time periods are  duplicates ",
-                                status: httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.BadRequest,
-                                timeSlots: [],
-                            };
-                        }
+                        const res = (0, reusable_util_1.checkForOverlap)(checkedSlots, slots);
                         const givenDate = (0, moment_1.default)(startDate, "YYYY-MM-DD");
                         const currentDate = (0, moment_1.default)().startOf("day");
-                        console.log('3333333');
                         if (givenDate.isBefore(currentDate)) {
-                            console.log('00000000');
                             return {
                                 success: false,
-                                message: " The given date is in the past.",
+                                message: httpResponse_1.HttpResponse === null || httpResponse_1.HttpResponse === void 0 ? void 0 : httpResponse_1.HttpResponse.DATE_CANNOT_BE_PAST,
                                 status: httpStatusCode_1.Status.BadRequest,
                                 timeSlots: [],
                             };
                         }
-                        const entrySlots = (res.length > 0 ? res : slots).map((slot) => {
+                        const entrySlots = res.map((slot) => {
                             const start = (0, moment_1.default)(`${startDate} ${slot === null || slot === void 0 ? void 0 : slot.startTime}`, "YYYY-MM-DD HH:mm:ss");
                             const end = (0, moment_1.default)(`${startDate} ${slot === null || slot === void 0 ? void 0 : slot.endTime}`, "YYYY-MM-DD HH:mm:ss");
-                            console.log('55555');
                             const duration = moment_1.default.duration(end.diff(start));
                             if (!duration) {
                                 return {
                                     success: false,
-                                    message: "Time difference is not in between 20 to 60.",
+                                    message: httpResponse_1.HttpResponse === null || httpResponse_1.HttpResponse === void 0 ? void 0 : httpResponse_1.HttpResponse.TIME_DIFF_REQUIRED,
                                     status: httpStatusCode_1.Status.BadRequest,
                                     timeSlots: [],
                                 };
                             }
                             const minutesDifference = duration.asMinutes();
-                            console.log(start, "start", "end:", end, "minutesDifference:", minutesDifference);
                             if (minutesDifference < 30 || minutesDifference > 60) {
                                 return {
                                     success: false,
-                                    message: "The time duration must be between 30 and 60 minutes.",
+                                    message: httpResponse_1.HttpResponse === null || httpResponse_1.HttpResponse === void 0 ? void 0 : httpResponse_1.HttpResponse.DURATION_DIFFERNT_REQUIRED,
                                     status: httpStatusCode_1.Status.Ok,
                                     timeSlots: [],
                                 };
@@ -516,7 +468,7 @@ class mentorService {
                             if (end.isBefore(start)) {
                                 return {
                                     success: false,
-                                    message: "The End Time is Befor Start Time",
+                                    message: httpResponse_1.HttpResponse === null || httpResponse_1.HttpResponse === void 0 ? void 0 : httpResponse_1.HttpResponse.END_TIME_PAST,
                                     status: httpStatusCode_1.Status.Ok,
                                     timeSlots: [],
                                 };
@@ -524,7 +476,6 @@ class mentorService {
                             // Create a date string in ISO format
                             const startStr = start.format("YYYY-MM-DDTHH:mm:ss");
                             const endStr = end.format("YYYY-MM-DDTHH:mm:ss");
-                            console.log(start.format("YYYY-MM-DDTHH:mm:ss"), end.format("YYYY-MM-DDTHH:mm:ss"), end.toISOString(), "this is the time i converted", startStr, endStr);
                             const startDateInDate = new Date(startDate);
                             return {
                                 startDate: startDateInDate,
@@ -542,26 +493,32 @@ class mentorService {
                         timeSlotsToInsert.push(...entrySlots);
                     }
                 }
-                result = yield this._timeSlotRepository.createTimeSlot(timeSlotsToInsert);
-                console.log(result, "thsi is the result ");
-                if (!result) {
-                    console.log("555555555555");
+                if (timeSlotsToInsert.length === 0) {
                     return {
                         success: false,
-                        message: "error while slot creating ",
+                        message: httpResponse_1.HttpResponse === null || httpResponse_1.HttpResponse === void 0 ? void 0 : httpResponse_1.HttpResponse.NO_SLOT_AVAIL_TO_CREATE,
+                        status: httpStatusCode_1.Status.Ok,
+                        timeSlots: [],
+                    };
+                }
+                result = yield this._timeSlotRepository.createTimeSlot(timeSlotsToInsert);
+                if (!result) {
+                    return {
+                        success: false,
+                        message: httpResponse_1.HttpResponse === null || httpResponse_1.HttpResponse === void 0 ? void 0 : httpResponse_1.HttpResponse.FAILED,
                         status: httpStatusCode_1.Status.BadRequest,
                         timeSlots: [],
                     };
                 }
                 return {
                     success: true,
-                    message: "slot created successfully",
+                    message: httpResponse_1.HttpResponse === null || httpResponse_1.HttpResponse === void 0 ? void 0 : httpResponse_1.HttpResponse.SLOTS_CREATED,
                     status: httpStatusCode_1.Status.Ok,
                     timeSlots: result,
                 };
             }
             catch (error) {
-                throw new Error(`"\x1b[33m%s\x1b[0m",Error while mentor creating timeSlots in service: ${error instanceof Error ? error.message : String(error)}`);
+                throw new http_error_handler_util_1.HttpError(error instanceof Error ? error.message : String(error), httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.InternalServerError);
             }
         });
     }
@@ -576,7 +533,7 @@ class mentorService {
                     page < 1) {
                     return {
                         success: false,
-                        message: "credentials not found",
+                        message: httpResponse_1.HttpResponse === null || httpResponse_1.HttpResponse === void 0 ? void 0 : httpResponse_1.HttpResponse.INVALID_CREDENTIALS,
                         status: httpStatusCode_1.Status.BadRequest,
                         timeSlots: [],
                         totalPage: 0,
@@ -585,19 +542,18 @@ class mentorService {
                 const skipData = (0, reusable_util_1.createSkip)(page, limit);
                 const limitNo = skipData === null || skipData === void 0 ? void 0 : skipData.limitNo;
                 const skip = skipData === null || skipData === void 0 ? void 0 : skipData.skip;
-                console.log(limit, limitNo, page, skip, "limit,skip");
                 const response = yield this._timeSlotRepository.getTimeSlots(mentorId, limitNo, skip, search, filter, sortField, sortOrder);
                 const totalPage = Math.ceil((response === null || response === void 0 ? void 0 : response.totalDocs) / limitNo);
                 return {
                     success: true,
-                    message: "Data successfully fetched",
+                    message: httpResponse_1.HttpResponse === null || httpResponse_1.HttpResponse === void 0 ? void 0 : httpResponse_1.HttpResponse.DATA_RETRIEVED,
                     status: httpStatusCode_1.Status.Ok,
                     timeSlots: response === null || response === void 0 ? void 0 : response.timeSlots,
                     totalPage,
                 };
             }
             catch (error) {
-                throw new Error(`Error while  get time slots in service: ${error instanceof Error ? error.message : String(error)}`);
+                throw new http_error_handler_util_1.HttpError(error instanceof Error ? error.message : String(error), httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.InternalServerError);
             }
         });
     }
@@ -607,7 +563,7 @@ class mentorService {
                 if (!slotId) {
                     return {
                         success: false,
-                        message: "credentials not found",
+                        message: httpResponse_1.HttpResponse === null || httpResponse_1.HttpResponse === void 0 ? void 0 : httpResponse_1.HttpResponse.INVALID_CREDENTIALS,
                         status: httpStatusCode_1.Status.BadRequest,
                     };
                 }
@@ -615,19 +571,18 @@ class mentorService {
                 if (!(result === null || result === void 0 ? void 0 : result.acknowledged) || result.deletedCount === 0) {
                     return {
                         success: false,
-                        message: "Slot not found or removal failed.",
+                        message: httpResponse_1.HttpResponse === null || httpResponse_1.HttpResponse === void 0 ? void 0 : httpResponse_1.HttpResponse.FAILED,
                         status: httpStatusCode_1.Status.NotFound,
                     };
                 }
-                console.log(result, "result");
                 return {
                     success: true,
-                    message: "successfully removed",
+                    message: httpResponse_1.HttpResponse === null || httpResponse_1.HttpResponse === void 0 ? void 0 : httpResponse_1.HttpResponse.SUCCESS,
                     status: httpStatusCode_1.Status.Ok,
                 };
             }
             catch (error) {
-                throw new Error(`Error while  remove slots  in service: ${error instanceof Error ? error.message : String(error)}`);
+                throw new http_error_handler_util_1.HttpError(error instanceof Error ? error.message : String(error), httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.InternalServerError);
             }
         });
     }
@@ -637,22 +592,21 @@ class mentorService {
                 if (!timeRange) {
                     return {
                         success: false,
-                        message: "credentials not found",
+                        message: httpResponse_1.HttpResponse === null || httpResponse_1.HttpResponse === void 0 ? void 0 : httpResponse_1.HttpResponse.INVALID_CREDENTIALS,
                         status: httpStatusCode_1.Status.BadRequest,
-                        result: null
+                        result: null,
                     };
                 }
                 const result = yield this._slotScheduleRepository.mentorChartData(mentorId, timeRange);
-                console.log(result, 'this is the result');
                 return {
                     success: true,
-                    message: "successfully removed",
+                    message: httpResponse_1.HttpResponse === null || httpResponse_1.HttpResponse === void 0 ? void 0 : httpResponse_1.HttpResponse.SUCCESS,
                     status: httpStatusCode_1.Status.Ok,
-                    result: result === null || result === void 0 ? void 0 : result.mentorChart
+                    result: result === null || result === void 0 ? void 0 : result.mentorChart,
                 };
             }
             catch (error) {
-                throw new Error(`Error while while finding chart data: ${error instanceof Error ? error.message : String(error)}`);
+                throw new http_error_handler_util_1.HttpError(error instanceof Error ? error.message : String(error), httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.InternalServerError);
             }
         });
     }

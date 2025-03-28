@@ -176,7 +176,7 @@ mentor_Router.get(
   __chatController.getUserMessage.bind(__chatController)
 );
 
-mentor_Router.post(
+mentor_Router.get(
   "/session/validate-session-join",
   mentorAuthorize,
   __bookingController.validateSessionJoin.bind(__bookingController)

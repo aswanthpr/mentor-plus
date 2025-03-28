@@ -43,7 +43,6 @@ const MenteeRoute: React.FC = () => (
             <Route path=":name" element={<MentorProfile />} />
           </Route>
           <Route path="/:name/slot-booking" element={<BookingPage />} />
-          ;
           <Route path="/bookings" element={<Bookings />} />
           <Route path="/bookings/:roomId" element={<VideoPage />} />
           <Route path="/messages" element={<Message />} />

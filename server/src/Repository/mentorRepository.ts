@@ -3,7 +3,9 @@ import { ImentorRepository } from "../Interface/Mentor/iMentorRepository";
 import mentorModel, { Imentor } from "../Model/mentorModel";
 
 import mongoose, { PipelineStage } from "mongoose";
-import { ImentorApplication } from "src/Types";
+import { ImentorApplication } from "../Types";
+import { HttpError } from "../Utils/http-error-handler.util";
+import { Status } from "../Constants/httpStatusCode";
 
 class mentorRepository
   extends baseRepository<Imentor>
@@ -24,10 +26,9 @@ class mentorRepository
 
       return await this.find_One({ $or: query });
     } catch (error: unknown) {
-      throw new Error(
-        `error while finding mentor ${
-          error instanceof Error ? error.message : String(error)
-        }`
+      throw new HttpError(
+        error instanceof Error ? error.message : String(error),
+        Status?.InternalServerError
       );
     }
   }
@@ -52,79 +53,75 @@ class mentorRepository
         profileUrl: imageUrl,
       });
     } catch (error: unknown) {
-      throw new Error(
-        `error while creating mentor ${
-          error instanceof Error ? error.message : String(error)
-        }`
+      throw new HttpError(
+        error instanceof Error ? error.message : String(error),
+        Status?.InternalServerError
       );
     }
   }
   //finding all mentors
   async findAllMentor(
-    skip:number,
-        limit:number,
-        activeTab:string,
-        search:string,
-        sortField:string,
-        sortOrder:string,
-  ): Promise<{mentors:Imentor[] | [],totalDoc:number}> {
+    skip: number,
+    limit: number,
+    activeTab: string,
+    search: string,
+    sortField: string,
+    sortOrder: string
+  ): Promise<{ mentors: Imentor[] | []; totalDoc: number }> {
     try {
-     
-      const sortOptions = sortOrder === "asc"?1:-1;
+      const sortOptions = sortOrder === "asc" ? 1 : -1;
 
-      const pipeline:PipelineStage[] =[];
+      const pipeline: PipelineStage[] = [];
 
-      if(search){
+      if (search) {
         pipeline.push({
-          $match:{
-            $or:[
+          $match: {
+            $or: [
               { name: { $regex: search, $options: "i" } },
               { email: { $regex: search, $options: "i" } },
               { jobTitle: { $regex: search, $options: "i" } },
               { bio: { $regex: search, $options: "i" } },
               { category: { $regex: search, $options: "i" } },
-              { skills: {$elemMatch:{ $regex: search, $options: "i" } }},
+              { skills: { $elemMatch: { $regex: search, $options: "i" } } },
             ],
-
-          }
-        })
-      };
+          },
+        });
+      }
+      pipeline.push({
+        $match: {
+          verified: activeTab === "verified",
+        },
+      });
+      if (sortField === "createdAt") {
         pipeline.push({
-          $match:{
-            verified:activeTab==="verified",
-          }
-        })
-      if(sortField==="createdAt"){
-        pipeline.push({
-          $sort:{
-            createdAt:sortOptions
-          }
-        })
+          $sort: {
+            createdAt: sortOptions,
+          },
+        });
       }
       pipeline.push({
         $skip: skip,
       });
 
       pipeline.push({
-        $limit:limit,
+        $limit: limit,
       });
-      const countPipeline =[
-        ...pipeline.slice(0,pipeline?.length-2),
+      const countPipeline = [
+        ...pipeline.slice(0, pipeline?.length - 2),
         {
           $count: "totalDocuments",
         },
-      ]
-      const [mentors,totalDocuments]=await Promise.all([
-        this.aggregateData(mentorModel,pipeline),
-        mentorModel.aggregate(countPipeline)
-      ])
-     
-      return {mentors,totalDoc:totalDocuments[0]?.totalDocuments}
+      ];
+      const [mentors, totalDocuments] = await Promise.all([
+        this.aggregateData(mentorModel, pipeline),
+        mentorModel.aggregate(countPipeline),
+      ]);
+
+      return { mentors, totalDoc: totalDocuments[0]?.totalDocuments };
     } catch (error: unknown) {
-      throw new Error(
-        `error while finding mentor data from data base${
-          error instanceof Error ? error.message : String(error)
-        }`
+      throw new HttpError(
+        error instanceof Error ? error.message : String(error),
+        Status?.InternalServerError
       );
     }
   }
@@ -136,15 +133,14 @@ class mentorRepository
         aggregateData?.find((stage) => "$match" in stage)?.["$match"] || {};
 
       const [mentor, count] = await Promise.all([
-        this.aggregateData(mentorModel, aggregateData), 
+        this.aggregateData(mentorModel, aggregateData),
         this.countDocument(matchStage),
       ]);
       return { mentor, count };
     } catch (error: unknown) {
-      throw new Error(
-        `error while finding mentor data from data base${
-          error instanceof Error ? error.message : String(error)
-        }`
+      throw new HttpError(
+        error instanceof Error ? error.message : String(error),
+        Status?.InternalServerError
       );
     }
   }
@@ -155,10 +151,9 @@ class mentorRepository
         { $set: { verified: { $not: "$verified" } } },
       ]);
     } catch (error: unknown) {
-      throw new Error(
-        `error while verify mentor data from data base${
-          error instanceof Error ? error.message : String(error)
-        }`
+      throw new HttpError(
+        error instanceof Error ? error.message : String(error),
+        Status?.InternalServerError
       );
     }
   }
@@ -171,10 +166,9 @@ class mentorRepository
         { $set: { isBlocked: { $not: "$isBlocked" } } },
       ]);
     } catch (error: unknown) {
-      throw new Error(
-        `error while changing mentor status from data base${
-          error instanceof Error ? error.message : String(error)
-        }`
+      throw new HttpError(
+        error instanceof Error ? error.message : String(error),
+        Status?.InternalServerError
       );
     }
   }
@@ -189,10 +183,9 @@ class mentorRepository
         { $set: { password: password } }
       );
     } catch (error: unknown) {
-      throw new Error(
-        `error while changing mentor password from data base${
-          error instanceof Error ? error.message : String(error)
-        }`
+      throw new HttpError(
+        error instanceof Error ? error.message : String(error),
+        Status?.InternalServerError
       );
     }
   }
@@ -202,10 +195,9 @@ class mentorRepository
     try {
       return await this.find_By_Id(mentorId, { isBlocked: false });
     } catch (error: unknown) {
-      throw new Error(
-        `error while changing mentor password from data base${
-          error instanceof Error ? error.message : String(error)
-        }`
+      throw new HttpError(
+        error instanceof Error ? error.message : String(error),
+        Status?.InternalServerError
       );
     }
   }
@@ -220,10 +212,9 @@ class mentorRepository
         $set: { password: password },
       });
     } catch (error: unknown) {
-      throw new Error(
-        `Error while change mentro password${
-          error instanceof Error ? error.message : String(error)
-        }`
+      throw new HttpError(
+        error instanceof Error ? error.message : String(error),
+        Status?.InternalServerError
       );
     }
   }
@@ -241,10 +232,9 @@ class mentorRepository
         )) ?? null
       );
     } catch (error: unknown) {
-      throw new Error(
-        `Error while change mentro password${
-          error instanceof Error ? error.message : String(error)
-        }`
+      throw new HttpError(
+        error instanceof Error ? error.message : String(error),
+        Status?.InternalServerError
       );
     }
   }
@@ -273,10 +263,9 @@ class mentorRepository
         }
       );
     } catch (error: unknown) {
-      throw new Error(
-        `Error while finding mentor by id and updatae${
-          error instanceof Error ? error.message : String(error)
-        }`
+      throw new HttpError(
+        error instanceof Error ? error.message : String(error),
+        Status?.InternalServerError
       );
     }
   }
@@ -303,10 +292,9 @@ class mentorRepository
       ];
       return await this.aggregateData(mentorModel, aggregationPipeline);
     } catch (error: unknown) {
-      throw new Error(
-        `Error while finding category with skills ${
-          error instanceof Error ? error.message : String(error)
-        }`
+      throw new HttpError(
+        error instanceof Error ? error.message : String(error),
+        Status?.InternalServerError
       );
     }
   }
@@ -329,10 +317,9 @@ class mentorRepository
         // }
       ]);
     } catch (error: unknown) {
-      throw new Error(
-        `Error while finding  mentors by category  ${
-          error instanceof Error ? error.message : String(error)
-        }`
+      throw new HttpError(
+        error instanceof Error ? error.message : String(error),
+        Status?.InternalServerError
       );
     }
   }

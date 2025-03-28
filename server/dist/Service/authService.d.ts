@@ -29,11 +29,13 @@ export declare class authService implements IauthService {
     forgotPassword(email: string): Promise<{
         success: boolean;
         message: string;
+        status: number;
     } | undefined>;
     forgot_PasswordChange(email: string, password: string): Promise<{
         success: boolean;
         message: string;
-    } | undefined>;
+        status: number;
+    }>;
     mentorFields(): Promise<{
         success: boolean;
         message: string;
@@ -62,11 +64,13 @@ export declare class authService implements IauthService {
     mentorForgotPassword(email: string): Promise<{
         success: boolean;
         message: string;
-    } | undefined>;
+        status: number;
+    }>;
     mentorForgot_PasswordChange(email: string, password: string): Promise<{
         success: boolean;
         message: string;
-    } | undefined>;
+        status: number;
+    }>;
     googleAuth(user: Imentee): Promise<{
         success: boolean;
         message: string;

@@ -38,15 +38,6 @@ export declare class bookingService implements IbookingService {
      * @returns Promise<void>
      */
     stripeWebHook(signature: string | Buffer, bodyData: Buffer): Promise<void>;
-    /**
-     * Fetches the booked slots for a given mentee.
-     *
-     * @param menteeId - The ObjectId of the mentee.
-     *
-     * @returns A promise resolving to an object containing success status, message, HTTP status number, and an array of booked slots.
-     *
-     * @throws Error - Throws an error if there is an issue while fetching the booked slots.
-     */
     getBookedSlots(menteeId: ObjectId, currentTab: string, search: string, sortField: string, sortOrder: string, filter: string, page: number, limit: number): Promise<{
         success: boolean;
         message: string;
@@ -85,7 +76,7 @@ export declare class bookingService implements IbookingService {
         status: number;
         sessionStatus: string | null;
     }>;
-    validateSessionJoin(sessionId: string, sessionCode: string): Promise<{
+    validateSessionJoin(sessionId: string, sessionCode: string, userId: ObjectId): Promise<{
         message: string;
         status: number;
         success: boolean;

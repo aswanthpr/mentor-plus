@@ -81,8 +81,6 @@ const MentorApply: React.FC = () => {
       const response = await newMentorApply(form);
 
       if (response?.data?.success && response?.status == HttpStatusCode?.Ok) {
-        console.log(response?.data.message);
-
         setFormData(MENTOR_APPLY_INITIAL?.formData);
         navigate(ROUTES?.MENTOR_LOGIN);
 

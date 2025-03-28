@@ -10,12 +10,13 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.menteeController = void 0;
+const httpStatusCode_1 = require("../Constants/httpStatusCode");
 class menteeController {
     constructor(_menteeService) {
         this._menteeService = _menteeService;
     }
     //for creating new access token
-    refreshToken(req, res) {
+    refreshToken(req, res, next) {
         return __awaiter(this, void 0, void 0, function* () {
             var _a;
             try {
@@ -35,31 +36,25 @@ class menteeController {
                 });
             }
             catch (error) {
-                res
-                    .status(500)
-                    .json({ success: false, message: "Internal server error" });
-                throw new Error(`error while geting refreshToken${error instanceof Error ? error.message : String(error)}`);
+                next(error);
             }
         });
     }
-    menteeLogout(req, res) {
+    menteeLogout(req, res, next) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 console.log(req.path.split("/"));
                 res.clearCookie("refreshToken");
                 res
-                    .status(200)
+                    .status(httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.Ok)
                     .json({ success: true, message: "Logged out successfully" });
             }
             catch (error) {
-                res
-                    .status(500)
-                    .json({ success: false, message: "Internal server error" });
-                throw new Error(`Error while mentee  logout ${error instanceof Error ? error.message : String(error)}`);
+                next(error);
             }
         });
     }
-    menteeProfile(req, res) {
+    menteeProfile(req, res, next) {
         return __awaiter(this, void 0, void 0, function* () {
             var _a;
             try {
@@ -72,14 +67,11 @@ class menteeController {
                 });
             }
             catch (error) {
-                res
-                    .status(500)
-                    .json({ success: false, message: "Internal server error" });
-                throw new Error(`Error while get mentee  profile data ${error instanceof Error ? error.message : String(error)}`);
+                next(error);
             }
         });
     }
-    menteeProfileEdit(req, res) {
+    menteeProfileEdit(req, res, next) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 console.log(req.body, "this is req.body of profile edit data");
@@ -87,15 +79,12 @@ class menteeController {
                 res.status(result === null || result === void 0 ? void 0 : result.status).json(result);
             }
             catch (error) {
-                res
-                    .status(500)
-                    .json({ success: false, message: "Internal server error" });
-                throw new Error(`Error while get mentee  profile editing ${error instanceof Error ? error.message : String(error)}`);
+                next(error);
             }
         });
     }
     //mentee profile password change
-    passwordChange(req, res) {
+    passwordChange(req, res, next) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 console.log(req.body, "thsi isthe passwords");
@@ -104,14 +93,11 @@ class menteeController {
                 res.status(result === null || result === void 0 ? void 0 : result.status).json(result);
             }
             catch (error) {
-                res
-                    .status(500)
-                    .json({ success: false, message: "Internal server error" });
-                throw new Error(`Error while get mentee  profile password changing ${error instanceof Error ? error.message : String(error)}`);
+                next(error);
             }
         });
     }
-    profileChange(req, res) {
+    profileChange(req, res, next) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 const { _id } = req.body;
@@ -121,18 +107,15 @@ class menteeController {
                         .profileImage[0]
                     : null;
                 const result = yield this._menteeService.profileChange(profileImage, _id);
-                res.status(result.status).json(result);
+                res.status(result === null || result === void 0 ? void 0 : result.status).json(result);
             }
             catch (error) {
-                res
-                    .status(500)
-                    .json({ success: false, message: "Internal server error" });
-                throw new Error(`Error while get mentee  profile changing ${error instanceof Error ? error.message : String(error)}`);
+                next(error);
             }
         });
     }
     //get mentor data in explore
-    exploreData(req, res) {
+    exploreData(req, res, next) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 const { search, categories, skill, page = "1", limit, sort } = req.query;
@@ -171,32 +154,28 @@ class menteeController {
                 });
             }
             catch (error) {
-                res
-                    .status(500)
-                    .json({ success: false, message: "Internal server error" });
-                throw new Error(`Error getting mentor data in explore ${error instanceof Error ? error.message : String(error)}`);
+                next(error);
             }
         });
     }
-    homeData(req, res) {
+    homeData(req, res, next) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 const { filter } = req.params;
                 const { page = 1, search, limit, sortOrder, sortField } = req.query;
                 const { status, success, message, homeData, totalPage } = yield this._menteeService.homeData(filter, String(search), String(sortField), String(sortOrder), Number(page), Number(limit));
                 const userId = req.user;
-                res.status(status).json({ success, message, homeData, userId, totalPage });
+                res
+                    .status(status)
+                    .json({ success, message, homeData, userId, totalPage });
             }
             catch (error) {
-                res
-                    .status(500)
-                    .json({ success: false, message: "Internal server error" });
-                throw new Error(`Error getting mentor data in explore ${error instanceof Error ? error.message : String(error)}`);
+                next(error);
             }
         });
     }
     // /mentee/explore/mentor/:id
-    getSimilarMentors(req, res) {
+    getSimilarMentors(req, res, next) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 const { category, mentorId } = req.query;
@@ -204,7 +183,7 @@ class menteeController {
                 res.status(status).json({ success, message, mentor });
             }
             catch (error) {
-                throw new Error(`Error while  getting mentor data in explore ${error instanceof Error ? error.message : String(error)}`);
+                next(error);
             }
         });
     }

@@ -33,21 +33,16 @@ export const verifyAccessToken=(token:string,user:string)=>{
     token,
       process.env?.JWT_ACCESS_SECRET as string 
     ) as JwtPayload
-    
+   
     return {result,isValid:result?.role===user}
   } catch (error:unknown) {
-    console.log(
-      `\x1b[35m%s\x1b[0m]`,
-      `Error while verifying access token ${error instanceof Error? error.message:String(error)}`
-    );
+
     if (error instanceof TokenExpiredError) {
       return { isValid: false, error: "TokenExpired" }; 
     }
     if (error instanceof JsonWebTokenError) {
       return { isValid: false, error: "TamperedToken" }; 
     }
-
-    console.error(`Unexpected error during token verification:`, String(error));
     return { isValid: false, error: "UnknownError" };
   }
 }
@@ -61,18 +56,13 @@ export const verifyRefreshToken = (token: string,user:string) => {
     ) as JwtPayload;
     return {result,isValid:result?.role===user}
   } catch (error: unknown) {
-    console.log(
-      `\x1b[36m%s\x1b[0m]`,
-      `Error while verifying refresh token ${error instanceof Error ? error.message : String(error)}`
-    );
+   
     if (error instanceof TokenExpiredError) {
       return { isValid: false, error: "TokenExpired" }; 
     }
     if (error instanceof JsonWebTokenError) {
       return { isValid: false, error: "TamperedToken" }; 
     }
-
-    console.error(`Unexpected error during token verification:`, String(error));
     return { isValid: false, error: "UnknownError" };
 
   }

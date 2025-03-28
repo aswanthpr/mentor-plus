@@ -2,6 +2,8 @@ import { PipelineStage, UpdateWriteOpResult } from "mongoose";
 import menteeModel, { Imentee } from "../Model/menteeModel";
 import { baseRepository } from "./baseRepo";
 import { ImenteeRepository } from "../Interface/Mentee/iMenteeRepository";
+import { HttpError } from "../Utils/http-error-handler.util";
+import { Status } from "../Constants/httpStatusCode";
 
 
 export class menteeRepository
@@ -62,10 +64,7 @@ async menteeData(skip: number, limit: number, search: string, sortOrder: string,
       totalDoc: totalCount?.[0]?.totalDocuments || 0,
     };
   } catch (error:unknown) {
-    throw new Error(
-            `error while Checking mentee data ${error instanceof Error ? error.message : String(error)
-            }`
-          );
+     throw new HttpError(error instanceof Error ? error.message : String(error), Status?.InternalServerError);
         }
   
 }
@@ -75,10 +74,7 @@ async menteeData(skip: number, limit: number, search: string, sortOrder: string,
         { $set: { isBlocked: { $not: "$isBlocked" } } },
       ]);
     } catch (error: unknown) {
-      throw new Error(
-        `error while change mentee status in repository ${error instanceof Error ? error.message : String(error)
-        } `
-      );
+      throw new HttpError(error instanceof Error ? error.message : String(error), Status?.InternalServerError);
     }
   }
   async editMentee(formData: Partial<Imentee>): Promise<Imentee | null> {
@@ -100,20 +96,14 @@ async menteeData(skip: number, limit: number, search: string, sortOrder: string,
         }
       );
     } catch (error: unknown) {
-      throw new Error(
-        `error while edit mentee data in repository ${error instanceof Error ? error.message : String(error)
-        } `
-      );
+       throw new HttpError(error instanceof Error ? error.message : String(error), Status?.InternalServerError);
     }
   }
   async findMentee(email: string): Promise<Imentee | null> {
     try {
       return await this.find_One({ email });
     } catch (error: unknown) {
-      throw new Error(
-        `error find mentee data in repository ${error instanceof Error ? error.message : String(error)
-        } `
-      );
+      throw new HttpError(error instanceof Error ? error.message : String(error), Status?.InternalServerError);
     }
   }
 
@@ -126,10 +116,7 @@ async menteeData(skip: number, limit: number, search: string, sortOrder: string,
         bio: formData?.bio,
       });
     } catch (error: unknown) {
-      throw new Error(
-        `error add mentee data in repository ${error instanceof Error ? error.message : String(error)
-        } `
-      );
+      throw new HttpError(error instanceof Error ? error.message : String(error), Status?.InternalServerError);
     }
   }
   async googleAddMentee(formData: Partial<Imentee>): Promise<Imentee | null> {
@@ -141,10 +128,7 @@ async menteeData(skip: number, limit: number, search: string, sortOrder: string,
         verified: formData?.verified,
       });
     } catch (error: unknown) {
-      throw new Error(
-        `error google add mentee data in repository ${error instanceof Error ? error.message : String(error)
-        } `
-      );
+      throw new HttpError(error instanceof Error ? error.message : String(error), Status?.InternalServerError);
     }
   }
 
@@ -152,10 +136,7 @@ async menteeData(skip: number, limit: number, search: string, sortOrder: string,
     try {
       return await this.find_By_Id(id, { isBlocked: false });
     } catch (error: unknown) {
-      throw new Error(
-        `error fetch metnee data by id  in repository ${error instanceof Error ? error.message : String(error)
-        } `
-      );
+      throw new HttpError(error instanceof Error ? error.message : String(error), Status?.InternalServerError);
     }
   }
 
@@ -168,10 +149,7 @@ async menteeData(skip: number, limit: number, search: string, sortOrder: string,
         $set: { password: password },
       });
     } catch (error: unknown) {
-      throw new Error(
-        `error fetch metnee password change by id  in repository ${error instanceof Error ? error.message : String(error)
-        } `
-      );
+      throw new HttpError(error instanceof Error ? error.message : String(error), Status?.InternalServerError);
     }
   }
   async profileChange(image: string, id: string): Promise<Imentee | null> {
@@ -180,10 +158,7 @@ async menteeData(skip: number, limit: number, search: string, sortOrder: string,
         $set: { profileUrl: image },
       });
     } catch (error: unknown) {
-      throw new Error(
-        `error fetch metnee password change by id  in repository ${error instanceof Error ? error.message : String(error)
-        } `
-      );
+      throw new HttpError(error instanceof Error ? error.message : String(error), Status?.InternalServerError);
     }
   }
 
@@ -193,7 +168,7 @@ async menteeData(skip: number, limit: number, search: string, sortOrder: string,
       console.log(data, 'verify data from repo')
       return data
     } catch (error: unknown) {
-      throw new Error(`error while updating mentee${error instanceof Error ? error.message : String(error)}`)
+      throw new HttpError(error instanceof Error ? error.message : String(error), Status?.InternalServerError);
     }
   }
   async findByEmail(email: string): Promise<Imentee | null> {
@@ -201,16 +176,14 @@ async menteeData(skip: number, limit: number, search: string, sortOrder: string,
 
       return await this.find_One({ email })//find one in base repo
     } catch (error: unknown) {
-      console.log('Error while finding user with email', email, error);
-      throw new Error(`Error while finding user by Email${error instanceof Error ? error.message : String(error)}`)
+      throw new HttpError(error instanceof Error ? error.message : String(error), Status?.InternalServerError);
     }
   }
   async create_Mentee(userData: Imentee): Promise<Imentee> {
     try {
       return await this.createDocument(userData);
     } catch (error: unknown) {
-      console.log(`error while doing signup ${error}`);
-      throw new Error(`error while mentee Signup${error instanceof Error ? error.message : String(error)}`);
+      throw new HttpError(error instanceof Error ? error.message : String(error), Status?.InternalServerError);
     }
   }
   async mainLogin(email: string): Promise<Imentee | null> {
@@ -218,14 +191,14 @@ async menteeData(skip: number, limit: number, search: string, sortOrder: string,
 
       return await this.find_One({ email });
     } catch (error: unknown) {
-      throw new Error(`error  in DBMainLogin  while Checking User ${error instanceof Error ? error.message : String(error)}`)
+      throw new HttpError(error instanceof Error ? error.message : String(error), Status?.InternalServerError);
     }
   }
   async forgot_PasswordChange(email: string, password: string): Promise<Imentee | null | undefined> {
     try {
       return await this.find_One_And_Update(menteeModel, { email: email }, { $set: { password: password } });
     } catch (error: unknown) {
-      console.log(`error while find and update on DBforget_passwordChange ${error instanceof Error ? error.message : String(error)}`)
+      throw new HttpError(error instanceof Error ? error.message : String(error), Status?.InternalServerError);
     }
   }
   //admin data fetch
@@ -233,15 +206,14 @@ async menteeData(skip: number, limit: number, search: string, sortOrder: string,
     try {
       return await this.find_One({ email })
     } catch (error: unknown) {
-      console.log(`error while finding admin ${error instanceof Error ? error.message : String(error)}`)
-      return null;
+      throw new HttpError(error instanceof Error ? error.message : String(error), Status?.InternalServerError);
     }
   }
   async _find():Promise<Imentee|null>{
     try {
       return this.find_One({isAdmin:true});
     } catch (error:unknown) {
-      throw new Error(`${error instanceof Error ? error.message:String(error)}`)
+      throw new HttpError(error instanceof Error ? error.message : String(error), Status?.InternalServerError);
     }
   }
 }

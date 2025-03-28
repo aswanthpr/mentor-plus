@@ -2,11 +2,16 @@ import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { useRef } from 'react';
 import profileImg from "../../../Asset/user.png";
 
+
+
+
 export const MentorListByCategory = ({
   title,
   mentors,
-  onSeeAll,
+
+  // onSeeAll,
 }: MentorListByCategoryProps) => {
+
   const scrollContainerRef = useRef<HTMLDivElement>(null);
 
   const scroll = (direction: 'left' | 'right') => {
@@ -23,12 +28,12 @@ export const MentorListByCategory = ({
     <div className="relative">
       <div className="flex justify-between items-center mb-6">
         <h2 className="text-xl font-bold text-gray-900">{title}</h2>
-        <button
+        {/* <button
           onClick={onSeeAll}
           className="text-orange-500 hover:text-orange-600 font-medium"
         >
           See all →
-        </button>
+        </button> */}
       </div>
 
       <div className="relative group">
@@ -44,11 +49,12 @@ export const MentorListByCategory = ({
           ref={scrollContainerRef}
           className="flex gap-6 overflow-x-auto scrollbar-hide scroll-smooth pb-4"
         >
-          {mentors.map((mentor) => (
+          {mentors?.map((mentor) => (
             <div
               key={mentor?._id}
               className="flex-shrink-0 w-[280px] bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow"
             >
+            
               <div className="relative">
                 <img
                   src={mentor?.profileUrl??profileImg}
@@ -59,8 +65,11 @@ export const MentorListByCategory = ({
                   {mentor?.category}
                 </span>
               </div>
-              <div className="p-4">
-                <h3 className="font-semibold text-lg mb-2">{mentor?.name}</h3>
+     
+          
+            <div className="p-4" 
+          >
+                <h3 className="font-semibold text-lg mb-2" >{mentor?.name}</h3>
                 <p className="text-gray-600 text-sm line-clamp-2">
                   {mentor?.jobTitle}
                 </p>
@@ -71,7 +80,7 @@ export const MentorListByCategory = ({
 
         <button
           onClick={() => scroll('right')}
-          className="absolute right-0 top-1/2 -translate-y-1/2 z-10 w-10 h-10 bg-white rounded-full shadow-lg flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+          className="absolute right-0 top-1/2 -translate-y-1/2 z-10 w-10 h-10 bg-white rounded-full shadow-lg flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity "
         >
           <ChevronRight size={24} className="text-gray-600" />
         </button>

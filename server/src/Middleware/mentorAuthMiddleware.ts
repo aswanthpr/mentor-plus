@@ -1,8 +1,10 @@
 import { Request, Response, NextFunction } from "express";
-import { verifyAccessToken, verifyRefreshToken } from "../Utils/jwt.utils";
+import { verifyAccessToken } from "../Utils/jwt.utils";
 import mentorModel from "../Model/mentorModel";
 import mongoose from "mongoose";
-import { Status } from "../Utils/httpStatusCode";
+import { Status } from "../Constants/httpStatusCode";
+import { HttpError } from "../Utils/http-error-handler.util";
+import { HttpResponse } from "../Constants/httpResponse";
 
 const mentorAuthorization = async (
   req: Request,
@@ -12,10 +14,10 @@ const mentorAuthorization = async (
   try {
     const refreshToken = req.cookies?.mentorToken;
     //checking fresh token valid
-    if (!refreshToken || !verifyRefreshToken(refreshToken, "mentor")) {
+    if (!refreshToken) {
       res.status(Status.Unauthorized).json({
         success: false,
-        message: "You are not authorized. Please log in.",
+        message:  HttpResponse?.UNAUTHORIZED,
       });
       return;
     }
@@ -26,7 +28,7 @@ const mentorAuthorization = async (
         .status(Status.Unauthorized)
         .json({
           success: false,
-          message: "Unauthorized. No token provided.",
+          message:  HttpResponse?.UNAUTHORIZED,
           user: false,
         });
       return;
@@ -38,7 +40,7 @@ const mentorAuthorization = async (
         .status(Status.Unauthorized)
         .json({
           success: false,
-          message: "You do not have permission to access this resource.",
+          message: HttpResponse?.UNAUTHORIZED,
           user: false,
         });
       return;
@@ -49,14 +51,20 @@ const mentorAuthorization = async (
     if (decode?.error == "TokenExpired") {
       res
         .status(Status?.Forbidden)
-        .json({ success: false, message: "Token Expired." });
+        .json({ success: false, message:  HttpResponse?.TOKEN_EXPIRED });
       return;
     }
-
-    if (decode?.error == "TamperedToken"||!decode?.isValid) {
+    
+    if (decode?.result?.role !== "mentor"||!decode?.isValid) {
       res
         .status(Status?.Unauthorized)
-        .json({ success: false, message: "Token Invalid." });
+        .json({ success: false, message:  HttpResponse?.UNAUTHORIZED });
+      return;
+    }
+    if (decode?.error == "TamperedToken") {
+      res
+        .status(Status?.Unauthorized)
+        .json({ success: false, message:  HttpResponse?.UNAUTHORIZED });
       return;
     }
    
@@ -66,16 +74,10 @@ const mentorAuthorization = async (
       res
         .status(Status.Unauthorized)
         .json({
-          message: "You do not have permission to access this resource.",
+          message: HttpResponse?.UNAUTHORIZED,
           success: false,
           user: false,
         });
-      return;
-    }
-    if (decode?.result?.role !== "mentor") {
-      res
-        .status(Status?.Unauthorized)
-        .json({ success: false, message: "user role is invalid" });
       return;
     }
 
@@ -83,11 +85,7 @@ const mentorAuthorization = async (
 
     next();
   } catch (error: unknown) {
-    res.status(Status.Forbidden).json({
-      success: false,
-      message: "You do not have permission to access this resource.",
-    });
-    console.log(error instanceof Error ? error.message : String(error));
+    throw new HttpError(error instanceof Error ? error.message : String(error), Status?.InternalServerError);
   }
 };
 

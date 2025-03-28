@@ -4,7 +4,6 @@ import  path from 'path';
 import {createStream} from 'rotating-file-stream';
 
 
-// Define the log directory inside the 'src' folder
 export const logDirectory = path.join(__dirname, '..','logs');
 
 // Create the directory if it doesn't exist
@@ -16,25 +15,26 @@ if (!fs.existsSync(logDirectory)) {
 const accessLogStream = createStream('access.log', {
   interval: '1d',       // each day create new file for logs
   path: logDirectory,   // Store logs in the 'logs' folder inside 'src'
-  maxFiles: 7,          // Keep 7 log files (for a week) after that delete each files
+  maxFiles: 7,          // Keep  for a week after that delete 
 });
 
-// Configure morgan to log to both file and terminal 
+//  to log to both file and terminal 
 export const fileLogger = morgan('combined', {
   stream: accessLogStream // Logs to file
 });
 
-// // Error logging middleware for Express (will log error to file)
-// export const errorLogger = (err:Error, req:Request, res:Response, next:NextFunction) => {
-//   console.error(err); // Log error to console for debugging
+  
+export const  logErrorToFile = (err : Error): void => {
 
-//   // Write error to file using the errorLogStream
-//   const errorMessage = `${new Date().toISOString()} - ${err.message}\n${err.stack}\n\n`;
-//   fs.appendFile(path.join(logDirectory, 'error.log'), errorMessage,(err)=>{console.error(err)});
+  if (!fs.existsSync(logDirectory)) {
+    fs.mkdirSync(logDirectory, { recursive: true });
+  }
 
-//   // Pass error to next middleware (usually error handler)
-//   next(err);
-// };
+  const logFilePath = path.join(logDirectory, 'error.log');
+  const errorMessage = `${new Date().toISOString()} - ${err.message}\n${err.stack}\n\n`;
+
+  fs.appendFile(logFilePath, errorMessage, (err)=>{console.log(err)});
+}
 
 
  

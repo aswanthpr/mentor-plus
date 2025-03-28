@@ -1,8 +1,10 @@
 import { Ireview } from "../Model/reviewModel";
 import { IreviewRepository } from "../Interface/Review/IreviewRepository";
 import { IreviewService } from "../Interface/Review/IreviewService";
-import { Status } from "../Utils/httpStatusCode";
+import { Status } from "../Constants/httpStatusCode";
 import mongoose from "mongoose";
+import { HttpResponse } from "../Constants/httpResponse";
+import { HttpError } from "../Utils/http-error-handler.util";
 export class reviewService implements IreviewService {
   constructor(
     private readonly __reviewRepository: IreviewRepository,
@@ -25,7 +27,7 @@ export class reviewService implements IreviewService {
     try {
       if (!review||!rating || !sessionId || !menteeId || !mentorId) {
         return {
-          message: "credential not found",
+          message:  HttpResponse?.INVALID_CREDENTIALS,
           status: Status?.BadRequest,
           success: false,
           feedback: null,
@@ -62,7 +64,7 @@ export class reviewService implements IreviewService {
 
       if (!result) {
         return {
-          message: "whoops... ,review not created",
+          message: HttpResponse?.REVIEW_NOT_CREATED ,
           status: Status?.NotFound,
           success: false,
           feedback: null,
@@ -70,20 +72,16 @@ export class reviewService implements IreviewService {
       }
       }
 
-  console.log(response)
+
       return {
-        message: "review created successfully",
+        message: HttpResponse?.REVIEW_CREATED,
         status: Status?.Ok,
         success: true,
         feedback: result??updatedData,
         oldReview:String(response?._id) 
       };
     } catch (error: unknown) {
-      throw new Error(
-        `Error while rateMentor ${
-          error instanceof Error ? error.message : String(error)
-        }`
-      );
+          throw new HttpError(error instanceof Error ? error.message : String(error), Status?.InternalServerError);
     }
   }
 }

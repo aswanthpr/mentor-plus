@@ -21,13 +21,13 @@ export const connectToNotifications = (userId: string, userType: Tuser) => {
     );
 
     notificationSocket.on("connect", () => {
-      console.log("socket connected  ", notificationSocket?.id);
+     
       //joining roomreceive-notification
       notificationSocket!.emit("join-room", userId);
     });
     //handle incoming notification
     notificationSocket.on("receive-notification", (message) => {
-      console.log("Notification received:", message);
+     
       //data to redux
       store.dispatch(addNewNotification({ userType, notification: message }));
     });
@@ -42,7 +42,7 @@ export const disconnectNotificationSocket = () => {
   if (notificationSocket) {
     notificationSocket.disconnect();
     notificationSocket = null;
-    console.log("Socket disconnected and cleaned up"); 
+   
   }
 };
 //  connect to Chat namespace===========================================

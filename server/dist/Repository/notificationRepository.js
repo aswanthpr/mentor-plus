@@ -14,19 +14,26 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const notificationModel_1 = __importDefault(require("../Model/notificationModel"));
 const baseRepo_1 = require("./baseRepo");
+const http_error_handler_util_1 = require("../Utils/http-error-handler.util");
+const httpStatusCode_1 = require("../Constants/httpStatusCode");
 class notificationRepository extends baseRepo_1.baseRepository {
     constructor() {
         super(notificationModel_1.default);
     }
     createNotification(userId, title, message, userType, url) {
         return __awaiter(this, void 0, void 0, function* () {
-            return yield this.createDocument({
-                userId,
-                title,
-                message,
-                userType,
-                url
-            });
+            try {
+                return yield this.createDocument({
+                    userId,
+                    title,
+                    message,
+                    userType,
+                    url,
+                });
+            }
+            catch (error) {
+                throw new http_error_handler_util_1.HttpError(error instanceof Error ? error.message : String(error), httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.InternalServerError);
+            }
         });
     }
     getNotification(menteeId) {
@@ -36,18 +43,18 @@ class notificationRepository extends baseRepo_1.baseRepository {
                     {
                         $match: {
                             userId: menteeId,
-                            isRead: false
-                        }
+                            isRead: false,
+                        },
                     },
                     {
                         $sort: {
-                            createdAt: -1
-                        }
-                    }
+                            createdAt: -1,
+                        },
+                    },
                 ]);
             }
             catch (error) {
-                throw new Error(`error while getting notification  ${error instanceof Error ? error.message : String(error)}`);
+                throw new http_error_handler_util_1.HttpError(error instanceof Error ? error.message : String(error), httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.InternalServerError);
             }
         });
     }
@@ -57,7 +64,7 @@ class notificationRepository extends baseRepo_1.baseRepository {
                 return this.find_One_And_Update(notificationModel_1.default, { userId, _id: notificationId }, { $set: { isRead: true } });
             }
             catch (error) {
-                throw new Error(`error while markas  notification  read ${error instanceof Error ? error.message : String(error)}`);
+                throw new http_error_handler_util_1.HttpError(error instanceof Error ? error.message : String(error), httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.InternalServerError);
             }
         });
     }

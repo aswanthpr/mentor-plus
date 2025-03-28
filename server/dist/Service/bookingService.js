@@ -15,10 +15,12 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.bookingService = void 0;
 const stripe_1 = require("stripe");
 const mongoose_1 = __importDefault(require("mongoose"));
-const httpStatusCode_1 = require("../Utils/httpStatusCode");
+const httpStatusCode_1 = require("../Constants/httpStatusCode");
 const moment_1 = __importDefault(require("moment"));
 const index_1 = require("../index");
 const reusable_util_1 = require("../Utils/reusable.util");
+const httpResponse_1 = require("../Constants/httpResponse");
+const http_error_handler_util_1 = require("../Utils/http-error-handler.util");
 class bookingService {
     constructor(_timeSlotRepository, _slotScheduleRepository, _notificationRepository, _chatRepository, __walletRepository, __transactionRepository, stripe = new stripe_1.Stripe(process.env.STRIPE_SECRET_KEY, {
         apiVersion: "2025-02-24.acacia",
@@ -38,7 +40,7 @@ class bookingService {
                 if (!mentorId) {
                     return {
                         status: httpStatusCode_1.Status.BadRequest,
-                        message: "credential not found",
+                        message: httpResponse_1.HttpResponse === null || httpResponse_1.HttpResponse === void 0 ? void 0 : httpResponse_1.HttpResponse.INVALID_CREDENTIALS,
                         success: false,
                         timeSlots: [],
                     };
@@ -47,21 +49,20 @@ class bookingService {
                 if (!response) {
                     return {
                         status: httpStatusCode_1.Status.Ok,
-                        message: "Data not found",
+                        message: httpResponse_1.HttpResponse === null || httpResponse_1.HttpResponse === void 0 ? void 0 : httpResponse_1.HttpResponse.RESOURCE_NOT_FOUND,
                         success: false,
                         timeSlots: [],
                     };
                 }
-                console.log(response, "from service");
                 return {
                     status: httpStatusCode_1.Status.Ok,
-                    message: "Data fetched successfully",
+                    message: httpResponse_1.HttpResponse === null || httpResponse_1.HttpResponse === void 0 ? void 0 : httpResponse_1.HttpResponse.DATA_RETRIEVED,
                     success: true,
                     timeSlots: response,
                 };
             }
             catch (error) {
-                throw new Error(`${error instanceof Error ? error.message : String(error)} error while gettign Time Slots in mentee service`);
+                throw new http_error_handler_util_1.HttpError(error instanceof Error ? error.message : String(error), httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.InternalServerError);
             }
         });
     }
@@ -70,11 +71,10 @@ class bookingService {
         return __awaiter(this, void 0, void 0, function* () {
             var _a, _b;
             try {
-                console.log(timeSlot, messages, paymentMethod, totalAmount);
                 if (!timeSlot || !messages || !paymentMethod || !totalAmount) {
                     return {
                         status: httpStatusCode_1.Status.BadRequest,
-                        message: "credential not found",
+                        message: httpResponse_1.HttpResponse === null || httpResponse_1.HttpResponse === void 0 ? void 0 : httpResponse_1.HttpResponse.INVALID_CREDENTIALS,
                         success: false,
                     };
                 }
@@ -110,7 +110,7 @@ class bookingService {
                     });
                     return {
                         success: true,
-                        message: "stripe payment initiated successfully",
+                        message: httpResponse_1.HttpResponse === null || httpResponse_1.HttpResponse === void 0 ? void 0 : httpResponse_1.HttpResponse.SUCCESS,
                         status: httpStatusCode_1.Status.Ok,
                         session,
                     };
@@ -119,13 +119,12 @@ class bookingService {
                     const deductAmountFromWallet = yield this.__walletRepository.deductAmountFromWallet(Number(totalAmount), menteeId);
                     if (!deductAmountFromWallet) {
                         return {
-                            message: "Insufficient balance in wallet",
+                            message: httpResponse_1.HttpResponse === null || httpResponse_1.HttpResponse === void 0 ? void 0 : httpResponse_1.HttpResponse.INSUFFICINET_BALANCE,
                             status: httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.BadRequest,
                             success: false,
                         };
                     }
                     const time = new Date().toLocaleString();
-                    console.log(time, "times ");
                     //create  new transaction
                     const newTranasaction = {
                         amount: Number(totalAmount),
@@ -167,19 +166,19 @@ class bookingService {
                         yield this._chatRepository.createChatDocs(mentorId, menteeId);
                     }
                     return {
-                        message: "slot booked successfully",
+                        message: httpResponse_1.HttpResponse === null || httpResponse_1.HttpResponse === void 0 ? void 0 : httpResponse_1.HttpResponse.SLOT_BOOKED,
                         status: httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.Ok,
                         success: true,
                     };
                 }
                 return {
                     success: false,
-                    message: "error while payment",
+                    message: httpResponse_1.HttpResponse === null || httpResponse_1.HttpResponse === void 0 ? void 0 : httpResponse_1.HttpResponse.SOMETHING_WENT_WRONG,
                     status: httpStatusCode_1.Status.BadRequest,
                 };
             }
             catch (error) {
-                throw new Error(`${error instanceof Error ? error.message : String(error)} error while place Slot booking in mentee service`);
+                throw new http_error_handler_util_1.HttpError(error instanceof Error ? error.message : String(error), httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.InternalServerError);
             }
         });
     }
@@ -201,9 +200,8 @@ class bookingService {
                 try {
                     event = this.stripe.webhooks.constructEvent(bodyData, signature, process.env.STRIPE_WEBHOOK_SECRET);
                 }
-                catch (err) {
-                    console.error("⚠️ Webhook signature verification failed.", err instanceof Error ? err.message : String(err));
-                    return;
+                catch (error) {
+                    throw new http_error_handler_util_1.HttpError(error instanceof Error ? error.message : String(error), httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.InternalServerError);
                 }
                 console.log("🔔 Received webhook event:", event.type);
                 switch (event.type) {
@@ -289,7 +287,7 @@ class bookingService {
                         }
                         if (mentorId) {
                             //notification for mentor
-                            const notif = yield this._notificationRepository.createNotification(mentorId, `Your new slot were Scheduled`, `new slot were scheduled . checkout now`, `mentor`, `${process.env.CLIENT_ORIGIN_URL}/mentor/session`);
+                            const notif = yield this._notificationRepository.createNotification(mentorId, httpResponse_1.NOTIFY === null || httpResponse_1.NOTIFY === void 0 ? void 0 : httpResponse_1.NOTIFY.SLOT_SCHEDULE_TITLE, httpResponse_1.NOTIFY === null || httpResponse_1.NOTIFY === void 0 ? void 0 : httpResponse_1.NOTIFY.SLOT_SCHEDULED, `mentor`, `${process.env.CLIENT_ORIGIN_URL}/mentor/session`);
                             //make it realtime using socket
                             index_1.socketManager.sendNotification(mentorID, notif);
                         }
@@ -305,7 +303,7 @@ class bookingService {
                         const session = event.data.object;
                         console.error("❌ Payment Failed or Expired:", session.id);
                         if (session.metadata && session.metadata.menteeId) {
-                            yield this._notificationRepository.createNotification(session.metadata.menteeId, `Payment Failed`, `Your payment attempt failed. Please try again.`, `mentee`, "");
+                            yield this._notificationRepository.createNotification(session.metadata.menteeId, httpResponse_1.NOTIFY === null || httpResponse_1.NOTIFY === void 0 ? void 0 : httpResponse_1.NOTIFY.PAYMENT_FAILED, httpResponse_1.NOTIFY === null || httpResponse_1.NOTIFY === void 0 ? void 0 : httpResponse_1.NOTIFY.PAYMENT_ATTEMPT_FALED, `mentee`, "");
                         }
                         return;
                     }
@@ -313,7 +311,7 @@ class bookingService {
                         const session = event.data.object;
                         console.error("❌ Payment Failed:", session.id);
                         if (session.metadata && session.metadata.menteeId) {
-                            const notific = yield this._notificationRepository.createNotification(session.metadata.menteeId, `Payment Failed`, `Your payment attempt failed. Please try again.`, `mentee`, "");
+                            const notific = yield this._notificationRepository.createNotification(session.metadata.menteeId, httpResponse_1.NOTIFY === null || httpResponse_1.NOTIFY === void 0 ? void 0 : httpResponse_1.NOTIFY.PAYMENT_FAILED, httpResponse_1.NOTIFY === null || httpResponse_1.NOTIFY === void 0 ? void 0 : httpResponse_1.NOTIFY.PAYMENT_ATTEMPT_FALED, `mentee`, "");
                             index_1.socketManager.sendNotification(session.metadata.menteeId, notific);
                         }
                         return;
@@ -323,20 +321,11 @@ class bookingService {
                 }
             }
             catch (error) {
-                throw new Error(`${error instanceof Error ? error.message : String(error)} error while webhook handling in mentee service`);
+                throw new http_error_handler_util_1.HttpError(error instanceof Error ? error.message : String(error), httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.InternalServerError);
             }
         });
     }
     //fetch mentee booked slots
-    /**
-     * Fetches the booked slots for a given mentee.
-     *
-     * @param menteeId - The ObjectId of the mentee.
-     *
-     * @returns A promise resolving to an object containing success status, message, HTTP status number, and an array of booked slots.
-     *
-     * @throws Error - Throws an error if there is an issue while fetching the booked slots.
-     */
     getBookedSlots(menteeId, currentTab, search, sortField, sortOrder, filter, page, limit) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
@@ -350,7 +339,7 @@ class bookingService {
                     !mongoose_1.default.Types.ObjectId.isValid(String(menteeId))) {
                     return {
                         success: false,
-                        message: "missing parameters",
+                        message: httpResponse_1.HttpResponse === null || httpResponse_1.HttpResponse === void 0 ? void 0 : httpResponse_1.HttpResponse.INVALID_CREDENTIALS,
                         status: httpStatusCode_1.Status.BadRequest,
                         slots: [],
                         totalPage: 0,
@@ -365,7 +354,7 @@ class bookingService {
                 if ((response === null || response === void 0 ? void 0 : response.slots.length) < 0 || (response === null || response === void 0 ? void 0 : response.totalDocs) < 0) {
                     return {
                         success: false,
-                        message: "No slots found",
+                        message: httpResponse_1.HttpResponse === null || httpResponse_1.HttpResponse === void 0 ? void 0 : httpResponse_1.HttpResponse.RESOURCE_NOT_FOUND,
                         status: httpStatusCode_1.Status.Ok,
                         slots: [],
                         totalPage: 0,
@@ -374,21 +363,20 @@ class bookingService {
                 const totalPage = Math.ceil((response === null || response === void 0 ? void 0 : response.totalDocs) / limitNo);
                 return {
                     success: true,
-                    message: "slots found",
+                    message: httpResponse_1.HttpResponse === null || httpResponse_1.HttpResponse === void 0 ? void 0 : httpResponse_1.HttpResponse.RESOURCE_FOUND,
                     status: httpStatusCode_1.Status.Ok,
                     slots: response === null || response === void 0 ? void 0 : response.slots,
                     totalPage,
                 };
             }
             catch (error) {
-                throw new Error(`${error instanceof Error ? error.message : String(error)} error while webhook handling in mentee service`);
+                throw new http_error_handler_util_1.HttpError(error instanceof Error ? error.message : String(error), httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.InternalServerError);
             }
         });
     }
     getBookedSessions(mentorId, currentTab, search, sortField, sortOrder, filter, page, limit) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                console.log(currentTab, mentorId, "098765432");
                 if (!mentorId ||
                     !currentTab ||
                     !sortField ||
@@ -399,7 +387,7 @@ class bookingService {
                     !mongoose_1.default.Types.ObjectId.isValid(String(mentorId))) {
                     return {
                         success: false,
-                        message: "credential not found",
+                        message: httpResponse_1.HttpResponse === null || httpResponse_1.HttpResponse === void 0 ? void 0 : httpResponse_1.HttpResponse.INVALID_CREDENTIALS,
                         status: httpStatusCode_1.Status.NotFound,
                         slots: [],
                         totalPage: 0,
@@ -413,7 +401,7 @@ class bookingService {
                 if ((response === null || response === void 0 ? void 0 : response.slots.length) < 0 || (response === null || response === void 0 ? void 0 : response.totalDoc) < 0) {
                     return {
                         success: false,
-                        message: "No slots found",
+                        message: httpResponse_1.HttpResponse === null || httpResponse_1.HttpResponse === void 0 ? void 0 : httpResponse_1.HttpResponse.RESOURCE_NOT_FOUND,
                         status: httpStatusCode_1.Status.Ok,
                         slots: [],
                         totalPage: 0,
@@ -422,14 +410,14 @@ class bookingService {
                 const totalPage = Math.ceil((response === null || response === void 0 ? void 0 : response.totalDoc) / limitNo);
                 return {
                     success: true,
-                    message: "slots retrieved",
+                    message: httpResponse_1.HttpResponse === null || httpResponse_1.HttpResponse === void 0 ? void 0 : httpResponse_1.HttpResponse.RESOURCE_FOUND,
                     status: httpStatusCode_1.Status.Ok,
                     slots: response === null || response === void 0 ? void 0 : response.slots,
                     totalPage,
                 };
             }
             catch (error) {
-                throw new Error(`${error instanceof Error ? error.message : String(error)} error while webhook handling in mentee service`);
+                throw new http_error_handler_util_1.HttpError(error instanceof Error ? error.message : String(error), httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.InternalServerError);
             }
         });
     }
@@ -439,7 +427,7 @@ class bookingService {
                 if (!sessionId || !reason || (reason == "other" && customReason == "")) {
                     return {
                         success: false,
-                        message: "credential not found",
+                        message: httpResponse_1.HttpResponse === null || httpResponse_1.HttpResponse === void 0 ? void 0 : httpResponse_1.HttpResponse.INVALID_CREDENTIALS,
                         status: httpStatusCode_1.Status.BadRequest,
                         result: null,
                     };
@@ -455,20 +443,20 @@ class bookingService {
                 if (!response) {
                     return {
                         success: false,
-                        message: "something went wrong",
+                        message: httpResponse_1.HttpResponse === null || httpResponse_1.HttpResponse === void 0 ? void 0 : httpResponse_1.HttpResponse.FAILED,
                         status: httpStatusCode_1.Status.NotFound,
                         result: null,
                     };
                 }
                 return {
                     success: true,
-                    message: "cancel requested successfully",
+                    message: httpResponse_1.HttpResponse === null || httpResponse_1.HttpResponse === void 0 ? void 0 : httpResponse_1.HttpResponse.SLOT_CANCEL_REQUESTED,
                     status: httpStatusCode_1.Status.Ok,
                     result: response,
                 };
             }
             catch (error) {
-                throw new Error(`${error instanceof Error ? error.message : String(error)} error while slot cancel in  service`);
+                throw new http_error_handler_util_1.HttpError(error instanceof Error ? error.message : String(error), httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.InternalServerError);
             }
         });
     }
@@ -476,22 +464,20 @@ class bookingService {
     mentorSlotCancel(sessionId, statusValue) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                console.log(statusValue);
                 if (!sessionId || !statusValue) {
                     return {
                         success: false,
-                        message: "credential not found",
+                        message: httpResponse_1.HttpResponse === null || httpResponse_1.HttpResponse === void 0 ? void 0 : httpResponse_1.HttpResponse.INVALID_CREDENTIALS,
                         status: httpStatusCode_1.Status.BadRequest,
                         result: null,
                     };
                 }
                 const response = yield this._slotScheduleRepository.mentorSlotCancel(sessionId, statusValue);
                 yield this._timeSlotRepository.releaseTimeSlot(String(response === null || response === void 0 ? void 0 : response.slotId));
-                console.log(response);
                 if (!response) {
                     return {
                         success: false,
-                        message: "result not found ",
+                        message: httpResponse_1.HttpResponse === null || httpResponse_1.HttpResponse === void 0 ? void 0 : httpResponse_1.HttpResponse.RESOURCE_NOT_FOUND,
                         status: httpStatusCode_1.Status.NotFound,
                         result: null,
                     };
@@ -515,7 +501,7 @@ class bookingService {
                             : createWallet === null || createWallet === void 0 ? void 0 : createWallet["_id"]),
                         transactionType: "credit",
                         status: "completed",
-                        note: "slot cancelled amount refunded",
+                        note: httpResponse_1.NOTIFY === null || httpResponse_1.NOTIFY === void 0 ? void 0 : httpResponse_1.NOTIFY.CANCELLD_AMOUNT_CREDIT,
                     };
                     yield this.__transactionRepository.createTransaction(newTranasaction);
                     title = `cancel amount $${response === null || response === void 0 ? void 0 : response.paymentAmount} refunded`;
@@ -539,7 +525,7 @@ class bookingService {
                 };
             }
             catch (error) {
-                throw new Error(`${error instanceof Error ? error.message : String(error)} error while metnor slot cancel  handle in  service`);
+                throw new http_error_handler_util_1.HttpError(error instanceof Error ? error.message : String(error), httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.InternalServerError);
             }
         });
     }
@@ -550,33 +536,31 @@ class bookingService {
                 if (!bookingId) {
                     return {
                         success: false,
-                        message: "credential not found",
+                        message: httpResponse_1.HttpResponse === null || httpResponse_1.HttpResponse === void 0 ? void 0 : httpResponse_1.HttpResponse.INVALID_CREDENTIALS,
                         status: httpStatusCode_1.Status.BadRequest,
                         sessionCode: null,
                     };
                 }
                 //generate sessionCode
                 const session_Code = (0, reusable_util_1.generateSessionCode)();
-                console.log(session_Code, "sessionCode");
                 const response = yield this._slotScheduleRepository.createSessionCode(bookingId, session_Code);
                 if (!response) {
                     return {
                         success: false,
-                        message: "result not found ",
+                        message: httpResponse_1.HttpResponse === null || httpResponse_1.HttpResponse === void 0 ? void 0 : httpResponse_1.HttpResponse.RESOURCE_NOT_FOUND,
                         status: httpStatusCode_1.Status.NotFound,
                         sessionCode: null,
                     };
                 }
-                console.log("response");
                 return {
                     success: true,
-                    message: "session Code  created successfully",
+                    message: httpResponse_1.HttpResponse === null || httpResponse_1.HttpResponse === void 0 ? void 0 : httpResponse_1.HttpResponse.SESSION_CODE_CREATED,
                     status: httpStatusCode_1.Status.Ok,
                     sessionCode: response,
                 };
             }
             catch (error) {
-                throw new Error(`${error instanceof Error ? error.message : String(error)} error while metnor create session code  in  service`);
+                throw new http_error_handler_util_1.HttpError(error instanceof Error ? error.message : String(error), httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.InternalServerError);
             }
         });
     }
@@ -587,7 +571,7 @@ class bookingService {
                 if (!bookingId || !mentorId) {
                     return {
                         success: false,
-                        message: "credential not found",
+                        message: httpResponse_1.HttpResponse === null || httpResponse_1.HttpResponse === void 0 ? void 0 : httpResponse_1.HttpResponse.INVALID_CREDENTIALS,
                         status: httpStatusCode_1.Status.BadRequest,
                         sessionStatus: null,
                     };
@@ -596,7 +580,7 @@ class bookingService {
                 if (!response) {
                     return {
                         success: false,
-                        message: "result not found ",
+                        message: httpResponse_1.HttpResponse === null || httpResponse_1.HttpResponse === void 0 ? void 0 : httpResponse_1.HttpResponse.RESOURCE_NOT_FOUND,
                         status: httpStatusCode_1.Status.NotFound,
                         sessionStatus: null,
                     };
@@ -621,56 +605,55 @@ class bookingService {
                     walletId: (result ? result === null || result === void 0 ? void 0 : result._id : newWallet === null || newWallet === void 0 ? void 0 : newWallet["_id"]),
                     transactionType: "credit",
                     status: "completed",
-                    note: "earnings credited to account",
+                    note: httpResponse_1.NOTIFY === null || httpResponse_1.NOTIFY === void 0 ? void 0 : httpResponse_1.NOTIFY.EARNINGS_CREDITED_TO_WALLET,
                 };
                 yield this.__transactionRepository.createTransaction(newTranasaction);
-                const notification = yield this._notificationRepository.createNotification(mentorId, "Earnings credited", "your earnings credited to your wallet.have a nice day", "mentor", `${process.env.CLIENT_ORIGIN_URL}/mentor/wallet`);
+                const notification = yield this._notificationRepository.createNotification(mentorId, httpResponse_1.NOTIFY === null || httpResponse_1.NOTIFY === void 0 ? void 0 : httpResponse_1.NOTIFY.EARNING_CREDITED, httpResponse_1.NOTIFY === null || httpResponse_1.NOTIFY === void 0 ? void 0 : httpResponse_1.NOTIFY.EARNING_CREDIT_MESSAGE, "mentor", `${process.env.CLIENT_ORIGIN_URL}/mentor/wallet`);
                 if (notification) {
                     index_1.socketManager.sendNotification(String(mentorId), notification);
                 }
-                console.log(notification);
                 return {
                     success: true,
-                    message: "marked as completed!",
+                    message: httpResponse_1.HttpResponse === null || httpResponse_1.HttpResponse === void 0 ? void 0 : httpResponse_1.HttpResponse.SESSION_COMPLETED,
                     status: httpStatusCode_1.Status.Ok,
                     sessionStatus: response === null || response === void 0 ? void 0 : response.status,
                 };
             }
             catch (error) {
-                throw new Error(`${error instanceof Error ? error.message : String(error)} error while chnage the session status as completed  in  service`);
+                throw new http_error_handler_util_1.HttpError(error instanceof Error ? error.message : String(error), httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.InternalServerError);
             }
         });
     }
     //validating user alloweded to join to the session
-    validateSessionJoin(sessionId, sessionCode) {
+    validateSessionJoin(sessionId, sessionCode, userId) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                if (!sessionId || !sessionCode) {
+                if (!sessionId || !sessionCode || !userId) {
                     return {
                         success: false,
-                        message: "credential not found",
+                        message: httpResponse_1.HttpResponse === null || httpResponse_1.HttpResponse === void 0 ? void 0 : httpResponse_1.HttpResponse.INVALID_CREDENTIALS,
                         status: httpStatusCode_1.Status.BadRequest,
                         session_Code: "",
                     };
                 }
-                const response = yield this._slotScheduleRepository.validateSessionJoin(sessionId, sessionCode);
+                const response = yield this._slotScheduleRepository.validateSessionJoin(new mongoose_1.default.Types.ObjectId(sessionId), sessionCode, userId);
                 if (!response) {
                     return {
                         success: false,
-                        message: "result not found ",
+                        message: httpResponse_1.HttpResponse === null || httpResponse_1.HttpResponse === void 0 ? void 0 : httpResponse_1.HttpResponse.RESOURCE_NOT_FOUND,
                         status: httpStatusCode_1.Status.NotFound,
                         session_Code: "",
                     };
                 }
                 return {
                     success: true,
-                    message: "user Valid!",
+                    message: httpResponse_1.HttpResponse === null || httpResponse_1.HttpResponse === void 0 ? void 0 : httpResponse_1.HttpResponse.USER_VERIFIED,
                     status: httpStatusCode_1.Status.Ok,
                     session_Code: response === null || response === void 0 ? void 0 : response.sessionCode,
                 };
             }
             catch (error) {
-                throw new Error(`${error instanceof Error ? error.message : String(error)} error while validating user is alloweded to join the session`);
+                throw new http_error_handler_util_1.HttpError(error instanceof Error ? error.message : String(error), httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.InternalServerError);
             }
         });
     }

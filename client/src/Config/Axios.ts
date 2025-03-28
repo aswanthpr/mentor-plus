@@ -40,7 +40,7 @@ protectedAPI.interceptors.request.use(
 // Response interceptor to handle token refresh
 protectedAPI.interceptors.response.use(
   (response:AxiosResponse) => {
-    console.log(response.data)
+
     return response;
   },
   async (error: AxiosError<ErrorResponseData>) => {

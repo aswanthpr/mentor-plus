@@ -13,13 +13,12 @@ const AdminProtectLogin:React.FC = () => {
     const role = useSelector((state: RootState) => state.admin?.adminRole);
     useEffect(() => {
         if (!adminToken || role !== 'admin') {
-          console.log("Redirecting to admin login...");
+      
           navigate(ROUTES?.ADMIN_LOGIN);
         }
       }, [adminToken, role, navigate]);
     
 
-      console.log("Admin authentication check...");
     
       // return element;
       return adminToken && role === 'admin' ? <Outlet /> : null;

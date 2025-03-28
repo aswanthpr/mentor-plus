@@ -103,6 +103,7 @@ interface IMentee {
   isBlocked?: boolean;
   verified?: boolean;
   profileUrl?: string;
+  skills?:string[]
 }
 
 interface IMentee {
@@ -218,7 +219,7 @@ interface TimeSlot {
 
 interface DaySchedule {
   slots: TimeSlot[];
-  price: number | null;
+  price: string ;
   startDate: string;
 }
 

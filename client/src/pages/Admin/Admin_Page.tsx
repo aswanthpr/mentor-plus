@@ -20,6 +20,7 @@ import {
   fetchNotificaitionRead,
 } from "../../service/adminApi";
 import { HttpStatusCode } from "axios";
+import { connectToNotifications, disconnectNotificationSocket } from "../../Socket/connect";
 
 const navItems: INavItem[] = [
   { name: "Dashboard", path: "/admin/dashboard", icon: LayoutDashboard },
@@ -54,12 +55,20 @@ const Admin_Page: React.FC = () => {
             notification: response?.data?.result,
           })
         );
+        const user_Id = response?.data.result?.[0]?.["userId"] as string;
+     
+        if (user_Id) {
+          connectToNotifications(user_Id, "mentee");
+        }
       }
     };
-
-    fetchData();
+    const timer = setTimeout(() => {
+      fetchData();
+    }, 3000);
     return () => {
+      clearTimeout(timer);
       flag = false;
+      disconnectNotificationSocket();
     };
   }, [dispatch]);
 
@@ -73,6 +82,7 @@ const Admin_Page: React.FC = () => {
 
       if (response?.status == HttpStatusCode?.Ok && response?.data.success) {
         dispatch(markAsRead({ userType: "admin", id }));
+        
       }
     },
     [dispatch]

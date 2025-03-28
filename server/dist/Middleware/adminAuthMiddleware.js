@@ -14,16 +14,18 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const menteeModel_1 = __importDefault(require("../Model/menteeModel"));
 const jwt_utils_1 = require("../Utils/jwt.utils");
-const httpStatusCode_1 = require("../Utils/httpStatusCode");
+const httpStatusCode_1 = require("../Constants/httpStatusCode");
+const httpResponse_1 = require("../Constants/httpResponse");
+const http_error_handler_util_1 = require("../Utils/http-error-handler.util");
 const adminAuthorization = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     var _a, _b, _c, _d;
     try {
         //checking fresh token valid
         const refreshToken = (_a = req.cookies) === null || _a === void 0 ? void 0 : _a.adminToken;
-        if (!refreshToken || !(0, jwt_utils_1.verifyRefreshToken)(refreshToken, "admin")) {
+        if (!refreshToken) {
             res.status(httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.Unauthorized).json({
                 success: false,
-                message: "Session expired. Please log in again.",
+                message: httpResponse_1.HttpResponse === null || httpResponse_1.HttpResponse === void 0 ? void 0 : httpResponse_1.HttpResponse.UNAUTHORIZED,
             });
             return;
         }
@@ -32,28 +34,29 @@ const adminAuthorization = (req, res, next) => __awaiter(void 0, void 0, void 0,
         if (!authHeader || !authHeader.startsWith("Bearer")) {
             res
                 .status(httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.Unauthorized)
-                .json({ success: false, message: "Unauthorized. No token provided." });
+                .json({ success: false, message: httpResponse_1.HttpResponse === null || httpResponse_1.HttpResponse === void 0 ? void 0 : httpResponse_1.HttpResponse.UNAUTHORIZED });
             return;
         }
         const token = authHeader === null || authHeader === void 0 ? void 0 : authHeader.split(" ")[1];
         //jwt verifying
         const decode = (0, jwt_utils_1.verifyAccessToken)(token, "admin");
-        if ((decode === null || decode === void 0 ? void 0 : decode.error) == "TamperedToken" || !(decode === null || decode === void 0 ? void 0 : decode.isValid)) {
-            res
-                .status(httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.Unauthorized)
-                .json({ success: false, message: "Token Invalid." });
-            return;
-        }
         if ((decode === null || decode === void 0 ? void 0 : decode.error) == "TokenExpired") {
             res
                 .status(httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.Forbidden)
-                .json({ success: false, message: "Token Expired." });
+                .json({ success: false, message: httpResponse_1.HttpResponse === null || httpResponse_1.HttpResponse === void 0 ? void 0 : httpResponse_1.HttpResponse.TOKEN_EXPIRED });
             return;
         }
-        if (((_b = decode === null || decode === void 0 ? void 0 : decode.result) === null || _b === void 0 ? void 0 : _b.role) !== "admin") {
+        console.log('.............................................');
+        if (((_b = decode === null || decode === void 0 ? void 0 : decode.result) === null || _b === void 0 ? void 0 : _b.role) !== "admin" || !(decode === null || decode === void 0 ? void 0 : decode.isValid)) {
             res
                 .status(httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.Unauthorized)
-                .json({ success: false, message: "user role is invalid" });
+                .json({ success: false, message: httpResponse_1.HttpResponse === null || httpResponse_1.HttpResponse === void 0 ? void 0 : httpResponse_1.HttpResponse.INVALID_USER_ROLE });
+            return;
+        }
+        if ((decode === null || decode === void 0 ? void 0 : decode.error) == "TamperedToken") {
+            res
+                .status(httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.Unauthorized)
+                .json({ success: false, message: httpResponse_1.HttpResponse === null || httpResponse_1.HttpResponse === void 0 ? void 0 : httpResponse_1.HttpResponse.UNAUTHORIZED });
             return;
         }
         const adminData = yield menteeModel_1.default.findById((_c = decode === null || decode === void 0 ? void 0 : decode.result) === null || _c === void 0 ? void 0 : _c.userId, {
@@ -62,14 +65,14 @@ const adminAuthorization = (req, res, next) => __awaiter(void 0, void 0, void 0,
         if (!adminData) {
             res
                 .status(httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.Unauthorized)
-                .json({ message: "admin not found", success: false });
+                .json({ message: httpResponse_1.HttpResponse === null || httpResponse_1.HttpResponse === void 0 ? void 0 : httpResponse_1.HttpResponse.UNAUTHORIZED, success: false });
             return;
         }
         req.user = { adminId: (_d = decode === null || decode === void 0 ? void 0 : decode.result) === null || _d === void 0 ? void 0 : _d.userId };
         next();
     }
     catch (error) {
-        console.log(`\x1b[35m%s\x1b[0m`, error instanceof Error ? error.message : String(error));
+        throw new http_error_handler_util_1.HttpError(error instanceof Error ? error.message : String(error), httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.InternalServerError);
     }
 });
 exports.default = adminAuthorization;

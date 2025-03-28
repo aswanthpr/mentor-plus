@@ -162,7 +162,7 @@ mentee_Router.get(
   __bookingController.getTimeSlots.bind(__bookingController)
 );
 
-//slot book with rzorpay
+//slot book with rzorpay 
 mentee_Router.post(
   `/slot-booking`,
   authorize,
@@ -197,7 +197,7 @@ mentee_Router.patch(
   authorize,
   __notificationController.markAsReadNotif.bind(__notificationController)
 );
-
+ 
 mentee_Router.get(
   "/chats",
   authorize,
@@ -210,7 +210,7 @@ mentee_Router.get(
   __chatController.getUserMessage.bind(__chatController)
 );
 
-mentee_Router.post(
+mentee_Router.get(
   `/session/validate-session-join`,
   authorize,
   __bookingController.validateSessionJoin.bind(__bookingController)

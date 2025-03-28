@@ -16,6 +16,8 @@ const timeModel_1 = __importDefault(require("../Model/timeModel"));
 const baseRepo_1 = require("./baseRepo");
 const mongoose_1 = __importDefault(require("mongoose"));
 const reusable_util_1 = require("../Utils/reusable.util");
+const httpStatusCode_1 = require("../Constants/httpStatusCode");
+const http_error_handler_util_1 = require("../Utils/http-error-handler.util");
 class timeSlotRepository extends baseRepo_1.baseRepository {
     constructor() {
         super(timeModel_1.default);
@@ -26,7 +28,7 @@ class timeSlotRepository extends baseRepo_1.baseRepository {
                 return timeModel_1.default.insertMany(timeSlots);
             }
             catch (error) {
-                throw new Error(`${"\x1b[35m%s\x1b[0m"}error while creating tiem slot :${error instanceof Error ? error.message : String(error)}`);
+                throw new http_error_handler_util_1.HttpError(error instanceof Error ? error.message : String(error), httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.InternalServerError);
             }
         });
     }
@@ -42,6 +44,13 @@ class timeSlotRepository extends baseRepo_1.baseRepository {
                         $unwind: "$slots",
                     },
                     {
+                        $match: {
+                            mentorId: mentorId,
+                            isBooked: false,
+                            startDate: { $gte: new Date() },
+                        },
+                    },
+                    {
                         $project: {
                             startDate: 1,
                             isBooked: 1,
@@ -52,13 +61,7 @@ class timeSlotRepository extends baseRepo_1.baseRepository {
                             endTime: "$slots.endTime",
                             startStr: "$slots.startStr",
                             endStr: "$slots.endStr",
-                        },
-                    },
-                    {
-                        $match: {
-                            mentorId: mentorId,
-                            isBooked: false,
-                            startDate: { $gte: new Date() },
+                            createdAt: 1
                         },
                     },
                 ];
@@ -104,8 +107,7 @@ class timeSlotRepository extends baseRepo_1.baseRepository {
                 return { timeSlots, totalDocs: (_a = totalCount[0]) === null || _a === void 0 ? void 0 : _a.totalDocuments };
             }
             catch (error) {
-                throw new Error(`${"\x1b[35m%s\x1b[0m"}error while getting based on
-            slot :${error instanceof Error ? error.message : String(error)}`);
+                throw new http_error_handler_util_1.HttpError(error instanceof Error ? error.message : String(error), httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.InternalServerError);
             }
         });
     }
@@ -115,7 +117,7 @@ class timeSlotRepository extends baseRepo_1.baseRepository {
                 return this.deleteDocument(slotId);
             }
             catch (error) {
-                throw new Error(`${"\x1b[35m%s\x1b[0m"}error while removing time slot :${error instanceof Error ? error.message : String(error)}`);
+                throw new http_error_handler_util_1.HttpError(error instanceof Error ? error.message : String(error), httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.InternalServerError);
             }
         });
     }
@@ -151,7 +153,7 @@ class timeSlotRepository extends baseRepo_1.baseRepository {
                 ]);
             }
             catch (error) {
-                throw new Error(`${"\x1b[35m%s\x1b[0m"}error while getting error while get speific mentor time slots :${error instanceof Error ? error.message : String(error)}`);
+                throw new http_error_handler_util_1.HttpError(error instanceof Error ? error.message : String(error), httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.InternalServerError);
             }
         });
     }
@@ -164,7 +166,7 @@ class timeSlotRepository extends baseRepo_1.baseRepository {
                 });
             }
             catch (error) {
-                throw new Error(`${"\x1b[35m%s\x1b[0m"}error while getting editing speific mentor time slots :${error instanceof Error ? error.message : String(error)}`);
+                throw new http_error_handler_util_1.HttpError(error instanceof Error ? error.message : String(error), httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.InternalServerError);
             }
         });
     }
@@ -187,7 +189,7 @@ class timeSlotRepository extends baseRepo_1.baseRepository {
                 ]);
             }
             catch (error) {
-                throw new Error(`${"\x1b[35m%s\x1b[0m"}error while getting editing speific mentor time slots :${error instanceof Error ? error.message : String(error)}`);
+                throw new http_error_handler_util_1.HttpError(error instanceof Error ? error.message : String(error), httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.InternalServerError);
             }
         });
     }
@@ -199,7 +201,7 @@ class timeSlotRepository extends baseRepo_1.baseRepository {
                 });
             }
             catch (error) {
-                throw new Error(`${"\x1b[35m%s\x1b[0m"}error while getting editing speific mentor time slots :${error instanceof Error ? error.message : String(error)}`);
+                throw new http_error_handler_util_1.HttpError(error instanceof Error ? error.message : String(error), httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.InternalServerError);
             }
         });
     }

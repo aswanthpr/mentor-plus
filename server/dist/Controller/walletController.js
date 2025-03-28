@@ -10,12 +10,13 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.walletController = void 0;
+const httpStatusCode_1 = require("../Constants/httpStatusCode");
 class walletController {
     constructor(__walletService) {
         this.__walletService = __walletService;
     }
     // mentee add money to wallet 
-    addMoneyToWallet(req, res) {
+    addMoneyToWallet(req, res, next) {
         return __awaiter(this, void 0, void 0, function* () {
             var _a;
             try {
@@ -24,24 +25,24 @@ class walletController {
                 res.json(response);
             }
             catch (error) {
-                throw new Error(`error while add money to wallet ${error instanceof Error ? error.message : String(error)}`);
+                next(error);
             }
         });
     }
-    walletStripeWebHook(req, res) {
+    walletStripeWebHook(req, res, next) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 const signature = req.headers["stripe-signature"];
                 yield this.__walletService.walletStripeWebHook(signature, req.body);
-                res.status(200).json({ success: true });
+                res.status(httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.Ok).json({ success: true });
             }
             catch (error) {
-                throw new Error(`Error while  webhook config ${error instanceof Error ? error.message : String(error)}`);
+                next(error);
             }
         });
     }
     //fetch wallet data
-    getWalletData(req, res) {
+    getWalletData(req, res, next) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 const { role, search, filter, page, limit } = req.query;
@@ -50,11 +51,11 @@ class walletController {
                 res.status(status).json({ message, success, walletData, totalPage });
             }
             catch (error) {
-                throw new Error(`Error while fetch walletData ${error instanceof Error ? error.message : String(error)}`);
+                next(error);
             }
         });
     }
-    withdrawMentorEarnings(req, res) {
+    withdrawMentorEarnings(req, res, next) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 const { amount } = req.body;
@@ -63,7 +64,7 @@ class walletController {
                 res.status(status).json({ message, success, result });
             }
             catch (error) {
-                throw new Error(`Error while fetch walletData ${error instanceof Error ? error.message : String(error)}`);
+                next(error);
             }
         });
     }

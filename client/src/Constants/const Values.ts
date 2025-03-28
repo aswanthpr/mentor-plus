@@ -81,3 +81,21 @@ export const features = [
     icon: Target,
   },
 ];
+ export  const constraints = {
+    video: {
+      width: { ideal: 1920 }, // Full HD
+      height: { ideal: 720 },
+      frameRate: { ideal: 30, max: 60 }, // Smooth motion
+      facingMode: "user",
+      noiseSuppression: true, // Ensure front camera is used
+    },
+    audio: {
+      echoCancellation: true, // Removes echo
+      noiseSuppression: true, // Removes background noise
+      autoGainControl: true, // Balances volume
+      sampleRate: 48000, // Studio-quality audio
+      sampleSize: 24, // Higher bit depth for clearer sound
+      channelCount: 2, // Stereo audio
+      latency: 0, // Reduce delay
+    },
+  };

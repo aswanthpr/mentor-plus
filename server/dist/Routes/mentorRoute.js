@@ -65,7 +65,7 @@ mentor_Router.patch(`/notification-read/:notificationId`, mentorAuthMiddleware_1
 //chat
 mentor_Router.get(`/chats`, mentorAuthMiddleware_1.default, __chatController.getChats.bind(__chatController));
 mentor_Router.get("/messages", mentorAuthMiddleware_1.default, __chatController.getUserMessage.bind(__chatController));
-mentor_Router.post("/session/validate-session-join", mentorAuthMiddleware_1.default, __bookingController.validateSessionJoin.bind(__bookingController));
+mentor_Router.get("/session/validate-session-join", mentorAuthMiddleware_1.default, __bookingController.validateSessionJoin.bind(__bookingController));
 //wallet'
 mentor_Router.get(`/wallet`, mentorAuthMiddleware_1.default, __walletController.getWalletData.bind(__walletController));
 mentor_Router.put(`/withdraw-amount`, mentorAuthMiddleware_1.default, __walletController.withdrawMentorEarnings.bind(__walletController));

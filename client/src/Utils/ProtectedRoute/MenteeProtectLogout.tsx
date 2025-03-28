@@ -13,12 +13,12 @@ const MenteeLogout: React.FC = () => {
 
   useEffect(() => {
     if (accessToken && role === "mentee") {
-      console.log("you are aleary logged in");
+     
       navigate(ROUTES?.MENTEE_HOME);
     }
   }, [accessToken, role, navigate]);
 
-  console.log("you are out.........");
+  
 
   return !accessToken || role !== "mentee" ? <Outlet /> : null;
 };

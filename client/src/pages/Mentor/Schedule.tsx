@@ -37,7 +37,6 @@ const Schedule: React.FC = () => {
         currentPage,
         limit
       );
-
       if (response?.status === HttpStatusCode?.Ok && response?.data?.success) {
         setTimeSlots(response?.data?.timeSlots);
         setTotalDocuments(response?.data?.totalPage);
@@ -75,7 +74,7 @@ const Schedule: React.FC = () => {
         if (response?.status == HttpStatusCode?.Ok && response?.data.success) {
           toast.success(response?.data.message);
           setTimeSlots(timeSlots.filter((slot) => slot._id !== id));
-          console.log(response?.data.message);
+         
         }
       };
     },
@@ -84,13 +83,12 @@ const Schedule: React.FC = () => {
 
   const handleSaveSchedule = useCallback(
     async (scheduleData: { type: string; schedule: TimeSlot[] }) => {
-      console.log(scheduleData, "thsi si final from frontend");
+      
       const response = await createNewSlots(scheduleData);
 
       if (response?.status == HttpStatusCode?.Ok && response?.data?.success) {
         toast.success(response?.data?.message);
-        console.log(response?.data?.timeSlots, "thsi si timeslots");
-        // setTimeSlots((pre) => [...response.data.timeSlots, ...pre]);
+        
 
         const formattedSlots = response?.data?.timeSlots.map((slot: Itime) => ({
           ...slot,
@@ -105,7 +103,7 @@ const Schedule: React.FC = () => {
         setTimeSlots((pre) => [...formattedSlots, ...pre]);
       }
       setRefresh(!refresh);
-      console.error(response?.data, "failed resonse response");
+     
     },
     [refresh]
   );
@@ -195,7 +193,7 @@ const Schedule: React.FC = () => {
         <hr className="h-px  bg-gray-200 border-0 dark:bg-gray-700" />
         <div className="flex justify-center mt-3">
           <Pagination
-            count={totalDocuments}
+            count={totalDocuments as number??0}
             page={currentPage} // Current page
             onChange={handlePageChange} // Page change handler
             color="standard" // Pagination color

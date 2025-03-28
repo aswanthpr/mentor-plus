@@ -50,6 +50,7 @@ import {
   MENTOR_PROFILE_FORM_INITIAL,
 } from "../../Constants/initialStates";
 import { HttpStatusCode } from "axios";
+import { Messages } from "../../Constants/message";
 
 const MentorProfile: React.FC = () => {
   const [isPasswordVisible, setIsPasswordVisible] = useState<boolean>(false);
@@ -242,8 +243,8 @@ const MentorProfile: React.FC = () => {
         const error = validateImageFile(file);
 
         if (error) {
-          toast.error("invalid file type");
-          console.log(error);
+          toast.error(Messages?.FILE_CHANGE_ERROR);
+          
           return;
         }
         setProfileImage(file);

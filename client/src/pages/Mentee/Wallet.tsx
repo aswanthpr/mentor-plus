@@ -45,13 +45,12 @@ const WalletPage: React.FC = () => {
   }, [currentPage, searchQuery, typeFilter]);
 
   const handleAddMoney = useCallback(async (amount: number) => {
+   
     const response = await fetchAddMoney(amount);
     if (response?.status ==HttpStatusCode?.Ok && response?.data?.success) {
       if (response?.data.session?.url) {
         window.location.href = response?.data.session?.url;
       }
-      //set socket io here
-      // setTransactions([newTransaction, ...transactions]);
     }
   }, []);
 

@@ -22,7 +22,7 @@ export const getTodayEndTime = () => {
 
 export const checkForOverlap = (
   checkedSlots: IcheckedSlot[],
-  newSlots: { startTime: string; endTime: string }[]
+  newSlots: { startTime: string; endTime: string }[]   
 ) => {
   return newSlots.filter(({ startTime, endTime }) => {
   //here checking the slot is exist in db slot 

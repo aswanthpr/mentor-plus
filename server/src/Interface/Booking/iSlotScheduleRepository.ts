@@ -38,8 +38,9 @@ export interface IslotScheduleRepository {
   createSessionCode(bookingId: string, sessionCode: string): Promise<string>;
   sessionCompleted(bookingId: string): Promise<IslotSchedule | null>;
   validateSessionJoin(
-    sessionId: string,
-    sessionCode: string
+    sessionId: ObjectId,
+    sessionCode: string,
+    userId:ObjectId,
   ): Promise<IslotSchedule | null>;
   mentorDashboard(
     platformCommision: number,

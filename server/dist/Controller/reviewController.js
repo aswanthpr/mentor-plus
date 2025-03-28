@@ -14,7 +14,7 @@ class reviewController {
     constructor(__reviewService) {
         this.__reviewService = __reviewService;
     }
-    reviewNdRateMentor(req, res) {
+    reviewNdRateMentor(req, res, next) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 const { rating, review, sessionId, menteeId, mentorId } = req.body;
@@ -22,7 +22,7 @@ class reviewController {
                 res.status(status).json({ message, success, feedback, oldReview });
             }
             catch (error) {
-                throw new Error(`Error while  webhook config ${error instanceof Error ? error.message : String(error)}`);
+                next(error);
             }
         });
     }

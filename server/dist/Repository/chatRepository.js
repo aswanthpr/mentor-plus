@@ -15,6 +15,8 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const baseRepo_1 = require("./baseRepo");
 const chatSchema_1 = __importDefault(require("../Model/chatSchema"));
 const messageSchema_1 = __importDefault(require("../Model/messageSchema"));
+const http_error_handler_util_1 = require("../Utils/http-error-handler.util");
+const httpStatusCode_1 = require("../Constants/httpStatusCode");
 class chatRepository extends baseRepo_1.baseRepository {
     constructor() {
         super(chatSchema_1.default);
@@ -64,7 +66,7 @@ class chatRepository extends baseRepo_1.baseRepository {
                 ]);
             }
             catch (error) {
-                throw new Error(`${"\x1b[35m%s\x1b[0m"}error while mentor chats:${error instanceof Error ? error.message : String(error)}`);
+                throw new http_error_handler_util_1.HttpError(error instanceof Error ? error.message : String(error), httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.InternalServerError);
             }
         });
     }
@@ -110,7 +112,7 @@ class chatRepository extends baseRepo_1.baseRepository {
                 ]);
             }
             catch (error) {
-                throw new Error(`${"\x1b[35m%s\x1b[0m"}error while creating mentor chats :${error instanceof Error ? error.message : String(error)}`);
+                throw new http_error_handler_util_1.HttpError(error instanceof Error ? error.message : String(error), httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.InternalServerError);
             }
         });
     }
@@ -121,7 +123,7 @@ class chatRepository extends baseRepo_1.baseRepository {
                 return this.createDocument({ menteeId, mentorId });
             }
             catch (error) {
-                throw new Error(`${"\x1b[35m%s\x1b[0m"}error while creating  chats :${error instanceof Error ? error.message : String(error)}`);
+                throw new http_error_handler_util_1.HttpError(error instanceof Error ? error.message : String(error), httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.InternalServerError);
             }
         });
     }
@@ -152,7 +154,7 @@ class chatRepository extends baseRepo_1.baseRepository {
                 ]);
             }
             catch (error) {
-                throw new Error(`${"\x1b[35m%s\x1b[0m"}error while getting user message :${error instanceof Error ? error.message : String(error)}`);
+                throw new http_error_handler_util_1.HttpError(error instanceof Error ? error.message : String(error), httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.InternalServerError);
             }
         });
     }
@@ -162,7 +164,7 @@ class chatRepository extends baseRepo_1.baseRepository {
                 return yield this.find_One({ menteeId, mentorId });
             }
             catch (error) {
-                throw new Error(`error while finding chat Room  in slot schedule repositry${error instanceof Error ? error.message : String(error)}`);
+                throw new http_error_handler_util_1.HttpError(error instanceof Error ? error.message : String(error), httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.InternalServerError);
             }
         });
     }

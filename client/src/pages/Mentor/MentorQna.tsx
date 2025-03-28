@@ -152,7 +152,7 @@ const MentorQna: React.FC = () => {
 
   const handleEditAnswerSubmit = useCallback(
     async (content: string, answerId?: string) => {
-      console.log("Answer Edited: ", { content, answerId });
+  
 
       if (!answerId) return;
 

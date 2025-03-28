@@ -2,11 +2,12 @@ import walletSchema, { Iwallet } from "../Model/walletModel";
 import { IwalletRepository } from "../Interface/wallet/IwalletRepository";
 import { baseRepository } from "./baseRepo";
 import { ObjectId, PipelineStage } from "mongoose";
+import { HttpError } from "../Utils/http-error-handler.util";
+import { Status } from "../Constants/httpStatusCode";
 
 class walletRepository
   extends baseRepository<Iwallet>
-  implements IwalletRepository
-{
+  implements IwalletRepository {
   constructor() {
     super(walletSchema);
   }
@@ -14,18 +15,14 @@ class walletRepository
     try {
       return await this.createDocument(walletData);
     } catch (error: unknown) {
-      throw new Error(
-        `${error instanceof Error ? error.message : String(error)}`
-      );
+      throw new HttpError(error instanceof Error ? error.message : String(error), Status?.InternalServerError);
     }
   }
   async findWallet(userId: ObjectId): Promise<Iwallet | null> {
     try {
       return await this.find_One({ userId });
     } catch (error: unknown) {
-      throw new Error(
-        `${error instanceof Error ? error.message : String(error)}`
-      );
+      throw new HttpError(error instanceof Error ? error.message : String(error), Status?.InternalServerError);
     }
   }
 
@@ -43,9 +40,7 @@ class walletRepository
         }
       );
     } catch (error: unknown) {
-      throw new Error(
-        `${error instanceof Error ? error.message : String(error)}`
-      );
+      throw new HttpError(error instanceof Error ? error.message : String(error), Status?.InternalServerError);
     }
   }
 
@@ -55,9 +50,9 @@ class walletRepository
     limit: number,
     search: string,
     filter: string
-  ): Promise<{transaction:Iwallet |null,totalDocs:number}> {
+  ): Promise<{ transaction: Iwallet | null, totalDocs: number }> {
     try {
-      const pipeline:PipelineStage[] = [
+      const pipeline: PipelineStage[] = [
 
         {
           $match: {
@@ -79,10 +74,10 @@ class walletRepository
           },
         },
       ]
-      if(filter !="all"){
+      if (filter != "all") {
         pipeline.push({
-          $match:{
-            "transaction.transactionType":{$eq:filter},
+          $match: {
+            "transaction.transactionType": { $eq: filter },
           }
         });
       }
@@ -102,7 +97,7 @@ class walletRepository
         });
       }
       pipeline.push({ $sort: { "transaction.createdAt": -1 } });
- 
+
       pipeline.push({
         $group: {
           _id: "$_id",
@@ -113,7 +108,7 @@ class walletRepository
           transaction: { $push: "$transaction" },
         },
       });
-      
+
       pipeline.push({
         $project: {
           _id: 1,
@@ -137,15 +132,13 @@ class walletRepository
         this.aggregateData(walletSchema, pipeline),
         walletSchema.aggregate(countPipeline),
       ]);
-  
+
       return {
         transaction: data?.[0] || null,
         totalDocs: count?.[0]?.totalDocuments || 0,
       };
     } catch (error: unknown) {
-      throw new Error(
-        `${error instanceof Error ? error.message : String(error)}`
-      );
+      throw new HttpError(error instanceof Error ? error.message : String(error), Status?.InternalServerError);
     }
   }
   async deductAmountFromWallet(
@@ -165,9 +158,7 @@ class walletRepository
         { new: true }
       );
     } catch (error: unknown) {
-      throw new Error(
-        `${error instanceof Error ? error.message : String(error)}`
-      );
+      throw new HttpError(error instanceof Error ? error.message : String(error), Status?.InternalServerError);
     }
   }
 }

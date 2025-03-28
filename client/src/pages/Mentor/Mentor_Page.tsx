@@ -2,17 +2,30 @@ import { toast } from "react-toastify";
 import { Outlet } from "react-router-dom";
 import React, { useCallback, useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { Home, MessageSquare, Calendar, Video, Wallet, MessageCircleQuestion,  } from "lucide-react";
+import {
+  Home,
+  MessageSquare,
+  Calendar,
+  Video,
+  Wallet,
+  MessageCircleQuestion,
+} from "lucide-react";
 
 import { RootState } from "../../Redux/store";
 import { markAsRead, setNotification } from "../../Redux/notificationSlice";
 import { clearMentorToken } from "../../Redux/mentorSlice";
 import Header from "../../components/Common/common4All/Header";
 import SidePanel from "../../components/Common/common4All/SidePanel";
-import { connectToNotifications, disconnectNotificationSocket } from "../../Socket/connect";
-import { fetchMentorLogout, fetchMentorNotification, fetchReadNotification } from "../../service/mentorApi";
+import {
+  connectToNotifications,
+  disconnectNotificationSocket,
+} from "../../Socket/connect";
+import {
+  fetchMentorLogout,
+  fetchMentorNotification,
+  fetchReadNotification,
+} from "../../service/mentorApi";
 import { HttpStatusCode } from "axios";
-
 
 const navItems: INavItem[] = [
   { name: "Home", path: "/mentor/home", icon: Home },
@@ -20,9 +33,12 @@ const navItems: INavItem[] = [
   { name: "Schedule", path: "/mentor/Schedule", icon: Calendar },
   { name: "Messages", path: "/mentor/messages", icon: MessageSquare },
   { name: "Wallet", path: "/mentor/wallet", icon: Wallet },
-  { name: "Q&A", path: "/mentor/question_Answeres", icon: MessageCircleQuestion },
+  {
+    name: "Q&A",
+    path: "/mentor/question_Answeres",
+    icon: MessageCircleQuestion,
+  },
 ];
-
 
 const Mentor_Page: React.FC = () => {
   const dispatch = useDispatch();
@@ -36,9 +52,13 @@ const Mentor_Page: React.FC = () => {
 
     const fetchData = async () => {
       try {
-        const response = await fetchMentorNotification()
+        const response = await fetchMentorNotification();
 
-        if (flag && response?.status == HttpStatusCode?.Ok && response.data?.success) {
+        if (
+          flag &&
+          response?.status == HttpStatusCode?.Ok &&
+          response.data?.success
+        ) {
           const user_Id = response.data?.result?.[0]?.["userId"] as string;
 
           dispatch(
@@ -51,7 +71,6 @@ const Mentor_Page: React.FC = () => {
             connectToNotifications(user_Id, "mentor");
           }
         }
-
       } catch (error: unknown) {
         console.log(
           `${error instanceof Error ? error.message : String(error)}`
@@ -59,33 +78,44 @@ const Mentor_Page: React.FC = () => {
       }
     };
 
-    fetchData();
+    const timer = setTimeout(() => {
+      fetchData();
+    }, 3000);
     return () => {
       flag = false;
-       disconnectNotificationSocket();
+      clearTimeout(timer)
+      disconnectNotificationSocket();
     };
   }, [dispatch]);
 
-  const handleReadNotification = useCallback(async (id: string) => {
-    try {
-      const response = await fetchReadNotification(id as string)
-     
-      if (response?.status == HttpStatusCode?.Ok && response.data?.success) {
-        dispatch(markAsRead({ userType: "mentor", id }));
+  const handleReadNotification = useCallback(
+    async (id: string) => {
+      try {
+        const response = await fetchReadNotification(id as string);
+
+        if (response?.status == HttpStatusCode?.Ok && response.data?.success) {
+          dispatch(markAsRead({ userType: "mentor", id }));
+        }
+      } catch (error: unknown) {
+        console.log(
+          `${error instanceof Error ? error.message : String(error)}`
+        );
       }
-    } catch (error: unknown) {
-      console.log(`${error instanceof Error ? error.message : String(error)}`);
-    }
-  },[dispatch]);
+    },
+    [dispatch]
+  );
   const ToggleSideBar = () => {
     setIsSideBarOpen(!isSideBarOpen);
   };
 
-  const handleSearchChange = useCallback((e: React. ChangeEvent<HTMLInputElement>) => {
-    setSearchValue(e.target.value);
-  },[]);
+  const handleSearchChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      setSearchValue(e.target.value);
+    },
+    []
+  );
   const mentorLogout = useCallback(async () => {
-    const response = await fetchMentorLogout()
+    const response = await fetchMentorLogout();
     if (response.data?.success && response?.status == HttpStatusCode?.Ok) {
       dispatch(clearMentorToken());
       localStorage.removeItem("mentorToken");
@@ -93,7 +123,7 @@ const Mentor_Page: React.FC = () => {
 
       toast.success(response.data.message);
     }
-  },[dispatch]);
+  }, [dispatch]);
   return (
     <div className="min-h-screen bg-gray-50">
       <Header
@@ -130,6 +160,6 @@ const Mentor_Page: React.FC = () => {
       </main>
     </div>
   );
-}; 
+};
 
 export default Mentor_Page;

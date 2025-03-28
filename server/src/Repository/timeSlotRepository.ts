@@ -4,11 +4,12 @@ import { ItimeSlotRepository } from "../Interface/Booking/iTimeSchedule";
 import { baseRepository } from "./baseRepo";
 import mongoose, { DeleteResult, ObjectId, PipelineStage } from "mongoose";
 import { getTodayEndTime, getTodayStartTime } from "../Utils/reusable.util";
+import { Status } from "../Constants/httpStatusCode";
+import { HttpError } from "../Utils/http-error-handler.util";
 
 class timeSlotRepository
   extends baseRepository<Itime>
-  implements ItimeSlotRepository
-{
+  implements ItimeSlotRepository {
   constructor() {
     super(timeSchema);
   }
@@ -16,11 +17,7 @@ class timeSlotRepository
     try {
       return timeSchema.insertMany(timeSlots) as unknown as Itime[];
     } catch (error: unknown) {
-      throw new Error(
-        `${"\x1b[35m%s\x1b[0m"}error while creating tiem slot :${
-          error instanceof Error ? error.message : String(error)
-        }`
-      );
+      throw new HttpError(error instanceof Error ? error.message : String(error), Status?.InternalServerError);
     }
   }
 
@@ -43,11 +40,18 @@ class timeSlotRepository
         dateSearch,
         getTodayEndTime(),
         getTodayStartTime(),
-        skip,limit
+        skip, limit
       );
       const pipeline: PipelineStage[] = [
         {
           $unwind: "$slots",
+        },
+        {
+          $match: {
+            mentorId: mentorId,
+            isBooked: false,
+            startDate: { $gte: new Date() },
+          },
         },
         {
           $project: {
@@ -60,22 +64,17 @@ class timeSlotRepository
             endTime: "$slots.endTime",
             startStr: "$slots.startStr",
             endStr: "$slots.endStr",
+            createdAt: 1
           },
         },
-        {
-          $match: {
-            mentorId: mentorId,
-            isBooked: false,
-            startDate: { $gte: new Date() },
-          },
-        },
+
       ];
 
       if (search) {
         pipeline.push({
           $match: {
             $or: [
-              {startDate:isValidDate ? dateSearch! : undefined},
+              { startDate: isValidDate ? dateSearch! : undefined },
             ],
           },
         });
@@ -116,8 +115,7 @@ class timeSlotRepository
       ]);
       return { timeSlots, totalDocs: totalCount[0]?.totalDocuments };
     } catch (error: unknown) {
-      throw new Error(`${"\x1b[35m%s\x1b[0m"}error while getting based on
-            slot :${error instanceof Error ? error.message : String(error)}`);
+      throw new HttpError(error instanceof Error ? error.message : String(error), Status?.InternalServerError);
     }
   }
 
@@ -125,11 +123,7 @@ class timeSlotRepository
     try {
       return this.deleteDocument(slotId);
     } catch (error: unknown) {
-      throw new Error(
-        `${"\x1b[35m%s\x1b[0m"}error while removing time slot :${
-          error instanceof Error ? error.message : String(error)
-        }`
-      );
+      throw new HttpError(error instanceof Error ? error.message : String(error), Status?.InternalServerError);
     }
   }
 
@@ -159,15 +153,11 @@ class timeSlotRepository
           },
         },
         {
-          $sort:{startTime:1}
+          $sort: { startTime: 1 }
         }
       ]);
     } catch (error: unknown) {
-      throw new Error(
-        `${"\x1b[35m%s\x1b[0m"}error while getting error while get speific mentor time slots :${
-          error instanceof Error ? error.message : String(error)
-        }`
-      );
+      throw new HttpError(error instanceof Error ? error.message : String(error), Status?.InternalServerError);
     }
   }
 
@@ -178,11 +168,7 @@ class timeSlotRepository
         $set: { isBooked: true },
       });
     } catch (error: unknown) {
-      throw new Error(
-        `${"\x1b[35m%s\x1b[0m"}error while getting editing speific mentor time slots :${
-          error instanceof Error ? error.message : String(error)
-        }`
-      );
+      throw new HttpError(error instanceof Error ? error.message : String(error), Status?.InternalServerError);
     }
   }
 
@@ -207,25 +193,17 @@ class timeSlotRepository
         },
       ]);
     } catch (error: unknown) {
-      throw new Error(
-        `${"\x1b[35m%s\x1b[0m"}error while getting editing speific mentor time slots :${
-          error instanceof Error ? error.message : String(error)
-        }`
-      );
+      throw new HttpError(error instanceof Error ? error.message : String(error), Status?.InternalServerError);
     }
   }
 
-  async releaseTimeSlot(slotId:string): Promise<Itime | null> {
+  async releaseTimeSlot(slotId: string): Promise<Itime | null> {
     try {
       return await this.find_By_Id_And_Update(timeSchema, slotId, {
         $set: { isBooked: false },
       });
     } catch (error: unknown) {
-      throw new Error(
-        `${"\x1b[35m%s\x1b[0m"}error while getting editing speific mentor time slots :${
-          error instanceof Error ? error.message : String(error)
-        }`
-      );
+      throw new HttpError(error instanceof Error ? error.message : String(error), Status?.InternalServerError);
     }
   }
 }

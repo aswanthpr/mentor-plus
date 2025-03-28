@@ -14,6 +14,8 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const reviewModel_1 = __importDefault(require("../Model/reviewModel"));
 const baseRepo_1 = require("./baseRepo");
+const httpStatusCode_1 = require("../Constants/httpStatusCode");
+const http_error_handler_util_1 = require("../Utils/http-error-handler.util");
 class reviewRepository extends baseRepo_1.baseRepository {
     constructor() {
         super(reviewModel_1.default);
@@ -24,7 +26,7 @@ class reviewRepository extends baseRepo_1.baseRepository {
                 return this.createDocument(newReview);
             }
             catch (error) {
-                throw new Error(`Error while review and rating  ${error instanceof Error ? error.message : String(error)}`);
+                throw new http_error_handler_util_1.HttpError(error instanceof Error ? error.message : String(error), httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.InternalServerError);
             }
         });
     }
@@ -34,7 +36,7 @@ class reviewRepository extends baseRepo_1.baseRepository {
                 return this.find_One_And_Update(reviewModel_1.default, { menteeId, mentorId }, { $set: { feedback, rating, sessionId } });
             }
             catch (error) {
-                throw new Error(`Error while review and rating  ${error instanceof Error ? error.message : String(error)}`);
+                throw new http_error_handler_util_1.HttpError(error instanceof Error ? error.message : String(error), httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.InternalServerError);
             }
         });
     }
@@ -44,7 +46,7 @@ class reviewRepository extends baseRepo_1.baseRepository {
                 return this.find_One({ menteeId, mentorId });
             }
             catch (error) {
-                throw new Error(`Error while review and rating  ${error instanceof Error ? error.message : String(error)}`);
+                throw new http_error_handler_util_1.HttpError(error instanceof Error ? error.message : String(error), httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.InternalServerError);
             }
         });
     }

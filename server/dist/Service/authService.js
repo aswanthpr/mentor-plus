@@ -18,7 +18,9 @@ const hashPass_util_1 = __importDefault(require("../Utils/hashPass.util"));
 const jwt_utils_1 = require("../Utils/jwt.utils");
 const cloudinary_util_1 = require("../Config/cloudinary.util");
 const index_1 = require("../index");
-const httpStatusCode_1 = require("../Utils/httpStatusCode");
+const httpStatusCode_1 = require("../Constants/httpStatusCode");
+const httpResponse_1 = require("../Constants/httpResponse");
+const http_error_handler_util_1 = require("../Utils/http-error-handler.util");
 class authService {
     constructor(_OtpService, _categoryRepository, _MentorRepository, _MenteeRepository, _notificationRepository) {
         this._OtpService = _OtpService;
@@ -33,7 +35,7 @@ class authService {
                 if (!userData.email || !userData.password) {
                     return {
                         success: false,
-                        message: "Email or password is missing",
+                        message: httpResponse_1.HttpResponse === null || httpResponse_1.HttpResponse === void 0 ? void 0 : httpResponse_1.HttpResponse.INVALID_CREDENTIALS,
                         status: httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.BadRequest,
                     };
                 }
@@ -43,7 +45,7 @@ class authService {
                 if (existingUser || (existingUser === null || existingUser === void 0 ? void 0 : existingUser.provider)) {
                     return {
                         success: false,
-                        message: "user with this email is already exists",
+                        message: httpResponse_1.HttpResponse === null || httpResponse_1.HttpResponse === void 0 ? void 0 : httpResponse_1.HttpResponse.EMAIL_EXIST,
                         status: httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.BadRequest,
                     };
                 }
@@ -54,29 +56,22 @@ class authService {
                 if (!response) {
                     return {
                         success: false,
-                        message: "Singup Failed",
+                        message: httpResponse_1.HttpResponse === null || httpResponse_1.HttpResponse === void 0 ? void 0 : httpResponse_1.HttpResponse.FAILED,
                         status: httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.BadRequest,
                     };
                 }
-                const notfi = yield this._notificationRepository.createNotification(response === null || response === void 0 ? void 0 : response._id, `Welcome ${response === null || response === void 0 ? void 0 : response.name}`, `Start exploring and connect with mentors today.`, `mentee`, `${process.env.CLIENT_ORIGIN_URL}/mentee/explore`);
+                const notfi = yield this._notificationRepository.createNotification(response === null || response === void 0 ? void 0 : response._id, `Welcome ${response === null || response === void 0 ? void 0 : response.name}`, httpResponse_1.NOTIFY === null || httpResponse_1.NOTIFY === void 0 ? void 0 : httpResponse_1.NOTIFY.MENTEE_WELCOME, `mentee`, `${process.env.CLIENT_ORIGIN_URL}/mentee/explore`);
                 if ((response === null || response === void 0 ? void 0 : response.id) && notfi) {
                     index_1.socketManager.sendNotification(response === null || response === void 0 ? void 0 : response._id, notfi);
                 }
                 return {
                     success: true,
-                    message: "signup successfull",
+                    message: httpResponse_1.HttpResponse === null || httpResponse_1.HttpResponse === void 0 ? void 0 : httpResponse_1.HttpResponse.SUCCESS,
                     status: httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.Ok,
                 };
             }
             catch (error) {
-                if (error instanceof Error) {
-                    console.error("\x1b[35m%s\x1b[0m", "error while create mentee");
-                    throw new Error(`Failed to create  Mentee ${error.message}`);
-                }
-                else {
-                    console.log("An unknown error occured", error);
-                    throw error;
-                }
+                throw new http_error_handler_util_1.HttpError(error instanceof Error ? error.message : String(error), httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.InternalServerError);
             }
         });
     }
@@ -86,7 +81,7 @@ class authService {
                 if (!email || !password) {
                     return {
                         success: false,
-                        message: "login credencial is missing",
+                        message: httpResponse_1.HttpResponse === null || httpResponse_1.HttpResponse === void 0 ? void 0 : httpResponse_1.HttpResponse.INVALID_CREDENTIALS,
                         status: httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.BadRequest,
                     };
                 }
@@ -94,28 +89,28 @@ class authService {
                 if ((result === null || result === void 0 ? void 0 : result.provider) != "email") {
                     return {
                         success: false,
-                        message: "please login with google",
+                        message: httpResponse_1.HttpResponse === null || httpResponse_1.HttpResponse === void 0 ? void 0 : httpResponse_1.HttpResponse.LOGIN_WITH_GOOGLE,
                         status: httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.BadRequest,
                     };
                 }
                 if (!result || (result === null || result === void 0 ? void 0 : result.email) != email) {
                     return {
                         success: false,
-                        message: "user not exist.Please signup",
+                        message: httpResponse_1.HttpResponse === null || httpResponse_1.HttpResponse === void 0 ? void 0 : httpResponse_1.HttpResponse.USER_NOT_FOUND,
                         status: httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.BadRequest,
                     };
                 }
                 if (result === null || result === void 0 ? void 0 : result.isAdmin) {
                     return {
                         success: false,
-                        message: "Admin is not allowed ,sorry..",
+                        message: httpResponse_1.HttpResponse === null || httpResponse_1.HttpResponse === void 0 ? void 0 : httpResponse_1.HttpResponse.ADMIN_NOT_ALLOWEDED,
                         status: httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.Unauthorized,
                     };
                 }
                 if (result === null || result === void 0 ? void 0 : result.isBlocked) {
                     return {
                         success: false,
-                        message: "user blocked .sorry..",
+                        message: httpResponse_1.HttpResponse === null || httpResponse_1.HttpResponse === void 0 ? void 0 : httpResponse_1.HttpResponse.USER_BLOCKED,
                         status: httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.Unauthorized,
                     };
                 }
@@ -123,7 +118,7 @@ class authService {
                 if (!checkUser) {
                     return {
                         success: false,
-                        message: "password not matching",
+                        message: httpResponse_1.HttpResponse === null || httpResponse_1.HttpResponse === void 0 ? void 0 : httpResponse_1.HttpResponse.PASSWORD_INCORRECT,
                         status: httpStatusCode_1.Status.BadRequest,
                     };
                 }
@@ -132,14 +127,14 @@ class authService {
                 const refreshToken = (0, jwt_utils_1.genRefreshToken)(userId, "mentee");
                 return {
                     success: true,
-                    message: "Login Successfull",
+                    message: httpResponse_1.HttpResponse === null || httpResponse_1.HttpResponse === void 0 ? void 0 : httpResponse_1.HttpResponse.SUCCESS,
                     refreshToken,
                     accessToken,
                     status: httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.Ok,
                 };
             }
             catch (error) {
-                throw new Error(`error in Login service ${error instanceof Error ? error.message : String(error)}`);
+                throw new http_error_handler_util_1.HttpError(error instanceof Error ? error.message : String(error), httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.InternalServerError);
             }
         });
     }
@@ -148,20 +143,29 @@ class authService {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 if (!email) {
-                    return { success: false, message: "credential is missing" };
+                    return {
+                        success: false,
+                        message: httpResponse_1.HttpResponse === null || httpResponse_1.HttpResponse === void 0 ? void 0 : httpResponse_1.HttpResponse.INVALID_CREDENTIALS,
+                        status: httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.BadRequest,
+                    };
                 }
                 const result = yield this._MenteeRepository.findByEmail(email);
                 if (!result || (result === null || result === void 0 ? void 0 : result.isBlocked)) {
                     return {
                         success: false,
-                        message: "Invalid user type. Otp failed to send",
+                        message: httpResponse_1.HttpResponse === null || httpResponse_1.HttpResponse === void 0 ? void 0 : httpResponse_1.HttpResponse.INVALID_CREDENTIALS,
+                        status: httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.BadRequest,
                     };
                 }
                 yield this._OtpService.sentOtptoMail(email);
-                return { success: true, message: "Otp success fully send to mail" };
+                return {
+                    success: true,
+                    message: httpResponse_1.HttpResponse === null || httpResponse_1.HttpResponse === void 0 ? void 0 : httpResponse_1.HttpResponse.OTP_SEND_TO_MAIL,
+                    status: httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.Ok,
+                };
             }
             catch (error) {
-                console.log(`error while forget password in BLforgetPassword`, error instanceof Error ? error.message : String(error));
+                throw new http_error_handler_util_1.HttpError(error instanceof Error ? error.message : String(error), httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.InternalServerError);
             }
         });
     }
@@ -169,23 +173,29 @@ class authService {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 if (!email || !password) {
-                    return { success: false, message: "credencial is missing" };
+                    return {
+                        success: false,
+                        message: httpResponse_1.HttpResponse === null || httpResponse_1.HttpResponse === void 0 ? void 0 : httpResponse_1.HttpResponse.INVALID_CREDENTIALS,
+                        status: httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.BadRequest,
+                    };
                 }
                 const hashedPassword = yield (0, hashPass_util_1.default)(password);
-                console.log(hashedPassword, "hash");
                 const result = yield this._MenteeRepository.forgot_PasswordChange(email, hashedPassword);
-                console.log(result, "ths is passchange reslut");
                 if (!result) {
                     return {
                         success: false,
-                        message: "User does not exist. Please sign up.",
+                        message: httpResponse_1.HttpResponse === null || httpResponse_1.HttpResponse === void 0 ? void 0 : httpResponse_1.HttpResponse.USER_NOT_FOUND,
+                        status: httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.BadRequest,
                     };
                 }
-                return { success: true, message: "password changed successfully." };
+                return {
+                    success: true,
+                    message: httpResponse_1.HttpResponse === null || httpResponse_1.HttpResponse === void 0 ? void 0 : httpResponse_1.HttpResponse.PASSWORD_CHANGE_SUCCESS,
+                    status: httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.Ok,
+                };
             }
             catch (error) {
-                console.log(`error while forget password in BLforgetPassword`, error instanceof Error ? error.message : String(error));
-                return { success: false, message: "Internal server error" };
+                throw new http_error_handler_util_1.HttpError(error instanceof Error ? error.message : String(error), httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.InternalServerError);
             }
         });
     }
@@ -197,20 +207,19 @@ class authService {
                 if (!result) {
                     return {
                         success: false,
-                        message: "No data found ",
+                        message: httpResponse_1.HttpResponse === null || httpResponse_1.HttpResponse === void 0 ? void 0 : httpResponse_1.HttpResponse.RESOURCE_NOT_FOUND,
                         status: httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.NoContent,
                     };
                 }
                 return {
                     success: true,
-                    message: "data found",
+                    message: httpResponse_1.HttpResponse === null || httpResponse_1.HttpResponse === void 0 ? void 0 : httpResponse_1.HttpResponse.RESOURCE_FOUND,
                     status: httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.Ok,
                     categories: result,
                 };
             }
             catch (error) {
-                throw new Error(`error while forget password in BLforgetPassword
-        ${error instanceof Error ? error.message : String(error)}`);
+                throw new http_error_handler_util_1.HttpError(error instanceof Error ? error.message : String(error), httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.InternalServerError);
             }
         });
     }
@@ -218,27 +227,52 @@ class authService {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 if (!email || !password) {
-                    return { success: false, message: "admin credencial is missing", status: httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.BadRequest, refreshToken: null,
-                        accessToken: null, };
+                    return {
+                        success: false,
+                        message: httpResponse_1.HttpResponse === null || httpResponse_1.HttpResponse === void 0 ? void 0 : httpResponse_1.HttpResponse.INVALID_CREDENTIALS,
+                        status: httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.BadRequest,
+                        refreshToken: null,
+                        accessToken: null,
+                    };
                 }
                 const result = yield this._MenteeRepository.findByEmail(email);
                 // adminLogin(email);
                 if (!result) {
-                    return { success: false, message: "Admin not exist", status: httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.BadRequest, refreshToken: null,
-                        accessToken: null, };
+                    return {
+                        success: false,
+                        message: httpResponse_1.HttpResponse === null || httpResponse_1.HttpResponse === void 0 ? void 0 : httpResponse_1.HttpResponse.USER_NOT_FOUND,
+                        status: httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.BadRequest,
+                        refreshToken: null,
+                        accessToken: null,
+                    };
                 }
                 if (!(result === null || result === void 0 ? void 0 : result.isAdmin)) {
-                    return { success: false, message: "user is not allowed ,sorry..", status: httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.BadRequest, refreshToken: null,
-                        accessToken: null, };
+                    return {
+                        success: false,
+                        message: httpResponse_1.HttpResponse === null || httpResponse_1.HttpResponse === void 0 ? void 0 : httpResponse_1.HttpResponse.UNAUTHORIZED,
+                        status: httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.BadRequest,
+                        refreshToken: null,
+                        accessToken: null,
+                    };
                 }
                 if (result === null || result === void 0 ? void 0 : result.isBlocked) {
-                    return { success: false, message: "Admin blocked .sorry..", status: httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.BadRequest, refreshToken: null,
-                        accessToken: null, };
+                    return {
+                        success: false,
+                        message: httpResponse_1.HttpResponse === null || httpResponse_1.HttpResponse === void 0 ? void 0 : httpResponse_1.HttpResponse.UNAUTHORIZED,
+                        status: httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.BadRequest,
+                        refreshToken: null,
+                        accessToken: null,
+                    };
                 }
                 const checkUser = yield bcrypt_1.default.compare(password, result === null || result === void 0 ? void 0 : result.password);
                 if (!checkUser) {
-                    return { success: false, message: "password not matching", status: httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.BadRequest, refreshToken: null,
-                        accessToken: null, };
+                    return {
+                        success: false,
+                        message: httpResponse_1.HttpResponse === null || httpResponse_1.HttpResponse === void 0 ? void 0 : httpResponse_1.HttpResponse.PASSWORD_INCORRECT,
+                        status: httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.BadRequest,
+                        refreshToken: null,
+                        accessToken: null,
+                    };
                 }
                 const userId = result._id;
                 const accessToken = (0, jwt_utils_1.genAccesssToken)(userId, "admin");
@@ -246,21 +280,14 @@ class authService {
                 console.log(accessToken, refreshToken, "access refrsh");
                 return {
                     success: true,
-                    message: "Login Successfull",
+                    message: httpResponse_1.HttpResponse === null || httpResponse_1.HttpResponse === void 0 ? void 0 : httpResponse_1.HttpResponse.SUCCESS,
                     status: httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.Ok,
                     accessToken,
                     refreshToken,
                 };
             }
             catch (error) {
-                console.error(error instanceof Error ? error.message : String(error), "Error while loging admin", error);
-                return {
-                    success: false,
-                    message: "An error occurred during admin login",
-                    status: httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.InternalServerError,
-                    refreshToken: null,
-                    accessToken: null,
-                };
+                throw new http_error_handler_util_1.HttpError(error instanceof Error ? error.message : String(error), httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.InternalServerError);
             }
         });
     }
@@ -272,16 +299,24 @@ class authService {
                 if (!mentorData.body || !mentorData.files) {
                     return {
                         success: false,
-                        message: "credential is missing",
+                        message: httpResponse_1.HttpResponse === null || httpResponse_1.HttpResponse === void 0 ? void 0 : httpResponse_1.HttpResponse.INVALID_CREDENTIALS,
                         status: httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.BadRequest,
                     };
                 }
                 const response = yield this._MentorRepository.findMentor(email, phone);
                 if (response === null || response === void 0 ? void 0 : response.email) {
-                    return { success: false, message: "Email already exist ", status: httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.Conflict };
+                    return {
+                        success: false,
+                        message: httpResponse_1.HttpResponse === null || httpResponse_1.HttpResponse === void 0 ? void 0 : httpResponse_1.HttpResponse.EMAIL_EXIST,
+                        status: httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.Conflict,
+                    };
                 }
                 if (response === null || response === void 0 ? void 0 : response.phone) {
-                    return { success: false, message: "phone already exist ", status: httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.Conflict };
+                    return {
+                        success: false,
+                        message: httpResponse_1.HttpResponse === null || httpResponse_1.HttpResponse === void 0 ? void 0 : httpResponse_1.HttpResponse.PHONE_EXIST,
+                        status: httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.Conflict,
+                    };
                 }
                 const hashPass = yield (0, hashPass_util_1.default)(mentorData.body.password);
                 if (!hashPass) {
@@ -298,28 +333,23 @@ class authService {
                 if (!result) {
                     return {
                         success: false,
-                        message: "unable to create user ",
+                        message: httpResponse_1.HttpResponse === null || httpResponse_1.HttpResponse === void 0 ? void 0 : httpResponse_1.HttpResponse.USER_CREATION_FAILED,
                         status: httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.Conflict,
                     };
                 }
                 const admin = yield this._MenteeRepository._find();
-                const notifi = yield this._notificationRepository.createNotification(admin === null || admin === void 0 ? void 0 : admin._id, `New Mentor Has Joined!`, `${result === null || result === void 0 ? void 0 : result.name} Applied as mentor. Please review their profile and verify`, "admin", `${process.env.CLIENT_ORIGIN_URL}/admin/mentor_management/not_verified`);
+                const notifi = yield this._notificationRepository.createNotification(admin === null || admin === void 0 ? void 0 : admin._id, `New Mentor Has Joined!`, `${result === null || result === void 0 ? void 0 : result.name} ${httpResponse_1.NOTIFY === null || httpResponse_1.NOTIFY === void 0 ? void 0 : httpResponse_1.NOTIFY.ADMIN_NEW_MENTOR_NOTIFY}`, "admin", `${process.env.CLIENT_ORIGIN_URL}/admin/mentor_management/not_verified`);
                 if ((admin === null || admin === void 0 ? void 0 : admin._id) && notifi) {
                     index_1.socketManager.sendNotification(admin === null || admin === void 0 ? void 0 : admin._id, notifi);
                 }
                 return {
                     success: true,
-                    message: "Mentor application submitted!",
+                    message: httpResponse_1.HttpResponse === null || httpResponse_1.HttpResponse === void 0 ? void 0 : httpResponse_1.HttpResponse.APPLICATION_SUBMITTED,
                     status: httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.Ok,
                 };
             }
             catch (error) {
-                console.error("Error while mentor appling", error);
-                return {
-                    success: false,
-                    message: "unexpected error occured",
-                    status: httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.InternalServerError,
-                };
+                throw new http_error_handler_util_1.HttpError(error instanceof Error ? error.message : String(error), httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.InternalServerError);
             }
         });
     }
@@ -330,7 +360,7 @@ class authService {
                 if (!email || !password) {
                     return {
                         success: false,
-                        message: `${!email ? "email is required" : "password is required"}`,
+                        message: httpResponse_1.HttpResponse === null || httpResponse_1.HttpResponse === void 0 ? void 0 : httpResponse_1.HttpResponse.INVALID_CREDENTIALS,
                         status: httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.BadRequest,
                     };
                 }
@@ -338,23 +368,21 @@ class authService {
                 if (!result) {
                     return {
                         success: false,
-                        message: "user with the provided email not found",
+                        message: httpResponse_1.HttpResponse === null || httpResponse_1.HttpResponse === void 0 ? void 0 : httpResponse_1.HttpResponse.INVALID_EMAIL,
                         status: httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.NotFound,
                     };
                 }
                 if (!(result === null || result === void 0 ? void 0 : result.verified)) {
                     return {
                         success: false,
-                        message: `You're on our waitlist!
-                   Thanks for signing up for MentorPlus.
-                    We're focused on creating the best experience possible for everyone on the site.`,
+                        message: httpResponse_1.HttpResponse === null || httpResponse_1.HttpResponse === void 0 ? void 0 : httpResponse_1.HttpResponse.MENTEE_NOTIFICATION,
                         status: httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.Unauthorized,
                     };
                 }
                 if (result === null || result === void 0 ? void 0 : result.isBlocked) {
                     return {
                         success: false,
-                        message: "User is  Blocked!",
+                        message: httpResponse_1.HttpResponse === null || httpResponse_1.HttpResponse === void 0 ? void 0 : httpResponse_1.HttpResponse.UNAUTHORIZED,
                         status: httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.Unauthorized,
                     };
                 }
@@ -363,7 +391,7 @@ class authService {
                 if (!checkPass) {
                     return {
                         success: false,
-                        message: "Incorrect password",
+                        message: httpResponse_1.HttpResponse === null || httpResponse_1.HttpResponse === void 0 ? void 0 : httpResponse_1.HttpResponse.PASSWORD_INCORRECT,
                         status: httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.BadRequest,
                     };
                 }
@@ -374,15 +402,14 @@ class authService {
                 console.log(accessToken, refreshToken, "access refrsh");
                 return {
                     success: true,
-                    message: "login successfull!",
+                    message: httpResponse_1.HttpResponse === null || httpResponse_1.HttpResponse === void 0 ? void 0 : httpResponse_1.HttpResponse.SUCCESS,
                     status: httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.Ok,
                     accessToken,
                     refreshToken,
                 };
             }
             catch (error) {
-                throw new Error(`error while forget password in BLforgetPassword
-      ${error instanceof Error ? error.message : String(error)}`);
+                throw new http_error_handler_util_1.HttpError(error instanceof Error ? error.message : String(error), httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.InternalServerError);
             }
         });
     }
@@ -390,20 +417,29 @@ class authService {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 if (!email) {
-                    return { success: false, message: "credential is missing" };
+                    return {
+                        success: false,
+                        message: httpResponse_1.HttpResponse === null || httpResponse_1.HttpResponse === void 0 ? void 0 : httpResponse_1.HttpResponse.INVALID_CREDENTIALS,
+                        status: httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.BadRequest,
+                    };
                 }
                 const result = yield this._MentorRepository.findMentor(email);
                 if (!result || (result === null || result === void 0 ? void 0 : result.isBlocked)) {
                     return {
                         success: false,
-                        message: "Invalid user type. Otp failed to send",
+                        message: httpResponse_1.HttpResponse === null || httpResponse_1.HttpResponse === void 0 ? void 0 : httpResponse_1.HttpResponse.OTP_FAILED_TO_SEND,
+                        status: httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.BadRequest,
                     };
                 }
                 yield this._OtpService.sentOtptoMail(email);
-                return { success: true, message: "Otp success fully send to mail" };
+                return {
+                    success: true,
+                    message: httpResponse_1.HttpResponse === null || httpResponse_1.HttpResponse === void 0 ? void 0 : httpResponse_1.HttpResponse.OTP_SEND_TO_MAIL,
+                    status: httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.Ok,
+                };
             }
             catch (error) {
-                console.log(`error while forget password in BLMentorforgetPassword`, error instanceof Error ? error.message : String(error));
+                throw new http_error_handler_util_1.HttpError(error instanceof Error ? error.message : String(error), httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.InternalServerError);
             }
         });
     }
@@ -411,23 +447,29 @@ class authService {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 if (!email || !password) {
-                    return { success: false, message: "credencial is missing" };
+                    return {
+                        success: false,
+                        message: httpResponse_1.HttpResponse === null || httpResponse_1.HttpResponse === void 0 ? void 0 : httpResponse_1.HttpResponse.INVALID_CREDENTIALS,
+                        status: httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.BadRequest,
+                    };
                 }
                 const hashedPassword = yield (0, hashPass_util_1.default)(password);
-                console.log(hashedPassword, "hash");
                 const result = yield this._MentorRepository.findMentorAndUpdate(email, hashedPassword);
-                console.log(result, "ths is passchange reslut");
                 if (!result) {
                     return {
                         success: false,
-                        message: "User does not exist. Please sign up.",
+                        message: httpResponse_1.HttpResponse === null || httpResponse_1.HttpResponse === void 0 ? void 0 : httpResponse_1.HttpResponse.USER_NOT_FOUND,
+                        status: httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.NotFound,
                     };
                 }
-                return { success: true, message: "password changed successfully." };
+                return {
+                    success: true,
+                    message: httpResponse_1.HttpResponse === null || httpResponse_1.HttpResponse === void 0 ? void 0 : httpResponse_1.HttpResponse.PASSWORD_CHANGE_SUCCESS,
+                    status: httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.Ok,
+                };
             }
             catch (error) {
-                console.log(`error while forget password in BLforgetPassword`, error instanceof Error ? error.message : String(error));
-                return { success: false, message: "Internal server error" };
+                throw new http_error_handler_util_1.HttpError(error instanceof Error ? error.message : String(error), httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.InternalServerError);
             }
         });
     }
@@ -442,15 +484,14 @@ class authService {
                 console.log(refreshToken, "sfkasdsdfjsjflkslfkjskldjflaskdfjlkasjd", accessToken);
                 return {
                     success: true,
-                    message: "login successfull!",
+                    message: httpResponse_1.HttpResponse === null || httpResponse_1.HttpResponse === void 0 ? void 0 : httpResponse_1.HttpResponse.SUCCESS,
                     status: httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.Ok,
                     accessToken,
                     refreshToken,
                 };
             }
             catch (error) {
-                throw new Error(`error while google authentication
-      ${error instanceof Error ? error.message : String(error)}`);
+                throw new http_error_handler_util_1.HttpError(error instanceof Error ? error.message : String(error), httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.InternalServerError);
             }
         });
     }

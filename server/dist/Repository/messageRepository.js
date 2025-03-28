@@ -14,6 +14,8 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const baseRepo_1 = require("./baseRepo");
 const messageSchema_1 = __importDefault(require("../Model/messageSchema"));
+const http_error_handler_util_1 = require("../Utils/http-error-handler.util");
+const httpStatusCode_1 = require("../Constants/httpStatusCode");
 class messageRepository extends baseRepo_1.baseRepository {
     constructor() {
         super(messageSchema_1.default);
@@ -21,8 +23,7 @@ class messageRepository extends baseRepo_1.baseRepository {
     getMessage(chatId) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                console.log(chatId, 'thsi si chatid');
-                const data = yield this.aggregateData(messageSchema_1.default, [
+                return yield this.aggregateData(messageSchema_1.default, [
                     {
                         $match: {
                             chatId,
@@ -34,11 +35,9 @@ class messageRepository extends baseRepo_1.baseRepository {
                         },
                     },
                 ]);
-                console.log(data, 'thsi is message');
-                return data;
             }
             catch (error) {
-                throw new Error(`${"\x1b[35m%s\x1b[0m"}error while creating tiem slot :${error instanceof Error ? error.message : String(error)}`);
+                throw new http_error_handler_util_1.HttpError(error instanceof Error ? error.message : String(error), httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.InternalServerError);
             }
         });
     }
@@ -55,7 +54,7 @@ class messageRepository extends baseRepo_1.baseRepository {
                 });
             }
             catch (error) {
-                throw new Error(`${"\x1b[35m%s\x1b[0m"}error while creating message slot :${error instanceof Error ? error.message : String(error)}`);
+                throw new http_error_handler_util_1.HttpError(error instanceof Error ? error.message : String(error), httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.InternalServerError);
             }
         });
     }

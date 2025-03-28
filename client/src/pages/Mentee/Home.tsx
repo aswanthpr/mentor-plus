@@ -108,10 +108,6 @@ const Home: React.FC = () => {
 
       // Check if any field has changed
       const isChanged = Object.keys(updatedQuestion).some((key) => {
-        console.log(
-          typeof JSON.stringify(updatedQuestion),
-          "this is the quesion where error occure"
-        );
         return (
           JSON.stringify(updatedQuestion[key as keyof IeditQuestion]) !==
           JSON.stringify(originalQuestion[key as keyof IQuestion])
@@ -203,7 +199,7 @@ const Home: React.FC = () => {
         "mentee"
       );
 
-      console.log(response?.data.answers);
+
       if (response?.status === HttpStatusCode?.Ok && response?.data.success) {
         toast.success(response?.data.message);
         setIsAnswerModalOpen(false);

@@ -25,20 +25,17 @@ const BookingPage: React.FC = () => {
   const [errors, setErrors] = useState<IBookingError>(initialState);
   const [selectedSlot, setSelectedSlot] = useState<Itime | null>(null);
   const [selectedPayment, setSelectedPayment] = useState<Tpayment>("stripe");
-  const [timeDifference, setTimeDifference] = useState<number | null>(null);
 
   const [mentorName] = useState<string>(pathname.split("/")[2]);
   const [sessionPrice, setSessionPrice] = useState<number>(0);
 
   useEffect(() => {
     const fetchData = async () => {
-     
-        const response = await fetchSlotBookingPageData(mentorId);
+      const response = await fetchSlotBookingPageData(mentorId);
 
-        if (response?.status == HttpStatusCode?.Ok && response?.data?.success) {
-          setTimeSlot(response.data?.timeSlots);
-        }
-     
+      if (response?.status == HttpStatusCode?.Ok && response?.data?.success) {
+        setTimeSlot(response.data?.timeSlots);
+      }
     };
     fetchData();
   }, [mentorId]);
@@ -51,13 +48,6 @@ const BookingPage: React.FC = () => {
       }
       await bookingInputValidation.validate({ message });
       setErrors(initialState);
-      console.log(
-        selectedSlot,
-        message,
-        selectedPayment,
-        sessionPrice,
-        timeDifference
-      );
 
       const response = await confirmSlotBooking(
         selectedSlot,
@@ -80,7 +70,6 @@ const BookingPage: React.FC = () => {
 
       setMessage("");
       setErrors(initialState);
-      setTimeDifference(null);
     } catch (error: unknown) {
       // Handle Yup validation error
       if (error instanceof Yup.ValidationError) {
@@ -96,7 +85,6 @@ const BookingPage: React.FC = () => {
     selectedPayment,
     selectedSlot,
     sessionPrice,
-    timeDifference,
   ]);
 
   // Function to handle time slot selection and check for future time

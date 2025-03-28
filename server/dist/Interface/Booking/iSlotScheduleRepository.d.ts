@@ -15,7 +15,7 @@ export interface IslotScheduleRepository {
     mentorSlotCancel(sessionId: string, slotValule: string): Promise<IslotSchedule | null>;
     createSessionCode(bookingId: string, sessionCode: string): Promise<string>;
     sessionCompleted(bookingId: string): Promise<IslotSchedule | null>;
-    validateSessionJoin(sessionId: string, sessionCode: string): Promise<IslotSchedule | null>;
+    validateSessionJoin(sessionId: ObjectId, sessionCode: string, userId: ObjectId): Promise<IslotSchedule | null>;
     mentorDashboard(platformCommision: number, timeRange: string): Promise<IcardData | null>;
     mentorChartData(mentorId: ObjectId, timeRange: string): Promise<{
         mentorChart: ImentorChartData | null;

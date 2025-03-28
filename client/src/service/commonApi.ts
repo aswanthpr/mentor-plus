@@ -19,11 +19,14 @@ export const joinSessionHandler = async (
 > => {
   try {
     const apiClient = role === "mentee" ? protectedAPI : axiosInstance;
-    return await apiClient.post(`/${role}/session/validate-session-join`, {
-      sessionId,
-      sessionCode,
+    return await apiClient.get(`/${role}/session/validate-session-join`, {
+      params:{
+        sessionId,
+        sessionCode,
+      }
     });
   } catch (error: unknown) {
+    errorHandler(error);
     console.log(error instanceof Error ? error.message : String(error));
   }
 };
