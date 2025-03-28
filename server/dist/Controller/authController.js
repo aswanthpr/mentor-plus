@@ -72,8 +72,8 @@ class authController {
                     .status(result === null || result === void 0 ? void 0 : result.status)
                     .cookie("refreshToken", `${(_a = result === null || result === void 0 ? void 0 : result.refreshToken) !== null && _a !== void 0 ? _a : ""}`, {
                     httpOnly: true,
-                    secure: false, //process.env.NODE_ENV === 'production',
-                    sameSite: "lax",
+                    secure: true,
+                    sameSite: "none",
                     maxAge: 14 * 24 * 60 * 60 * 1000,
                 })
                     .json({
@@ -121,8 +121,8 @@ class authController {
                     .status(status)
                     .cookie("adminToken", refreshToken, {
                     httpOnly: true,
-                    secure: process.env.NODE_ENV === "production",
-                    sameSite: "lax",
+                    secure: true,
+                    sameSite: "none",
                     maxAge: 15 * 24 * 60 * 60 * 1000,
                     path: "/",
                 })
@@ -244,8 +244,8 @@ class authController {
                 const { accessToken, refreshToken } = yield this._AuthService.googleAuth(req.user);
                 res.cookie("refreshToken", refreshToken, {
                     httpOnly: true,
-                    secure: process.env.NODE_ENV === "production",
-                    sameSite: "lax",
+                    secure: true,
+                    sameSite: "none",
                     maxAge: 7 * 24 * 60 * 60 * 1000,
                 });
                 res.redirect(`${process.env.CLIENT_ORIGIN_URL}/mentee/google/success?token=${accessToken}`);

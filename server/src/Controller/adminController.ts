@@ -20,7 +20,7 @@ export class adminController implements IadminController {
         .cookie("adminToken", result?.refreshToken as string, {
           httpOnly: true,
           secure:true,
-          sameSite:"lax",
+          sameSite:"none",
           maxAge: 14 * 24 * 60 * 60 * 1000,
         })
         .json({

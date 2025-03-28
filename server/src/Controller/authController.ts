@@ -89,7 +89,7 @@ export class authController implements IauthController {
         .cookie("refreshToken", `${result?.refreshToken ?? ""}`, {
           httpOnly: true,
           secure: true, 
-          sameSite:"lax",
+          sameSite:"none",
           maxAge: 14 * 24 * 60 * 60 * 1000,
         })
         .json({
@@ -153,7 +153,7 @@ export class authController implements IauthController {
         .cookie("adminToken", refreshToken as string, {
           httpOnly: true,
           secure: true,
-          sameSite: "lax",
+          sameSite: "none",
           maxAge: 15 * 24 * 60 * 60 * 1000,
           path: "/",
         })
@@ -319,7 +319,7 @@ export class authController implements IauthController {
       res.cookie("refreshToken", refreshToken, {
         httpOnly: true,
         secure: true,
-        sameSite: "lax",
+        sameSite: "none",
         maxAge: 7 * 24 * 60 * 60 * 1000,
       });
 

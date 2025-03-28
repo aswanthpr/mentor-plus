@@ -24,8 +24,8 @@ class menteeController {
                 if (result === null || result === void 0 ? void 0 : result.success) {
                     res.cookie("refreshToken", result === null || result === void 0 ? void 0 : result.refreshToken, {
                         httpOnly: true,
-                        secure: process.env.NODE_ENV === "production",
-                        sameSite: "lax",
+                        secure: true,
+                        sameSite: "none",
                         maxAge: 14 * 24 * 60 * 60 * 1000,
                     });
                 }
