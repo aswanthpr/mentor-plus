@@ -57,7 +57,6 @@ export const HttpResponse = {
     FAILED:"Failed!",
     SUCCESS:"Success",
     
-    
     APPLICATION_SUBMITTED:"Application submitted!",
     MENTEE_NOTIFICATION:`You're on our waitlist!
                        Thanks for signing up for MentorPlus.

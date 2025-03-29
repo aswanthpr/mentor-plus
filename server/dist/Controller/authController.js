@@ -198,8 +198,8 @@ class authController {
                     .status(status)
                     .cookie("mentorToken", refreshToken, {
                     httpOnly: true,
-                    secure: process.env.NODE_ENV === "production",
-                    sameSite: "strict",
+                    secure: true,
+                    sameSite: "none",
                     maxAge: 15 * 24 * 60 * 60 * 1000,
                     path: "/",
                 })
