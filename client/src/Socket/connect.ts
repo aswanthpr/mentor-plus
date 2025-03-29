@@ -33,7 +33,7 @@ export const connectToNotifications = (userId: string, userType: Tuser) => {
     });
 
     notificationSocket.on("disconnect", () => {
-      console.log("Socket disconnected");
+      // console.log("Socket disconnected");
     });
   }
   return notificationSocket;

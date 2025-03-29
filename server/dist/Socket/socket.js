@@ -49,7 +49,7 @@ class SocketManager {
             });
             //disconnect user
             socket.on("disconnect", () => {
-                console.log(`Notification user disconnected: ${socket.id}`);
+                // console.log(`Notification user disconnected: ${socket.id}`);
             });
         });
     }
@@ -60,13 +60,13 @@ class SocketManager {
         chatNsp.on("connection", (socket) => {
             const userId = socket.handshake.auth.token;
             if (!userId) {
-                console.error("User is not authenticated");
+                // console.error("User is not authenticated");
                 socket.disconnect();
                 return;
             }
             //verify connection and inserting online user to the map
             if (socket.connected) {
-                console.log(`ChatSocket with ID ${socket.id} is connected`);
+                // console.log(`ChatSocket with ID ${socket.id} is connected`);
             }
             chatMap.set(userId, socket === null || socket === void 0 ? void 0 : socket.id);
             // user emit online status
@@ -139,7 +139,7 @@ class SocketManager {
     setupWebRTC() {
         const webrtcNamespace = this.io.of("/webrtc");
         webrtcNamespace.on("connection", (socket) => {
-            console.log(`WebRTC user connected: ${socket.id}`);
+            // console.log(`WebRTC user connected: ${socket.id}`);
             socket.on("join-call", (_a) => __awaiter(this, [_a], void 0, function* ({ roomId, sessionId, userId }) {
                 const result = yield _slotScheduleRepo.validateSessionJoin(new mongoose_1.default.Types.ObjectId(sessionId), roomId, new mongoose_1.default.Types.ObjectId(userId));
                 if (!result) {
@@ -148,7 +148,9 @@ class SocketManager {
                     return;
                 }
                 socket.join(roomId);
-                console.log(`User ${socket.id} joined room: ${roomId}`);
+                // console.log(
+                //   `User ${socket.id} joined room: ${roomId}`
+                // );
                 if (!rooms.has(roomId)) {
                     rooms.set(roomId, new Set());
                 }
@@ -156,19 +158,21 @@ class SocketManager {
                 socket.to(roomId).emit("user-joined", socket.id);
             }));
             socket.on("offer", (offer, roomId) => {
-                console.log(`Offer received in room ${roomId}`);
+                // console.log(`Offer received in room ${roomId}`);
                 socket.to(roomId).emit("offer", offer, socket.id);
             });
             socket.on("answer", (answer, roomId) => {
-                console.log(`Answer received in room ${roomId}`);
+                // console.log(`Answer received in room ${roomId}`);
                 socket.to(roomId).emit("answer", answer);
             });
             socket.on("ice-candidate", (candidate, roomId) => {
-                console.log(`ICE Candidate received in room ${roomId}`);
+                // console.log(`ICE Candidate received in room ${roomId}`);
                 socket.to(roomId).emit("ice-candidate", candidate);
             });
             socket.on("video:toggle", ({ isMuted, roomId }) => {
-                console.log(`Video toggle received from ${socket.id} in room ${roomId}`);
+                // console.log(
+                //   `Video toggle received from ${socket.id} in room ${roomId}`
+                // );
                 // Notify all other users in the room
                 socket.to(roomId).emit("video:toggle", { userId: socket.id, isMuted });
             });

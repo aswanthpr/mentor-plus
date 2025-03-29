@@ -21,7 +21,6 @@ class otpRepository {
             try {
                 const saveOtp = new otpModel_1.default({ email, otp });
                 const data = yield saveOtp.save();
-                console.log(data, "otp created");
                 return data;
             }
             catch (error) {
@@ -33,7 +32,6 @@ class otpRepository {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 const data = yield otpModel_1.default.findOne({ email, otp }).exec();
-                console.log("OTP found in database:", data);
                 return data;
             }
             catch (error) {

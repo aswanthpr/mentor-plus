@@ -30,7 +30,7 @@ export const Messages = {
   SELECT_A_SLOT:"Please select a time slot",
 
   GOOGLE_AUTH_FAIL_MESSAGE:
-    "This email is already registered with a different provider",
+    " Email already registered with another provider",
   CATEGORY_ADD_INPUT_VALIDATION:
     "Category must be between 3 and 50 letters, and no symbols or numbers are allowed.",
   CATEGORY_EDIT_INPUT_VALIDATION:

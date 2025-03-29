@@ -23,7 +23,8 @@ declare namespace NodeJS {
     STRIPE_SECRET_KEY: string;
 
     CLIENT_ORIGIN_URL: string;
-    STRIPE_WEBHOOK_SECRET: string;
+    STRIPE_WEBHOOK_WALLET_SECRET: string;
+    STRIPE_WEBHOOK_BOOKING_SECRET:string;
 
     PLATFORM_COMMISION:string;
     MENTOR_COMMISION:string;

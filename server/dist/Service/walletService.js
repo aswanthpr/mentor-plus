@@ -86,23 +86,23 @@ class walletService {
                 // eslint-disable-next-line @typescript-eslint/no-explicit-any
                 let event;
                 try {
-                    event = this.stripe.webhooks.constructEvent(bodyData, signature, process.env.STRIPE_WEBHOOK_SECRET);
+                    event = this.stripe.webhooks.constructEvent(bodyData, signature, process.env.STRIPE_WEBHOOK_WALLET_SECRET);
                 }
                 catch (error) {
                     throw new http_error_handler_util_1.HttpError(error instanceof Error ? error.message : String(error), httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.InternalServerError);
                 }
-                console.log("🔔 Received webhook event:");
+                // console.log("🔔 Received webhook event:");
                 switch (event.type) {
                     case "checkout.session.completed": {
                         const session = event.data.object;
                         const metaData = session.metadata || {};
                         if (!session.metadata) {
-                            console.error("Missing metadata in Stripe session");
+                            // console.error("Missing metadata in Stripe session");
                             return;
                         }
                         const { amount, userId } = metaData;
                         if (!mongoose_1.default.Types.ObjectId.isValid(userId)) {
-                            console.error("Invalid menteeId format:", userId);
+                            // console.error("Invalid menteeId format:", userId);
                             return;
                         }
                         const menteeId = new mongoose_1.default.Types.ObjectId(userId);

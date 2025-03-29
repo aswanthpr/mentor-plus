@@ -2,7 +2,7 @@ import mongoose, { Schema, Document } from "mongoose";
 import { Ttype } from "src/Types/types";
 
 export interface Inotification extends Document {
-  _id:mongoose.Schema.Types.ObjectId;
+  _id: mongoose.Schema.Types.ObjectId;
   userId: Schema.Types.ObjectId;
   title: string;
   message: string;
@@ -30,7 +30,10 @@ const notificatoinSchema: Schema<Inotification> = new Schema(
   },
   {
     timestamps: true,
-    capped:{max:10,size:1000000}
+    capped: {
+      size: 10000000,
+      max: 10,
+    },
   }
 );
 export default mongoose.model("notification", notificatoinSchema);

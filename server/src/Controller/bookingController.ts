@@ -10,7 +10,11 @@ export class bookingControlelr implements IbookingController {
   //mentee slot booking
   //get timeslots for booking page
 
-  async getTimeSlots(req: Request, res: Response,next: NextFunction): Promise<void> {
+  async getTimeSlots(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> {
     try {
       const { mentorId } = req.query;
 
@@ -19,10 +23,14 @@ export class bookingControlelr implements IbookingController {
 
       res.status(status).json({ success, message, timeSlots });
     } catch (error: unknown) {
-      next(error)
+      next(error);
     }
   }
-  async slotBooking(req: Request, res: Response,next: NextFunction): Promise<void> {
+  async slotBooking(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> {
     try {
       const { timeSlot, message, paymentMethod, totalAmount, mentorName } =
         req.body;
@@ -44,27 +52,35 @@ export class bookingControlelr implements IbookingController {
         session: result?.session,
       });
     } catch (error: unknown) {
-      next(error)
+      next(error);
     }
   }
   //stripe webhook conifgureation
-  async stripeWebHook(req: Request, res: Response,next: NextFunction): Promise<void> {
-    try{
-    const signature = req.headers["stripe-signature"] as string;
+  async stripeWebHook(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> {
+    try {
+      const signature = req.headers["stripe-signature"] as string;
 
-    await this._bookingService.stripeWebHook(signature, req.body as Buffer);
-    res.status(Status?.Ok).json({ success: true });
-  }catch(error: unknown) {
-    next(error)
+      await this._bookingService.stripeWebHook(signature, req.body as Buffer);
+      res.status(Status?.Ok).json({ success: true });
+    } catch (error: unknown) {
+      next(error);
+    }
   }
-}
 
   //in mentee retrive the booked slot
-  async getBookedSlot(req: Request, res: Response,next: NextFunction): Promise<void> {
+  async getBookedSlot(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> {
     try {
       const { activeTab, search, page, limit, sortField, sortOrder, filter } =
         req.query;
-      console.log(activeTab, search, page, limit, sortField, sortOrder, filter);
+
       const { status, message, success, slots, totalPage } =
         await this._bookingService.getBookedSlots(
           req.user as Express.User as ObjectId,
@@ -76,28 +92,23 @@ export class bookingControlelr implements IbookingController {
           Number(page),
           Number(limit)
         );
-      console.log(slots.length, "kflkjsfljs");
+
       res.status(status).json({ success, message, slots, totalPage });
     } catch (error: unknown) {
-      next(error)
+      next(error);
     }
   }
   //in mentor side to get show the sessions
-  async getBookedSession(req: Request, res: Response,next: NextFunction): Promise<void> {
+  async getBookedSession(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> {
     try {
       const { activeTab, search, sortField, sortOrder, filter, page, limit } =
         req.query;
-      console.log(
-        activeTab,
-        "activeTab aane",
-        search,
-        sortField,
-        sortOrder,
-        filter,
-        page,
-        limit
-      );
-      const { status, message, success, slots,totalPage } =
+
+      const { status, message, success, slots, totalPage } =
         await this._bookingService.getBookedSessions(
           req.user as Express.User as ObjectId,
           String(activeTab),
@@ -109,12 +120,16 @@ export class bookingControlelr implements IbookingController {
           Number(limit)
         );
 
-      res.status(status).json({ success, message, slots,totalPage });
+      res.status(status).json({ success, message, slots, totalPage });
     } catch (error: unknown) {
-      next(error)
+      next(error);
     }
   }
-  async cancelSlot(req: Request, res: Response,next: NextFunction): Promise<void> {
+  async cancelSlot(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> {
     try {
       const { success, result, message, status } =
         await this._bookingService.cancelSlot(
@@ -125,13 +140,16 @@ export class bookingControlelr implements IbookingController {
 
       res.status(status).json({ success, result, message });
     } catch (error: unknown) {
-      next(error)
+      next(error);
     }
   }
   //mentor side cancel request handle
-  async mentorSlotCancel(req: Request, res: Response,next: NextFunction): Promise<void> {
+  async mentorSlotCancel(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> {
     try {
-      console.log(req.params.sessionId, req.body?.value);
       const { success, result, message, status } =
         await this._bookingService.mentorSlotCancel(
           req.params.sessionId as string,
@@ -140,24 +158,32 @@ export class bookingControlelr implements IbookingController {
 
       res.status(status).json({ success, result, message });
     } catch (error: unknown) {
-      next(error)
+      next(error);
     }
   }
 
   //create sessionCode in MentorSide
-  async createSessionCode(req: Request, res: Response,next: NextFunction): Promise<void> {
+  async createSessionCode(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> {
     try {
       const { bookingId } = req.body;
       const { message, status, sessionCode, success } =
         await this._bookingService.createSessionCode(bookingId);
       res.status(status).json({ message, success, sessionCode });
     } catch (error: unknown) {
-      next(error)
+      next(error);
     }
   }
 
   //mentor marking session completed
-  async sessionCompleted(req: Request, res: Response,next: NextFunction): Promise<void> {
+  async sessionCompleted(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> {
     try {
       const { bookingId } = req.body;
       const { message, sessionStatus, status, success } =
@@ -167,22 +193,27 @@ export class bookingControlelr implements IbookingController {
         );
       res.status(status).json({ message, sessionStatus, success });
     } catch (error: unknown) {
-      next(error)
+      next(error);
     }
   }
   //check user is alloweded to join the sessin
-  async validateSessionJoin(req: Request, res: Response,next: NextFunction): Promise<void> {
+  async validateSessionJoin(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> {
     try {
       const { sessionId, sessionCode } = req.query;
 
       const { message, status, success, session_Code } =
         await this._bookingService.validateSessionJoin(
           String(sessionId),
-         String(sessionCode),
-        req.user as Express.User as ObjectId);
+          String(sessionCode),
+          req.user as Express.User as ObjectId
+        );
       res.status(status).json({ message, success, session_Code });
     } catch (error: unknown) {
-      next(error)
+      next(error);
     }
   }
 }

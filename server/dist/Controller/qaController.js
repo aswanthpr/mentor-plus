@@ -33,7 +33,6 @@ class qaController {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 const { filter, search, limit, page, sortField, sortOrder } = req.query;
-                console.log(filter, search, limit, page, sortField, sortOrder, 'sdfsdf');
                 const { success, message, question, status, userId } = yield this._qaService.questionData(req.user, String(filter), String(search), String(sortField), String(sortOrder), Number(limit), Number(page));
                 res.status(status).json({ message, success, status, question, userId });
             }
@@ -132,7 +131,6 @@ class qaController {
             var _a;
             try {
                 const result = yield this._qaService.changeAnswerStatus((_a = req.body) === null || _a === void 0 ? void 0 : _a.answerId);
-                console.log(result.result);
                 res
                     .status(result.status)
                     .json({

@@ -33,7 +33,7 @@ async walletStripeWebHook(req: Request, res: Response,next: NextFunction): Promi
 async getWalletData(req: Request, res: Response,next: NextFunction): Promise<void> {
   try {
     const {role,search,filter,page,limit} = req.query;
-console.log(role,search,filter,page,limit);
+
     const {status,message,walletData,success,totalPage} = await this.__walletService.getWalletData(req.user as Express.User as ObjectId,
       String(role),String(search),String(filter),Number(page),Number(limit)
     );
@@ -48,7 +48,7 @@ async withdrawMentorEarnings(req: Request, res: Response,next: NextFunction): Pr
     const {amount} = req.body;
 
     const{message,status,result,success} = await this.__walletService.withdrawMentorEarnings(amount,req.user as Express.User as ObjectId);
-console.log(result,success)
+
     res.status(status).json({message,success,result});
   } catch (error:unknown) {
     next(error)

@@ -36,12 +36,12 @@ export class adminService implements IadminService {
     refreshToken?: string;
   }> {
     try {
-      console.log(refresh, "thsi is admin refrsh");
+    
       if (!refresh) {
         return { success: false, message: HttpResponse?.NO_TOKEN, status: Status?.Unauthorized };
       }
       const decode = verifyRefreshToken(refresh, "admin");
-console.log('..................refresh')
+
       if (
         !decode?.isValid ||
         !decode?.result?.userId ||
@@ -188,7 +188,7 @@ console.log('..................refresh')
       }
 
       const resp = await this._categoryRepository.findCategory(category);
-      console.log(resp, "thsi is resp");
+    
       if (resp) {
         return { success: false, message: HttpResponse?.CATEOGRY_EXIST };
       }
@@ -317,7 +317,7 @@ console.log('..................refresh')
     formData: Partial<Imentee>
   ): Promise<{ success: boolean; message: string; status?: number }> {
     try {
-      console.log(formData);
+     
       if (!formData) {
         return { success: false, message: HttpResponse?.INVALID_CREDENTIALS };
       }
@@ -407,7 +407,7 @@ console.log('..................refresh')
         sortOrder,
       );
       const totalPage = Math.ceil(result?.totalDoc / limitNo);
-      console.log(result, totalPage)
+     
       if (!result) {
         return {
           success: false,

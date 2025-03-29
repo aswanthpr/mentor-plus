@@ -55,7 +55,7 @@ axiosInstance.interceptors.response.use(
 
           return axiosInstance(originalRequest);
         } catch (error:unknown) {
-          console.log(`${error instanceof AxiosError ?error.message:String(error)}`)
+          console.error(`${error instanceof AxiosError ?error.message:String(error)}`)
           return Promise.reject(error);
         }
 

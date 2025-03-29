@@ -7,7 +7,7 @@ export class notificationController implements InotificationController {
   constructor(private readonly _notificationService: InotificationService) {}
   async getNotification(req: Request, res: Response,next: NextFunction): Promise<void> {
     try {
-     
+    
       const {status,message,success,result} = await this._notificationService.getNotification(
         req.user as Express.User as ObjectId
       );

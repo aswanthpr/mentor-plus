@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from "react";
+import React, { useCallback,  useState } from "react";
 import { EyeClosedIcon, EyeIcon } from "lucide-react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
@@ -93,12 +93,12 @@ const Login: React.FC = () => {
           ) {
             dispatch(
               setAccessToken({
-                accessToken: response.data?.accessToken,
+                accessToken: response?.data?.accessToken,
                 role: "mentee",
               })
             );
 
-            toast.success(response.data.message);
+            toast.success(response?.data?.message);
 
             navigate(ROUTES?.MENTEE_HOME);
           } else {
@@ -109,10 +109,10 @@ const Login: React.FC = () => {
           setLoading(true);
           const response = await fetchMentorLogin(formData);
           setLoading((pre)=>!pre);
-          if (response.status == HttpStatusCode?.Ok && response.data.success) {
+          if (response?.status == HttpStatusCode?.Ok && response.data?.success) {
             dispatch(
               setMentorToken({
-                mentorToken: response.data?.accessToken,
+                mentorToken: response?.data?.accessToken,
                 mentorRole: "mentor",
               })
             );

@@ -62,14 +62,16 @@ const Message: React.FC = () => {
     if (!chatSocket.current) return;
 
     chatSocket.current.on("connect", () => {
-      console.log(
-        "Connected to chat namespace with ID:",
-        chatSocket.current?.id
+      console.log(''
+        // "Connected to chat namespace with ID:",
+        // chatSocket.current?.id
       );
     });
 
     chatSocket.current.on("disconnect", () => {
-      console.log("Disconnected from chat namespace");
+      console.log(''
+        // "Disconnected from chat namespace"
+      );
     });
 
     chatSocket.current.on("userOnline", (data) => {

@@ -42,7 +42,7 @@ export class menteeController implements ImenteeController {
     next: NextFunction
   ): Promise<void> {
     try {
-      console.log(req.path.split("/"));
+      
       res.clearCookie("refreshToken");
       res
         .status(Status?.Ok)
@@ -76,7 +76,7 @@ export class menteeController implements ImenteeController {
     next: NextFunction
   ): Promise<void> {
     try {
-      console.log(req.body, "this is req.body of profile edit data");
+   
       const result = await this._menteeService.editMenteeProfile(req.body);
 
       res.status(result?.status).json(result);
@@ -92,7 +92,7 @@ export class menteeController implements ImenteeController {
     next: NextFunction
   ): Promise<void> {
     try {
-      console.log(req.body, "thsi isthe passwords");
+     
       const { currentPassword, newPassword, _id } = req.body;
       const result = await this._menteeService.passwordChange(
         currentPassword,

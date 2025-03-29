@@ -43,7 +43,6 @@ class menteeController {
     menteeLogout(req, res, next) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                console.log(req.path.split("/"));
                 res.clearCookie("refreshToken");
                 res
                     .status(httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.Ok)
@@ -74,7 +73,6 @@ class menteeController {
     menteeProfileEdit(req, res, next) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                console.log(req.body, "this is req.body of profile edit data");
                 const result = yield this._menteeService.editMenteeProfile(req.body);
                 res.status(result === null || result === void 0 ? void 0 : result.status).json(result);
             }
@@ -87,7 +85,6 @@ class menteeController {
     passwordChange(req, res, next) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                console.log(req.body, "thsi isthe passwords");
                 const { currentPassword, newPassword, _id } = req.body;
                 const result = yield this._menteeService.passwordChange(currentPassword, newPassword, _id);
                 res.status(result === null || result === void 0 ? void 0 : result.status).json(result);

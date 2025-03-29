@@ -95,7 +95,7 @@ const Sessions: React.FC = () => {
         }
       );
 
-      console.log(sessionId, value);
+     
     },
     [sessions]
   );

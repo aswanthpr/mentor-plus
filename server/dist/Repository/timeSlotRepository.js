@@ -38,7 +38,6 @@ class timeSlotRepository extends baseRepo_1.baseRepository {
             try {
                 const dateSearch = new Date(search);
                 const isValidDate = !isNaN(dateSearch.getTime());
-                console.log(isValidDate, dateSearch, (0, reusable_util_1.getTodayEndTime)(), (0, reusable_util_1.getTodayStartTime)(), skip, limit);
                 const pipeline = [
                     {
                         $unwind: "$slots",

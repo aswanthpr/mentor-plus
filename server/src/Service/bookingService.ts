@@ -267,14 +267,14 @@ export class bookingService implements IbookingService {
         event = this.stripe.webhooks.constructEvent(
           bodyData,
           signature as string | Buffer,
-          process.env.STRIPE_WEBHOOK_SECRET as string
+          process.env.STRIPE_WEBHOOK_BOOKING_SECRET as string
         );
       } catch (error: unknown) {
         throw new HttpError(error instanceof Error ? error.message : String(error), Status?.InternalServerError);
 
       }
 
-      console.log("🔔 Received webhook event:", event.type);
+      // console.log("🔔 Received webhook event:", event.type);
 
       switch (event.type) {
         case "checkout.session.completed": {
@@ -290,7 +290,7 @@ export class bookingService implements IbookingService {
             !metadata.messages ||
             !metadata.paymentMethod
           ) {
-            console.error("❌ Invalid or missing metadata in Stripe webhook");
+            // console.error("❌ Invalid or missing metadata in Stripe webhook");
 
             // Redirect to error page when metadata is missing
             const noti = await this._notificationRepository.createNotification(
@@ -312,7 +312,7 @@ export class bookingService implements IbookingService {
           const { timeSlot, messages, menteeId } = metadata;
 
           if (!mongoose.Types.ObjectId.isValid(menteeId)) {
-            console.error("Invalid menteeId format:", menteeId);
+            // console.error("Invalid menteeId format:", menteeId);
             return;
           }
           const menteeObjectId = new mongoose.Types.ObjectId(
@@ -324,7 +324,7 @@ export class bookingService implements IbookingService {
           const status = session.payment_status == "paid" ? "Paid" : "Failed";
 
           if (status === "Failed") {
-            console.error("❌ Payment failed. Redirecting to error page.");
+            // console.error("❌ Payment failed. Redirecting to error page.");
 
             const notification =
               await this._notificationRepository.createNotification(
@@ -432,7 +432,7 @@ export class bookingService implements IbookingService {
         case "checkout.session.expired":
         case "checkout.session.failed": {
           const session = event.data.object as Stripe.Checkout.Session;
-          console.error("❌ Payment Failed or Expired:", session.id);
+          // console.error("❌ Payment Failed or Expired:");
 
           if (session.metadata && session.metadata.menteeId) {
             await this._notificationRepository.createNotification(
@@ -447,7 +447,7 @@ export class bookingService implements IbookingService {
         }
         case "payment_intent.payment_failed": {
           const session = event.data.object as Stripe.Checkout.Session;
-          console.error("❌ Payment Failed:", session.id);
+          // console.error("❌ Payment Failed:");
 
           if (session.metadata && session.metadata.menteeId) {
             const notific =
@@ -467,7 +467,7 @@ export class bookingService implements IbookingService {
           return;
         }
         default:
-          console.log(`Unhandled event type ${event.type}`);
+          // console.log(`Unhandled event type ${event.type}`);
       }
     } catch (error: unknown) {
       throw new HttpError(error instanceof Error ? error.message : String(error), Status?.InternalServerError);
@@ -516,7 +516,7 @@ export class bookingService implements IbookingService {
       const skip = skipData?.skip;
 
       const tabCond = currentTab == "upcoming" ? false : true;
-      console.log(tabCond, currentTab, "this si tab");
+     
 
       const response = await this._slotScheduleRepository.getBookedSlot(
         menteeId,

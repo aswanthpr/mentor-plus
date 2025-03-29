@@ -166,7 +166,6 @@ class menteeService {
                     };
                 }
                 const decode = (0, jwt_utils_1.verifyRefreshToken)(refresh, "mentee");
-                console.log('..................refresh');
                 if (!(decode === null || decode === void 0 ? void 0 : decode.isValid) ||
                     !((_a = decode === null || decode === void 0 ? void 0 : decode.result) === null || _a === void 0 ? void 0 : _a.userId) ||
                     (decode === null || decode === void 0 ? void 0 : decode.error) == "TamperedToken" ||
@@ -298,7 +297,6 @@ class menteeService {
                     { $limit: limitNo },
                 ];
                 const mentorData = yield this._mentorRepository.findVerifiedMentor(aggregationPipeline);
-                console.log(mentorData, "mentordata");
                 if (!mentorData) {
                     return {
                         success: false,
@@ -341,7 +339,6 @@ class menteeService {
     homeData(filter, search, sortField, sortOrder, page, limit) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                console.log(filter, search, page, limit);
                 if (!filter || page < 1 || limit < 1 || !sortField || !sortOrder) {
                     return {
                         success: false,

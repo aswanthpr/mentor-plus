@@ -19,7 +19,7 @@ const adminSlice = createSlice({
       localStorage.setItem("adminRole", action.payload?.adminRole);
     },
     clearToken: (state) => {
-      console.log("logot from slice");
+     
       state.adminToken = "";
       state.adminRole = "";
       localStorage?.removeItem("adminToken");

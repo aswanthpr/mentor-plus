@@ -109,7 +109,6 @@ class mentorController {
                     req.files.resume
                     ? req.files.resume[0]
                     : null;
-                console.log(resume, "this is resume", req.files);
                 const mentorData = Object.assign({}, req.body);
                 const { status, success, message, result } = yield this._mentorService.mentorEditProfile(mentorData, resume);
                 res.status(status).json({ success, message, result });
@@ -144,7 +143,6 @@ class mentorController {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 const { type, schedule } = req.body;
-                console.log(type, schedule, "creaeSchedule");
                 const { success, status, message, timeSlots } = yield this._mentorService.createTimeSlots(type, schedule, req.user);
                 res.status(status).json({ success, message, status, timeSlots });
             }
@@ -158,7 +156,6 @@ class mentorController {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 const { search, filter, sortField, sortOrder, page, limit } = req.query;
-                console.log(search, filter, sortField, sortOrder, page, limit);
                 const { success, status, message, timeSlots, totalPage } = yield this._mentorService.getTimeSlots(req.user, Number(limit), Number(page), String(search), String(filter), String(sortField), String(sortOrder));
                 res
                     .status(status)
@@ -173,7 +170,6 @@ class mentorController {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 const { slotId } = req.body;
-                console.log(slotId, "ths is slot id");
                 const { status, success, message } = yield this._mentorService.removeTimeSlot(slotId);
                 res.status(status).json({ message, success });
             }
@@ -186,7 +182,6 @@ class mentorController {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 const { timeRange } = req.query;
-                console.log(timeRange);
                 const { success, message, status, result } = yield this._mentorService.mentorChartData(req.user, String(timeRange));
                 res.status(status).json({ message, success, result });
             }

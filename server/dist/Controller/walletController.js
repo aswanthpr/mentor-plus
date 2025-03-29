@@ -46,7 +46,6 @@ class walletController {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 const { role, search, filter, page, limit } = req.query;
-                console.log(role, search, filter, page, limit);
                 const { status, message, walletData, success, totalPage } = yield this.__walletService.getWalletData(req.user, String(role), String(search), String(filter), Number(page), Number(limit));
                 res.status(status).json({ message, success, walletData, totalPage });
             }
@@ -60,7 +59,6 @@ class walletController {
             try {
                 const { amount } = req.body;
                 const { message, status, result, success } = yield this.__walletService.withdrawMentorEarnings(amount, req.user);
-                console.log(result, success);
                 res.status(status).json({ message, success, result });
             }
             catch (error) {

@@ -63,8 +63,9 @@ const Admin_Page: React.FC = () => {
       }
     };
     const timer = setTimeout(() => {
+     
       fetchData();
-    }, 3000);
+    }, 2000);
     return () => {
       clearTimeout(timer);
       flag = false;

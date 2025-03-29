@@ -165,7 +165,7 @@ async menteeData(skip: number, limit: number, search: string, sortOrder: string,
   async updateMentee(email: string): Promise<UpdateWriteOpResult|null> {
     try {
       const data = await menteeModel.updateOne({ email }, { $set: { verified: true } });
-      console.log(data, 'verify data from repo')
+    
       return data
     } catch (error: unknown) {
       throw new HttpError(error instanceof Error ? error.message : String(error), Status?.InternalServerError);

@@ -51,7 +51,7 @@ const menteeAuthorization = async (
         .json({ success: false, message:  HttpResponse?.TOKEN_EXPIRED });
       return;
     }
-    console.log(".........................................")
+    
     if (decode?.result?.role !== "mentee"||!decode?.isValid) {
       res
         .status(Status?.Unauthorized)

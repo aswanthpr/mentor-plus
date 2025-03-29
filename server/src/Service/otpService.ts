@@ -26,9 +26,9 @@ class otpService implements IotpService {
         };
       }
       const otp: string = genOtp();
-      console.log(otp);
+     
       const result = await this._otpRespository.createOtp(email, otp);
-      if (!result) {
+      if (!result?.otp) {
         return {
           message: HttpResponse?.INVALID_CREDENTIALS,
           success: false,
@@ -38,8 +38,8 @@ class otpService implements IotpService {
       await nodeMailer(email, otp);
       return {
         message: HttpResponse?.OTP_SEND_TO_MAIL,
-        success: false,
-        status: Status?.BadRequest,
+        success: true,
+        status: Status?.Ok,
       };
     } catch (error: unknown) {
       throw new HttpError(error instanceof Error ? error.message : String(error), Status?.InternalServerError);
@@ -52,7 +52,7 @@ class otpService implements IotpService {
     type?: string
   ): Promise<{ success: boolean; message: string; status: number }> {
     try {
-      console.log(email, otp, type);
+    
       if (!email || !otp || !type) {
         return {
           success: false,

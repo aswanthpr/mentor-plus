@@ -97,13 +97,13 @@ export class walletService implements IwalletService {
         event = this.stripe.webhooks.constructEvent(
           bodyData,
           signature as string | Buffer,
-          process.env.STRIPE_WEBHOOK_SECRET as string
+          process.env.STRIPE_WEBHOOK_WALLET_SECRET as string
         );
       } catch (error: unknown) {
         throw new HttpError(error instanceof Error ? error.message : String(error), Status?.InternalServerError);
 
       }
-      console.log("🔔 Received webhook event:");
+      // console.log("🔔 Received webhook event:");
 
       switch (event.type) {
         case "checkout.session.completed": {
@@ -112,13 +112,13 @@ export class walletService implements IwalletService {
 
          
           if (!session.metadata) {
-            console.error("Missing metadata in Stripe session");
+            // console.error("Missing metadata in Stripe session");
             return;
           }
           const { amount, userId } = metaData;
 
           if (!mongoose.Types.ObjectId.isValid(userId)) {
-            console.error("Invalid menteeId format:", userId);
+            // console.error("Invalid menteeId format:", userId);
             return;
           }
           const menteeId = new mongoose.Types.ObjectId(

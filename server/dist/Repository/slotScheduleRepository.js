@@ -48,7 +48,6 @@ class slotScheduleRepository extends baseRepo_1.baseRepository {
                         },
                     },
                 ]);
-                console.log(result, "result");
                 return result[0];
             }
             catch (error) {
@@ -56,16 +55,6 @@ class slotScheduleRepository extends baseRepo_1.baseRepository {
             }
         });
     }
-    /**
-     * Retrieves the booked slots for a specified mentee.
-     *
-     * @param menteeId - The ObjectId of the mentee for whom the booked slots are to be retrieved.
-     * @param tabCond - A boolean condition used to filter slots based on additional criteria.
-     *
-     * @returns A promise resolving to an array of booked slots (`IslotSchedule[]`) or an empty array if no slots are found.
-     *
-     * @throws Error - Throws an error if there is an issue during the aggregation process.
-     */
     getBookedSlot(userId, tabCond, userType, skip, limitNo, search, sortOrder, sortField, filter) {
         return __awaiter(this, void 0, void 0, function* () {
             var _a;
@@ -191,7 +180,6 @@ class slotScheduleRepository extends baseRepo_1.baseRepository {
                     this.aggregateData(slotSchedule_2.default, pipeLine),
                     slotSchedule_2.default.aggregate(countPipeline),
                 ]);
-                console.log(slots, "resp", totalCount);
                 return { slots: slots, totalDocs: (_a = totalCount[0]) === null || _a === void 0 ? void 0 : _a.totalDocuments };
             }
             catch (error) {
@@ -299,7 +287,6 @@ class slotScheduleRepository extends baseRepo_1.baseRepository {
                     this.aggregateData(slotSchedule_2.default, pipeLine),
                     slotSchedule_2.default.aggregate(countPipeline),
                 ]);
-                console.log(slots, "resp", totalCount);
                 return { slots: slots, totalDoc: (_a = totalCount[0]) === null || _a === void 0 ? void 0 : _a.totalDocuments };
             }
             catch (error) {
@@ -310,7 +297,6 @@ class slotScheduleRepository extends baseRepo_1.baseRepository {
     cancelSlot(sessionId, issue) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                console.log(sessionId, issue);
                 return yield this.find_By_Id_And_Update(slotSchedule_2.default, new mongoose_1.default.Types.ObjectId(sessionId), { $set: { status: "CANCEL_REQUESTED", cancelReason: issue } });
             }
             catch (error) {
@@ -385,7 +371,6 @@ class slotScheduleRepository extends baseRepo_1.baseRepository {
                         },
                     },
                 ]);
-                console.log(result[0], 'this is the session code and data');
                 return result[0];
             }
             catch (error) {
@@ -738,12 +723,13 @@ class slotScheduleRepository extends baseRepo_1.baseRepository {
                 const startOfNextYear = new Date(new Date().getFullYear() + 1, 0, 1);
                 const startOfMonth = new Date(new Date().getFullYear(), new Date().getMonth(), 1);
                 const startOfNextMonth = new Date(new Date().getFullYear(), (new Date().getMonth() + 1) % 12, 1);
-                const startOfDay = new Date(new Date().setHours(0, 0, 0, 0));
-                const endOfDay = new Date(new Date().setHours(23, 59, 59, 999));
+                const now = new Date();
+                const startOfDay = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate(), 0, 0, 0));
+                const endOfDay = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate(), 23, 59, 59, 999));
                 const today = new Date();
                 const startOfWeek = new Date(today);
                 startOfWeek.setDate(today.getDate() - today.getDay()); // Start of the current week
-                const startOfNextWeek = new Date(startOfWeek.getDate());
+                const startOfNextWeek = new Date(startOfWeek);
                 startOfNextWeek.setDate(startOfWeek.getDate() + 7);
                 const cardResult = (yield this.aggregateData(slotSchedule_2.default, [
                     {
@@ -802,7 +788,7 @@ class slotScheduleRepository extends baseRepo_1.baseRepository {
                                 {
                                     $match: {
                                         createdAt: { $gte: startOfMonth, $lt: startOfNextMonth },
-                                        status: { $in: ["CONFIRMED", "COMPLETED"] },
+                                        status: { $in: ["CONFIRMED", "COMPLETED", "CANCEL_REQUESTED"] },
                                     },
                                 },
                                 {
@@ -843,8 +829,8 @@ class slotScheduleRepository extends baseRepo_1.baseRepository {
                             currentDaySessionsToAttend: [
                                 {
                                     $match: {
-                                        createdAt: { $gte: startOfDay, $lt: endOfDay },
-                                        status: "CONFIRMED",
+                                        "slotData.startDate": { $gte: startOfDay, $lt: endOfDay },
+                                        status: { $in: ["CONFIRMED", "REJECTED", "CANCEL_REQUESTED"] },
                                     },
                                 },
                                 {

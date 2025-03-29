@@ -49,7 +49,7 @@ class slotScheduleRepository
           },
         },
       ]);
-      console.log(result, "result");
+   
       return result[0];
     } catch (error: unknown) {
       throw new HttpError(
@@ -58,16 +58,6 @@ class slotScheduleRepository
            );
     }
   }
-  /**
-   * Retrieves the booked slots for a specified mentee.
-   *
-   * @param menteeId - The ObjectId of the mentee for whom the booked slots are to be retrieved.
-   * @param tabCond - A boolean condition used to filter slots based on additional criteria.
-   *
-   * @returns A promise resolving to an array of booked slots (`IslotSchedule[]`) or an empty array if no slots are found.
-   *
-   * @throws Error - Throws an error if there is an issue during the aggregation process.
-   */
 
   async getBookedSlot(
     userId: ObjectId,
@@ -215,7 +205,7 @@ class slotScheduleRepository
         slotSchedule.aggregate(countPipeline),
       ]);
 
-      console.log(slots, "resp", totalCount);
+   
       return { slots: slots, totalDocs: totalCount[0]?.totalDocuments };
     } catch (error: unknown) {
       throw new HttpError(error instanceof Error ? error.message : String(error), Status?.InternalServerError);
@@ -335,7 +325,7 @@ class slotScheduleRepository
         slotSchedule.aggregate(countPipeline),
       ]);
 
-      console.log(slots, "resp", totalCount);
+     
       return { slots: slots, totalDoc: totalCount[0]?.totalDocuments };
     } catch (error: unknown) {
       throw new HttpError(error instanceof Error ? error.message : String(error), Status?.InternalServerError);
@@ -347,7 +337,7 @@ class slotScheduleRepository
     issue: string
   ): Promise<IslotSchedule | null> {
     try {
-      console.log(sessionId, issue);
+ 
       return await this.find_By_Id_And_Update(
         slotSchedule,
         new mongoose.Types.ObjectId(sessionId),
@@ -435,7 +425,7 @@ class slotScheduleRepository
           },
         },
       ]);
-      console.log(result[0],'this is the session code and data')
+     
       return result[0];
     } catch (error: unknown) {
       throw new HttpError(error instanceof Error ? error.message : String(error), Status?.InternalServerError);
@@ -820,13 +810,15 @@ class slotScheduleRepository
         (new Date().getMonth() + 1) % 12,
         1
       );
-      const startOfDay = new Date(new Date().setHours(0, 0, 0, 0));
-      const endOfDay = new Date(new Date().setHours(23, 59, 59, 999));
+      const now = new Date();
+      const startOfDay = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate(), 0, 0, 0));
+      const endOfDay = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate(), 23, 59, 59, 999));
       const today = new Date();
       const startOfWeek = new Date(today);
       startOfWeek.setDate(today.getDate() - today.getDay()); // Start of the current week
-      const startOfNextWeek = new Date(startOfWeek.getDate());
+      const startOfNextWeek = new Date(startOfWeek);
       startOfNextWeek.setDate(startOfWeek.getDate() + 7);
+      
       const cardResult = (await this.aggregateData(slotSchedule, [
         {
           $lookup: {
@@ -885,7 +877,7 @@ class slotScheduleRepository
               {
                 $match: {
                   createdAt: { $gte: startOfMonth, $lt: startOfNextMonth },
-                  status: { $in: ["CONFIRMED", "COMPLETED"] },
+                  status: { $in: ["CONFIRMED", "COMPLETED","CANCEL_REQUESTED"] },
                 },
               },
               {
@@ -928,8 +920,8 @@ class slotScheduleRepository
             currentDaySessionsToAttend: [
               {
                 $match: {
-                  createdAt: { $gte: startOfDay, $lt: endOfDay },
-                  status: "CONFIRMED",
+                  "slotData.startDate": { $gte: startOfDay, $lt: endOfDay },
+                  status:{$in:[ "CONFIRMED","REJECTED","CANCEL_REQUESTED"]},
                 },
               },
               {
@@ -944,6 +936,7 @@ class slotScheduleRepository
                   totalSessionsToAttend: 1,
                 },
               },
+
             ],
           },
         },

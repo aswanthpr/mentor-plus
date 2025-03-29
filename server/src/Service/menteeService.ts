@@ -205,7 +205,7 @@ export class menteeService implements ImenteeService {
       }
 
       const decode = verifyRefreshToken(refresh, "mentee");
-      console.log('..................refresh')
+     
       if (
         !decode?.isValid ||
         !decode?.result?.userId ||
@@ -372,7 +372,7 @@ export class menteeService implements ImenteeService {
       const mentorData = await this._mentorRepository.findVerifiedMentor(
         aggregationPipeline
       );
-      console.log(mentorData, "mentordata");
+     
       if (!mentorData) {
         return {
           success: false,
@@ -428,7 +428,7 @@ export class menteeService implements ImenteeService {
     totalPage: number;
   }> {
     try {
-      console.log(filter, search, page, limit);
+     
       if (!filter || page < 1 || limit < 1 || !sortField || !sortOrder) {
         return {
           success: false,

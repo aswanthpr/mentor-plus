@@ -184,7 +184,6 @@ class menteeRepository extends baseRepo_1.baseRepository {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 const data = yield menteeModel_1.default.updateOne({ email }, { $set: { verified: true } });
-                console.log(data, 'verify data from repo');
                 return data;
             }
             catch (error) {

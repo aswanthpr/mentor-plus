@@ -16,7 +16,7 @@ const StatsCard: React.FC<StatsCardProps> = React.memo(
         <div className="flex items-center justify-between">
           <div>
             <p className="text-sm text-gray-500">{title}</p>
-            <h3 className="text-2xl font-bold">{value}</h3>
+            <h3 className="text-2xl font-bold">{parseInt(value as string)??0}</h3>
           </div>
           <div className={`p-3 ${iconBgColor} rounded-full`}>
             <Icon className={`h-6 w-6 ${iconColor}`} />

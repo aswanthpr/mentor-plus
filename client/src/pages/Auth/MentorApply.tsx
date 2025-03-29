@@ -43,6 +43,7 @@ const MentorApply: React.FC = () => {
   }, []);
 
   const handleSubmit = useCallback(
+   
     async (e: React.FormEvent<HTMLFormElement>) => {
       e.preventDefault();
       const validateForm = MentorApplyForm(
@@ -51,13 +52,14 @@ const MentorApply: React.FC = () => {
         skills,
         profileImage
       );
-      if (validateForm?.isValid) {
+   
+      if (!validateForm?.isValid) {
+     
         setErrors(validateForm?.formErrors);
       }
       if (!validateForm.isValid) return;
-
       const form = new FormData();
-
+     
       form.append("bio", formData.bio);
       form.append("name", formData.name);
       form.append("email", formData.email);

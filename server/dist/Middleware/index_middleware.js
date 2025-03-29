@@ -85,7 +85,9 @@ exports.helmetConfig = (0, helmet_1.default)({
     },
 });
 const cacheControl = (req, res, next) => {
-    res.set('Cache-Control', 'no-cache, private, no-store, must-revalidate, max-stale=0, post-check=0, pre-check=0');
+    res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+    res.setHeader('Pragma', 'no-cache');
+    res.setHeader('Expires', '0');
     next();
 };
 exports.cacheControl = cacheControl;

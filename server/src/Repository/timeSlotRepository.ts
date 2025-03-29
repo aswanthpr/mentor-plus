@@ -35,13 +35,7 @@ class timeSlotRepository
       const dateSearch = new Date(search);
       const isValidDate = !isNaN(dateSearch.getTime());
 
-      console.log(
-        isValidDate,
-        dateSearch,
-        getTodayEndTime(),
-        getTodayStartTime(),
-        skip, limit
-      );
+    
       const pipeline: PipelineStage[] = [
         {
           $unwind: "$slots",

@@ -31,15 +31,13 @@ export class SocketManager {
     const notificationNamespace = this.io.of("/notifications");
 
     notificationNamespace.on("connection", (socket: Socket) => {
-    
       //join to specific users notification room
       socket.on("join-room", (userId: string) => {
         socket.join(userId);
-       
       });
       //disconnect user
       socket.on("disconnect", () => {
-        console.log(`Notification user disconnected: ${socket.id}`);
+        // console.log(`Notification user disconnected: ${socket.id}`);
       });
     });
   }
@@ -61,23 +59,23 @@ export class SocketManager {
       const userId = socket.handshake.auth.token;
 
       if (!userId) {
-        console.error("User is not authenticated");
+        // console.error("User is not authenticated");
         socket.disconnect();
         return;
       }
       //verify connection and inserting online user to the map
       if (socket.connected) {
-        console.log(`ChatSocket with ID ${socket.id} is connected`);
+        // console.log(`ChatSocket with ID ${socket.id} is connected`);
       }
       chatMap.set(userId, socket?.id);
 
       // user emit online status
       chatNsp.emit("userOnline", [...chatMap.keys()]);
-      
+
       //join the user to a specific room
       socket.on("join-room", async (data) => {
         if (!data?.roomId) return;
-       
+
         socket.join(data?.roomId);
         try {
           //fetch all specific roomid message
@@ -100,7 +98,6 @@ export class SocketManager {
       socket.on("new-message", async ({ roomId, message }) => {
         try {
           if (!roomId) {
-          
             throw new Error("Invalid or missing roomId.");
           }
           if (
@@ -150,7 +147,6 @@ export class SocketManager {
       });
 
       socket.on("disconnect", () => {
-       
         //remove the disconnected user
         chatMap.delete(userId);
 
@@ -165,7 +161,7 @@ export class SocketManager {
     const webrtcNamespace = this.io.of("/webrtc");
 
     webrtcNamespace.on("connection", (socket: Socket) => {
-      console.log(`WebRTC user connected: ${socket.id}`);
+      // console.log(`WebRTC user connected: ${socket.id}`);
 
       socket.on("join-call", async ({ roomId, sessionId, userId }) => {
         const result = await _slotScheduleRepo.validateSessionJoin(
@@ -179,18 +175,16 @@ export class SocketManager {
         );
 
         if (!result) {
-         
-          socket.emit("join-fail", "Invalid session or user"); 
-          socket.disconnect();  
+          socket.emit("join-fail", "Invalid session or user");
+          socket.disconnect();
           return;
         }
-  
 
         socket.join(roomId);
-        console.log(
-          `User ${socket.id} joined room: ${roomId}`
-        );
-        
+        // console.log(
+        //   `User ${socket.id} joined room: ${roomId}`
+        // );
+
         if (!rooms.has(roomId)) {
           rooms.set(roomId, new Set());
         }
@@ -200,31 +194,30 @@ export class SocketManager {
       });
 
       socket.on("offer", (offer, roomId) => {
-        console.log(`Offer received in room ${roomId}`);
+        // console.log(`Offer received in room ${roomId}`);
         socket.to(roomId).emit("offer", offer, socket.id);
       });
 
       socket.on("answer", (answer, roomId) => {
-        console.log(`Answer received in room ${roomId}`);
+        // console.log(`Answer received in room ${roomId}`);
         socket.to(roomId).emit("answer", answer);
       });
 
       socket.on("ice-candidate", (candidate, roomId) => {
-        console.log(`ICE Candidate received in room ${roomId}`);
+        // console.log(`ICE Candidate received in room ${roomId}`);
         socket.to(roomId).emit("ice-candidate", candidate);
       });
 
       socket.on("video:toggle", ({ isMuted, roomId }) => {
-        console.log(
-          `Video toggle received from ${socket.id} in room ${roomId}`
-        );
+        // console.log(
+        //   `Video toggle received from ${socket.id} in room ${roomId}`
+        // );
 
         // Notify all other users in the room
         socket.to(roomId).emit("video:toggle", { userId: socket.id, isMuted });
       });
 
       socket.on("disconnect", () => {
-       
         rooms.forEach((users, roomId) => {
           if (users.has(socket.id)) {
             users.delete(socket.id);

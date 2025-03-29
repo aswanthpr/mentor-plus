@@ -30,9 +30,8 @@ class otpService {
                     };
                 }
                 const otp = (0, reusable_util_1.genOtp)();
-                console.log(otp);
                 const result = yield this._otpRespository.createOtp(email, otp);
-                if (!result) {
+                if (!(result === null || result === void 0 ? void 0 : result.otp)) {
                     return {
                         message: httpResponse_1.HttpResponse === null || httpResponse_1.HttpResponse === void 0 ? void 0 : httpResponse_1.HttpResponse.INVALID_CREDENTIALS,
                         success: false,
@@ -42,8 +41,8 @@ class otpService {
                 yield (0, nodeMailer_util_1.nodeMailer)(email, otp);
                 return {
                     message: httpResponse_1.HttpResponse === null || httpResponse_1.HttpResponse === void 0 ? void 0 : httpResponse_1.HttpResponse.OTP_SEND_TO_MAIL,
-                    success: false,
-                    status: httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.BadRequest,
+                    success: true,
+                    status: httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.Ok,
                 };
             }
             catch (error) {
@@ -54,7 +53,6 @@ class otpService {
     verifyOtp(email, otp, type) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                console.log(email, otp, type);
                 if (!email || !otp || !type) {
                     return {
                         success: false,

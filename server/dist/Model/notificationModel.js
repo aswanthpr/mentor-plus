@@ -51,6 +51,9 @@ const notificatoinSchema = new mongoose_1.Schema({
     url: { type: String, default: null },
 }, {
     timestamps: true,
-    capped: { max: 10, size: 1000000 }
+    capped: {
+        size: 10000000,
+        max: 10,
+    },
 });
 exports.default = mongoose_1.default.model("notification", notificatoinSchema);

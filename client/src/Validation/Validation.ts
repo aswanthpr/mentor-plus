@@ -268,6 +268,7 @@ export const validateProfilePass  =(newPassword:string,currentPassword:string,co
 export const MentorApplyForm =(formData:IFormData,
   resume:File|null,skills:string[],profileImage:Blob|null
 )=>{
+ 
 const formErrors: IErrors = { ...MENTOR_APPLY_INITIAL?.errors };
 
     let isValid = true;

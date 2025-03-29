@@ -107,7 +107,7 @@ export class mentorController implements ImentorController {
         (req.files as { [key: string]: Express.Multer.File[] }).resume
           ? (req.files as { [key: string]: Express.Multer.File[] }).resume[0]
           : null;
-      console.log(resume, "this is resume", req.files);
+    
       const mentorData = {
         ...req.body,
       };
@@ -150,7 +150,7 @@ export class mentorController implements ImentorController {
   async createTimeSlots(req: Request, res: Response,next: NextFunction): Promise<void> {
     try {
       const { type, schedule } = req.body;
-      console.log(type, schedule, "creaeSchedule");
+      
       const { success, status, message, timeSlots } =
         await this._mentorService.createTimeSlots(
           type,
@@ -167,7 +167,7 @@ export class mentorController implements ImentorController {
   async getTimeSlots(req: Request, res: Response,next: NextFunction): Promise<void> {
     try {
       const { search, filter, sortField, sortOrder, page, limit } = req.query;
-      console.log( search, filter, sortField, sortOrder, page, limit)
+     
       const { success, status, message, timeSlots, totalPage } =
         await this._mentorService.getTimeSlots(
           req.user as ObjectId,
@@ -189,7 +189,7 @@ export class mentorController implements ImentorController {
   async removeTimeSlot(req: Request, res: Response,next: NextFunction): Promise<void> {
     try {
       const { slotId } = req.body;
-      console.log(slotId, "ths is slot id");
+     
       const { status, success, message } =
         await this._mentorService.removeTimeSlot(slotId as string);
       res.status(status).json({ message, success });
@@ -200,7 +200,7 @@ export class mentorController implements ImentorController {
   async chartData(req: Request, res: Response,next: NextFunction): Promise<void> {
     try {
       const { timeRange } = req.query;
-      console.log(timeRange);
+     
       const { success, message, status,result } =
         await this._mentorService.mentorChartData(
           req.user as Express.User as ObjectId,

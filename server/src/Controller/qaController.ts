@@ -20,7 +20,7 @@ class qaController implements IqaController {
   async questionData(req: Request, res: Response,next: NextFunction): Promise<void> {
     try {
       const { filter,search,limit,page,sortField,sortOrder } = req.query;
-      console.log(filter,search, limit ,page, sortField,sortOrder,'sdfsdf')
+    
       const { success, message, question, status, userId } =
         await this._qaService.questionData(req.user as ObjectId,
           String( filter),
@@ -148,7 +148,7 @@ class qaController implements IqaController {
       const result = await this._qaService.changeAnswerStatus(
         req.body?.answerId
       );
-      console.log(result.result);
+    
       res
         .status(result.status)
         .json({

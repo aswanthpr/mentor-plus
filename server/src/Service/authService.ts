@@ -37,10 +37,10 @@ export class authService implements IauthService {
           status: Status?.BadRequest,
         };
       }
-      console.log(userData?.email, userData?.password);
+      
       const existingUser: Imentee | null =
         await this._MenteeRepository.findByEmail(userData?.email);
-      console.log(existingUser);
+    
       if ((existingUser as Imentee) || existingUser?.provider) {
         return {
           success: false,
@@ -177,7 +177,7 @@ export class authService implements IauthService {
         };
       }
       const result = await this._MenteeRepository.findByEmail(email);
-      if (!result || result?.isBlocked) {
+      if (!result?.email || result?.isBlocked) {
         return {
           success: false,
           message: HttpResponse?.INVALID_CREDENTIALS,
@@ -185,6 +185,7 @@ export class authService implements IauthService {
         };
       }
       await this._OtpService.sentOtptoMail(email);
+    
       return {
         success: true,
         message:  HttpResponse?.OTP_SEND_TO_MAIL,
@@ -328,7 +329,7 @@ export class authService implements IauthService {
 
       const accessToken = genAccesssToken(userId as string, "admin") as string;
       const refreshToken = genRefreshToken(userId as string, "admin") as string;
-      console.log(accessToken, refreshToken, "access refrsh");
+     
 
       return {
         success: true,
@@ -349,7 +350,7 @@ export class authService implements IauthService {
       const { email, phone } = mentorData.body;
       const { profileImage, resume } = mentorData.files;
 
-      if (!mentorData.body || !mentorData.files) {
+      if (!email||!phone||!profileImage||!resume || !mentorData?.files) {
         return {
           success: false,
           message:  HttpResponse?.INVALID_CREDENTIALS,
@@ -383,7 +384,7 @@ export class authService implements IauthService {
 
       const imageUrl = await uploadImage(profileImage?.buffer);
       const fileUrl = await uploadFile(resume?.buffer, resume?.originalname);
-      console.log(imageUrl, fileUrl);
+      
 
       if (!imageUrl || !fileUrl) {
         throw new Error("error while image url generating");
@@ -409,7 +410,7 @@ export class authService implements IauthService {
         `${process.env.CLIENT_ORIGIN_URL}/admin/mentor_management/not_verified`
       );
       if (admin?._id && notifi) {
-        socketManager.sendNotification(admin?._id as string, notifi);
+        socketManager.sendNotification(String(admin?._id), notifi);
       }
       return {
         success: true,
@@ -464,7 +465,7 @@ export class authService implements IauthService {
       }
 
       const checkPass = await bcrypt.compare(password, result?.password);
-      console.log(checkPass);
+    
       if (!checkPass) {
         return {
           success: false,
@@ -473,11 +474,11 @@ export class authService implements IauthService {
         };
       }
       const mentorId = `${result._id}`;
-      console.log(mentorId, "userid");
+     
       const accessToken = genAccesssToken(mentorId as string, "mentor");
       const refreshToken = genRefreshToken(mentorId as string, "mentor");
 
-      console.log(accessToken, refreshToken, "access refrsh");
+     
       return {
         success: true,
         message:  HttpResponse?.SUCCESS,
@@ -567,11 +568,7 @@ export class authService implements IauthService {
 
       const accessToken = genAccesssToken(user?._id as string, "mentee");
       const refreshToken = genRefreshToken(user?._id as string, "mentee");
-      console.log(
-        refreshToken,
-        "sfkasdsdfjsjflkslfkjskldjflaskdfjlkasjd",
-        accessToken
-      );
+     
       return {
         success: true,
         message:  HttpResponse?.SUCCESS,

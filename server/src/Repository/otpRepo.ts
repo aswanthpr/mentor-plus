@@ -8,7 +8,7 @@ class otpRepository implements IotpRepository {
     try {
       const saveOtp = new otpModel({ email, otp });
       const data = await saveOtp.save();
-      console.log(data, "otp created");
+  
       return data;
     } catch (error: unknown) {
       throw new HttpError(
@@ -21,7 +21,7 @@ class otpRepository implements IotpRepository {
   async verifyOtp(email: string, otp: string): Promise<Iotp | null> {
     try {
       const data = await otpModel.findOne({ email, otp }).exec();
-      console.log("OTP found in database:", data);
+    
       return data;
     } catch (error: unknown) {
       throw new HttpError(

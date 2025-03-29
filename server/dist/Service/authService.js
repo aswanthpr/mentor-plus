@@ -39,9 +39,7 @@ class authService {
                         status: httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.BadRequest,
                     };
                 }
-                console.log(userData === null || userData === void 0 ? void 0 : userData.email, userData === null || userData === void 0 ? void 0 : userData.password);
                 const existingUser = yield this._MenteeRepository.findByEmail(userData === null || userData === void 0 ? void 0 : userData.email);
-                console.log(existingUser);
                 if (existingUser || (existingUser === null || existingUser === void 0 ? void 0 : existingUser.provider)) {
                     return {
                         success: false,
@@ -150,7 +148,7 @@ class authService {
                     };
                 }
                 const result = yield this._MenteeRepository.findByEmail(email);
-                if (!result || (result === null || result === void 0 ? void 0 : result.isBlocked)) {
+                if (!(result === null || result === void 0 ? void 0 : result.email) || (result === null || result === void 0 ? void 0 : result.isBlocked)) {
                     return {
                         success: false,
                         message: httpResponse_1.HttpResponse === null || httpResponse_1.HttpResponse === void 0 ? void 0 : httpResponse_1.HttpResponse.INVALID_CREDENTIALS,
@@ -277,7 +275,6 @@ class authService {
                 const userId = result._id;
                 const accessToken = (0, jwt_utils_1.genAccesssToken)(userId, "admin");
                 const refreshToken = (0, jwt_utils_1.genRefreshToken)(userId, "admin");
-                console.log(accessToken, refreshToken, "access refrsh");
                 return {
                     success: true,
                     message: httpResponse_1.HttpResponse === null || httpResponse_1.HttpResponse === void 0 ? void 0 : httpResponse_1.HttpResponse.SUCCESS,
@@ -296,7 +293,7 @@ class authService {
             try {
                 const { email, phone } = mentorData.body;
                 const { profileImage, resume } = mentorData.files;
-                if (!mentorData.body || !mentorData.files) {
+                if (!email || !phone || !profileImage || !resume || !(mentorData === null || mentorData === void 0 ? void 0 : mentorData.files)) {
                     return {
                         success: false,
                         message: httpResponse_1.HttpResponse === null || httpResponse_1.HttpResponse === void 0 ? void 0 : httpResponse_1.HttpResponse.INVALID_CREDENTIALS,
@@ -325,7 +322,6 @@ class authService {
                 mentorData.body = Object.assign(Object.assign({}, mentorData.body), { password: hashPass });
                 const imageUrl = yield (0, cloudinary_util_1.uploadImage)(profileImage === null || profileImage === void 0 ? void 0 : profileImage.buffer);
                 const fileUrl = yield (0, cloudinary_util_1.uploadFile)(resume === null || resume === void 0 ? void 0 : resume.buffer, resume === null || resume === void 0 ? void 0 : resume.originalname);
-                console.log(imageUrl, fileUrl);
                 if (!imageUrl || !fileUrl) {
                     throw new Error("error while image url generating");
                 }
@@ -340,7 +336,7 @@ class authService {
                 const admin = yield this._MenteeRepository._find();
                 const notifi = yield this._notificationRepository.createNotification(admin === null || admin === void 0 ? void 0 : admin._id, `New Mentor Has Joined!`, `${result === null || result === void 0 ? void 0 : result.name} ${httpResponse_1.NOTIFY === null || httpResponse_1.NOTIFY === void 0 ? void 0 : httpResponse_1.NOTIFY.ADMIN_NEW_MENTOR_NOTIFY}`, "admin", `${process.env.CLIENT_ORIGIN_URL}/admin/mentor_management/not_verified`);
                 if ((admin === null || admin === void 0 ? void 0 : admin._id) && notifi) {
-                    index_1.socketManager.sendNotification(admin === null || admin === void 0 ? void 0 : admin._id, notifi);
+                    index_1.socketManager.sendNotification(String(admin === null || admin === void 0 ? void 0 : admin._id), notifi);
                 }
                 return {
                     success: true,
@@ -387,7 +383,6 @@ class authService {
                     };
                 }
                 const checkPass = yield bcrypt_1.default.compare(password, result === null || result === void 0 ? void 0 : result.password);
-                console.log(checkPass);
                 if (!checkPass) {
                     return {
                         success: false,
@@ -396,10 +391,8 @@ class authService {
                     };
                 }
                 const mentorId = `${result._id}`;
-                console.log(mentorId, "userid");
                 const accessToken = (0, jwt_utils_1.genAccesssToken)(mentorId, "mentor");
                 const refreshToken = (0, jwt_utils_1.genRefreshToken)(mentorId, "mentor");
-                console.log(accessToken, refreshToken, "access refrsh");
                 return {
                     success: true,
                     message: httpResponse_1.HttpResponse === null || httpResponse_1.HttpResponse === void 0 ? void 0 : httpResponse_1.HttpResponse.SUCCESS,
@@ -481,7 +474,6 @@ class authService {
                 }
                 const accessToken = (0, jwt_utils_1.genAccesssToken)(user === null || user === void 0 ? void 0 : user._id, "mentee");
                 const refreshToken = (0, jwt_utils_1.genRefreshToken)(user === null || user === void 0 ? void 0 : user._id, "mentee");
-                console.log(refreshToken, "sfkasdsdfjsjflkslfkjskldjflaskdfjlkasjd", accessToken);
                 return {
                     success: true,
                     message: httpResponse_1.HttpResponse === null || httpResponse_1.HttpResponse === void 0 ? void 0 : httpResponse_1.HttpResponse.SUCCESS,
