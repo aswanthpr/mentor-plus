@@ -66,7 +66,7 @@ exports.sessionConfig = (0, express_session_1.default)({
 const jsonParseOrRaw = (req, res, next) => {
     if (req.originalUrl === "/mentee/booking/webhook" ||
         req.originalUrl === "/mentee/wallet/webhook") {
-        next(); // Do nothing with the body because  need it in a raw state.
+        // Do nothing with the body because  need it in a raw state.
     }
     else {
         express_1.default.json()(req, res, next);
@@ -85,9 +85,7 @@ exports.helmetConfig = (0, helmet_1.default)({
     },
 });
 const cacheControl = (req, res, next) => {
-    res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
-    res.setHeader('Pragma', 'no-cache');
-    res.setHeader('Expires', '0');
+    res.set('Cache-Control', 'no-cache, private, no-store, must-revalidate, max-stale=0, post-check=0, pre-check=0');
     next();
 };
 exports.cacheControl = cacheControl;

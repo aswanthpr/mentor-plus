@@ -22,7 +22,7 @@ export class notificationService implements InotificationService {
                 }
             }
             const result = await this._notificationRepository.getNotification(menteeId);
-console.log(result,'amdmin')
+
             if (!result) {
                 return {
                     success: false,

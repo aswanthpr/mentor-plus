@@ -255,7 +255,7 @@ export class authController implements IauthController {
         .status(status)
         .cookie("mentorToken", refreshToken, {
           httpOnly: true,
-          secure:true,
+          secure: true,
           sameSite: "none",
           maxAge: 15 * 24 * 60 * 60 * 1000,
           path: "/",

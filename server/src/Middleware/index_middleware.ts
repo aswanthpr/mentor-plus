@@ -72,7 +72,7 @@ export const jsonParseOrRaw = (
     req.originalUrl === "/mentee/booking/webhook" ||
     req.originalUrl === "/mentee/wallet/webhook"
   ) {
-    next(); // Do nothing with the body because  need it in a raw state.
+ // Do nothing with the body because  need it in a raw state.
   } else {
     express.json()(req, res, next);
   }
@@ -90,8 +90,6 @@ export const helmetConfig = helmet({
   },
 });
 export const  cacheControl = (req:Request, res:Response, next:NextFunction) => {
-  res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
-  res.setHeader('Pragma', 'no-cache');
-  res.setHeader('Expires', '0');
+  res.set('Cache-Control', 'no-cache, private, no-store, must-revalidate, max-stale=0, post-check=0, pre-check=0');
   next();
 };

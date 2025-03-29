@@ -4,7 +4,6 @@ import { verifyAccessToken } from "../Utils/jwt.utils";
 import { Status } from "../Constants/httpStatusCode";
 import { HttpResponse } from "../Constants/httpResponse";
 import { HttpError } from "../Utils/http-error-handler.util";
-import mongoose from "mongoose";
 
 const adminAuthorization = async (
   req: Request,
@@ -44,7 +43,7 @@ const adminAuthorization = async (
         .json({ success: false, message: HttpResponse?.TOKEN_EXPIRED });
       return;
     }
-
+    console.log('.............................................')
         if (decode?.result?.role !== "admin"||!decode?.isValid) {
           res
             .status(Status?.Unauthorized)
@@ -70,7 +69,7 @@ const adminAuthorization = async (
       return;
     }
 
-    req.user = new mongoose.Types.ObjectId(decode?.result?.userId as string)
+    req.user =  decode?.result?.userId ;
     next();
   } catch (error: unknown) {
     throw new HttpError(error instanceof Error ? error.message : String(error), Status?.InternalServerError);

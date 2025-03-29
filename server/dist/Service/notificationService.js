@@ -29,7 +29,6 @@ class notificationService {
                     };
                 }
                 const result = yield this._notificationRepository.getNotification(menteeId);
-                console.log(result, 'amdmin');
                 if (!result) {
                     return {
                         success: false,

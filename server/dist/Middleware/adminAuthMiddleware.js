@@ -17,7 +17,6 @@ const jwt_utils_1 = require("../Utils/jwt.utils");
 const httpStatusCode_1 = require("../Constants/httpStatusCode");
 const httpResponse_1 = require("../Constants/httpResponse");
 const http_error_handler_util_1 = require("../Utils/http-error-handler.util");
-const mongoose_1 = __importDefault(require("mongoose"));
 const adminAuthorization = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     var _a, _b, _c, _d;
     try {
@@ -47,6 +46,7 @@ const adminAuthorization = (req, res, next) => __awaiter(void 0, void 0, void 0,
                 .json({ success: false, message: httpResponse_1.HttpResponse === null || httpResponse_1.HttpResponse === void 0 ? void 0 : httpResponse_1.HttpResponse.TOKEN_EXPIRED });
             return;
         }
+        console.log('.............................................');
         if (((_b = decode === null || decode === void 0 ? void 0 : decode.result) === null || _b === void 0 ? void 0 : _b.role) !== "admin" || !(decode === null || decode === void 0 ? void 0 : decode.isValid)) {
             res
                 .status(httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.Unauthorized)
@@ -68,7 +68,7 @@ const adminAuthorization = (req, res, next) => __awaiter(void 0, void 0, void 0,
                 .json({ message: httpResponse_1.HttpResponse === null || httpResponse_1.HttpResponse === void 0 ? void 0 : httpResponse_1.HttpResponse.UNAUTHORIZED, success: false });
             return;
         }
-        req.user = new mongoose_1.default.Types.ObjectId((_d = decode === null || decode === void 0 ? void 0 : decode.result) === null || _d === void 0 ? void 0 : _d.userId);
+        req.user = (_d = decode === null || decode === void 0 ? void 0 : decode.result) === null || _d === void 0 ? void 0 : _d.userId;
         next();
     }
     catch (error) {

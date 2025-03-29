@@ -29,7 +29,7 @@ import auth_Router from "./Routes/authRoute";
 import admin_Router from "./Routes/adminRoute";
 import mentee_Router from "./Routes/menteeRoute";
 import mentor_Router from "./Routes/mentorRoute";
-
+ 
 // Initializing the application and server
 const app: Application = express();
 const server = http.createServer(app);
