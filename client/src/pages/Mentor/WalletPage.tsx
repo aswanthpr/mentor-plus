@@ -11,6 +11,7 @@ import { fetchHandleWithdraw } from "../../service/mentorApi";
 import { WALLET_DATA } from "../../Constants/initialStates";
 import { HttpStatusCode } from "axios";
 import { Messages } from "../../Constants/message";
+import Spinner from "../../components/Common/common4All/Spinner";
 
 const WalletPage: React.FC = () => {
   const limit = 10;
@@ -21,17 +22,19 @@ const WalletPage: React.FC = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [typeFilter, setTypeFilter] = useState<Ttransaction
   >("all");
-
+  const [loading, setLoading] = useState<boolean>(false);
 
   useEffect(() => {
     let flag: boolean = true;
     const wallet_Data = async () => {
+      setLoading((pre)=>!pre)
       const response = await fetchWalletData("mentor",
         searchQuery,
         typeFilter,
         currentPage,
         limit,
       );
+      setLoading((pre)=>!pre)
       if (response?.status == HttpStatusCode?.Ok && response?.data?.success && flag) {
         setWalletData(response?.data?.walletData);
         setTotalDoc(response?.data?.totalPage)
@@ -73,6 +76,7 @@ const WalletPage: React.FC = () => {
     );
   return (
     <div className="space-y-6  mt-16  ">
+        {loading && <Spinner />}
       <div className="grid grid-cols-1 md:grid-cols-1 gap-6">
         <WalletCard
           icon={DollarSign}

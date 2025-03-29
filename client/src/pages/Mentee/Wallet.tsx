@@ -9,6 +9,7 @@ import { fetchAddMoney } from "../../service/menteeApi";
 import { Pagination } from "@mui/material";
 import { WALLET_DATA } from "../../Constants/initialStates";
 import { HttpStatusCode } from "axios";
+import Spinner from "../../components/Common/common4All/Spinner";
 
 const WalletPage: React.FC = () => {
   const limit = 10;
@@ -18,10 +19,12 @@ const WalletPage: React.FC = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [totalDoc, setTotalDoc] = useState(0);
   const [typeFilter, setTypeFilter] = useState<Ttransaction>("all");
+  const [loading, setLoading] = useState<boolean>(false);
 
   useEffect(() => {
     let flag: boolean = true;
     const wallet_Data = async () => {
+      setLoading((pre)=>!pre)
       const response = await fetchWalletData(
         "mentee",
         searchQuery,
@@ -33,6 +36,7 @@ const WalletPage: React.FC = () => {
         setWalletData(response?.data?.walletData);
         setTotalDoc(response?.data?.totalPage);
       }
+      setLoading((pre)=>!pre)
     };
 
     if (flag) {
@@ -64,6 +68,7 @@ const WalletPage: React.FC = () => {
 
   return (
     <div className="space-y-5  mt-10">
+        {loading && <Spinner />}
       <div className="grid grid-cols-1  gap-6  ">
         <div className="w-full  ">
           <WalletCard

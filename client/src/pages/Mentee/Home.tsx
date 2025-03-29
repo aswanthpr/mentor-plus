@@ -30,6 +30,7 @@ const Home: React.FC = () => {
   const [selectedQuestion, setSelectedQuestion] = useState<IQuestion | null>(
     null
   );
+  
   const [isAnswerModalOpen, setIsAnswerModalOpen] = useState<boolean>(false);
   const [showAnswerModal, setShowAnswerModal] = useState(false);
   const [currentPage, setCurrentPage] = useState<number>(1);
@@ -53,7 +54,7 @@ const Home: React.FC = () => {
 
   const fetchData = useCallback(
     async (page: number, isNewSearch = false) => {
-      setLoading(false);
+      setLoading((pre)=>!pre)
       const response = await fetchHomeData(
         filter,
         searchQuery,
@@ -62,6 +63,7 @@ const Home: React.FC = () => {
         page,
         page_limit
       );
+      setLoading((pre)=>!pre)
 
       if (response?.status === HttpStatusCode?.Ok && response?.data?.success) {
         setUserId(response.data.userId);

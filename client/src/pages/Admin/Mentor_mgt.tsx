@@ -58,6 +58,7 @@ export const Mentor_mgt: React.FC = () => {
 
   useEffect(() => {
     const fetchMentors = async () => {
+      setLoading((pre)=>!pre)
       const response = await fetchMentorData(
         searchQuery,
         activeTab,
@@ -66,13 +67,13 @@ export const Mentor_mgt: React.FC = () => {
         currentPage,
         PAGE_LIMIT
       );
+      setLoading((pre)=>!pre)
 
       if (response?.status == HttpStatusCode?.Ok && response.data.success) {
         setMentors(response.data?.mentorData);
         setTotalDoc(response?.data?.totalPage);
       }
     };
-
     fetchMentors();
   }, [activeTab, currentPage, searchQuery, sortField, sortOrder]);
 

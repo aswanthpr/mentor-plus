@@ -52,6 +52,7 @@ const QnA_page: React.FC = () => {
   }>(ANSWER_EDIT);
   const [newAns, setNewAns] = useState<Ianswer | null>(null);
   useEffect(() => {
+    setLoading((pre)=>!pre)
     const fetchQuestions = async () => {
       try {
         const response = await fetchMenteeQuestions(
@@ -62,7 +63,7 @@ const QnA_page: React.FC = () => {
           currentPage,
           limit
         );
-
+        setLoading((pre)=>!pre)
         if (response?.status === HttpStatusCode?.Ok && response.data?.success) {
        
 

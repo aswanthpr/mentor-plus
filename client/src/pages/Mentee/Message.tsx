@@ -11,6 +11,7 @@ import chatBg from "../../Asset/mpchatbg.png";
 import { fetchChats } from "../../service/commonApi";
 import profileImg from "../../Asset/user.png";
 import { HttpStatusCode } from "axios";
+import Spinner from "../../components/Common/common4All/Spinner";
 const Message: React.FC = () => {
   const [selectedUser, setSelectedUser] = useState<Ichat | null>(null);
   const [users, setUsers] = useState<Ichat[] | []>([]);
@@ -27,7 +28,7 @@ const Message: React.FC = () => {
   const userId = useRef<string>("");
   const chatSocket = useRef<Socket | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
-
+  const [loading, setLoading] = useState<boolean>(false);
 
   const usr = location.pathname.split("/")![1];
   useEffect(() => {
@@ -35,8 +36,9 @@ const Message: React.FC = () => {
     let flag = true;
     const fetchChat = async () => {
       try {
+        setLoading((pre)=>!pre)
         const response = await fetchChats(usr);
-
+        setLoading((pre)=>!pre)
         if (flag && response?.status == HttpStatusCode?.Ok && response?.data) {
           setUsers([...response.data.result]);
           userId.current = response?.data?.userId;
@@ -251,6 +253,7 @@ const Message: React.FC = () => {
  
   return (
     <div className="h-[calc(100vh-3rem)] pt-14 flex">
+        {loading && <Spinner />}
       {/* Users List */}
       <div className="w-80 border-r border-gray-200 bg-white">
         <div className="p-4">

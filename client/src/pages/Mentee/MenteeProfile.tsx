@@ -88,16 +88,17 @@ const MenteeProfile: React.FC = () => {
     const menteeData = async () => {
       setLoading(true);
       const response = await fetchProfileData();
+      setLoading(false);
 
       if (response?.status == HttpStatusCode?.Ok && response.data?.success) {
         setMentee(response.data?.result);
         setFormData(response.data?.result);
       }
 
-      setLoading(false);
     };
 
     menteeData();
+   
   }, []);
 
   const handleValidation = useCallback(() => {

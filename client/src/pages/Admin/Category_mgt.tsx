@@ -46,6 +46,7 @@ const Category_mgt: React.FC = () => {
   //fetch category data
   useEffect(() => {
     const fetchCategories = async () => {
+      setLoading((pre)=>!pre)
       const response = await fetchAllcategoryData(
         searchQuery,
         statusFilter,
@@ -55,12 +56,12 @@ const Category_mgt: React.FC = () => {
         PAGE_LIMIT
       );
 
+      setLoading((pre)=>!pre)
       if (response.data.success) {
         setCategories(response.data.categories);
         setTotalDocuments(response?.data?.totalPage);
       }
     };
-
     fetchCategories();
   }, [currentPage, searchQuery, sortField, sortOrder, statusFilter]);
 

@@ -23,6 +23,7 @@ import { StatusBadge } from "../../components/Admin/StatusBadge";
 import Modal from "../../components/Common/common4All/Modal";
 import { HttpStatusCode } from "axios";
 import { Messages } from "../../Constants/message";
+import Spinner from "../../components/Common/common4All/Spinner";
 
 const QA_mgt: React.FC = () => {
   const QUESTIONS_PER_PAGE = 8;
@@ -37,13 +38,13 @@ const QA_mgt: React.FC = () => {
   const [sortOrder, setSortOrder] = useState<TSortOrder>("desc");
   const [statusFilter, setStatusFilter] = useState<TFilter>("all");
   const [questions, setQuestions] = useState<IQuestion[]>([]);
-
+  const [loading, setLoading] = useState<boolean>(false);
   const [totalDocuments, setTotalDocuments] = useState<number>(0);
 
   // Fetch questions from API
   const fetchQuestions = useCallback(async () => {
     let flag = true;
-
+    setLoading((pre)=>!pre)
     const response = await fetchQuestionMangement(
       searchQuery,
       statusFilter,
@@ -52,7 +53,7 @@ const QA_mgt: React.FC = () => {
       currentPage,
       QUESTIONS_PER_PAGE
     );
-
+    setLoading((pre)=>!pre)
     if (
       response?.status === HttpStatusCode?.Ok &&
       response?.data?.success &&
@@ -68,7 +69,9 @@ const QA_mgt: React.FC = () => {
   }, [currentPage, searchQuery, sortField, sortOrder, statusFilter]);
 
   useEffect(() => {
+   
     fetchQuestions();
+   
   }, [
     sortField,
     searchQuery,
@@ -155,6 +158,7 @@ const QA_mgt: React.FC = () => {
   );
   return (
     <div className="p-6 mt-16  ">
+        {loading && <Spinner />}
       <div className="bg-white rounded-lg shadow-md p-6 h-[89vh]">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
           {/* Search */}

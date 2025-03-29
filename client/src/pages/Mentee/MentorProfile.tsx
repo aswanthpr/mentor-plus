@@ -31,12 +31,12 @@ const MentorProfile = () => {
         mentorData?.category as string,
         mentorData?._id as string
       );
+      setLoading(false);
 
       if (response.status === HttpStatusCode?.Ok && response.data.success) {
         setSimilarMentor(response.data.mentor);
       }
 
-      setLoading(false);
     };
 
     fetchMentorData();

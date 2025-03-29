@@ -7,19 +7,22 @@ import TopMentors from "../../components/Charts/TopMentors";
 import { fetchDashboardData } from "../../service/adminApi";
 import { COLORS, monthNames } from "../../Constants/const Values";
 import { ADMIN_DASH_INITIAL_VALUE } from "../../Constants/initialStates";
+import Spinner from "../../components/Common/common4All/Spinner";
 
 const Dashboard: React.FC = () => {
   const role = location.pathname.split("/")[1];
 
   const [timeRange, setTimeRange] = useState("month");
+  const [loading, setLoading] = useState<boolean>(false);
   const [cardData, setCardData] = useState<IcardData>(ADMIN_DASH_INITIAL_VALUE);
   useEffect(() => {
     let flag = true;
     const controller = new AbortController(); // Create an AbortController instance
     const signal = controller.signal;
     const fetchData = async () => {
+      setLoading((pre)=>!pre)
       const response = await fetchDashboardData(signal, timeRange);
-
+      setLoading((pre)=>!pre)
       if (flag && response?.data && response?.status) {
         setCardData(response?.data?.salesData);
       }
@@ -58,6 +61,7 @@ const Dashboard: React.FC = () => {
   return (
     <div>
       <div className="mb-2 mt-12  ">
+      {loading && <Spinner />}
         <div className="flex items-center gap-3 justify-center">
           <h1 className=" text-md font-bold text-gray-900  mt-5">
             Welcome, Admin

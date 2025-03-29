@@ -14,6 +14,7 @@ import {
   fetchTimeSlots,
 } from "../../service/mentorApi";
 import { HttpStatusCode } from "axios";
+import Spinner from "../../components/Common/common4All/Spinner";
 
 const Schedule: React.FC = () => {
   const limit = 15;
@@ -26,9 +27,10 @@ const Schedule: React.FC = () => {
   const [statusFilter, setStatusFilter] = useState<TscheduleFilter>("all");
   const [totalDocuments, setTotalDocuments] = useState<number>(0);
   const [currentPage, setCurrentPage] = useState(1);
-
+  const [loading, setLoading] = useState<boolean>(false);
   useEffect(() => {
     const fetchData = async () => {
+      setLoading((pre)=>!pre)
       const response = await fetchTimeSlots(
         searchQuery,
         statusFilter,
@@ -37,6 +39,7 @@ const Schedule: React.FC = () => {
         currentPage,
         limit
       );
+      setLoading((pre)=>!pre)
       if (response?.status === HttpStatusCode?.Ok && response?.data?.success) {
         setTimeSlots(response?.data?.timeSlots);
         setTotalDocuments(response?.data?.totalPage);
@@ -124,6 +127,7 @@ const Schedule: React.FC = () => {
 
       <hr className="mb-3" />
       <div className="bg-white rounded-lg shadow-md p-6 h-[83vh]">
+        {loading && <Spinner />}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
           {/* Search */}
           <div className="relative">

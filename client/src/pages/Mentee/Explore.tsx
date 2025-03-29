@@ -10,6 +10,7 @@ import {
   FITLER_VALUE_INITIAL,
 } from "../../Constants/initialStates";
 import { HttpStatusCode } from "axios";
+import Spinner from "../../components/Common/common4All/Spinner";
 
 const ExplorePage: React.FC = () => {
   const limit = 3;
@@ -20,9 +21,11 @@ const ExplorePage: React.FC = () => {
   const [filters, setFilters] = useState<MentorFilters>(FILTERS_EXPLORE);
   const [mentors, setMentors] = useState<IMentor[]>([]);
   const [hasMore, setHasMore] = useState<boolean>(true);
+  const [loading, setLoading] = useState<boolean>(false);
 
   const fetchMentor = useCallback(
     async (page: number, isNewSearch = false) => {
+      setLoading((pre) => !pre);
       const response = await fetchExplorePage(
         searchQuery,
         filterVal?.domain,
@@ -31,7 +34,7 @@ const ExplorePage: React.FC = () => {
         page,
         limit
       );
-
+      setLoading((pre) => !pre);
       if (response?.status === HttpStatusCode?.Ok && response?.data) {
         const newMentors = response?.data?.mentor || [];
 
@@ -52,7 +55,9 @@ const ExplorePage: React.FC = () => {
   );
 
   useEffect(() => {
+  
     fetchMentor(1, true); // Reset to page 1 on new search/filter
+    
   }, [fetchMentor, filterVal, searchQuery]);
 
   const fetchMoreMentors = () => {
@@ -63,6 +68,7 @@ const ExplorePage: React.FC = () => {
 
   return (
     <div className="relative mx-4 mt-10">
+      {loading && <Spinner />}
       {/* Mobile Filters Modal */}
       {showFilters && (
         <div className="fixed inset-0 bg-black bg-opacity-50 z-50 lg:hidden">

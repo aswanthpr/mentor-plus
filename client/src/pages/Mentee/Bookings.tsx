@@ -17,6 +17,7 @@ import { joinSessionHandler } from "../../service/commonApi";
 import { Pagination } from "@mui/material";
 import { HttpStatusCode } from "axios";
 import { SESSION_STATUS } from "../../Constants/message";
+import Spinner from "../../components/Common/common4All/Spinner";
 
 const Boooking: React.FC = () => {
   const limit = 5;
@@ -32,10 +33,12 @@ const Boooking: React.FC = () => {
   const [sortField, setSortField] = useState<TSort>("createdAt");
   const [sortOrder, setSortOrder] = useState<TSortOrder>("desc");
   const [statusFilter, setStatusFilter] = useState<TFilter>("all");
-
+  const [loading, setLoading] = useState<boolean>(false);
   const role = useSelector((state: RootState) => state?.mentee.role);
   useEffect(() => {
+ 
     const fetchData = async () => {
+      setLoading((pre) => !pre);
       const response = await fetchBookingSlots(
         activeTab,
         searchQuery,
@@ -45,13 +48,15 @@ const Boooking: React.FC = () => {
         currentPage,
         limit
       );
-
+      setLoading((pre) => !pre);
       if (response?.status == HttpStatusCode?.Ok && response?.data?.success) {
         setSessions(response?.data?.slots);
         setTotalDocuments(response?.data?.totalPage);
       }
     };
+
     fetchData();
+   
   }, [activeTab, currentPage, searchQuery, sortField, sortOrder, statusFilter]);
 
   const handleCancelSession = useCallback(
@@ -147,6 +152,7 @@ const Boooking: React.FC = () => {
   );
   return (
     <div className="space-y-6 mt-10">
+        {loading && <Spinner />}
       <div className=" p-1 round ">
         {/* <h1 className="text-2xl font-bold mb-6">Bookings</h1> */}
 

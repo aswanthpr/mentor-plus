@@ -45,7 +45,8 @@ const MentorQna: React.FC = () => {
   const fetchData = useCallback(
     async (page: number, isNewSearch = false) => {
       try {
-        setLoading(false);
+
+        setLoading((pre)=>!pre)
         const response = await fetchMentorHomeData(
           filter,
           searchQuery,
@@ -54,7 +55,7 @@ const MentorQna: React.FC = () => {
           page,
           limit
         );
-
+        setLoading((pre)=>!pre)
         if (
           response?.status === HttpStatusCode?.Ok &&
           response?.data?.success
@@ -78,6 +79,7 @@ const MentorQna: React.FC = () => {
     [filter, searchQuery, sortField, sortOrder]
   );
   useEffect(() => {
+    
     fetchData(1, true);
   }, [fetchData, filter, searchQuery]);
 

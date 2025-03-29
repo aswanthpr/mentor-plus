@@ -34,6 +34,7 @@ export const Mentee_mgt: React.FC = () => {
   useEffect(() => {
     const fetchUserData = async (): Promise<void> => {
       try {
+        setLoading((pre)=>!pre)
         const response = await fetchAllMentee(
           searchQuery,
           sortField,
@@ -43,6 +44,7 @@ export const Mentee_mgt: React.FC = () => {
           MENTEES_PER_PAGE
         );
 
+        setLoading((pre)=>!pre)
         if (response?.status == HttpStatusCode?.Ok && response?.data?.success) {
           setMenteeData(response?.data?.Data);
           setTotalPage(response?.data?.totalPage);
