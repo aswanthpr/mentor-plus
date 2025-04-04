@@ -597,7 +597,7 @@ class bookingService {
                     }));
                 }
                 else {
-                    yield this.__walletRepository.updateWalletAmount(mentorId, parseInt(response === null || response === void 0 ? void 0 : response.paymentAmount));
+                    yield this.__walletRepository.updateWalletAmount(mentorId, mentorCommision);
                 }
                 const newTranasaction = {
                     amount: mentorCommision,

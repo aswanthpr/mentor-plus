@@ -860,7 +860,7 @@ export class bookingService implements IbookingService {
       } else {
         await this.__walletRepository.updateWalletAmount(
           mentorId,
-          parseInt(response?.paymentAmount)
+          mentorCommision
         );
       }
 

@@ -88,9 +88,11 @@ export class walletService implements IwalletService {
   ): Promise<void> {
     try {
       if (!signature || !bodyData) {
+        console.log(
+          "nosig,nobody"
+        )
         throw new Error(HttpResponse?.WEBHOOK_SIGNATURE_MISSING);
       }
-     
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       let event: any;
       try {
@@ -103,22 +105,22 @@ export class walletService implements IwalletService {
         throw new HttpError(error instanceof Error ? error.message : String(error), Status?.InternalServerError);
 
       }
-      // console.log("🔔 Received webhook event:");
+      console.log("🔔 Received webhook event:");
 
-      switch (event.type) {
+      switch (event?.type) {
         case "checkout.session.completed": {
           const session = event.data.object as Stripe.Checkout.Session;
           const metaData = session.metadata || {};
 
          
-          if (!session.metadata) {
-            // console.error("Missing metadata in Stripe session");
+          if (!session?.metadata) {
+            console.error("Missing metadata in Stripe session");
             return;
           }
           const { amount, userId } = metaData;
 
           if (!mongoose.Types.ObjectId.isValid(userId)) {
-            // console.error("Invalid menteeId format:", userId);
+            console.error("Invalid menteeId format:", userId);
             return;
           }
           const menteeId = new mongoose.Types.ObjectId(
@@ -128,7 +130,7 @@ export class walletService implements IwalletService {
           const response = (await this.__walletRepository.findWallet(
             menteeId as ObjectId
           )) as Iwallet;
-
+console.log('wallet creation')
           let newWallet: Iwallet | null = null;
           if (!response) {
             newWallet = await this.__walletRepository.createWallet({
@@ -141,7 +143,7 @@ export class walletService implements IwalletService {
               Number(amount)
             );
           }
-
+console.log('transaction')
           const newTranasaction = {
             amount: Number(amount),
             walletId: (response

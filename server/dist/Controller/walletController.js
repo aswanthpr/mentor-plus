@@ -33,6 +33,7 @@ class walletController {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 const signature = req.headers["stripe-signature"];
+                console.log(signature, req.body);
                 yield this.__walletService.walletStripeWebHook(signature, req.body);
                 res.status(httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.Ok).json({ success: true });
             }

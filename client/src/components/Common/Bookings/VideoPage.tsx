@@ -102,7 +102,7 @@ const VideoPage: React.FC = () => {
 
         signalingSocket.current.on("user-joined", async (senderId) => {
           if (peerConnection.current) {
-            const offer = await peerConnection.current.createOffer();
+            const offer = await peerConnection.current.createOffer({iceRestart:true});
             await peerConnection.current.setLocalDescription(offer);
             signalingSocket.current?.emit("offer", offer, roomId, senderId);
           }

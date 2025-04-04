@@ -12,6 +12,7 @@ import { fetchChats } from "../../service/commonApi";
 import profileImg from "../../Asset/user.png";
 import { HttpStatusCode } from "axios";
 import Spinner from "../../components/Common/common4All/Spinner";
+import { toast } from "react-toastify";
 const Message: React.FC = () => {
   const [selectedUser, setSelectedUser] = useState<Ichat | null>(null);
   const [users, setUsers] = useState<Ichat[] | []>([]);
@@ -219,8 +220,14 @@ const Message: React.FC = () => {
       newMessage.messageType = selectedFile.type.startsWith("image/")
         ? "image"
         : "document";
-
-      newMessage.content = await uploadFile(selectedFile);
+        const res = await uploadFile(selectedFile);
+        if(!res?.success){
+          toast.error(res?.url);
+          setSelectedFile(null);
+          setBtnDisable((pre)=>!pre);
+          return 
+        }
+      newMessage.content = res?.url; 
     }
 
   

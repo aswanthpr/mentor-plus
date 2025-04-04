@@ -52,7 +52,7 @@ const MentorApply: React.FC = () => {
         skills,
         profileImage
       );
-   
+    
       if (!validateForm?.isValid) {
      
         setErrors(validateForm?.formErrors);

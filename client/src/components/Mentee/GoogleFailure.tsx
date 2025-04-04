@@ -11,7 +11,10 @@ const GoogleFailure: React.FC = () => {
   useEffect(() => {
     
     toast.error(Messages?.GOOGLE_AUTH_FAIL_MESSAGE);
-    navigate(ROUTES?.MENTEE_LOGIN);
+    setTimeout(()=>{
+
+      navigate(ROUTES?.MENTEE_LOGIN);
+    },500)
 
 
     setLoading(false);

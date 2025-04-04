@@ -20,8 +20,6 @@ import { joinSessionHandler } from "../../service/commonApi";
 import { Pagination } from "@mui/material";
 import { HttpStatusCode } from "axios";
 import { Messages, SESSION_STATUS } from "../../Constants/message";
-import Spinner from "../../components/Common/common4All/Spinner";
-
 
 const Sessions: React.FC = () => {
   const limit = 5;
@@ -35,12 +33,10 @@ const Sessions: React.FC = () => {
   const [sortOrder, setSortOrder] = useState<TSortOrder>("desc");
   const [statusFilter, setStatusFilter] = useState<TFilter>("all");
   const role = useSelector((state: RootState) => state.menter.mentorRole);
-  const [loading, setLoading] = useState<boolean>(false);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        setLoading((pre)=>!pre)
         const response = await getMentorSessions(
           activeTab,
           searchQuery,
@@ -50,7 +46,7 @@ const Sessions: React.FC = () => {
           currentPage,
           limit
         );
-        setLoading((pre)=>!pre)
+
         if (response?.status == HttpStatusCode?.Ok && response?.data?.success) {
           setSessions(response?.data?.slots);
           setTotalDocuments(response?.data?.totalPage);
@@ -99,7 +95,7 @@ const Sessions: React.FC = () => {
         }
       );
 
-     
+      
     },
     [sessions]
   );
@@ -176,7 +172,6 @@ const Sessions: React.FC = () => {
   return (
     <div>
       <div className=" mt-16 ">
-        {loading && <Spinner />}
         <TabNavigation
           activeTab={activeTab}
           firstTab="upcoming"
