@@ -41,11 +41,17 @@ export class authService implements IauthService {
       const existingUser: Imentee | null =
         await this._MenteeRepository.findByEmail(userData?.email);
     
-      if ((existingUser as Imentee) || existingUser?.provider) {
+      if ((existingUser?.email  && existingUser?.verified) || existingUser?.provider==="google") {
         return {
           success: false,
           message:  HttpResponse?.EMAIL_EXIST,
           status: Status?.BadRequest,
+        };
+      }else if(existingUser?.email&&!existingUser?.verified){
+        return {
+          success: true,
+          message:  HttpResponse?.SUCCESS,
+          status: Status?.Ok,
         };
       }
       // pass hasing

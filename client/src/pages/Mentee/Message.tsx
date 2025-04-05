@@ -404,7 +404,7 @@ const Message: React.FC = () => {
                             >
                               <span
                                 onClick={() =>
-                                  (window.location.href = message?.content)
+                                  (window.open( message?.content))
                                 }
                                 // target="_blank"
                                 rel="noopener noreferrer"

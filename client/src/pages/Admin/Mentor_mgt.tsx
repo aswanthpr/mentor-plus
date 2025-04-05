@@ -271,7 +271,7 @@ export const Mentor_mgt: React.FC = () => {
                     <button
                       className="px-3 py-1 bg-cyan-200 text-white rounded-full hover:bg-cyan-700 font-bold"
                       onClick={() =>
-                        (window.location.href = `${mentor?.resume}`)
+                        (window.open(`${mentor?.resume}`))
                       }
                     >
                       <Eye className="text-black h-10" />

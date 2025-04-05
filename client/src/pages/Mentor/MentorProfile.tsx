@@ -325,7 +325,7 @@ const MentorProfile: React.FC = () => {
                   <BadgeCheckIcon className="ml-1 text-green-600 w-5" />
                 </span>
               </div>
-              <div className="">
+              <div>
                 <div>
                   <h3 className="text-sm font-medium  text-gray-500 ">
                     {mentor?.category}
@@ -373,6 +373,7 @@ const MentorProfile: React.FC = () => {
             <div className="relative group ">
               <Link
                 to={`${mentor?.resume}`}
+                target="_blank"
                 className=" px-4 py-2 text-sm font-medium text-gray-700 border border-gray-300 hover:bg-gray-200 rounded-full transition-colors flex items-end"
               >
                 <FileUser />

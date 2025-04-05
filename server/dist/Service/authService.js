@@ -40,11 +40,18 @@ class authService {
                     };
                 }
                 const existingUser = yield this._MenteeRepository.findByEmail(userData === null || userData === void 0 ? void 0 : userData.email);
-                if (existingUser || (existingUser === null || existingUser === void 0 ? void 0 : existingUser.provider)) {
+                if (((existingUser === null || existingUser === void 0 ? void 0 : existingUser.email) && (existingUser === null || existingUser === void 0 ? void 0 : existingUser.verified)) || (existingUser === null || existingUser === void 0 ? void 0 : existingUser.provider) === "google") {
                     return {
                         success: false,
                         message: httpResponse_1.HttpResponse === null || httpResponse_1.HttpResponse === void 0 ? void 0 : httpResponse_1.HttpResponse.EMAIL_EXIST,
                         status: httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.BadRequest,
+                    };
+                }
+                else if ((existingUser === null || existingUser === void 0 ? void 0 : existingUser.email) && !(existingUser === null || existingUser === void 0 ? void 0 : existingUser.verified)) {
+                    return {
+                        success: true,
+                        message: httpResponse_1.HttpResponse === null || httpResponse_1.HttpResponse === void 0 ? void 0 : httpResponse_1.HttpResponse.SUCCESS,
+                        status: httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.Ok,
                     };
                 }
                 // pass hasing

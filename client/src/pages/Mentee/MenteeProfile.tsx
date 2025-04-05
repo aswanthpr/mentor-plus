@@ -294,7 +294,7 @@ const MenteeProfile: React.FC = () => {
               <h1 className="text-2xl font-bold text-gray-700">
                 {mentee?.name}
               </h1>
-              <div className="">
+              <div>
                 <div>
                   <h3 className="text-lg font-medium text-gray-500">
                     {mentee?.currentPosition}
@@ -444,7 +444,6 @@ const MenteeProfile: React.FC = () => {
                   placeholder={"Enter phone"}
                   error={errors?.phone}
                   value={formData?.phone || ""}
-                  className=""
                   type="text"
                   onChange={(e) =>
                     setFormData({ ...formData, phone: e.target.value })
@@ -456,7 +455,6 @@ const MenteeProfile: React.FC = () => {
                   placeholder={"Enter your Education"}
                   error={errors?.education}
                   value={formData?.education || ""}
-                  className=""
                   type="text"
                   onChange={(e) =>
                     setFormData({ ...formData, education: e.target.value })
@@ -468,7 +466,6 @@ const MenteeProfile: React.FC = () => {
                   placeholder={"Enter your current status"}
                   error={errors?.currentPosition}
                   value={formData?.currentPosition || ""}
-                  className=""
                   type="text"
                   onChange={(e) =>
                     setFormData({
