@@ -44,6 +44,10 @@ export const socketManager = new SocketManager(io);
 socketManager.initialize();
 
 //using middlewares
+if (process.env.NODE_ENV === "production") {
+  // In production, trust the first proxy.
+  app.set("trust proxy", 1);
+}
 app.use(cacheControl)
 app.use(helmetConfig); // set security headers
 // app.use(limiter); //express rate limit

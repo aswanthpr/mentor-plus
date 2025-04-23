@@ -26,9 +26,9 @@ export const fileLogger = morgan('combined', {
   
 export const  logErrorToFile = (err : Error): void => {
 
-  if (!fs.existsSync(logDirectory)) {
-    fs.mkdirSync(logDirectory, { recursive: true });
-  }
+  // if (!fs.existsSync(logDirectory)) {
+  //   fs.mkdirSync(logDirectory, { recursive: true });
+  // }
 
   const logFilePath = path.join(logDirectory, 'error.log');
   const errorMessage = `${new Date().toISOString()} - ${err.message}\n${err.stack}\n\n`;

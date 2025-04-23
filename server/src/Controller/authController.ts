@@ -88,7 +88,7 @@ export class authController implements IauthController {
         .status(result?.status)
         .cookie("refreshToken", `${result?.refreshToken ?? ""}`, {
           httpOnly: true,
-          secure: true, 
+          secure: process.env.NODE_ENV === "production", 
           sameSite:"none",
           maxAge: 14 * 24 * 60 * 60 * 1000,
         })
@@ -152,7 +152,7 @@ export class authController implements IauthController {
         .status(status)
         .cookie("adminToken", refreshToken as string, {
           httpOnly: true,
-          secure: true,
+          secure: process.env.NODE_ENV === "production",
           sameSite: "none",
           maxAge: 15 * 24 * 60 * 60 * 1000,
           path: "/",
@@ -255,7 +255,7 @@ export class authController implements IauthController {
         .status(status)
         .cookie("mentorToken", refreshToken, {
           httpOnly: true,
-          secure: true,
+          secure: process.env.NODE_ENV === "production",
           sameSite: "none",
           maxAge: 15 * 24 * 60 * 60 * 1000,
           path: "/",
@@ -319,7 +319,7 @@ export class authController implements IauthController {
 
       res.cookie("refreshToken", refreshToken, {
         httpOnly: true,
-        secure: true,
+        secure: process.env.NODE_ENV === "production",
         sameSite: "none",
         maxAge: 7 * 24 * 60 * 60 * 1000,
       });

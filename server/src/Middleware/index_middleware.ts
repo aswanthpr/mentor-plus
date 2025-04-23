@@ -60,8 +60,13 @@ export const sessionConfig = session({
   secret: process.env?.SESSION_SECRET as string,
   resave: false,
   saveUninitialized: false,
+  cookie: {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "none",
+    maxAge:864000000
+  },
 });
-
 // determine request body parse to json or raw state
 export const jsonParseOrRaw = (
   req: Request,

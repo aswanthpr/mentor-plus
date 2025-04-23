@@ -19,7 +19,7 @@ export class adminController implements IadminController {
         .status(result.status)
         .cookie("adminToken", result?.refreshToken as string, {
           httpOnly: true,
-          secure:true,
+          secure:process.env.NODE_ENV === "production",
           sameSite:"none",
           maxAge: 14 * 24 * 60 * 60 * 1000,
         })

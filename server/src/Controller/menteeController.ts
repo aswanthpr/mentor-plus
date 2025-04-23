@@ -20,7 +20,7 @@ export class menteeController implements ImenteeController {
       if (result?.success) {
         res.cookie("refreshToken", result?.refreshToken as string, {
           httpOnly: true,
-          secure:true,
+          secure:process.env.NODE_ENV === "production",
           sameSite: "none",
           maxAge: 14 * 24 * 60 * 60 * 1000,
         });
