@@ -66,7 +66,6 @@ class adminController {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 const { id, category } = req.body;
-                console.log(req.body, "thsi is the data", id, category);
                 const result = yield this._adminService.editCategory(id, category);
                 if (result.success) {
                     res.status(httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.Ok).json(result);
@@ -123,7 +122,6 @@ class adminController {
     editMentee(req, res, next) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                console.log(req.body);
                 const { status, success, message } = yield this._adminService.editMentee(req.body);
                 res.status(status).json({ success, message });
             }

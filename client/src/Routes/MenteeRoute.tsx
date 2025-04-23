@@ -31,10 +31,9 @@ const MenteeRoute: React.FC = () => (
     <Routes>
       <Route path="*" element={<NotFound />} />
       <Route path="/500" element={<InternalServer />} />
-      <Route path="/" element={<Mentee_Page />}>
-        ;
         <Route index element={<Navigate to={ROUTES?.MENTEE_HOME} />} />;
         <Route element={<MenteeLogin />}>
+      <Route path="/" element={<Mentee_Page />}>
           <Route path="/home" element={<Home />} />
           <Route path="/profile/" element={<MenteeProfile />} />
           <Route path="explore">

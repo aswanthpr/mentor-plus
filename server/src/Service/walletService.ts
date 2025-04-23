@@ -88,9 +88,7 @@ export class walletService implements IwalletService {
   ): Promise<void> {
     try {
       if (!signature || !bodyData) {
-        console.log(
-          "nosig,nobody"
-        )
+        
         throw new Error(HttpResponse?.WEBHOOK_SIGNATURE_MISSING);
       }
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -130,7 +128,7 @@ export class walletService implements IwalletService {
           const response = (await this.__walletRepository.findWallet(
             menteeId as ObjectId
           )) as Iwallet;
-console.log('wallet creation')
+
           let newWallet: Iwallet | null = null;
           if (!response) {
             newWallet = await this.__walletRepository.createWallet({
@@ -143,7 +141,7 @@ console.log('wallet creation')
               Number(amount)
             );
           }
-console.log('transaction')
+
           const newTranasaction = {
             amount: Number(amount),
             walletId: (response

@@ -22,7 +22,7 @@ res.json( response)
 async walletStripeWebHook(req: Request, res: Response,next: NextFunction): Promise<void> {
   try{
     const signature = req.headers["stripe-signature"] as string;
-    console.log(signature,req.body)
+   
 
     await this.__walletService.walletStripeWebHook(signature, req.body as Buffer);
     res.status(Status?.Ok).json({ success: true });

@@ -49,7 +49,7 @@ class slotScheduleRepository
           },
         },
       ]);
-      console.log(result, "result");
+   
       return result[0];
     } catch (error: unknown) {
       throw new HttpError(
@@ -206,7 +206,7 @@ class slotScheduleRepository
         slotSchedule.aggregate(countPipeline),
       ]);
 
-      console.log(slots, "resp", totalCount);
+    
       return { slots: slots, totalDocs: totalCount[0]?.totalDocuments };
     } catch (error: unknown) {
       throw new HttpError(error instanceof Error ? error.message : String(error), Status?.InternalServerError);
@@ -326,7 +326,7 @@ class slotScheduleRepository
         slotSchedule.aggregate(countPipeline),
       ]);
 
-      console.log(slots, "resp", totalCount);
+     
       return { slots: slots, totalDoc: totalCount[0]?.totalDocuments };
     } catch (error: unknown) {
       throw new HttpError(error instanceof Error ? error.message : String(error), Status?.InternalServerError);
@@ -338,7 +338,7 @@ class slotScheduleRepository
     issue: string
   ): Promise<IslotSchedule | null> {
     try {
-      console.log(sessionId, issue);
+      
       return await this.find_By_Id_And_Update(
         slotSchedule,
         new mongoose.Types.ObjectId(sessionId),
@@ -426,7 +426,7 @@ class slotScheduleRepository
           },
         },
       ]);
-      console.log(result[0],'this is the session code and data')
+  
       return result[0];
     } catch (error: unknown) {
       throw new HttpError(error instanceof Error ? error.message : String(error), Status?.InternalServerError);

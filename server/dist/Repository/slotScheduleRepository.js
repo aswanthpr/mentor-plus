@@ -48,7 +48,6 @@ class slotScheduleRepository extends baseRepo_1.baseRepository {
                         },
                     },
                 ]);
-                console.log(result, "result");
                 return result[0];
             }
             catch (error) {
@@ -181,7 +180,6 @@ class slotScheduleRepository extends baseRepo_1.baseRepository {
                     this.aggregateData(slotSchedule_2.default, pipeLine),
                     slotSchedule_2.default.aggregate(countPipeline),
                 ]);
-                console.log(slots, "resp", totalCount);
                 return { slots: slots, totalDocs: (_a = totalCount[0]) === null || _a === void 0 ? void 0 : _a.totalDocuments };
             }
             catch (error) {
@@ -289,7 +287,6 @@ class slotScheduleRepository extends baseRepo_1.baseRepository {
                     this.aggregateData(slotSchedule_2.default, pipeLine),
                     slotSchedule_2.default.aggregate(countPipeline),
                 ]);
-                console.log(slots, "resp", totalCount);
                 return { slots: slots, totalDoc: (_a = totalCount[0]) === null || _a === void 0 ? void 0 : _a.totalDocuments };
             }
             catch (error) {
@@ -300,7 +297,6 @@ class slotScheduleRepository extends baseRepo_1.baseRepository {
     cancelSlot(sessionId, issue) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                console.log(sessionId, issue);
                 return yield this.find_By_Id_And_Update(slotSchedule_2.default, new mongoose_1.default.Types.ObjectId(sessionId), { $set: { status: "CANCEL_REQUESTED", cancelReason: issue } });
             }
             catch (error) {
@@ -375,7 +371,6 @@ class slotScheduleRepository extends baseRepo_1.baseRepository {
                         },
                     },
                 ]);
-                console.log(result[0], 'this is the session code and data');
                 return result[0];
             }
             catch (error) {

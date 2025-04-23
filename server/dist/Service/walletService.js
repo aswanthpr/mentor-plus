@@ -81,7 +81,6 @@ class walletService {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 if (!signature || !bodyData) {
-                    console.log("nosig,nobody");
                     throw new Error(httpResponse_1.HttpResponse === null || httpResponse_1.HttpResponse === void 0 ? void 0 : httpResponse_1.HttpResponse.WEBHOOK_SIGNATURE_MISSING);
                 }
                 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -108,7 +107,6 @@ class walletService {
                         }
                         const menteeId = new mongoose_1.default.Types.ObjectId(userId);
                         const response = (yield this.__walletRepository.findWallet(menteeId));
-                        console.log('wallet creation');
                         let newWallet = null;
                         if (!response) {
                             newWallet = yield this.__walletRepository.createWallet({
@@ -119,7 +117,6 @@ class walletService {
                         else {
                             yield this.__walletRepository.updateWalletAmount(menteeId, Number(amount));
                         }
-                        console.log('transaction');
                         const newTranasaction = {
                             amount: Number(amount),
                             walletId: (response

@@ -312,6 +312,7 @@ export class authController implements IauthController {
     next: NextFunction
   ): Promise<void> {
     try {
+      console.log(req.user)
       const { accessToken, refreshToken } = await this._AuthService.googleAuth(
         req.user as Imentee
       );

@@ -78,7 +78,7 @@ export class adminController implements IadminController {
   ): Promise<void> {
     try {
       const { id, category } = req.body;
-      console.log(req.body, "thsi is the data", id, category);
+     
       const result = await this._adminService.editCategory(id, category);
       if (result.success) {
         res.status(Status?.Ok).json(result);
@@ -151,7 +151,7 @@ export class adminController implements IadminController {
     next: NextFunction
   ): Promise<void> {
     try {
-      console.log(req.body);
+     
       const { status, success, message } = await this._adminService.editMentee(
         req.body
       );

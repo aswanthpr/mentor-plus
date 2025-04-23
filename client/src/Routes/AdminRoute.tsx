@@ -16,10 +16,10 @@ import Spinner from "../components/Common/common4All/Spinner";
 const AdminRoute: React.FC = () => (
   <Suspense fallback={<Spinner />}>
     <Routes>
-      <Route path="*" element={<NotFound />} />
       <Route path="/500" element={<InternalServer />} />
-      <Route path="/" element={<Admin_Page />}>
+      <Route path="*" element={<NotFound />} />
         <Route element={<AdminProtectLogin />}>
+      <Route path="/" element={<Admin_Page />}>
           <Route index path="dashboard" element={<Dashboard />} />
           <Route path="category_management" element={<Category_mgt />} />
           <Route path="mentor_management" element={<Mentor_mgt />}>
@@ -28,10 +28,10 @@ const AdminRoute: React.FC = () => (
           </Route>
           <Route path="mentee_management" element={<Mentee_mgt />} />
           <Route path="qa_management" element={<QA_mgt />} />
-        </Route>
       </Route>
+        </Route>
     </Routes>
-  </Suspense>
+  </Suspense> 
 );
 
 export default AdminRoute;

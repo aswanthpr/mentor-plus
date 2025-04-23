@@ -17,8 +17,8 @@ const ForgotPassword = lazy(() => import("../pages/Auth/ForgotPassword"));
 const AuthRoute: React.FC = () => (
   <Suspense fallback={<Spinner />}>
     <Routes>
-      <Route path="*" element={<NotFound />} />
       <Route path="/500" element={<InternalServer />} />
+      <Route path="*" element={<NotFound />} />
       <Route element={<AdminProtectLogout />}>
         <Route element={<MentorProtectLogout />}>
           <Route element={<MenteeLogout />}>

@@ -844,35 +844,34 @@ export class bookingService implements IbookingService {
         };
       }
       //calculate mentor cash;
+      const paymentAmount = Number(response?.paymentAmount || 0);
+      const mentorCommissionRate = Number(process.env.MENTOR_COMMISION || 0);
+      const mentorCommission = (paymentAmount * mentorCommissionRate);
 
-      const mentorCommision =
-        (parseInt(response?.paymentAmount) *
-          parseInt(process.env.MENTOR_COMMISION as string)) /
-        100;
 
       const result = await this.__walletRepository.findWallet(mentorId);
       let newWallet: Iwallet | null = null;
       if (!result) {
         newWallet = await this?.__walletRepository.createWallet({
           userId: mentorId as ObjectId,
-          balance: mentorCommision,
+          balance: mentorCommission,
         });
       } else {
         await this.__walletRepository.updateWalletAmount(
           mentorId,
-          mentorCommision
+          mentorCommission
         );
       }
 
-      const newTranasaction = {
-        amount: mentorCommision,
+      const newTransaction = {
+        amount: mentorCommission,
         walletId: (result ? result?._id : newWallet?.["_id"]) as ObjectId,
         transactionType: "credit",
         status: "completed",
         note: NOTIFY?.EARNINGS_CREDITED_TO_WALLET,
       };
 
-      await this.__transactionRepository.createTransaction(newTranasaction);
+      await this.__transactionRepository.createTransaction(newTransaction);
 
       const notification =
         await this._notificationRepository.createNotification(

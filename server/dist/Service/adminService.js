@@ -31,7 +31,6 @@ class adminService {
         return __awaiter(this, void 0, void 0, function* () {
             var _a, _b;
             try {
-                console.log(refresh, "thsi is admin refrsh");
                 if (!refresh) {
                     return { success: false, message: httpResponse_1.HttpResponse === null || httpResponse_1.HttpResponse === void 0 ? void 0 : httpResponse_1.HttpResponse.NO_TOKEN, status: httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.Unauthorized };
                 }
@@ -145,7 +144,6 @@ class adminService {
                     return { success: false, message: httpResponse_1.HttpResponse === null || httpResponse_1.HttpResponse === void 0 ? void 0 : httpResponse_1.HttpResponse.INVALID_CREDENTIALS };
                 }
                 const resp = yield this._categoryRepository.findCategory(category);
-                console.log(resp, "thsi is resp");
                 if (resp) {
                     return { success: false, message: httpResponse_1.HttpResponse === null || httpResponse_1.HttpResponse === void 0 ? void 0 : httpResponse_1.HttpResponse.CATEOGRY_EXIST };
                 }
@@ -252,7 +250,6 @@ class adminService {
     editMentee(formData) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                console.log(formData);
                 if (!formData) {
                     return { success: false, message: httpResponse_1.HttpResponse === null || httpResponse_1.HttpResponse === void 0 ? void 0 : httpResponse_1.HttpResponse.INVALID_CREDENTIALS };
                 }
@@ -313,7 +310,6 @@ class adminService {
                 const skip = (pageNo - 1) * limitNo;
                 const result = yield this._mentorRepository.findAllMentor(skip, limitNo, activeTab, search, sortField, sortOrder);
                 const totalPage = Math.ceil((result === null || result === void 0 ? void 0 : result.totalDoc) / limitNo);
-                console.log(result, totalPage);
                 if (!result) {
                     return {
                         success: false,

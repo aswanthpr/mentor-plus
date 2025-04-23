@@ -241,6 +241,7 @@ class authController {
     googleAuth(req, res, next) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
+                console.log(req.user);
                 const { accessToken, refreshToken } = yield this._AuthService.googleAuth(req.user);
                 res.cookie("refreshToken", refreshToken, {
                     httpOnly: true,

@@ -585,28 +585,28 @@ class bookingService {
                     };
                 }
                 //calculate mentor cash;
-                const mentorCommision = (parseInt(response === null || response === void 0 ? void 0 : response.paymentAmount) *
-                    parseInt(process.env.MENTOR_COMMISION)) /
-                    100;
+                const paymentAmount = Number((response === null || response === void 0 ? void 0 : response.paymentAmount) || 0);
+                const mentorCommissionRate = Number(process.env.MENTOR_COMMISION || 0);
+                const mentorCommission = (paymentAmount * mentorCommissionRate);
                 const result = yield this.__walletRepository.findWallet(mentorId);
                 let newWallet = null;
                 if (!result) {
                     newWallet = yield (this === null || this === void 0 ? void 0 : this.__walletRepository.createWallet({
                         userId: mentorId,
-                        balance: mentorCommision,
+                        balance: mentorCommission,
                     }));
                 }
                 else {
-                    yield this.__walletRepository.updateWalletAmount(mentorId, mentorCommision);
+                    yield this.__walletRepository.updateWalletAmount(mentorId, mentorCommission);
                 }
-                const newTranasaction = {
-                    amount: mentorCommision,
+                const newTransaction = {
+                    amount: mentorCommission,
                     walletId: (result ? result === null || result === void 0 ? void 0 : result._id : newWallet === null || newWallet === void 0 ? void 0 : newWallet["_id"]),
                     transactionType: "credit",
                     status: "completed",
                     note: httpResponse_1.NOTIFY === null || httpResponse_1.NOTIFY === void 0 ? void 0 : httpResponse_1.NOTIFY.EARNINGS_CREDITED_TO_WALLET,
                 };
-                yield this.__transactionRepository.createTransaction(newTranasaction);
+                yield this.__transactionRepository.createTransaction(newTransaction);
                 const notification = yield this._notificationRepository.createNotification(mentorId, httpResponse_1.NOTIFY === null || httpResponse_1.NOTIFY === void 0 ? void 0 : httpResponse_1.NOTIFY.EARNING_CREDITED, httpResponse_1.NOTIFY === null || httpResponse_1.NOTIFY === void 0 ? void 0 : httpResponse_1.NOTIFY.EARNING_CREDIT_MESSAGE, "mentor", `${process.env.CLIENT_ORIGIN_URL}/mentor/wallet`);
                 if (notification) {
                     index_1.socketManager.sendNotification(String(mentorId), notification);

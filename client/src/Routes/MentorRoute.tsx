@@ -20,8 +20,8 @@ const MentorRoute: React.FC = () => (
     <Routes>
       <Route path="*" element={<NotFound />} />
       <Route path="/500" element={<InternalServer />} />
-      <Route path="/" element={<Mentor_Page />}>
         <Route index element={<Navigate to="/home" />} />
+      <Route path="/" element={<Mentor_Page />}>
         <Route element={<MentorProtectLogin />}>
           <Route path="/messages" element={<Chat/>} />
           <Route path="/home" element={<MentorHome />} />
