@@ -24,9 +24,9 @@ exports.fileLogger = (0, morgan_1.default)('combined', {
     stream: accessLogStream // Logs to file
 });
 const logErrorToFile = (err) => {
-    if (!fs_1.default.existsSync(exports.logDirectory)) {
-        fs_1.default.mkdirSync(exports.logDirectory, { recursive: true });
-    }
+    // if (!fs.existsSync(logDirectory)) {
+    //   fs.mkdirSync(logDirectory, { recursive: true });
+    // }
     const logFilePath = path_1.default.join(exports.logDirectory, 'error.log');
     const errorMessage = `${new Date().toISOString()} - ${err.message}\n${err.stack}\n\n`;
     fs_1.default.appendFile(logFilePath, errorMessage, (err) => { console.log(err); });

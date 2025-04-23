@@ -72,7 +72,7 @@ class authController {
                     .status(result === null || result === void 0 ? void 0 : result.status)
                     .cookie("refreshToken", `${(_a = result === null || result === void 0 ? void 0 : result.refreshToken) !== null && _a !== void 0 ? _a : ""}`, {
                     httpOnly: true,
-                    secure: true,
+                    secure: process.env.NODE_ENV === "production",
                     sameSite: "none",
                     maxAge: 14 * 24 * 60 * 60 * 1000,
                 })
@@ -121,7 +121,7 @@ class authController {
                     .status(status)
                     .cookie("adminToken", refreshToken, {
                     httpOnly: true,
-                    secure: true,
+                    secure: process.env.NODE_ENV === "production",
                     sameSite: "none",
                     maxAge: 15 * 24 * 60 * 60 * 1000,
                     path: "/",
@@ -198,7 +198,7 @@ class authController {
                     .status(status)
                     .cookie("mentorToken", refreshToken, {
                     httpOnly: true,
-                    secure: true,
+                    secure: process.env.NODE_ENV === "production",
                     sameSite: "none",
                     maxAge: 15 * 24 * 60 * 60 * 1000,
                     path: "/",
@@ -245,7 +245,7 @@ class authController {
                 const { accessToken, refreshToken } = yield this._AuthService.googleAuth(req.user);
                 res.cookie("refreshToken", refreshToken, {
                     httpOnly: true,
-                    secure: true,
+                    secure: process.env.NODE_ENV === "production",
                     sameSite: "none",
                     maxAge: 7 * 24 * 60 * 60 * 1000,
                 });
