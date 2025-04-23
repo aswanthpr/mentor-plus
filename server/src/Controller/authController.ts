@@ -312,7 +312,7 @@ export class authController implements IauthController {
     next: NextFunction
   ): Promise<void> {
     try {
-      console.log(req.user,'req.useroooo')
+  
       if(!req.user){
         return
       }
