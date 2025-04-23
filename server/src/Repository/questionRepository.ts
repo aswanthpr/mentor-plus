@@ -243,7 +243,7 @@ class questionRepository
     updatedQuestion: Iquestion,
     filter: string
   ): Promise<Iquestion[] | null> {
-    console.log(questionId);
+    
     try {
       let matchCondition = {};
       if (filter === "answered") {
@@ -412,7 +412,6 @@ class questionRepository
         ];
       }
 
-      console.log(matchCondition, "matchcondition");
 
       const [question, count] = await Promise.all([
         this.aggregateData(questionModal, [
@@ -591,7 +590,7 @@ class questionRepository
   async countAnswer(questionId: string): Promise<Iquestion | null> {
     try {
       const questId = questionId as unknown as string;
-      console.log(typeof questId, "this is the type of questId in countAnswer");
+    
       return await this.find_By_Id_And_Update(questionModal, questId, {
         $inc: { answers: 1 },
       });

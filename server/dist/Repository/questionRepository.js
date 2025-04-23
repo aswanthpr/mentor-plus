@@ -230,7 +230,6 @@ class questionRepository extends baseRepo_1.baseRepository {
     }
     editQuestions(questionId, updatedQuestion, filter) {
         return __awaiter(this, void 0, void 0, function* () {
-            console.log(questionId);
             try {
                 let matchCondition = {};
                 if (filter === "answered") {
@@ -382,7 +381,6 @@ class questionRepository extends baseRepo_1.baseRepository {
                         { "user.name": { $regex: search, $options: "i" } },
                     ];
                 }
-                console.log(matchCondition, "matchcondition");
                 const [question, count] = yield Promise.all([
                     this.aggregateData(questionModal_2.default, [
                         {
@@ -551,7 +549,6 @@ class questionRepository extends baseRepo_1.baseRepository {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 const questId = questionId;
-                console.log(typeof questId, "this is the type of questId in countAnswer");
                 return yield this.find_By_Id_And_Update(questionModal_2.default, questId, {
                     $inc: { answers: 1 },
                 });
