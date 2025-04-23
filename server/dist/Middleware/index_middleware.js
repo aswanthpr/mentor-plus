@@ -61,12 +61,6 @@ exports.sessionConfig = (0, express_session_1.default)({
     secret: (_a = process.env) === null || _a === void 0 ? void 0 : _a.SESSION_SECRET,
     resave: false,
     saveUninitialized: false,
-    cookie: {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === "production",
-        sameSite: "none",
-        maxAge: 864000000
-    },
 });
 // determine request body parse to json or raw state
 const jsonParseOrRaw = (req, res, next) => {

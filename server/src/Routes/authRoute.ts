@@ -48,9 +48,7 @@ auth_Router.get(`/google`,passport.authenticate('google',{scope:['email','profil
 
 auth_Router.get(`/google/callback`,passport.authenticate('google',{
     successRedirect:'/auth/google/success',
-    failureRedirect:`${process.env.CLIENT_ORIGIN_URL}/auth/login/mentee`,
-    failureMessage: true,
-    successMessage:true
+    failureRedirect:`${process.env.CLIENT_ORIGIN_URL}/mentee/google/failure`,
 }));
 
 auth_Router.get(`/google/success`,__authController.googleAuth.bind(__authController));

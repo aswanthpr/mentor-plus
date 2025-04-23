@@ -41,9 +41,7 @@ auth_Router.post('/login/admin', __authController.adminLogin.bind(__authControll
 auth_Router.get(`/google`, passport_1.default.authenticate('google', { scope: ['email', 'profile'] }));
 auth_Router.get(`/google/callback`, passport_1.default.authenticate('google', {
     successRedirect: '/auth/google/success',
-    failureRedirect: `${process.env.CLIENT_ORIGIN_URL}/auth/login/mentee`,
-    failureMessage: true,
-    successMessage: true
+    failureRedirect: `${process.env.CLIENT_ORIGIN_URL}/mentee/google/failure`,
 }));
 auth_Router.get(`/google/success`, __authController.googleAuth.bind(__authController));
 exports.default = auth_Router;

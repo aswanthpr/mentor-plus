@@ -312,7 +312,10 @@ export class authController implements IauthController {
     next: NextFunction
   ): Promise<void> {
     try {
-      console.log(req.user)
+      console.log(req.user,'req.useroooo')
+      if(!req.user){
+        return
+      }
       const { accessToken, refreshToken } = await this._AuthService.googleAuth(
         req.user as Imentee
       );
@@ -320,8 +323,9 @@ export class authController implements IauthController {
       res.cookie("refreshToken", refreshToken, {
         httpOnly: true,
         secure: process.env.NODE_ENV === "production",
-        sameSite: "none",
+        sameSite:process.env.NODE_ENV === "production"? "none":"lax",
         maxAge: 7 * 24 * 60 * 60 * 1000,
+        path:'/'
       });
 
       res.redirect(

@@ -14,6 +14,7 @@ const GoogleSuccess: React.FC = () => {
   const dispatch = useDispatch()
 
   useEffect(() => {
+    console.log('1111111111111111111111111')
     const params = new URLSearchParams(location.search);
 
     const token = params.get('token');

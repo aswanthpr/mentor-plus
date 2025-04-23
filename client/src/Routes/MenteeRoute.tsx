@@ -22,13 +22,15 @@ const Explore = lazy(() => import("../pages/Mentee/Explore"));
 const QnA_page = lazy(() => import("../pages/Mentee/QnA_page"));
 const Mentee_Page = lazy(() => import("../pages/Mentee/Mentee_Page"));
 const MenteeProfile = lazy(() => import("../pages/Mentee/MenteeProfile"));
-const GoogleSuccess = lazy(() => import("../components/Mentee/GoogleSuccess"));
-const GoogleFailure = lazy(() => import("../components/Mentee/GoogleFailure"));
+import GoogleFailure from "../components/Mentee/GoogleFailure";
+import GoogleSuccess from "../components/Mentee/GoogleSuccess";
 
 const MenteeRoute: React.FC = () => (
   <Suspense fallback={<Spinner />}>
     ;
     <Routes>
+    <Route path="/google/success" element={<GoogleSuccess />} />
+    <Route path="/google/failure" element={<GoogleFailure />} />
       <Route path="*" element={<NotFound />} />
       <Route path="/500" element={<InternalServer />} />
         <Route index element={<Navigate to={ROUTES?.MENTEE_HOME} />} />;
@@ -50,8 +52,6 @@ const MenteeRoute: React.FC = () => (
           <Route path="/stripe-cancel" element={<StripeCheckoutCancel />} />
           <Route path="/stripe-success" element={<StripeComplete />} />
         </Route>
-        <Route path="/google/success" element={<GoogleSuccess />} />
-        <Route path="/google/failure" element={<GoogleFailure />} />
       </Route>
     </Routes>
   </Suspense>
