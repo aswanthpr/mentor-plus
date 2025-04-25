@@ -73,7 +73,7 @@ class authController {
                     .cookie("refreshToken", `${(_a = result === null || result === void 0 ? void 0 : result.refreshToken) !== null && _a !== void 0 ? _a : ""}`, {
                     httpOnly: true,
                     secure: process.env.NODE_ENV === "production",
-                    sameSite: "none",
+                    sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
                     maxAge: 14 * 24 * 60 * 60 * 1000,
                 })
                     .json({
@@ -199,7 +199,7 @@ class authController {
                     .cookie("mentorToken", refreshToken, {
                     httpOnly: true,
                     secure: process.env.NODE_ENV === "production",
-                    sameSite: "none",
+                    sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
                     maxAge: 15 * 24 * 60 * 60 * 1000,
                     path: "/",
                 })

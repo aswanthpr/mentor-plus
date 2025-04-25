@@ -57,7 +57,7 @@ class mentorController {
                     .cookie("mentorToken", result === null || result === void 0 ? void 0 : result.refreshToken, {
                     httpOnly: true,
                     secure: process.env.NODE_ENV === "production", //in development fasle
-                    sameSite: "none",
+                    sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
                     maxAge: 14 * 24 * 60 * 60 * 1000,
                 })
                     .json({
