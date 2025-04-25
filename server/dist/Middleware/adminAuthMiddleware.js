@@ -46,7 +46,6 @@ const adminAuthorization = (req, res, next) => __awaiter(void 0, void 0, void 0,
                 .json({ success: false, message: httpResponse_1.HttpResponse === null || httpResponse_1.HttpResponse === void 0 ? void 0 : httpResponse_1.HttpResponse.TOKEN_EXPIRED });
             return;
         }
-        console.log('.............................................');
         if (((_b = decode === null || decode === void 0 ? void 0 : decode.result) === null || _b === void 0 ? void 0 : _b.role) !== "admin" || !(decode === null || decode === void 0 ? void 0 : decode.isValid)) {
             res
                 .status(httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.Unauthorized)

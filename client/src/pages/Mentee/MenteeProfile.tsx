@@ -274,8 +274,8 @@ const MenteeProfile: React.FC = () => {
           <div className="ml-5 absolute bottom-0 left-auto transform translate-y-1/2 flex items-end">
             <div className="relative group">
               <img
-                src={ mentee?.profileUrl ?? profile}
-                alt=""
+                src={ mentee?.profileUrl as string ?? profile}
+                alt={mentee?.name}
                 className="w-32 h-32 rounded-full border-4 border-white shadow-lg"
               />
               <label className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-50 rounded-full opacity-0 group-hover:opacity-100 cursor-pointer transition-opacity">

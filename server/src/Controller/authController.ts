@@ -89,7 +89,7 @@ export class authController implements IauthController {
         .cookie("refreshToken", `${result?.refreshToken ?? ""}`, {
           httpOnly: true,
           secure: process.env.NODE_ENV === "production", 
-          sameSite:"none",
+          sameSite:process.env.NODE_ENV === "production"? "none":"lax",
           maxAge: 14 * 24 * 60 * 60 * 1000,
         })
         .json({
@@ -147,17 +147,17 @@ export class authController implements IauthController {
 
       const { success, message, status, refreshToken, accessToken } =
         await this._AuthService.adminLogin(email, password);
-
-      res
+        res
         .status(status)
         .cookie("adminToken", refreshToken as string, {
           httpOnly: true,
           secure: process.env.NODE_ENV === "production",
-          sameSite: "none",
+          sameSite:process.env.NODE_ENV === "production"? "none":"lax",
           maxAge: 15 * 24 * 60 * 60 * 1000,
           path: "/",
         })
         .json({ message, success, accessToken });
+
 
       return;
     } catch (error: unknown) {
@@ -256,7 +256,7 @@ export class authController implements IauthController {
         .cookie("mentorToken", refreshToken, {
           httpOnly: true,
           secure: process.env.NODE_ENV === "production",
-          sameSite: "none",
+          sameSite:process.env.NODE_ENV === "production"? "none":"lax",
           maxAge: 15 * 24 * 60 * 60 * 1000,
           path: "/",
         })

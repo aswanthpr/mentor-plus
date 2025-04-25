@@ -101,8 +101,6 @@ const Login: React.FC = () => {
             toast.success(response?.data?.message);
 
             navigate(ROUTES?.MENTEE_HOME);
-          } else {
-            toast.error(response?.data?.message);
           }
         }
         if (userType == "mentor") {

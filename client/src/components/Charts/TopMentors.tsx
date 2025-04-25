@@ -56,7 +56,7 @@ const TopMentors: React.FC<TopMentorsProps> = React.memo(({ mentors }) => {
                 <td className="px-6 py-4 whitespace-nowrap">
                   <div className="flex items-center">
                     <span className="ml-1 text-sm text-gray-900">
-                      {mentor?.averageRating}
+                      {mentor?.averageRating?.toFixed(1)}
                     </span>
                     <Star className="h-4 w-4 text-yellow-400 fill-current" />
                   </div>

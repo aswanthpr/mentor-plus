@@ -13,7 +13,6 @@ const adminAuthorization = async (
   try {
     //checking fresh token valid
     const refreshToken = req.cookies?.adminToken;
-    
     if (!refreshToken) {
       res.status(Status?.Unauthorized).json({
         success: false,
@@ -43,7 +42,7 @@ const adminAuthorization = async (
         .json({ success: false, message: HttpResponse?.TOKEN_EXPIRED });
       return;
     }
-    console.log('.............................................')
+
         if (decode?.result?.role !== "admin"||!decode?.isValid) {
           res
             .status(Status?.Unauthorized)

@@ -122,7 +122,7 @@ class authController {
                     .cookie("adminToken", refreshToken, {
                     httpOnly: true,
                     secure: process.env.NODE_ENV === "production",
-                    sameSite: "none",
+                    sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
                     maxAge: 15 * 24 * 60 * 60 * 1000,
                     path: "/",
                 })
@@ -241,7 +241,6 @@ class authController {
     googleAuth(req, res, next) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                console.log(req.user, 'req.useroooo');
                 if (!req.user) {
                     return;
                 }
