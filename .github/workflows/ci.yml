@@ -1,0 +1,123 @@
+name: Monorepo CI
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'frontend/**'
+      - 'backend/**'
+  pull_request:
+    branches:
+      - main
+    paths:
+      - 'frontend/**'
+      - 'backend/**'
+
+jobs:
+  backend:
+    name: Backend CI
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: backend
+    
+    services:
+      # Add MongoDB service if needed
+      mongodb:
+        image: mongo:latest
+        ports:
+          - 27017:27017
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+
+      - name: Cache dependencies
+        uses: actions/cache@v3
+        with:
+          path: '**/node_modules'
+          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-
+
+      - name: Install Dependencies
+        run: npm ci
+
+      - name: Run Linting
+        run: npm run lint
+
+      - name: Run Type Check
+        run: npm run type-check # if using TypeScript
+
+      - name: Check for Security Vulnerabilities
+        run: npm audit
+
+      - name: Run Backend Tests
+        run: npm test
+        env:
+          NODE_ENV: test
+          MONGODB_URI: mongodb://localhost:27017/test
+
+      - name: Upload Test Coverage
+        uses: actions/upload-artifact@v3
+        with:
+          name: backend-coverage
+          path: backend/coverage
+
+  frontend:
+    name: Frontend CI
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: frontend
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+
+      - name: Cache dependencies
+        uses: actions/cache@v3
+        with:
+          path: '**/node_modules'
+          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-
+
+      - name: Install Dependencies
+        run: npm ci
+
+      - name: Run Linting
+        run: npm run lint
+
+      - name: Run Frontend Tests
+        run: npm test
+        env:
+          NODE_ENV: test
+
+      - name: Run Frontend Build
+        run: npm run build
+
+      - name: Analyze Bundle Size
+        run: npm run build:analyze # if configured
+
+      - name: Upload Build Artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: frontend-build
+          path: frontend/build
+
+      - name: Upload Test Coverage
+        uses: actions/upload-artifact@v3
+        with:
+          name: frontend-coverage
+          path: frontend/coverage
