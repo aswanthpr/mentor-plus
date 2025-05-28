@@ -18,8 +18,6 @@ const AdminProtectLogin:React.FC = () => {
         }
       }, [adminToken, role, navigate]);
     
-
-    
       // return element;
       return adminToken && role === 'admin' ? <Outlet /> : null;
 }
