@@ -1,12 +1,13 @@
 import { IotpRepository } from "../Interface/Otp/iOtpRepository";
 import IotpService from "../Interface/Otp/iOtpService";
-import { nodeMailer } from "../Utils/nodeMailer.util";
+import {sendMail } from "../Utils/nodeMailer.util";
 import { genOtp } from "../Utils/reusable.util";
 import { ImenteeRepository } from "../Interface/Mentee/iMenteeRepository";
 
 import { HttpResponse } from "../Constants/httpResponse";
 import { Status } from "../Constants/httpStatusCode";
 import { HttpError } from "../Utils/http-error-handler.util";
+import { generateOtpEmailTemplate } from "../Utils/email.template.util";
 
 class otpService implements IotpService {
   constructor(
@@ -35,7 +36,8 @@ class otpService implements IotpService {
           status: Status?.Ok,
         };
       }
-      await nodeMailer(email, otp);
+      const mailOptions = generateOtpEmailTemplate(otp,email);
+      await sendMail({...mailOptions});
       return {
         message: HttpResponse?.OTP_SEND_TO_MAIL,
         success: true,

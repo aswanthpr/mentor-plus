@@ -14,6 +14,7 @@ const reusable_util_1 = require("../Utils/reusable.util");
 const httpResponse_1 = require("../Constants/httpResponse");
 const httpStatusCode_1 = require("../Constants/httpStatusCode");
 const http_error_handler_util_1 = require("../Utils/http-error-handler.util");
+const email_template_util_1 = require("../Utils/email.template.util");
 class otpService {
     constructor(_otpRespository, _menteeRepository) {
         this._otpRespository = _otpRespository;
@@ -38,7 +39,8 @@ class otpService {
                         status: httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.Ok,
                     };
                 }
-                yield (0, nodeMailer_util_1.nodeMailer)(email, otp);
+                const mailOptions = (0, email_template_util_1.generateOtpEmailTemplate)(otp, email);
+                yield (0, nodeMailer_util_1.sendMail)(Object.assign({}, mailOptions));
                 return {
                     message: httpResponse_1.HttpResponse === null || httpResponse_1.HttpResponse === void 0 ? void 0 : httpResponse_1.HttpResponse.OTP_SEND_TO_MAIL,
                     success: true,

@@ -1,2 +1,3 @@
-export declare function nodeMailer(email: string, otp: string): Promise<void>;
+import { ImailOption } from "../Types";
+export declare function sendMail(options: ImailOption): Promise<void>;
 //# sourceMappingURL=nodeMailer.util.d.ts.map

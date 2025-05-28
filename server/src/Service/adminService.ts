@@ -18,6 +18,8 @@ import { IcardData } from "../Types";
 import { createSkip } from "../Utils/reusable.util";
 import { HttpResponse } from "../Constants/httpResponse";
 import { HttpError } from "../Utils/http-error-handler.util";
+import { generateMentorVerifiedEmailTemplate } from "../Utils/email.template.util";
+import { sendMail } from "../Utils/nodeMailer.util";
 
 export class adminService implements IadminService {
   constructor(
@@ -450,7 +452,7 @@ export class adminService implements IadminService {
 
       const mentorId = new mongoose.Types.ObjectId(id);
       const response = await this._mentorRepository.verifyMentor(mentorId);
-
+      
       if (!response) {
         return {
           success: false,
@@ -459,6 +461,11 @@ export class adminService implements IadminService {
           result: null,
         };
       }
+      
+      const mentorVerificationMailOption = generateMentorVerifiedEmailTemplate(response?.name as string,response?.email);
+
+      await sendMail({...mentorVerificationMailOption});
+      
       await this._notificationRepository.createNotification(
         mentorId as unknown as ObjectId,
         `Welcome ${response?.name}`,

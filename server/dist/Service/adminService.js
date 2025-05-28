@@ -19,6 +19,8 @@ const httpStatusCode_1 = require("../Constants/httpStatusCode");
 const reusable_util_1 = require("../Utils/reusable.util");
 const httpResponse_1 = require("../Constants/httpResponse");
 const http_error_handler_util_1 = require("../Utils/http-error-handler.util");
+const email_template_util_1 = require("../Utils/email.template.util");
+const nodeMailer_util_1 = require("../Utils/nodeMailer.util");
 class adminService {
     constructor(_categoryRepository, _menteeRepository, _mentorRepository, _notificationRepository, _slotScheduleRepository) {
         this._categoryRepository = _categoryRepository;
@@ -354,6 +356,8 @@ class adminService {
                         result: null,
                     };
                 }
+                const mentorVerificationMailOption = (0, email_template_util_1.generateMentorVerifiedEmailTemplate)(response === null || response === void 0 ? void 0 : response.name, response === null || response === void 0 ? void 0 : response.email);
+                yield (0, nodeMailer_util_1.sendMail)(Object.assign({}, mentorVerificationMailOption));
                 yield this._notificationRepository.createNotification(mentorId, `Welcome ${response === null || response === void 0 ? void 0 : response.name}`, `Start exploring mentorPlus  and connect with mentees today.`, `mentor`, `${process.env.CLIENT_ORIGIN_URL}/mentor/schedule`);
                 return {
                     success: true,

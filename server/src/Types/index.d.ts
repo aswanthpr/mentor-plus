@@ -169,3 +169,10 @@ interface ImentorChartData{
   cumulativeSession: CumulativeSessionData[],
   topMentors:ItopMentors[]|[]
 }
+interface ImailOption {
+  to:string;
+  subject:string;
+  text?:string;
+  html?:string;
+}
+
