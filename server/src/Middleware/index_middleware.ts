@@ -9,7 +9,7 @@ import helmet from "helmet";
 //default cors config
 export const corsOptions: CorsOptions = {
   origin: process.env.CLIENT_ORIGIN_URL,
-  methods: ["GET,HEAD,OPTIONS,PUT,PATCH,POST,DELETE"],
+  methods:["GET", "HEAD", "OPTIONS", "PUT", "PATCH", "POST", "DELETE"],
   allowedHeaders: [
     "Origin",
     "X-Requested-With",

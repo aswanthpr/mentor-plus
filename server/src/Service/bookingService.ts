@@ -856,6 +856,7 @@ export class bookingService implements IbookingService {
           userId: mentorId as ObjectId,
           balance: mentorCommission,
         });
+        
       } else {
         await this.__walletRepository.updateWalletAmount(
           mentorId,
