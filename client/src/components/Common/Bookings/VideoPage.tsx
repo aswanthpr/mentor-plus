@@ -6,7 +6,18 @@ import { toast } from "react-toastify";
 import { constraints } from "../../../Constants/const Values";
 
 const ICE_SERVERS = {
-  iceServers: [{ urls: "stun:stun.l.google.com:19302" }],
+  iceServers: [
+    { urls: "stun:stun.l.google.com:19302" },
+    {
+      urls: [
+        "stun:172.31.5.89:3478",
+        "turn:172.31.5.89:3478?transport=udp",
+        "turn:172.31.5.89:3478?transport=tcp",
+      ],
+      username: "demo",
+      credential: "password123",
+    },
+  ],
 };
 
 const SIGNALING_SERVER_URL = `${import.meta.env?.VITE_SERVER_URL}/webrtc`;
@@ -102,7 +113,9 @@ const VideoPage: React.FC = () => {
 
         signalingSocket.current.on("user-joined", async (senderId) => {
           if (peerConnection.current) {
-            const offer = await peerConnection.current.createOffer({iceRestart:true});
+            const offer = await peerConnection.current.createOffer({
+              iceRestart: true,
+            });
             await peerConnection.current.setLocalDescription(offer);
             signalingSocket.current?.emit("offer", offer, roomId, senderId);
           }
