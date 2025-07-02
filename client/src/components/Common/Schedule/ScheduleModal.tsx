@@ -34,14 +34,13 @@ export const ScheduleModal = ({
 
   const handleDateSelection = useCallback(
     (date: string) => {
-      if (selectedDates.length <= 1 && !selectedDates.includes(date)) {
-        setSelectedDates([date]);
-
+      if (!selectedDates.includes(date)) {
+        setSelectedDates([...selectedDates, date]);
         setNormalSchedule([
           ...normalSchedule,
           {
             slots: [{ startTime: "", endTime: "" }],
-            price:"",
+            price: "",
             startDate: date,
           },
         ]);
@@ -69,7 +68,6 @@ export const ScheduleModal = ({
       key: keyof TimeSlot,
       value: string
     ) => {
-     
       const updated = [...normalSchedule];
       updated[dayIndex] = {
         ...updated[dayIndex],
@@ -303,7 +301,7 @@ export const ScheduleModal = ({
                 onChange={(newValue: Moment | null) => {
                   if (newValue) {
                     const formattedDate = newValue.format("YYYY-MM-DD");
-                   
+
                     handleDateSelection(formattedDate);
                   } else {
                     handleDateSelection("");
@@ -340,10 +338,7 @@ export const ScheduleModal = ({
                       type="text"
                       value={normalSchedule[dateIndex]?.price as string}
                       onChange={(e) =>
-                        handleNormalPriceChange(
-                          dateIndex,
-                          e.target?.value
-                        )
+                        handleNormalPriceChange(dateIndex, e.target?.value)
                       }
                       placeholder="Enter price"
                       className="ml-0 pl-0"
@@ -375,7 +370,6 @@ export const ScheduleModal = ({
                             "startTime",
                             timeString
                           );
-                       
                         }}
                       />
                       {errors[

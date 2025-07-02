@@ -15,6 +15,7 @@ import {
 } from "../../service/mentorApi";
 import { HttpStatusCode } from "axios";
 import Spinner from "../../components/Common/common4All/Spinner";
+import useDebounce from "../../Hooks/useDebounce";
 
 const Schedule: React.FC = () => {
   const limit = 15;
@@ -28,11 +29,13 @@ const Schedule: React.FC = () => {
   const [totalDocuments, setTotalDocuments] = useState<number>(0);
   const [currentPage, setCurrentPage] = useState(1);
   const [loading, setLoading] = useState<boolean>(false);
+const debouncedSearchQuery = useDebounce(searchQuery, 500)
+  
   useEffect(() => {
     const fetchData = async () => {
       setLoading((pre)=>!pre)
       const response = await fetchTimeSlots(
-        searchQuery,
+        debouncedSearchQuery,
         statusFilter,
         sortField,
         sortOrder,
@@ -46,7 +49,7 @@ const Schedule: React.FC = () => {
       }
     };
     fetchData();
-  }, [searchQuery, refresh, statusFilter, sortField, sortOrder, currentPage]);
+  }, [debouncedSearchQuery, refresh, statusFilter, sortField, sortOrder, currentPage]);
   const filteredTimeSlots = timeSlots.filter((slot) => {
     const formattedStartDate = slot?.startDate.split("T")[0];
     return formattedStartDate.toLowerCase().includes(searchQuery.toLowerCase());

@@ -18,6 +18,8 @@ import { Pagination } from "@mui/material";
 import { HttpStatusCode } from "axios";
 import { SESSION_STATUS } from "../../Constants/message";
 import Spinner from "../../components/Common/common4All/Spinner";
+import useDebounce from "../../Hooks/useDebounce";
+
 
 const Boooking: React.FC = () => {
   const limit = 5;
@@ -35,13 +37,15 @@ const Boooking: React.FC = () => {
   const [statusFilter, setStatusFilter] = useState<TFilter>("all");
   const [loading, setLoading] = useState<boolean>(false);
   const role = useSelector((state: RootState) => state?.mentee.role);
+  const debouncedSearchQuery = useDebounce(searchQuery, 500);
+
   useEffect(() => {
  
     const fetchData = async () => {
       setLoading((pre) => !pre);
       const response = await fetchBookingSlots(
         activeTab,
-        searchQuery,
+        debouncedSearchQuery,
         sortField,
         sortOrder,
         statusFilter,
@@ -57,7 +61,7 @@ const Boooking: React.FC = () => {
 
     fetchData();
    
-  }, [activeTab, currentPage, searchQuery, sortField, sortOrder, statusFilter]);
+  }, [activeTab, currentPage, debouncedSearchQuery, sortField, sortOrder, statusFilter]);
 
   const handleCancelSession = useCallback(
     async (sessionId: string, reason: string, customReason: string) => {

@@ -26,6 +26,7 @@ import { Pagination } from "@mui/material";
 import { ANSWER_EDIT } from "../../Constants/initialStates";
 import { HttpStatusCode } from "axios";
 import { Messages } from "../../Constants/message";
+import useDebounce from "../../Hooks/useDebounce";
 
 const QnA_page: React.FC = () => {
   const limit = 6;
@@ -51,22 +52,22 @@ const QnA_page: React.FC = () => {
     answerId: string;
   }>(ANSWER_EDIT);
   const [newAns, setNewAns] = useState<Ianswer | null>(null);
+  const debouncedSearchQuery = useDebounce(searchQuery, 500);
+
   useEffect(() => {
-    setLoading((pre)=>!pre)
+    setLoading((pre) => !pre);
     const fetchQuestions = async () => {
       try {
         const response = await fetchMenteeQuestions(
-          searchQuery,
+          debouncedSearchQuery,
           filter,
           sortField,
           sortOrder,
           currentPage,
           limit
         );
-        setLoading((pre)=>!pre)
+        setLoading((pre) => !pre);
         if (response?.status === HttpStatusCode?.Ok && response.data?.success) {
-       
-
           setQuestions(response.data?.question);
           setUserId(response.data.userId);
           setTotalDocuments(response.data.totalPage);
@@ -77,7 +78,7 @@ const QnA_page: React.FC = () => {
     };
 
     fetchQuestions();
-  }, [currentPage, filter, searchQuery, sortField, sortOrder]);
+  }, [currentPage, filter, debouncedSearchQuery, sortField, sortOrder]);
 
   const handleAddQuestion = useCallback(
     async (question: IeditQuestion) => {
@@ -200,8 +201,6 @@ const QnA_page: React.FC = () => {
 
   const handleAnswerSubmit = useCallback(
     async (content: string) => {
-     
-
       setLoading(true);
       const response = await fetchCreateAnswer(
         content,
@@ -250,8 +249,6 @@ const QnA_page: React.FC = () => {
   }, []);
   const handleEditAnswerSubmit = useCallback(
     async (content: string, answerId?: string) => {
-     
-
       setLoading(true);
       const response = await fetchEditAnswer(content, answerId as string);
 

@@ -1,3 +1,4 @@
+import { HttpStatusCode } from "axios";
 import React, { useState, useEffect, useCallback } from "react";
 import { CircleAlertIcon, Filter, X } from "lucide-react";
 import SearchBar from "../../components/Mentee/SearchBar";
@@ -9,8 +10,8 @@ import {
   FILTERS_EXPLORE,
   FITLER_VALUE_INITIAL,
 } from "../../Constants/initialStates";
-import { HttpStatusCode } from "axios";
 import Spinner from "../../components/Common/common4All/Spinner";
+import useDebounce from "../../Hooks/useDebounce";
 
 const ExplorePage: React.FC = () => {
   const limit = 3;
@@ -23,18 +24,20 @@ const ExplorePage: React.FC = () => {
   const [hasMore, setHasMore] = useState<boolean>(true);
   const [loading, setLoading] = useState<boolean>(false);
 
+  const debouncedSearchQuery = useDebounce(searchQuery, 500);
+
   const fetchMentor = useCallback(
     async (page: number, isNewSearch = false) => {
-      setLoading((pre) => !pre);
+      setLoading(true);
       const response = await fetchExplorePage(
-        searchQuery,
+        debouncedSearchQuery,
         filterVal?.domain,
         filterVal?.skill,
         filterVal?.sort,
         page,
         limit
       );
-      setLoading((pre) => !pre);
+      setLoading(false);
       if (response?.status === HttpStatusCode?.Ok && response?.data) {
         const newMentors = response?.data?.mentor || [];
 
@@ -51,14 +54,15 @@ const ExplorePage: React.FC = () => {
         }));
       }
     },
-    [filterVal, searchQuery]
+    [debouncedSearchQuery, filterVal?.domain, filterVal?.skill, filterVal?.sort]
   );
+  
 
   useEffect(() => {
   
     fetchMentor(1, true); // Reset to page 1 on new search/filter
     
-  }, [fetchMentor, filterVal, searchQuery]);
+  }, [fetchMentor, filterVal, debouncedSearchQuery]);
 
   const fetchMoreMentors = () => {
     if (hasMore) {
@@ -130,7 +134,7 @@ const ExplorePage: React.FC = () => {
           >
             <div className="grid grid-cols-1 gap-3">
               {mentors.map((mentor) => (
-                <MentorCard key={mentor._id} mentor={mentor} />
+                <MentorCard key={mentor?._id} mentor={mentor} />
               ))}
             </div>
           </InfiniteScroll>

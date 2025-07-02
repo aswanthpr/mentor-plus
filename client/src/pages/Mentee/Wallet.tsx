@@ -1,4 +1,5 @@
 import React, { useCallback, useEffect, useState } from "react";
+import { Pagination } from "@mui/material";
 import { Frown, Wallet } from "lucide-react";
 import WalletCard from "../../components/Common/wallet/WalletCard";
 import AddMoneyModal from "../../components/Common/wallet/AddMoneyModal";
@@ -6,10 +7,10 @@ import TransactionList from "../../components/Common/wallet/TransactionList";
 import TransactionFilters from "../../components/Common/wallet/TransactionFilter";
 import { fetchWalletData } from "../../service/commonApi";
 import { fetchAddMoney } from "../../service/menteeApi";
-import { Pagination } from "@mui/material";
 import { WALLET_DATA } from "../../Constants/initialStates";
 import { HttpStatusCode } from "axios";
 import Spinner from "../../components/Common/common4All/Spinner";
+import useDebounce from "../../Hooks/useDebounce";
 
 const WalletPage: React.FC = () => {
   const limit = 10;
@@ -21,13 +22,14 @@ const WalletPage: React.FC = () => {
   const [typeFilter, setTypeFilter] = useState<Ttransaction>("all");
   const [loading, setLoading] = useState<boolean>(false);
 
+  const debouncedSearchQuery = useDebounce(searchQuery, 500);
   useEffect(() => {
     let flag: boolean = true;
     const wallet_Data = async () => {
       setLoading((pre)=>!pre)
       const response = await fetchWalletData(
         "mentee",
-        searchQuery,
+        debouncedSearchQuery,
         typeFilter,
         currentPage,
         limit
@@ -46,7 +48,7 @@ const WalletPage: React.FC = () => {
     return () => {
       flag = false;
     };
-  }, [currentPage, searchQuery, typeFilter]);
+  }, [currentPage, debouncedSearchQuery, typeFilter]);
 
   const handleAddMoney = useCallback(async (amount: number) => {
    

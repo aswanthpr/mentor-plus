@@ -20,6 +20,7 @@ import { joinSessionHandler } from "../../service/commonApi";
 import { Pagination } from "@mui/material";
 import { HttpStatusCode } from "axios";
 import { Messages, SESSION_STATUS } from "../../Constants/message";
+import useDebounce from "../../Hooks/useDebounce";
 
 const Sessions: React.FC = () => {
   const limit = 5;
@@ -33,13 +34,13 @@ const Sessions: React.FC = () => {
   const [sortOrder, setSortOrder] = useState<TSortOrder>("desc");
   const [statusFilter, setStatusFilter] = useState<TFilter>("all");
   const role = useSelector((state: RootState) => state.menter.mentorRole);
-
+const debouncedSearchQuery = useDebounce(searchQuery, 500);
   useEffect(() => {
     const fetchData = async () => {
       try {
         const response = await getMentorSessions(
           activeTab,
-          searchQuery,
+          debouncedSearchQuery,
           sortField,
           sortOrder,
           statusFilter,
@@ -56,7 +57,7 @@ const Sessions: React.FC = () => {
       }
     };
     fetchData();
-  }, [activeTab, currentPage, searchQuery, sortField, sortOrder, statusFilter]);
+  }, [activeTab, currentPage, debouncedSearchQuery, sortField, sortOrder, statusFilter]);
 
   const handleReclaimRequest = useCallback(
     (sessionId: string, val: string) => {

@@ -23,6 +23,7 @@ import {
 } from "../../service/menteeApi";
 import { ANSWER_EDIT } from "../../Constants/initialStates";
 import { HttpStatusCode } from "axios";
+import useDebounce from "../../Hooks/useDebounce";
 
 const Home: React.FC = () => {
   const page_limit = 6;
@@ -51,13 +52,15 @@ const Home: React.FC = () => {
     answerId: string;
   }>(ANSWER_EDIT);
   const [newAns, setNewAns] = useState<Ianswer | null>(null);
+  const debouncedSearchQuery = useDebounce(searchQuery, 500);
 
+  
   const fetchData = useCallback(
     async (page: number, isNewSearch = false) => {
       setLoading((pre)=>!pre)
       const response = await fetchHomeData(
         filter,
-        searchQuery,
+        debouncedSearchQuery,
         sortField,
         sortOrder,
         page,
@@ -75,11 +78,13 @@ const Home: React.FC = () => {
         setCurrentPage(page);
       }
     },
-    [filter, searchQuery, sortField, sortOrder]
+    [filter, debouncedSearchQuery, sortField, sortOrder]
   );
   useEffect(() => {
+
     fetchData(1, true);
-  }, [fetchData, filter, searchQuery]);
+
+  }, [fetchData, filter, debouncedSearchQuery]);
   const fetchMoreQuestion = useCallback(() => {
     if (hasMore) {
       fetchData(currentPage + 1);

@@ -13,7 +13,7 @@ const helmet_1 = __importDefault(require("helmet"));
 //default cors config
 exports.corsOptions = {
     origin: process.env.CLIENT_ORIGIN_URL,
-    methods: ["GET,HEAD,OPTIONS,PUT,PATCH,POST,DELETE"],
+    methods: ["GET", "HEAD", "OPTIONS", "PUT", "PATCH", "POST", "DELETE"],
     allowedHeaders: [
         "Origin",
         "X-Requested-With",

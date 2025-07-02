@@ -26,6 +26,7 @@ import {
 } from "../../service/menteeApi";
 import { HttpStatusCode } from "axios";
 
+
 const navItems: INavItem[] = [
   { name: "Home", path: "/mentee/home", icon: Home },
   { name: "Explore", path: "/mentee/explore", icon: Compass },
@@ -44,6 +45,7 @@ const Mentee_Page: React.FC = () => {
   const [isSideBarOpen, setIsSideBarOpen] = useState<boolean>(false);
   const [searchValue, setSearchValue] = useState<string>("");
 
+  
   useEffect(() => {
     let flag = true;
 

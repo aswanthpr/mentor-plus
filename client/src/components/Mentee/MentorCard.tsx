@@ -28,6 +28,7 @@ const MentorCard: React.FC<{ mentor: IMentor}> = ({ mentor }) => {
           <p className="text-sm text-gray-600 mt-1 text-center sm:text-left">
             {mentor?.jobTitle} |{mentor?.category}
           </p>
+          {mentor?.averageRating&&mentor?.averageRating > 0 ?(
           <div className="flex items-center justify-center sm:justify-start gap-2 mt-2">
               <div className="flex items-center">
                 
@@ -37,6 +38,8 @@ const MentorCard: React.FC<{ mentor: IMentor}> = ({ mentor }) => {
               </div>
               
             </div>
+
+          ):("")}
           <div className="mt-3 flex flex-wrap justify-center sm:justify-start gap-2">
             {mentor.skills.map((skill) => (
               <span
