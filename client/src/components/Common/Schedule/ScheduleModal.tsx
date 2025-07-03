@@ -34,7 +34,7 @@ export const ScheduleModal = ({
 
   const handleDateSelection = useCallback(
     (date: string) => {
-      if (!selectedDates.includes(date)) {
+      if (selectedDates.length < 7 &&!selectedDates.includes(date)) {//first one
         setSelectedDates([...selectedDates, date]);
         setNormalSchedule([
           ...normalSchedule,
@@ -55,7 +55,7 @@ export const ScheduleModal = ({
         selectedDates.filter((selectedDate) => selectedDate !== date)
       );
       setNormalSchedule(
-        normalSchedule.filter((schedule) => schedule.startDate !== date)
+        normalSchedule.filter((schedule) => schedule?.startDate !== date)
       );
     },
     [normalSchedule, selectedDates]
