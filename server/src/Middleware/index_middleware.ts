@@ -73,6 +73,7 @@ export const jsonParseOrRaw = (
     req.originalUrl === "/mentee/wallet/webhook"
   ) {
  // Do nothing with the body because  need it in a raw state.
+next()
   } else {
     express.json()(req, res, next);
   }

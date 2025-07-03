@@ -69,7 +69,7 @@ const WalletPage: React.FC = () => {
   );
 
   return (
-    <div className="space-y-5  mt-10">
+    <div className="space-y-5  mt-10 ">
         {loading && <Spinner />}
       <div className="grid grid-cols-1  gap-6  ">
         <div className="w-full  ">
@@ -85,7 +85,7 @@ const WalletPage: React.FC = () => {
         </div>
       </div>
 
-      <div className="bg-white p-6 rounded-lg shadow-sm h-[86vh]">
+      <div className="bg-white p-3 rounded-lg shadow-sm h-[75vh]">
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-3">
           <h2 className="text-xl font-bold">Transaction History</h2>
           <TransactionFilters
@@ -107,9 +107,10 @@ const WalletPage: React.FC = () => {
           </div>
         )}
         <hr className="h-px  bg-gray-200 border-0 dark:bg-gray-700" />
+        
         <div className="flex justify-center mt-2">
           <Pagination
-            count={totalDoc}
+            count={ typeof totalDoc==='number'?totalDoc:0}
             page={currentPage}
             onChange={handlePageChange}
             color="standard"

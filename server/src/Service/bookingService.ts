@@ -30,7 +30,7 @@ export class bookingService implements IbookingService {
     private readonly stripe: Stripe = new Stripe(
       process.env.STRIPE_SECRET_KEY as string,
       {
-        apiVersion: "2025-02-24.acacia",
+        // apiVersion: "2025-02-24.acacia",
         maxNetworkRetries: 4,
       }
     )
@@ -257,6 +257,7 @@ export class bookingService implements IbookingService {
     bodyData: Buffer
   ): Promise<void> {
     try {
+       console.log('this is inside booking webhook',signature,bodyData)
       if (!signature || !bodyData) {
         throw new Error("Missing signature or body data in webhook request.");
       }

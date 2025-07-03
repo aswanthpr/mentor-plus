@@ -12,7 +12,7 @@ export const uploadFile = async (
 ): Promise<{ url: string; success: boolean }> => {
   if (!file) return { url: "file not exist", success: false };
   if (file.size > 10 * 1024 * 1024)
-    return { url: "File size exceeds limit", success: false };
+    return { url: "File size exceeds 10MB limit", success: false };
 
   const formData = new FormData();
   formData.append("file", file);
@@ -25,10 +25,32 @@ export const uploadFile = async (
       },
     });
     const uploadedFileUrl = response?.data?.secure_url;
-    return { url: uploadedFileUrl, success: true };
-  } catch (error: unknown) {
-    console.error(error instanceof Error ? error.message : String(error));
+    if(uploadedFileUrl){
 
-    return { url: "", success: false };
+      return { url: uploadedFileUrl, success: true };
+
+    }else{
+       console.error("Upload failed. No secure_url in response:", response?.data);
+      return { url: "Upload failed. No URL returned.", success: false };
+    }
+  } catch (error: unknown) {
+    if(axios.isAxiosError(error)){
+      if(error?.response){
+        const message = error.response.data?.error.message||
+        error.response?.statusText ||
+        "Unknown cloudinary error";
+        console.log("Cloudinary Error:", message);
+        return {url:`upload Failed :${message}`,success:false}
+     } else if (error.request) {
+        console.error("No response from Cloudinary:", error.message);
+        return { url: "No response from Cloudinary server", success: false };
+      } else {
+        console.error("Axios Error:", error.message);
+        return { url: `Axios error: ${error.message}`, success: false };
+      }
+    } else {
+      console.error("Unexpected Error:", error);
+      return { url: "Unexpected error occurred during upload", success: false };
+    }
   }
 };

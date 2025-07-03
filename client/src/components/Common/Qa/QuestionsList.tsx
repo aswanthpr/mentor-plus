@@ -86,7 +86,7 @@ const QuestionList: React.FC<QuestionListProps> = ({
           <NotepadText className="w-8 "/>
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-3 ">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 ">
           {questions.map((question) => (
             <div
               key={question?._id}

@@ -12,7 +12,7 @@ export const bookingInputValidation = Yup.object().shape({
   message: Yup.string()
     .required("message field is required")
     .min(20, "message must be atleast 20 characters")
-    .max(200, "message can't be longer than 200 characters"),
+    .max(300, "message can't be longer than 300 characters"),
 });
 
 
@@ -48,6 +48,7 @@ export const baseScheduleSchema = Yup.object().shape({
     ),
 
   price: Yup.number()
+  .typeError("Price must be a number")
     .required("Price is required")
     .positive("Must be a positive value")
     .integer("Must be an integer")

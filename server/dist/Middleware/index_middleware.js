@@ -67,6 +67,7 @@ const jsonParseOrRaw = (req, res, next) => {
     if (req.originalUrl === "/mentee/booking/webhook" ||
         req.originalUrl === "/mentee/wallet/webhook") {
         // Do nothing with the body because  need it in a raw state.
+        next();
     }
     else {
         express_1.default.json()(req, res, next);

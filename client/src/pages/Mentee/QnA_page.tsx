@@ -359,8 +359,9 @@ const QnA_page: React.FC = () => {
         />
         <hr className="h-px  bg-gray-100 border-0 dark:bg-gray-300 mt-2" />
         <div className="flex justify-center mt-3">
+          
           <Pagination
-            count={totalDocuments}
+            count={ typeof totalDocuments==='number'?totalDocuments:1}
             page={currentPage}
             onChange={handlePageChange}
             color="standard"
@@ -370,6 +371,7 @@ const QnA_page: React.FC = () => {
             boundaryCount={1}
           />
         </div>
+        
       </div>
       <AddQuestion
         isOpen={showAddModal}

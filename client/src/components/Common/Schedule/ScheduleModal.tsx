@@ -81,15 +81,12 @@ export const ScheduleModal = ({
   );
 
   const handleNormalPriceChange = useCallback(
-    (dayIndex: number, price: string) => {
-      setNormalSchedule((prev) => {
-        const updated = [...prev];
-
-        updated[dayIndex].price = price ?? "";
-        return updated;
-      });
+    async(dayIndex: number, price: string) => {
+     const update = [...normalSchedule];
+     update[dayIndex].price = price ?? "";
+     setNormalSchedule(update)
     },
-    []
+    [normalSchedule]
   );
 
   const addNormalTimeSlot = useCallback(
@@ -346,7 +343,7 @@ export const ScheduleModal = ({
                     />
                     {errors[`normalSchedule[${dateIndex}].price`] && (
                       <p className="text-red-500 text-sm mt-1">
-                        {errors[`normalSchedule[${dateIndex}].price`]}
+                        {errors[`normalSchedule[${dateIndex}].price`.split(",")[0]]}
                       </p>
                     )}
                   </div>

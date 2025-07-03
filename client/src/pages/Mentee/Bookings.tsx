@@ -252,7 +252,7 @@ const Boooking: React.FC = () => {
         <hr className="h-px  bg-gray-200 border-0 dark:bg-gray-700 mt-1" />
         <div className="flex justify-center mt-3">
           <Pagination
-            count={totalDocuments}
+            count={ typeof totalDocuments==='number'?totalDocuments:1}
             page={currentPage} // Current page
             onChange={handlePageChange} // Page change handler
             color="standard" // Pagination color

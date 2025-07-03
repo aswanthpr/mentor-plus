@@ -23,7 +23,7 @@ const httpResponse_1 = require("../Constants/httpResponse");
 const http_error_handler_util_1 = require("../Utils/http-error-handler.util");
 class bookingService {
     constructor(_timeSlotRepository, _slotScheduleRepository, _notificationRepository, _chatRepository, __walletRepository, __transactionRepository, stripe = new stripe_1.Stripe(process.env.STRIPE_SECRET_KEY, {
-        apiVersion: "2025-02-24.acacia",
+        // apiVersion: "2025-02-24.acacia",
         maxNetworkRetries: 4,
     })) {
         this._timeSlotRepository = _timeSlotRepository;
@@ -192,6 +192,7 @@ class bookingService {
         return __awaiter(this, void 0, void 0, function* () {
             var _a, _b;
             try {
+                console.log('this is inside booking webhook', signature, bodyData);
                 if (!signature || !bodyData) {
                     throw new Error("Missing signature or body data in webhook request.");
                 }

@@ -332,7 +332,7 @@ export const Mentor_mgt: React.FC = () => {
         <hr className="h-px  bg-gray-200 border-0 dark:bg-gray-700 " />
         <div className="flex justify-center items-center mt-2">
           <Pagination
-            count={totalDoc??1} // Total pages
+            count={ typeof totalDoc==='number'?totalDoc:1} // Total pages
             page={currentPage} // Current page
             onChange={handlePageChange} // Page change handler
             color="standard" // Pagination color

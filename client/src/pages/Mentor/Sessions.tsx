@@ -258,7 +258,7 @@ const debouncedSearchQuery = useDebounce(searchQuery, 500);
         <hr className="h-px  bg-gray-200 border-0 dark:bg-gray-700 mt-2 " />
         <div className="flex justify-center mt-2">
           <Pagination
-            count={totalDocuments??0}
+            count={typeof totalDocuments==='number'?totalDocuments:1}
             page={currentPage} // Current page
             onChange={handlePageChange} // Page change handler
             color="standard" // Pagination color

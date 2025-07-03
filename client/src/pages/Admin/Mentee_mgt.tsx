@@ -217,7 +217,7 @@ export const Mentee_mgt: React.FC = () => {
         <hr className="h-px  bg-gray-200 border-0 dark:bg-gray-400" />
         <div className="flex justify-center mt-2">
           <Pagination
-            count={totalPage}
+            count={typeof totalPage==='number'?totalPage:0}
             page={currentPage}
             onChange={handlePageChange}
             color="standard"

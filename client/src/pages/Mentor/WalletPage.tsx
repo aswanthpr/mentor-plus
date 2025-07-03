@@ -16,29 +16,33 @@ import useDebounce from "../../Hooks/useDebounce";
 
 const WalletPage: React.FC = () => {
   const limit = 10;
-  const [walletData, setWalletData] = useState<Iwallet>(WALLET_DATA); 
+  const [walletData, setWalletData] = useState<Iwallet>(WALLET_DATA);
   const [searchQuery, setSearchQuery] = useState("");
   const [totalDoc, setTotalDoc] = useState(0);
   const [showWithdraw, setShowWithdraw] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
-  const [typeFilter, setTypeFilter] = useState<Ttransaction
-  >("all");
+  const [typeFilter, setTypeFilter] = useState<Ttransaction>("all");
   const [loading, setLoading] = useState<boolean>(false);
-const debouncedSearchQuery = useDebounce(searchQuery, 500);
+  const debouncedSearchQuery = useDebounce(searchQuery, 500);
   useEffect(() => {
     let flag: boolean = true;
     const wallet_Data = async () => {
-      setLoading((pre)=>!pre)
-      const response = await fetchWalletData("mentor",
+      setLoading((pre) => !pre);
+      const response = await fetchWalletData(
+        "mentor",
         debouncedSearchQuery,
         typeFilter,
         currentPage,
-        limit,
+        limit
       );
-      setLoading((pre)=>!pre)
-      if (response?.status == HttpStatusCode?.Ok && response?.data?.success && flag) {
+      setLoading((pre) => !pre);
+      if (
+        response?.status == HttpStatusCode?.Ok &&
+        response?.data?.success &&
+        flag
+      ) {
         setWalletData(response?.data?.walletData);
-        setTotalDoc(response?.data?.totalPage)
+        setTotalDoc(response?.data?.totalPage);
       }
     };
     if (flag) {
@@ -49,35 +53,37 @@ const debouncedSearchQuery = useDebounce(searchQuery, 500);
     };
   }, [currentPage, debouncedSearchQuery, typeFilter]);
 
-  const handleWithdraw = useCallback(async (amount: number) => {
-    if (Number(amount) < 500 || !amount) {
-      toast.error(Messages?.WITHDRAW_LIMIT);
-    }
-    if(Number(walletData?.balance??0)<amount){
-      toast.error(Messages?.NOT_ENOUGH_FUND)
-      return
-    }
-    const response = await fetchHandleWithdraw(amount);
+  const handleWithdraw = useCallback(
+    async (amount: number) => {
+      if (Number(amount) < 500 || !amount) {
+        toast.error(Messages?.WITHDRAW_LIMIT);
+      }
+      if (Number(walletData?.balance ?? 0) < amount) {
+        toast.error(Messages?.NOT_ENOUGH_FUND);
+        return;
+      }
+      const response = await fetchHandleWithdraw(amount);
 
-    if (response?.status == HttpStatusCode?.Ok && response?.data?.result) {
-    
-      setWalletData((pre) => ({
-        ...pre,
-        balance: String(Number(pre.balance) - Number(amount)),
-        transaction: [response?.data?.result, ...pre.transaction],
-      }));
-    }
-  }, [walletData?.balance]);
-    const handlePageChange = useCallback(
-      (event: React.ChangeEvent<unknown>, value: number) => {
-        event.preventDefault();
-        setCurrentPage(value);
-      },
-      []
-    );
+      if (response?.status == HttpStatusCode?.Ok && response?.data?.result) {
+        setWalletData((pre) => ({
+          ...pre,
+          balance: String(Number(pre.balance) - Number(amount)),
+          transaction: [response?.data?.result, ...pre.transaction],
+        }));
+      }
+    },
+    [walletData?.balance]
+  );
+  const handlePageChange = useCallback(
+    (event: React.ChangeEvent<unknown>, value: number) => {
+      event.preventDefault();
+      setCurrentPage(value);
+    },
+    []
+  );
   return (
     <div className="space-y-6  mt-16  ">
-        {loading && <Spinner />}
+      {loading && <Spinner />}
       <div className="grid grid-cols-1 md:grid-cols-1 gap-6">
         <WalletCard
           icon={DollarSign}
@@ -97,37 +103,34 @@ const debouncedSearchQuery = useDebounce(searchQuery, 500);
             searchQuery={searchQuery}
             onSearchChange={setSearchQuery}
             typeFilter={typeFilter}
-         
             onTypeFilterChange={(type) => setTypeFilter(type as Ttransaction)}
           />
         </div>
         <hr className="h-px  bg-gray-200 border-0 dark:bg-gray-400" />
 
-        {
-  walletData?.transaction.length > 0 ?(
-        <div className="overflow-x-auto">
-          <TransactionList transactions={walletData?.transaction} />
-        </div>
-      ):(
-        <div className="text-center text-gray-500 mt-4  mb-8 flex justify-center items-center ">
-        < Frown className="w-5 mr-4"/> <span>No Data Available</span> 
-        </div>
-  )
-}
+        {walletData?.transaction.length > 0 ? (
+          <div className="overflow-x-auto">
+            <TransactionList transactions={walletData?.transaction} />
+          </div>
+        ) : (
+          <div className="text-center text-gray-500 mt-4  mb-8 flex justify-center items-center ">
+            <Frown className="w-5 mr-4" /> <span>No Data Available</span>
+          </div>
+        )}
 
-       <hr className="h-px  bg-gray-200 border-0 dark:bg-gray-700" />
-              <div className="flex justify-center mt-2">
-                <Pagination
-                  count={totalDoc}
-                  page={currentPage} // Current page
-                  onChange={handlePageChange} // Page change handler
-                  color="standard" // Pagination color
-                  shape="circular" // Rounded corners
-                  size="small" // Size of pagination
-                  siblingCount={1} // Number of sibling pages shown next to the current page
-                  boundaryCount={1} // Number of boundary pages to show at the start and end
-                />
-              </div>
+        <hr className="h-px  bg-gray-200 border-0 dark:bg-gray-700" />
+        <div className="flex justify-center mt-2">
+          <Pagination
+            count={typeof totalDoc === "number" ? totalDoc : 1}
+            page={currentPage} // Current page
+            onChange={handlePageChange} // Page change handler
+            color="standard" // Pagination color
+            shape="circular" // Rounded corners
+            size="small" // Size of pagination
+            siblingCount={1} // Number of sibling pages shown next to the current page
+            boundaryCount={1} // Number of boundary pages to show at the start and end
+          />
+        </div>
       </div>
       <WithdrawModal
         isOpen={showWithdraw}

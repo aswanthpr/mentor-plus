@@ -326,7 +326,7 @@ const Category_mgt: React.FC = () => {
         {/* Pagination component */}
         <div className="flex justify-center items-center mt-3 ">
           <Pagination
-            count={totalDocuments}
+            count={typeof totalDocuments==='number'?totalDocuments:1}
             page={currentPage}
             onChange={handlePageChange}
             color="standard"

@@ -10,11 +10,12 @@ import {
   FILTERS_EXPLORE,
   FITLER_VALUE_INITIAL,
 } from "../../Constants/initialStates";
-import Spinner from "../../components/Common/common4All/Spinner";
 import useDebounce from "../../Hooks/useDebounce";
+import SkeletonMentorCard from "../../components/Common/Skelton/SkeltonMentorCard";
+import SkeltonExploreFilter from "../../components/Common/Skelton/SkeltonExploreFilter";
 
 const ExplorePage: React.FC = () => {
-  const limit = 3;
+  const limit = 4;
   const [filterVal, setFilterVal] = useState<Ifilter>(FITLER_VALUE_INITIAL);
   const [searchQuery, setSearchQuery] = useState("");
   const [currentPage, setCurrentPage] = useState<number>(1);
@@ -56,12 +57,9 @@ const ExplorePage: React.FC = () => {
     },
     [debouncedSearchQuery, filterVal?.domain, filterVal?.skill, filterVal?.sort]
   );
-  
 
   useEffect(() => {
-  
     fetchMentor(1, true); // Reset to page 1 on new search/filter
-    
   }, [fetchMentor, filterVal, debouncedSearchQuery]);
 
   const fetchMoreMentors = () => {
@@ -72,7 +70,8 @@ const ExplorePage: React.FC = () => {
 
   return (
     <div className="relative mx-4 mt-10">
-      {loading && <Spinner />}
+      {/* {loading && <Spinner />} */}
+
       {/* Mobile Filters Modal */}
       {showFilters && (
         <div className="fixed inset-0 bg-black bg-opacity-50 z-50 lg:hidden">
@@ -98,46 +97,62 @@ const ExplorePage: React.FC = () => {
             <h2 className="text-lg font-semibold text-gray-900 mt-3 mb-6">
               Filters
             </h2>
-            <Filters filters={filters} onFilterChange={setFilterVal} />
+            {loading ? (
+              <SkeltonExploreFilter />
+            ) : (
+              <Filters filters={filters} onFilterChange={setFilterVal} />
+            )}
           </div>
         </div>
 
         {/* Main Content */}
-        <div className="flex-1">
-          <div className="flex flex-col sm:flex-row gap-2 mb-2">
-            <div className="flex-1 z-0 xss:mx-1">
-              <SearchBar value={searchQuery} onChange={setSearchQuery} />
+        <div className="flex-1 flex flex-col items-center">
+          {/* Shared container */}
+          <div className="w-full max-w-5xl px-2">
+            {/* Search and Filters */}
+            <div className="flex flex-col sm:flex-row gap-2 mb-2">
+              <div className="flex-1 z-0">
+                <SearchBar value={searchQuery} onChange={setSearchQuery} />
+              </div>
+              <button
+                onClick={() => setShowFilters(true)}
+                className="lg:hidden px-4 mt-6 flex items-center justify-center gap-2 border border-gray-300 rounded-lg hover:bg-gray-50 py-2"
+              >
+                <Filter className="h-5 w-5" />
+                <span>Filters</span>
+              </button>
             </div>
-            <button
-              onClick={() => setShowFilters(true)}
-              className="lg:hidden px-4 mt-6 flex items-center justify-center gap-2 xss:mx-1 border border-gray-300 rounded-lg hover:bg-gray-50 py-2"
-            >
-              <Filter className="h-5 w-5" />
-              <span>Filters</span>
-            </button>
-          </div>
 
-          {/* Infinite Scroll */}
-          <InfiniteScroll
-            dataLength={mentors.length}
-            next={fetchMoreMentors}
-            hasMore={hasMore}
-            loader={
-              <h4 className="text-center my-4">Loading more mentors...</h4>
-            }
-            endMessage={
-              <p className=" flex justify-center text-center my-4 text-gray-500">
-                <CircleAlertIcon className="w-6 mr-1" /> No more mentors to
-                load.{" "}
-              </p>
-            }
-          >
-            <div className="grid grid-cols-1 gap-3">
-              {mentors.map((mentor) => (
-                <MentorCard key={mentor?._id} mentor={mentor} />
-              ))}
-            </div>
-          </InfiniteScroll>
+            {/* Mentor Cards */}
+            {loading && mentors.length === 0 ? (
+              <div className="grid grid-cols-1 gap-5">
+                {[...Array(4)].map((_, idx) => (
+                  <SkeletonMentorCard key={idx} />
+                ))}
+              </div>
+            ) : (
+              <InfiniteScroll
+                dataLength={mentors.length}
+                next={fetchMoreMentors}
+                hasMore={hasMore}
+                loader={
+                  <h4 className="text-center my-4">Loading more mentors...</h4>
+                }
+                endMessage={
+                  <p className="flex justify-center text-center my-4 text-gray-500">
+                    <CircleAlertIcon className="w-6 mr-1" /> No more mentors to
+                    load.
+                  </p>
+                }
+              >
+                <div className="grid gap-2 w-full">
+                  {mentors.map((mentor) => (
+                    <MentorCard key={mentor?._id} mentor={mentor} />
+                  ))}
+                </div>
+              </InfiniteScroll>
+            )}
+          </div>
         </div>
       </div>
     </div>

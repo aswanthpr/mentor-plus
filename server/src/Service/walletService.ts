@@ -87,6 +87,7 @@ export class walletService implements IwalletService {
     bodyData: Buffer
   ): Promise<void> {
     try {
+    
       if (!signature || !bodyData) {
         
         throw new Error(HttpResponse?.WEBHOOK_SIGNATURE_MISSING);

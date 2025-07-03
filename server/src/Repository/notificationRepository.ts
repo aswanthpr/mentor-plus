@@ -22,8 +22,10 @@ class notificationRepository
     url: string
   ): Promise<Inotification | null> {
     try {
+  
+    
       return await this.createDocument({
-        userId,
+        userId ,
         title,
         message,
         userType,
