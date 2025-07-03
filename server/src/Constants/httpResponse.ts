@@ -86,6 +86,8 @@ export const HttpResponse = {
     DATE_CANNOT_BE_PAST:"The given date is in the past.",
     TIME_DIFF_REQUIRED: "Time difference is not in between 20 to 60.",
 
+    CONNECTION_ERROR:'Connection error'
+
   } as const ;
 
 export  const NOTIFY = {

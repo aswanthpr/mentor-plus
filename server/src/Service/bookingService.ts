@@ -3,7 +3,7 @@ import { IbookingService } from "../Interface/Booking/iBookingService";
 import { IslotScheduleRepository } from "../Interface/Booking/iSlotScheduleRepository";
 import { ItimeSlotRepository } from "../Interface/Booking/iTimeSchedule";
 import mongoose, { ObjectId } from "mongoose";
-import { InewSlotSchedule, Itimes } from "../Types";
+import { InewSlotSchedule, Itimes, TurnCredentialsResponse } from "../Types";
 import { IslotSchedule } from "../Model/slotSchedule";
 import { Status } from "../Constants/httpStatusCode";
 import { Itime } from "../Model/timeModel";
@@ -18,6 +18,7 @@ import { IwalletRepository } from "../Interface/wallet/IwalletRepository";
 import { ItransactionRepository } from "../Interface/wallet/ItransactionRepository";
 import { HttpResponse, NOTIFY } from "../Constants/httpResponse";
 import { HttpError } from "../Utils/http-error-handler.util";
+import { fetchTurnServer } from "../Utils/turnServer";
 
 export class bookingService implements IbookingService {
   constructor(
@@ -940,6 +941,29 @@ export class bookingService implements IbookingService {
         message: HttpResponse?.USER_VERIFIED,
         status: Status.Ok,
         session_Code: response?.sessionCode as string,
+      };
+    } catch (error: unknown) {
+      throw new HttpError(error instanceof Error ? error.message : String(error), Status?.InternalServerError);
+    }
+  }
+   async turnServerConnection(
+  ): Promise<{
+    status: number;
+    turnServerConfig: TurnCredentialsResponse;
+  }> {
+    try {
+      
+      const response = await fetchTurnServer()
+     
+      if (!response) {
+        return {
+          status: Status.NotFound,
+          turnServerConfig: {},
+        };
+      }
+      return {
+        status: Status.Ok,
+        turnServerConfig: response,
       };
     } catch (error: unknown) {
       throw new HttpError(error instanceof Error ? error.message : String(error), Status?.InternalServerError);

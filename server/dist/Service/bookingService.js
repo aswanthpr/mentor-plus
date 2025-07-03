@@ -21,6 +21,7 @@ const index_1 = require("../index");
 const reusable_util_1 = require("../Utils/reusable.util");
 const httpResponse_1 = require("../Constants/httpResponse");
 const http_error_handler_util_1 = require("../Utils/http-error-handler.util");
+const turnServer_1 = require("../Utils/turnServer");
 class bookingService {
     constructor(_timeSlotRepository, _slotScheduleRepository, _notificationRepository, _chatRepository, __walletRepository, __transactionRepository, stripe = new stripe_1.Stripe(process.env.STRIPE_SECRET_KEY, {
         // apiVersion: "2025-02-24.acacia",
@@ -650,6 +651,26 @@ class bookingService {
                     message: httpResponse_1.HttpResponse === null || httpResponse_1.HttpResponse === void 0 ? void 0 : httpResponse_1.HttpResponse.USER_VERIFIED,
                     status: httpStatusCode_1.Status.Ok,
                     session_Code: response === null || response === void 0 ? void 0 : response.sessionCode,
+                };
+            }
+            catch (error) {
+                throw new http_error_handler_util_1.HttpError(error instanceof Error ? error.message : String(error), httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.InternalServerError);
+            }
+        });
+    }
+    turnServerConnection() {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const response = yield (0, turnServer_1.fetchTurnServer)();
+                if (!response) {
+                    return {
+                        status: httpStatusCode_1.Status.NotFound,
+                        turnServerConfig: {},
+                    };
+                }
+                return {
+                    status: httpStatusCode_1.Status.Ok,
+                    turnServerConfig: response,
                 };
             }
             catch (error) {

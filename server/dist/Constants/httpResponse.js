@@ -68,6 +68,7 @@ exports.HttpResponse = {
     DURATION_DIFFERNT_REQUIRED: "The time duration must be between 30 and 60 minutes.",
     DATE_CANNOT_BE_PAST: "The given date is in the past.",
     TIME_DIFF_REQUIRED: "Time difference is not in between 20 to 60.",
+    CONNECTION_ERROR: 'Connection error'
 };
 exports.NOTIFY = {
     MENTEE_WELCOME: `Start exploring and connect with mentors today.`,

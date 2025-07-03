@@ -216,4 +216,19 @@ export class bookingControlelr implements IbookingController {
       next(error);
     }
   }
+  async turnServerConnection(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> {
+    try {
+
+      const { turnServerConfig,status } =
+        await this._bookingService.turnServerConnection();
+ 
+      res.status(status).json({turnServerConfig });
+    } catch (error: unknown) {
+      next(error);
+    }
+  }
 }

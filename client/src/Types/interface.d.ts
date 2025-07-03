@@ -460,3 +460,10 @@ interface MentorFilters {
   skills: string[];
   rating: number;
 }
+
+
+type IceServer = {
+  urls: string[] | string;
+  username?: string;
+  credential?: string;
+};

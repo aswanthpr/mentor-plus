@@ -148,5 +148,16 @@ class bookingControlelr {
             }
         });
     }
+    turnServerConnection(req, res, next) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const { turnServerConfig, status } = yield this._bookingService.turnServerConnection();
+                res.status(status).json({ turnServerConfig });
+            }
+            catch (error) {
+                next(error);
+            }
+        });
+    }
 }
 exports.bookingControlelr = bookingControlelr;

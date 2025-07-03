@@ -176,3 +176,11 @@ interface ImailOption {
   html?:string;
 }
 
+
+ type TurnCredentialsResponse = {
+  sessionCode?: string;
+  iceServers?: RTCIceServer[];
+  ttl?: number;
+  expiresAt?: string;
+  createdAt?: string;
+};

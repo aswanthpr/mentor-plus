@@ -4,21 +4,12 @@ import { Mic, MicOff, Video, VideoOff, PhoneOff } from "lucide-react";
 import { io, Socket } from "socket.io-client";
 import { toast } from "react-toastify";
 import { constraints } from "../../../Constants/const Values";
+import useTurn from "../../../Hooks/useturn";
+import Spinner from "../common4All/Spinner";
 
-const ICE_SERVERS = {
-  iceServers: [
-    { urls: "stun:stun.l.google.com:19302" },
-    {
-      urls: [
-        "stun:172.31.5.89:3478",
-        "turn:172.31.5.89:3478?transport=udp",
-        "turn:172.31.5.89:3478?transport=tcp",
-      ],
-      username: "demo",
-      credential: "password123",
-    },
-  ],
-};
+// const ICE_SERVERS = {
+//   iceServers: [{ urls: "stun:stun.l.google.com:19302" }],
+// };
 
 const SIGNALING_SERVER_URL = `${import.meta.env?.VITE_SERVER_URL}/webrtc`;
 
@@ -37,20 +28,24 @@ const VideoPage: React.FC = () => {
   const [isVideoOn, setIsVideoOn] = useState(true);
   const [isAudioOn, setIsAudioOn] = useState(true);
 
+  const { iceServers, turnErr, loading } = useTurn();
+
   useEffect(() => {
     const initCall = async () => {
       try {
-        if (peerConnection.current || signalingSocket.current) {
+        if (peerConnection.current || signalingSocket.current||!iceServers||loading) {
           return; // Prevent duplicate connections
         }
 
         // Get local stream only once
         const stream = await navigator.mediaDevices.getUserMedia(constraints);
         setLocalStream(stream); // Update state but DO NOT add localStream to dependencies
-        if (localVideoRef.current) localVideoRef.current.srcObject = stream;
 
+
+        if (localVideoRef.current) localVideoRef.current.srcObject = stream;
+    
         // Set up peer connection
-        peerConnection.current = new RTCPeerConnection(ICE_SERVERS);
+        peerConnection.current = new RTCPeerConnection(iceServers as RTCConfiguration);
         stream
           .getTracks()
           .forEach((track) => peerConnection.current?.addTrack(track, stream));
@@ -126,6 +121,7 @@ const VideoPage: React.FC = () => {
         });
       } catch (error) {
         console.error("Error accessing media devices:", error);
+        if (turnErr) toast.error(turnErr);
       }
     };
 
@@ -147,7 +143,7 @@ const VideoPage: React.FC = () => {
     };
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [roomId]);
+  }, [roomId,iceServers,loading]);
 
   const toggleVideo = () => {
     if (localStream) {
@@ -192,12 +188,17 @@ const VideoPage: React.FC = () => {
   };
   return (
     <div className="fixed  lg:ml-64  mt-32   mb-2  inset-0 flex items-center justify-center">
-      <video
+      {loading && <Spinner />}
+      {remoteVideoRef?
+      (<video
         ref={remoteVideoRef}
         style={{ transform: "scaleX(-1)" }}
         autoPlay
         className=" w-[calc(100vw-0px)] h-[calc(100vh-1px)] object-cover bg-[#000000] p-3 border-black rounded-3xl rounded-b-sm"
-      />
+      />):(
+         <div className="text-white text-xl">Waiting for other participant...</div>
+      )
+      }
       <video
         style={{ transform: "scaleX(-1)" }}
         ref={localVideoRef}

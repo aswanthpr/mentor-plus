@@ -9,4 +9,5 @@ export interface IbookingController{
     createSessionCode(req:Request,res:Response,next: NextFunction):Promise<void>;
     sessionCompleted(req:Request,res:Response,next: NextFunction):Promise<void>;
     validateSessionJoin(req:Request,res:Response,next: NextFunction):Promise<void>;
+    turnServerConnection(req:Request,res:Response,next: NextFunction):Promise<void>;
 }

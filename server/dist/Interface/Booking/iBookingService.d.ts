@@ -1,5 +1,5 @@
 import { ObjectId } from "mongoose";
-import { Itimes } from "../../Types";
+import { Itimes, TurnCredentialsResponse } from "../../Types";
 import Stripe from "stripe";
 import { Itime } from "../../Model/timeModel";
 import { IslotSchedule } from "../../Model/slotSchedule";
@@ -60,6 +60,10 @@ export interface IbookingService {
         status: number;
         success: boolean;
         session_Code: string;
+    }>;
+    turnServerConnection(): Promise<{
+        status: number;
+        turnServerConfig: TurnCredentialsResponse;
     }>;
 }
 //# sourceMappingURL=iBookingService.d.ts.map

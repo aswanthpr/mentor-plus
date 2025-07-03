@@ -54,10 +54,7 @@ const __walletService = new walletService(
   transactionRepository,
   notificationRepository
 );
-const __reviewService = new reviewService(
-  reviewRepository,
-)
-
+const __reviewService = new reviewService(reviewRepository);
 
 const __menteeController = new menteeController(__menteeService);
 const __qaController = new qaController(__qaService);
@@ -68,7 +65,6 @@ const __notificationController = new notificationController(
 const __chatController = new chatController(__chatService);
 const __walletController = new walletController(__walletService);
 const __reviewController = new reviewController(__reviewService);
-
 
 const mentee_Router: Router = express.Router();
 
@@ -162,7 +158,7 @@ mentee_Router.get(
   __bookingController.getTimeSlots.bind(__bookingController)
 );
 
-//slot book with rzorpay 
+//slot book with rzorpay
 mentee_Router.post(
   `/slot-booking`,
   authorize,
@@ -197,7 +193,7 @@ mentee_Router.patch(
   authorize,
   __notificationController.markAsReadNotif.bind(__notificationController)
 );
- 
+
 mentee_Router.get(
   "/chats",
   authorize,
@@ -217,18 +213,33 @@ mentee_Router.get(
 );
 
 //wallet'
-mentee_Router.get(`/wallet`,authorize,
-  __walletController.getWalletData.bind(__walletController));
-  
+mentee_Router.get(
+  `/wallet`,
+  authorize,
+  __walletController.getWalletData.bind(__walletController)
+);
+
 mentee_Router.post(
   "/wallet/add-money-wallet",
   authorize,
   __walletController.addMoneyToWallet.bind(__walletController)
 );
 
-mentee_Router.post("/wallet/webhook", express.raw({ type: "application/json" }),__walletController.walletStripeWebHook.bind(__walletController));
+mentee_Router.post(
+  "/wallet/webhook",
+  express.raw({ type: "application/json" }),
+  __walletController.walletStripeWebHook.bind(__walletController)
+);
 
-mentee_Router.post("/review-and-rating", authorize,__reviewController.reviewNdRateMentor.bind(__reviewController));
+mentee_Router.post(
+  "/review-and-rating",
+  authorize,
+  __reviewController.reviewNdRateMentor.bind(__reviewController)
+);
+mentee_Router.get(
+  "/turn-credentials",
+  authorize,
+  __bookingController.turnServerConnection.bind(__bookingController)
+);
 
 export default mentee_Router;
- 

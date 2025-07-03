@@ -63,6 +63,7 @@ export declare const HttpResponse: {
     readonly DURATION_DIFFERNT_REQUIRED: "The time duration must be between 30 and 60 minutes.";
     readonly DATE_CANNOT_BE_PAST: "The given date is in the past.";
     readonly TIME_DIFF_REQUIRED: "Time difference is not in between 20 to 60.";
+    readonly CONNECTION_ERROR: "Connection error";
 };
 export declare const NOTIFY: {
     MENTEE_WELCOME: string;

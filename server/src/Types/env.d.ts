@@ -30,5 +30,7 @@ declare namespace NodeJS {
     MENTOR_COMMISION:string;
     
     NODE_ENV:string
+
+    TURNIX_API_KEY:string
   }
 }

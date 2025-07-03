@@ -134,7 +134,7 @@ export const fetchMentorStatistics = async (
   timeRange: string
 ): Promise<AxiosResponse | any> => {
   try {
-    console.log("hai.........", timeRange);
+
     return await axiosInstance.get(`/mentor/statistics`, {
       params: { timeRange },
     });

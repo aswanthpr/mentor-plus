@@ -31,7 +31,7 @@ const __mentorService = new mentorService(
   categoryRepository,
   questionRepository,
   timeSlotRepository,
-  slotScheduleRepository,
+  slotScheduleRepository
 );
 
 const __chatService = new chatService(chatRepository);
@@ -199,4 +199,10 @@ mentor_Router.get(
   mentorAuthorize,
   __mentorController.chartData.bind(__mentorController)
 );
+mentor_Router.get(
+  "/turn-credentials",
+  mentorAuthorize,
+  __bookingController.turnServerConnection.bind(__bookingController)
+);
+
 export default mentor_Router;

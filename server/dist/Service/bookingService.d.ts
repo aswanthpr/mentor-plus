@@ -3,7 +3,7 @@ import { IbookingService } from "../Interface/Booking/iBookingService";
 import { IslotScheduleRepository } from "../Interface/Booking/iSlotScheduleRepository";
 import { ItimeSlotRepository } from "../Interface/Booking/iTimeSchedule";
 import { ObjectId } from "mongoose";
-import { Itimes } from "../Types";
+import { Itimes, TurnCredentialsResponse } from "../Types";
 import { IslotSchedule } from "../Model/slotSchedule";
 import { Itime } from "../Model/timeModel";
 import { InotificationRepository } from "../Interface/Notification/InotificationRepository";
@@ -81,6 +81,10 @@ export declare class bookingService implements IbookingService {
         status: number;
         success: boolean;
         session_Code: string;
+    }>;
+    turnServerConnection(): Promise<{
+        status: number;
+        turnServerConfig: TurnCredentialsResponse;
     }>;
 }
 //# sourceMappingURL=bookingService.d.ts.map

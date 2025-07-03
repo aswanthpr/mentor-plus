@@ -70,4 +70,5 @@ mentor_Router.get("/session/validate-session-join", mentorAuthMiddleware_1.defau
 mentor_Router.get(`/wallet`, mentorAuthMiddleware_1.default, __walletController.getWalletData.bind(__walletController));
 mentor_Router.put(`/withdraw-amount`, mentorAuthMiddleware_1.default, __walletController.withdrawMentorEarnings.bind(__walletController));
 mentor_Router.get(`/statistics`, mentorAuthMiddleware_1.default, __mentorController.chartData.bind(__mentorController));
+mentor_Router.get("/turn-credentials", mentorAuthMiddleware_1.default, __bookingController.turnServerConnection.bind(__bookingController));
 exports.default = mentor_Router;
