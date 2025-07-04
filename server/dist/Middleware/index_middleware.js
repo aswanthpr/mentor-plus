@@ -57,10 +57,16 @@ exports.compress = (0, compression_1.default)({
     },
 });
 //session
+// Create and configure the Redis store
 exports.sessionConfig = (0, express_session_1.default)({
     secret: (_a = process.env) === null || _a === void 0 ? void 0 : _a.SESSION_SECRET,
     resave: false,
     saveUninitialized: false,
+    cookie: {
+        secure: false, // true if using https
+        httpOnly: true,
+        maxAge: 24 * 60 * 60 * 1000, // 1 day
+    },
 });
 // determine request body parse to json or raw state
 const jsonParseOrRaw = (req, res, next) => {

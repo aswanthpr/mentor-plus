@@ -1,4 +1,4 @@
-import axios, { AxiosError } from "axios";
+import axios, { AxiosError } from 'axios';
 import { TurnCredentialsResponse } from "../Types";
 
 export const fetchTurnServer = async (): Promise<TurnCredentialsResponse> => {

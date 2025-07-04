@@ -6,6 +6,7 @@ import express, { Response, Request } from "express";
 import { NextFunction } from "connect";
 import helmet from "helmet";
 
+
 //default cors config
 export const corsOptions: CorsOptions = {
   origin: process.env.CLIENT_ORIGIN_URL,
@@ -56,11 +57,18 @@ export const compress = compression({
   },
 });
 //session
+
+
+// Create and configure the Redis store
 export const sessionConfig = session({
   secret: process.env?.SESSION_SECRET as string,
   resave: false,
   saveUninitialized: false,
-
+cookie: {
+    secure: false, // true if using https
+    httpOnly: true,
+    maxAge: 24 * 60 * 60 * 1000, // 1 day
+  },
 });
 // determine request body parse to json or raw state
 export const jsonParseOrRaw = (
