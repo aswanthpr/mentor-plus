@@ -222,11 +222,14 @@ export class bookingControlelr implements IbookingController {
     next: NextFunction
   ): Promise<void> {
     try {
-
-      const { turnServerConfig,status } =
+      const { turnServerConfig, status } =
         await this._bookingService.turnServerConnection();
- 
-      res.status(status).json({turnServerConfig });
+      console.log(
+        turnServerConfig.iceServers !== undefined
+          ? turnServerConfig?.iceServers[1]?.urls
+          : "",turnServerConfig
+      );
+      res.status(status).json({ turnServerConfig });
     } catch (error: unknown) {
       next(error);
     }

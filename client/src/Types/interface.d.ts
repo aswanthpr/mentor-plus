@@ -462,8 +462,14 @@ interface MentorFilters {
 }
 
 
-type IceServer = {
-  urls: string[] | string;
+
+ interface IceServer {
+  urls: string[]; 
   username?: string;
   credential?: string;
-};
+}
+
+ interface TurnCredentials {
+  iceServers: IceServer[];
+  expiresAt: string; 
+}

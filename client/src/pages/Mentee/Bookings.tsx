@@ -40,9 +40,15 @@ const Boooking: React.FC = () => {
   const debouncedSearchQuery = useDebounce(searchQuery, 500);
 
   useEffect(() => {
- 
+    let isMounted = true;
     const fetchData = async () => {
-      setLoading((pre) => !pre);
+      
+      if (!isMounted) return;
+      console.log("Booking useEffect called");
+    try {
+      setLoading(true);
+
+
       const response = await fetchBookingSlots(
         activeTab,
         debouncedSearchQuery,
@@ -52,16 +58,25 @@ const Boooking: React.FC = () => {
         currentPage,
         limit
       );
-      setLoading((pre) => !pre);
-      if (response?.status == HttpStatusCode?.Ok && response?.data?.success) {
-        setSessions(response?.data?.slots);
-        setTotalDocuments(response?.data?.totalPage);
-      }
-    };
 
-    fetchData();
-   
-  }, [activeTab, currentPage, debouncedSearchQuery, sortField, sortOrder, statusFilter]);
+      if (response?.status === HttpStatusCode.Ok && response?.data?.success) {
+        setSessions(response.data?.slots);
+        setTotalDocuments(response.data?.totalPage);
+      }
+    } catch (error) {
+      console.error("Error fetching booking slots:", error);
+      // You can also show a toast or fallback UI here
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  fetchData();
+  return () => {
+    isMounted = false;
+  };
+}, [activeTab, currentPage, debouncedSearchQuery, sortField, sortOrder, statusFilter]);
+
 
   const handleCancelSession = useCallback(
     async (sessionId: string, reason: string, customReason: string) => {

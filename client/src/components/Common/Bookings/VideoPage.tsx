@@ -7,10 +7,6 @@ import { constraints } from "../../../Constants/const Values";
 import useTurn from "../../../Hooks/useturn";
 import Spinner from "../common4All/Spinner";
 
-// const ICE_SERVERS = {
-//   iceServers: [{ urls: "stun:stun.l.google.com:19302" }],
-// };
-
 const SIGNALING_SERVER_URL = `${import.meta.env?.VITE_SERVER_URL}/webrtc`;
 
 const VideoPage: React.FC = () => {
@@ -27,13 +23,32 @@ const VideoPage: React.FC = () => {
   const [localStream, setLocalStream] = useState<MediaStream | null>(null);
   const [isVideoOn, setIsVideoOn] = useState(true);
   const [isAudioOn, setIsAudioOn] = useState(true);
+  const [remoteStreamStarted, setRemoteStreamStarted] = useState(false);
 
+
+  // ICE_SERVERS= {
+  //   iceServers: [{ urls: "stun:stun.l.google.com:19302" },],
+  // };
   const { iceServers, turnErr, loading } = useTurn();
+
+  const ICE_SERVERS: TurnCredentials | null = iceServers || null;
+
+  const mergedIceServers: RTCConfiguration = {
+    iceServers: [
+      { urls: ["stun:stun.l.google.com:19302"] },
+      ...(ICE_SERVERS?.iceServers || []),
+    ],
+  };
 
   useEffect(() => {
     const initCall = async () => {
       try {
-        if (peerConnection.current || signalingSocket.current||!iceServers||loading) {
+        if (
+          peerConnection.current ||
+          signalingSocket.current ||
+          !iceServers ||
+          loading
+        ) {
           return; // Prevent duplicate connections
         }
 
@@ -41,11 +56,13 @@ const VideoPage: React.FC = () => {
         const stream = await navigator.mediaDevices.getUserMedia(constraints);
         setLocalStream(stream); // Update state but DO NOT add localStream to dependencies
 
-
+        
         if (localVideoRef.current) localVideoRef.current.srcObject = stream;
-    
+
         // Set up peer connection
-        peerConnection.current = new RTCPeerConnection(iceServers as RTCConfiguration);
+        peerConnection.current = new RTCPeerConnection(
+          mergedIceServers
+        );
         stream
           .getTracks()
           .forEach((track) => peerConnection.current?.addTrack(track, stream));
@@ -53,6 +70,7 @@ const VideoPage: React.FC = () => {
         peerConnection.current.ontrack = (event) => {
           if (remoteVideoRef.current && event.streams.length > 0) {
             remoteVideoRef.current.srcObject = event.streams[0];
+            setRemoteStreamStarted(true);
           }
         };
 
@@ -140,10 +158,11 @@ const VideoPage: React.FC = () => {
         localStream.getTracks().forEach((track) => track.stop());
         setLocalStream(null);
       }
+      setRemoteStreamStarted(false);
     };
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [roomId,iceServers,loading]);
+  }, [roomId, iceServers, loading]);
 
   const toggleVideo = () => {
     if (localStream) {
@@ -187,42 +206,129 @@ const VideoPage: React.FC = () => {
     navigate(`/${role}/${role == "mentor" ? "session" : "bookings"}`);
   };
   return (
-    <div className="fixed  lg:ml-64  mt-32   mb-2  inset-0 flex items-center justify-center">
-      {loading && <Spinner />}
-      {remoteVideoRef?
-      (<video
-        ref={remoteVideoRef}
-        style={{ transform: "scaleX(-1)" }}
-        autoPlay
-        className=" w-[calc(100vw-0px)] h-[calc(100vh-1px)] object-cover bg-[#000000] p-3 border-black rounded-3xl rounded-b-sm"
-      />):(
-         <div className="text-white text-xl">Waiting for other participant...</div>
-      )
-      }
+    // <div className="fixed  lg:ml-64  mt-32   mb-2  inset-0 flex items-center justify-center">
+    //   {loading && <Spinner />}
+    //   {remoteVideoRef?
+    //   (<video
+    //     ref={remoteVideoRef}
+    //     style={{ transform: "scaleX(-1)" }}
+    //     autoPlay
+    //     className=" w-[calc(100vw-0px)] h-[calc(100vh-1px)] object-cover bg-[#000000] p-3 border-black rounded-3xl rounded-b-sm"
+    //   />):(
+    //      <div className="text-white text-xl">Waiting for other participant...</div>
+    //   )
+    //   }
+    //   <video
+    //     style={{ transform: "scaleX(-1)" }}
+    //     ref={localVideoRef}
+    //     autoPlay
+    //     muted
+    //     className="absolute bottom-5 right-5 w-96 h-64 object-cover bg-gray-900 rounded-lg"
+    //   />
+    //   <div className="absolute bottom-5 flex space-x-4 bg-gray-900 p-3 rounded-full">
+    //     <button onClick={toggleAudio}>
+    //       {isAudioOn ? (
+    //         <Mic className="text-green-200" />
+    //       ) : (
+    //         <MicOff className="text-red-200" />
+    //       )}
+    //     </button>
+    //     <button onClick={toggleVideo}>
+    //       {isVideoOn ? (
+    //         <Video className="text-green-200" />
+    //       ) : (
+    //         <VideoOff className="text-red-200" />
+    //       )}
+    //     </button>
+    //     <button onClick={endCall}>
+    //       <PhoneOff className="text-red-500" />
+    //     </button>
+    //   </div>
+    // </div>
+
+    <div className="fixed inset-0 z-50 bg-black text-white flex items-center justify-center">
+      {/* {loading ? (
+        <Spinner />
+      ) : !remoteStreamStarted ? ( */}
+        {/* <div className="text-xl font-semibold animate-pulse">
+          Waiting for other participant to join...
+        </div> */}
+      {/* ) : ( */}
+        {/* <video
+          ref={remoteVideoRef}
+          autoPlay
+          // playsInline
+          style={{ transform: "scaleX(-1)" }}
+          className="absolute inset-0 w-full h-full object-cover"
+        /> */}
+      {/* )} */}
+      {/* Always render remote video */}
+<video
+  ref={remoteVideoRef}
+  autoPlay
+  style={{
+    transform: "scaleX(-1)",
+    // display: remoteStreamStarted ? "block" : "none",
+  }}
+  className="absolute inset-0 w-full h-full object-cover"
+/>
+
+{/* Show message when remote stream not started */}
+{!remoteStreamStarted && (
+  <div className="text-xl font-semibold animate-pulse absolute z-50">
+    Waiting for other participant to join... {remoteStreamStarted}
+  </div>
+
+)}
+
+
+      {/* Local video */}
       <video
-        style={{ transform: "scaleX(-1)" }}
         ref={localVideoRef}
         autoPlay
         muted
-        className="absolute bottom-5 right-5 w-96 h-64 object-cover bg-gray-900 rounded-lg"
+        // playsInline
+        style={{ transform: "scaleX(-1)" }}
+        className="absolute bottom-24 right-6 w-64 h-40 md:w-80 md:h-52 rounded-xl border-2 border-white shadow-lg object-cover z-40"
       />
-      <div className="absolute bottom-5 flex space-x-4 bg-gray-900 p-3 rounded-full">
-        <button onClick={toggleAudio}>
+
+      {/* Control Buttons */}
+      <div className="absolute bottom-6 flex space-x-5 items-center justify-center bg-black/50 px-6 py-4 rounded-full shadow-xl backdrop-blur-sm z-50">
+        <button
+          onClick={toggleAudio}
+          className={`p-3 rounded-full transition duration-200 ${
+            isAudioOn
+              ? "bg-green-600 hover:bg-green-700"
+              : "bg-red-600 hover:bg-red-700"
+          }`}
+        >
           {isAudioOn ? (
-            <Mic className="text-green-200" />
+            <Mic className="text-white" />
           ) : (
-            <MicOff className="text-red-200" />
+            <MicOff className="text-white" />
           )}
         </button>
-        <button onClick={toggleVideo}>
+
+        <button
+          onClick={toggleVideo}
+          className={`p-3 rounded-full transition duration-200 ${
+            isVideoOn
+              ? "bg-green-600 hover:bg-green-700"
+              : "bg-red-600 hover:bg-red-700"
+          }`}
+        >
           {isVideoOn ? (
-            <Video className="text-green-200" />
+            <Video className="text-white" />
           ) : (
-            <VideoOff className="text-red-200" />
+            <VideoOff className="text-white" />
           )}
         </button>
-        <button onClick={endCall}>
-          <PhoneOff className="text-red-500" />
+
+        <button
+          onClick={endCall}
+          className="p-3 bg-red-700 hover:bg-red-800 rounded-full transition duration-200"
+        >
+          <PhoneOff className="text-white" />
         </button>
       </div>
     </div>

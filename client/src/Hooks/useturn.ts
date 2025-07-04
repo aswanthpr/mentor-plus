@@ -4,7 +4,7 @@ import { axiosInstance } from "../Config/mentorAxios";
 import { protectedAPI } from "../Config/Axios";
 
 const useTurn = () => {
-  const [iceServers, setIceServers] = useState<IceServer|null>(null);
+  const [iceServers, setIceServers] = useState<TurnCredentials|null>(null);
   const [turnErr, setTurnErr] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
 
@@ -13,6 +13,7 @@ const useTurn = () => {
     const fetchTurnCredentials = async () => {
       try {
         setLoading(true);
+        
         const apiClient = role === "mentee" ? protectedAPI : axiosInstance;
         const response = await apiClient.get(`/${role}/turn-credentials`);
        
@@ -21,7 +22,7 @@ const useTurn = () => {
           response.data.turnServerConfig &&
           Array.isArray(response.data?.turnServerConfig?.iceServers)
         ) {
-          setIceServers(response.data?.turnServerConfig as IceServer);
+          setIceServers(response.data?.turnServerConfig as TurnCredentials);
           setTurnErr(null);
         } else {
           setTurnErr("Invalid TURN response structure");
