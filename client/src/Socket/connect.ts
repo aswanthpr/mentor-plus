@@ -52,6 +52,7 @@ export const connectToChat = (userId: string) => {
     chatSocket = io(`${import.meta.env?.VITE_SERVER_URL}/chat`, {
       withCredentials: true,
       auth: { token: userId },
+      transports: ["websocket"],
       reconnection: true,
       reconnectionDelay: 2000,
       autoConnect: true,

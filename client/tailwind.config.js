@@ -9,6 +9,7 @@ export default {
       animation: {
         'fade-in': 'fadeIn 0.3s ease-out',
         'fade-out': 'fadeOut 0.3s ease-out',
+        'scaleIn': 'scaleIn 0.2s ease-out'
       },
       keyframes: {
         fadeIn: {
@@ -19,6 +20,16 @@ export default {
           '0%': { opacity: 1 },
           '100%': { opacity: 0 },
         },
+         scaleIn: {
+          '0%': { 
+            opacity: '0',
+            transform: 'scale(0.95)'
+          },
+          '100%': { 
+            opacity: '1',
+            transform: 'scale(1)'
+          },
+        }
       },
       screens: {
         'xs': '480px', 

@@ -111,7 +111,8 @@ const Mentee_Page: React.FC = () => {
     [dispatch]
   );
   return (
-    <div className="min-h-screen bg-gray-50">
+    // <div className="min-h-screen bg-gray-50">
+    <div className="h-10 w-full  shadow-sm">
       <Header
         onChange={handleSearchChange}
         value={searchValue}
