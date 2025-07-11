@@ -33,10 +33,13 @@ const Message: React.FC = () => {
   const chatSocket = useRef<Socket | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const [loading, setLoading] = useState<boolean>(false);
-   const [selectedImage, setSelectedImage] = useState<string | null>(null);
+  const [selectedImage, setSelectedImage] = useState<string | null>(null);
 
   dayjs.extend(utc);
-const [currentTime, setCurrentTime] = useState(dayjs().utc().format("YYYY-MM-DD HH:mm:ss"));
+  
+  const [currentTime, setCurrentTime] = useState(
+    dayjs().utc().format("YYYY-MM-DD HH:mm:ss")
+  );
   const usr = location.pathname.split("/")![1];
 
   useEffect(() => {
@@ -49,9 +52,9 @@ const [currentTime, setCurrentTime] = useState(dayjs().utc().format("YYYY-MM-DD 
   useEffect(() => {
     const fetchChat = async () => {
       try {
-        setLoading((pre)=>!pre)
+        setLoading((pre) => !pre);
         const response = await fetchChats(usr);
-        setLoading((pre)=>!pre)
+        setLoading((pre) => !pre);
         if (flag && response?.status == HttpStatusCode?.Ok && response?.data) {
           setUsers([...response.data.result]);
           userId.current = response?.data?.userId;
@@ -59,7 +62,7 @@ const [currentTime, setCurrentTime] = useState(dayjs().utc().format("YYYY-MM-DD 
       } catch (error: unknown) {
         errorHandler(error);
       }
-    }; 
+    };
     setCurrentUser(usr);
     let flag = true;
     if (flag) {
@@ -79,20 +82,21 @@ const [currentTime, setCurrentTime] = useState(dayjs().utc().format("YYYY-MM-DD 
     if (!chatSocket.current) return;
 
     chatSocket.current.on("connect", () => {
-      console.log(''
+      console.log(
+        ""
         // "Connected to chat namespace with ID:",
         // chatSocket.current?.id
       );
     });
 
     chatSocket.current.on("disconnect", () => {
-      console.log(''
+      console.log(
+        ""
         // "Disconnected from chat namespace"
       );
     });
 
     chatSocket.current.on("userOnline", (data) => {
-
       setUsers((pre) =>
         pre.map((usr) =>
           data.includes(usr.users?._id)
@@ -103,7 +107,6 @@ const [currentTime, setCurrentTime] = useState(dayjs().utc().format("YYYY-MM-DD 
     });
 
     chatSocket.current.on("userOffline", (data) => {
-   
       setUsers((pre) =>
         pre.map((usr) =>
           data.includes(usr.users?._id)
@@ -126,26 +129,29 @@ const [currentTime, setCurrentTime] = useState(dayjs().utc().format("YYYY-MM-DD 
                 lastMessage:
                   data?.result?.messageType === "text"
                     ? data?.result?.content
-                    :  data?.result?.messageType,
+                    : data?.result?.messageType,
               }
             : usr
         );
-    
+
         // Find the updated user
-        const updatedUser = updatedUsers.find((usr) => usr._id === data?.result?.chatId);
-    
+        const updatedUser = updatedUsers.find(
+          (usr) => usr._id === data?.result?.chatId
+        );
+
         // Remove the user from the list and place them at the top
-        updatedUsers = updatedUsers.filter((usr) => usr._id !== data?.result?.chatId);
-    
+        updatedUsers = updatedUsers.filter(
+          (usr) => usr._id !== data?.result?.chatId
+        );
+
         return updatedUser ? [updatedUser, ...updatedUsers] : updatedUsers;
       });
     });
 
     chatSocket.current.on("all-message", ({ result, roomId }) => {
       // if (selectedUser?._id == roomId) {
-        if (selectedUserRef.current?._id == roomId) {
+      if (selectedUserRef.current?._id == roomId) {
         setMessages(result);
-  
       }
     });
 
@@ -175,20 +181,18 @@ const [currentTime, setCurrentTime] = useState(dayjs().utc().format("YYYY-MM-DD 
     user?.users?.name.toLowerCase?.().includes(searchQuery?.toLowerCase())
   );
 
-
   const handleSelectedUser = useCallback(async (user: Ichat) => {
     setMessages([]);
-    if(inputRef?.current){
+    if (inputRef?.current) {
       inputRef?.current.focus();
     }
     // setSelectedUser(user);
-    selectedUserRef.current =user;
+    selectedUserRef.current = user;
 
     if (!user?._id) return;
     if (chatSocket.current) {
       chatSocket.current.emit("join-room", { roomId: user["_id"] });
     }
-   
   }, []);
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -223,7 +227,7 @@ const [currentTime, setCurrentTime] = useState(dayjs().utc().format("YYYY-MM-DD 
     } else {
       // senderId = selectedUser?.mentorId as string;
       // receiverId = selectedUser?.menteeId as string;
-       senderId = selectedUserRef.current?.mentorId as string;
+      senderId = selectedUserRef.current?.mentorId as string;
       receiverId = selectedUserRef.current?.menteeId as string;
     }
 
@@ -240,17 +244,15 @@ const [currentTime, setCurrentTime] = useState(dayjs().utc().format("YYYY-MM-DD 
       newMessage.messageType = selectedFile.type.startsWith("image/")
         ? "image"
         : "document";
-        const res = await uploadFile(selectedFile);
-        if(!res?.success){
-          toast.error(res?.url);
-          setSelectedFile(null);
-          setBtnDisable((pre)=>!pre);
-          return 
-        }
-      newMessage.content = res?.url; 
+      const res = await uploadFile(selectedFile);
+      if (!res?.success) {
+        toast.error(res?.url);
+        setSelectedFile(null);
+        setBtnDisable((pre) => !pre);
+        return;
+      }
+      newMessage.content = res?.url;
     }
-
-  
 
     if (chatSocket.current) {
       chatSocket.current?.emit("new-message", {
@@ -270,10 +272,8 @@ const [currentTime, setCurrentTime] = useState(dayjs().utc().format("YYYY-MM-DD 
     setShowPicker((pre) => !pre);
   }, []);
 
- 
   return (
-    
-     <div className="h-[calc(100vh-3rem)] pt-14 flex flex-col md:flex-row bg-gray-50">
+    <div className="h-[calc(100vh-3rem)] pt-14 flex flex-col md:flex-row bg-gray-50">
       {/* Current UTC Time Display */}
       <div className="absolute top-0 right-0 m-4 flex items-center space-x-2 text-gray-600">
         <Clock className="w-4 h-4" />
@@ -284,14 +284,16 @@ const [currentTime, setCurrentTime] = useState(dayjs().utc().format("YYYY-MM-DD 
 
       {/* Image Modal */}
       <ImageModal
-        imageUrl={selectedImage || ''}
+        imageUrl={selectedImage || ""}
         isOpen={!!selectedImage}
         onClose={() => setSelectedImage(null)}
       />
 
       {/* Users List Sidebar */}
-      <div className="w-full md:w-80 lg:w-96 bg-white border-r border-gray-200 flex flex-col 
-                    md:h-full h-[50vh] transition-all duration-300">
+      <div
+        className="w-full md:w-80 lg:w-96 bg-white border-r border-gray-200 flex flex-col 
+                    md:h-full h-[50vh] transition-all duration-300"
+      >
         {/* Search Bar */}
         <div className="p-4 border-b border-gray-100 bg-white sticky top-0 z-10">
           <div className="relative">
@@ -315,7 +317,8 @@ const [currentTime, setCurrentTime] = useState(dayjs().utc().format("YYYY-MM-DD 
                 onClick={() => handleSelectedUser(user)}
                 className={`w-full p-4 flex items-center space-x-4 hover:bg-gray-50 
                          transition-colors ${
-                           selectedUserRef.current?.users?._id === user?.users?._id
+                           selectedUserRef.current?.users?._id ===
+                           user?.users?._id
                              ? "bg-orange-50 border-l-4 border-orange-500"
                              : "border-l-4 border-transparent"
                          }`}
@@ -327,8 +330,10 @@ const [currentTime, setCurrentTime] = useState(dayjs().utc().format("YYYY-MM-DD 
                     className="w-12 h-12 rounded-full object-cover ring-2 ring-gray-200"
                   />
                   {user?.users?.online && (
-                    <span className="absolute bottom-0 right-0 w-3.5 h-3.5 
-                                   bg-green-500 rounded-full ring-2 ring-white" />
+                    <span
+                      className="absolute bottom-0 right-0 w-3.5 h-3.5 
+                                   bg-green-500 rounded-full ring-2 ring-white"
+                    />
                   )}
                 </div>
                 <div className="flex-1 min-w-0">
@@ -355,8 +360,10 @@ const [currentTime, setCurrentTime] = useState(dayjs().utc().format("YYYY-MM-DD 
         {selectedUserRef.current ? (
           <>
             {/* Chat Header */}
-            <div className="bg-white border-b border-gray-200 p-4 flex items-center 
-                          space-x-4 sticky top-0 z-10 shadow-sm">
+            <div
+              className="bg-white border-b border-gray-200 p-4 flex items-center 
+                          space-x-4 sticky top-0 z-10 shadow-sm"
+            >
               <div className="relative">
                 <img
                   src={selectedUserRef.current?.users?.profileUrl ?? profileImg}
@@ -364,8 +371,10 @@ const [currentTime, setCurrentTime] = useState(dayjs().utc().format("YYYY-MM-DD 
                   className="w-10 h-10 rounded-full object-cover ring-2 ring-gray-200"
                 />
                 {selectedUserRef.current?.users?.online && (
-                  <span className="absolute bottom-0 right-0 w-3 h-3 
-                                 bg-green-500 rounded-full ring-2 ring-white" />
+                  <span
+                    className="absolute bottom-0 right-0 w-3 h-3 
+                                 bg-green-500 rounded-full ring-2 ring-white"
+                  />
                 )}
               </div>
               <div className="flex-1 min-w-0">
@@ -373,28 +382,40 @@ const [currentTime, setCurrentTime] = useState(dayjs().utc().format("YYYY-MM-DD 
                   {selectedUserRef.current?.users?.name}
                 </h2>
                 <p className="text-sm text-gray-500">
-                  {selectedUserRef.current?.users?.online ? "Online" : "Offline"}
+                  {selectedUserRef.current?.users?.online
+                    ? "Online"
+                    : "Offline"}
                 </p>
               </div>
             </div>
 
             {/* Messages Area */}
-            <div className="flex-1 overflow-y-auto p-4 space-y-4"
-                 style={{
-                   backgroundImage: `url(${chatBg})`,
-                   backgroundSize: 'cover',
-                   backgroundPosition: 'center',
-                   backgroundAttachment: 'fixed'
-                 }}>
+            <div
+              className="flex-1 overflow-y-auto p-4 space-y-4"
+              style={{
+                backgroundImage: `url(${chatBg})`,
+                backgroundSize: "cover",
+                backgroundPosition: "center",
+                backgroundAttachment: "fixed",
+              }}
+            >
               {messages.map((message, index) => (
-                <div key={message?._id || index}
-                     className={`flex ${
-                       message.senderId === userId.current ? "justify-end" : "justify-start"
-                     } animate-slideIn`}>
-                  <div className={`max-w-[85%] md:max-w-[70%] rounded-lg p-4 shadow-sm relative
-                                 ${message.senderId === userId.current
-                                   ? "bg-orange-500 text-white rounded-br-none"
-                                   : "bg-white text-gray-800 rounded-bl-none"}`}>
+                <div
+                  key={message?._id || index}
+                  className={`flex ${
+                    message.senderId === userId.current
+                      ? "justify-end"
+                      : "justify-start"
+                  } animate-slideIn`}
+                >
+                  <div
+                    className={`max-w-[85%] md:max-w-[70%] rounded-lg p-4 shadow-sm relative
+                                 ${
+                                   message.senderId === userId.current
+                                     ? "bg-orange-500 text-white rounded-br-none"
+                                     : "bg-white text-gray-800 rounded-bl-none"
+                                 }`}
+                  >
                     {/* Message Content */}
                     {message.messageType === "text" && (
                       <p className="break-words mb-2">{message.content}</p>
@@ -409,13 +430,16 @@ const [currentTime, setCurrentTime] = useState(dayjs().utc().format("YYYY-MM-DD 
                             alt="Shared image"
                             className="w-full h-full object-cover cursor-pointer 
                                      transition transform hover:scale-105"
-                                     />
-                          <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 
-                                        transition-all rounded-lg flex items-center justify-center">
+                          />
+                          <div
+                            className="absolute inset-0 bg-black/0 group-hover:bg-black/20 
+                                        transition-all rounded-lg flex items-center justify-center"
+                          >
                             <span
-                                          onClick={() => setSelectedImage(message?.content)}
-                             className="opacity-0 group-hover:opacity-100 text-white 
-                                           text-sm font-medium bg-black/50 px-3 py-1 rounded-full">
+                              onClick={() => setSelectedImage(message?.content)}
+                              className="opacity-0 group-hover:opacity-100 text-white 
+                                           text-sm font-medium bg-black/50 px-3 py-1 rounded-full"
+                            >
                               View Image
                             </span>
                           </div>
@@ -425,32 +449,50 @@ const [currentTime, setCurrentTime] = useState(dayjs().utc().format("YYYY-MM-DD 
 
                     {/* Document Message */}
                     {message.messageType === "document" && message.content && (
-                      <div onClick={() => window.open(message.content)}
-                           className={`flex items-center space-x-3 rounded-lg cursor-pointer
-                                     ${message.senderId === userId.current
-                                       ? "bg-white/10 hover:bg-white/20"
-                                       : "bg-gray-50 hover:bg-gray-100"
-                                     } transition-colors p-3`}>
-                        <div className={`p-2 rounded-full
-                                       ${message.senderId === userId.current
-                                         ? "bg-white/20"
-                                         : "bg-orange-100"}`}>
-                          <Paperclip className={`h-5 w-5
-                                               ${message.senderId === userId.current
-                                                 ? "text-white"
-                                                 : "text-orange-500"}`} />
+                      <div
+                        onClick={() => window.open(message.content)}
+                        className={`flex items-center space-x-3 rounded-lg cursor-pointer
+                                     ${
+                                       message.senderId === userId.current
+                                         ? "bg-white/10 hover:bg-white/20"
+                                         : "bg-gray-50 hover:bg-gray-100"
+                                     } transition-colors p-3`}
+                      >
+                        <div
+                          className={`p-2 rounded-full
+                                       ${
+                                         message.senderId === userId.current
+                                           ? "bg-white/20"
+                                           : "bg-orange-100"
+                                       }`}
+                        >
+                          <Paperclip
+                            className={`h-5 w-5
+                                               ${
+                                                 message.senderId ===
+                                                 userId.current
+                                                   ? "text-white"
+                                                   : "text-orange-500"
+                                               }`}
+                          />
                         </div>
                         <span className="flex-1 truncate font-medium">
-                          {decodeURIComponent(message.content.split("/").pop() || "")}
+                          {decodeURIComponent(
+                            message.content.split("/").pop() || ""
+                          )}
                         </span>
                       </div>
                     )}
 
                     {/* Timestamp */}
-                    <span className={`text-xs absolute bottom-1 right-2
-                                    ${message.senderId === userId.current
-                                      ? "text-white/70"
-                                      : "text-gray-400"}`}>
+                    <span
+                      className={`text-xs absolute bottom-1 right-2
+                                    ${
+                                      message.senderId === userId.current
+                                        ? "text-white/70"
+                                        : "text-gray-400"
+                                    }`}
+                    >
                       {moment(message.createdAt).format("HH:mm")}
                     </span>
                   </div>
@@ -479,7 +521,9 @@ const [currentTime, setCurrentTime] = useState(dayjs().utc().format("YYYY-MM-DD 
                       </div>
                     )}
                     <div className="flex-1 min-w-0">
-                      <p className="font-medium truncate">{selectedFile.name}</p>
+                      <p className="font-medium truncate">
+                        {selectedFile.name}
+                      </p>
                       <p className="text-sm text-gray-500">
                         {(selectedFile.size / 1024 / 1024).toFixed(2)} MB
                       </p>
@@ -501,7 +545,7 @@ const [currentTime, setCurrentTime] = useState(dayjs().utc().format("YYYY-MM-DD 
               <div className="flex items-center space-x-3">
                 <div className="relative">
                   <button
-                    onClick={() => setShowPicker(prev => !prev)}
+                    onClick={() => setShowPicker((prev) => !prev)}
                     className="p-2 hover:bg-gray-100 rounded-full transition-colors"
                   >
                     <Smile className="h-6 w-6 text-gray-500" />
@@ -558,8 +602,10 @@ const [currentTime, setCurrentTime] = useState(dayjs().utc().format("YYYY-MM-DD 
                            disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                 >
                   {btnDisable ? (
-                    <div className="h-5 w-5 border-2 border-white border-t-transparent
-                                  rounded-full animate-spin" />
+                    <div
+                      className="h-5 w-5 border-2 border-white border-t-transparent
+                                  rounded-full animate-spin"
+                    />
                   ) : (
                     <Send className="h-5 w-5" />
                   )}
@@ -573,7 +619,9 @@ const [currentTime, setCurrentTime] = useState(dayjs().utc().format("YYYY-MM-DD 
               <Send className="w-12 h-12" />
             </div>
             <p className="text-lg font-medium">Select a conversation</p>
-            <p className="text-sm mt-2">Choose from your existing conversations</p>
+            <p className="text-sm mt-2">
+              Choose from your existing conversations
+            </p>
           </div>
         )}
       </div>
