@@ -224,11 +224,6 @@ export class bookingControlelr implements IbookingController {
     try {
       const { turnServerConfig, status } =
         await this._bookingService.turnServerConnection();
-      console.log(
-        turnServerConfig.iceServers !== undefined
-          ? turnServerConfig?.iceServers[1]?.urls
-          : "",turnServerConfig
-      );
       res.status(status).json({ turnServerConfig });
     } catch (error: unknown) {
       next(error);

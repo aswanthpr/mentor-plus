@@ -1,8 +1,6 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
-import { axiosInstance } from "../Config/mentorAxios";
-import { protectedAPI } from "../Config/Axios";
-
+import {api} from "../Config/axiosInstance";
 const useTurn = () => {
   const [iceServers, setIceServers] = useState<TurnCredentials|null>(null);
   const [turnErr, setTurnErr] = useState<string | null>(null);
@@ -14,8 +12,8 @@ const useTurn = () => {
       try {
         setLoading(true);
         
-        const apiClient = role === "mentee" ? protectedAPI : axiosInstance;
-        const response = await apiClient.get(`/${role}/turn-credentials`);
+        
+        const response = await api.get(`/${role}/turn-credentials`);
        
         if (
           response.data &&

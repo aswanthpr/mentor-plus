@@ -5,8 +5,9 @@ import IauthService from "../Interface/Auth/iAuthService";
 import { ImentorRepository } from "../Interface/Mentor/iMentorRepository";
 import { IcategoryRepository } from "../Interface/Category/iCategoryRepository";
 import { ImenteeRepository } from "../Interface/Mentee/iMenteeRepository";
-import { ImentorApplyData } from "../Types";
+import { ImentorApplyData, IuserDetailsHeader } from "../Types";
 import { InotificationRepository } from "../Interface/Notification/InotificationRepository";
+import { MenteeDTO } from "../dto/mentee/menteeDTO";
 export declare class authService implements IauthService {
     private _OtpService;
     private _categoryRepository;
@@ -25,6 +26,7 @@ export declare class authService implements IauthService {
         status: number;
         refreshToken?: string;
         accessToken?: string;
+        user?: IuserDetailsHeader;
     }>;
     forgotPassword(email: string): Promise<{
         success: boolean;
@@ -60,6 +62,7 @@ export declare class authService implements IauthService {
         status: number;
         refreshToken?: string;
         accessToken?: string;
+        user?: IuserDetailsHeader;
     }>;
     mentorForgotPassword(email: string): Promise<{
         success: boolean;
@@ -77,6 +80,7 @@ export declare class authService implements IauthService {
         status: number;
         accessToken?: string;
         refreshToken?: string;
+        user?: MenteeDTO;
     }>;
 }
 //# sourceMappingURL=authService.d.ts.map

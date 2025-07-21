@@ -4,10 +4,11 @@ import { Imentor } from "../../Model/mentorModel"
 import { Itime } from "../../Model/timeModel";
 import { ObjectId } from "mongoose";
 import { ImentorChartData } from "src/Types";
+import { MentorDTO } from "../../dto/mentor/mentorDTO";
 
 export interface ImentorService {
 
-    mentorProfile(token: string): Promise<{ success: boolean, message: string, result: Imentor | null, status: number, categories: Icategory[] | [] }>;
+    mentorProfile(token: string): Promise<{ success: boolean, message: string, result: MentorDTO | null, status: number, categories: Icategory[] | [] }>;
     mentorRefreshToken(refresh: string): Promise<{ success: boolean, message: string, status: number, accessToken?: string, refreshToken?: string }>
     passwordChange(currentPassword: string, newPassword: string, id: string): Promise<{ success: boolean, message: string, status: number }>;
     mentorProfileImageChange(image: Express.Multer.File | null, id: string): Promise<{ success: boolean; message: string; status: number; profileUrl?: string }>;

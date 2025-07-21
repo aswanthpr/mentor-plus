@@ -1,6 +1,7 @@
-    import mongoose,{ Document, Schema, } from "mongoose";
+    import mongoose,{ Document, Schema, Types, } from "mongoose";
 
     export interface Imentor extends Document {
+        _id:Types.ObjectId
         name: string;
         email: string;
         phone: string;

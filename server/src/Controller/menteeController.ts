@@ -16,13 +16,13 @@ export class menteeController implements ImenteeController {
       const result = await this._menteeService.refreshToken(
         req.cookies?.refreshToken
       );
-
+console.log(process.env.REFRESH_TOKEN_EXPIRY ,'dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd')
       if (result?.success) {
         res.cookie("refreshToken", result?.refreshToken as string, {
           httpOnly: true,
           secure:process.env.NODE_ENV === "production",
           sameSite:process.env.NODE_ENV === "production"? "none":"lax",
-          maxAge: 14 * 24 * 60 * 60 * 1000,
+          maxAge: parseInt(process.env.REFRESH_TOKEN_EXPIRY || "0", 10),
         });
       }
 

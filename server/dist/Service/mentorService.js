@@ -23,6 +23,7 @@ const moment_1 = __importDefault(require("moment"));
 const reusable_util_1 = require("../Utils/reusable.util");
 const httpResponse_1 = require("../Constants/httpResponse");
 const http_error_handler_util_1 = require("../Utils/http-error-handler.util");
+const mentorDTO_1 = require("../dto/mentor/mentorDTO");
 class mentorService {
     constructor(_mentorRepository, _categoryRepository, _questionRepository, _timeSlotRepository, _slotScheduleRepository) {
         this._mentorRepository = _mentorRepository;
@@ -65,11 +66,12 @@ class mentorService {
                         categories: [],
                     };
                 }
+                const mentorDTO = mentorDTO_1.MentorDTO.single(result);
                 return {
                     success: true,
                     message: httpResponse_1.HttpResponse === null || httpResponse_1.HttpResponse === void 0 ? void 0 : httpResponse_1.HttpResponse.SUCCESS,
                     status: httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.Ok,
-                    result: result,
+                    result: mentorDTO,
                     categories: categoryData,
                 };
             }

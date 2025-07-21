@@ -3,7 +3,7 @@ import TimePickers from "./TimePickers";
 import moment, { Moment } from "moment";
 import DatePickers from "./DatePickers";
 import MuiInput from "./MuiInput";
-import { DAYS } from "../../../Constants/const Values";
+import { DAYS } from "../../../Constants/constValues";
 
 export const RecurringScheduleForm = ({
   startDate,
@@ -77,7 +77,7 @@ export const RecurringScheduleForm = ({
           type="number"
           value={price}
           onChange={(e) => onPriceChange(Number(e.target?.value))}
-          placeholder="Enter price"
+          placeholder="Enter price (₹)"
           className="w-1/full items-center"
           min={0}
         />

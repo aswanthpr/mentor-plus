@@ -7,25 +7,32 @@ import { Status } from "../Constants/httpStatusCode";
 export class mentorController implements ImentorController {
   constructor(private _mentorService: ImentorService) {}
 
-  async mentorLogout(req: Request, res: Response,next: NextFunction): Promise<void> {
+  async mentorLogout(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> {
     try {
       res
         .status(Status?.Ok)
-        .clearCookie("mentorToken", { httpOnly: true })
+        .clearCookie("refreshToken", { httpOnly: true })
         .json({ success: true, message: "Logged out successfully" });
     } catch (error: unknown) {
-      next(error)
+      next(error);
     }
   }
 
-  async mentorProfile(req: Request, res: Response,next: NextFunction): Promise<void> {
+  async mentorProfile(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> {
     try {
       const token = req.headers["authorization"]?.split(" ")[1];
 
       const { result, categories, success, message, status } =
         await this._mentorService.mentorProfile(token as string);
 
-     
       res.status(status).json({
         success,
         message,
@@ -33,24 +40,28 @@ export class mentorController implements ImentorController {
         categories,
       });
     } catch (error: unknown) {
-      next(error)
+      next(error);
     }
   }
 
   //for creating new access token
-  async mentorRefreshToken(req: Request, res: Response,next: NextFunction): Promise<void> {
+  async mentorRefreshToken(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> {
     try {
       const result = await this._mentorService.mentorRefreshToken(
-        req.cookies?.mentorToken
+        req.cookies?.refreshToken
       );
 
       res
         .status(result?.status)
-        .cookie("mentorToken", result?.refreshToken as string, {
+        .cookie("refreshToken", result?.refreshToken as string, {
           httpOnly: true,
-          secure:process.env.NODE_ENV === "production", //in development fasle
-          sameSite:process.env.NODE_ENV === "production"? "none":"lax",
-          maxAge: 14 * 24 * 60 * 60 * 1000,
+          secure: process.env.NODE_ENV === "production", //in development fasle
+          sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
+          maxAge: parseInt(process.env.REFRESH_TOKEN_EXPIRY || "0", 10),
         })
         .json({
           success: result?.success,
@@ -58,13 +69,16 @@ export class mentorController implements ImentorController {
           accessToken: result?.accessToken,
         });
     } catch (error: unknown) {
-      next(error)
+      next(error);
     }
   }
   //mentor password changing
-  async profilePasswordChange(req: Request, res: Response,next: NextFunction): Promise<void> {
+  async profilePasswordChange(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> {
     try {
-    
       const { currentPassword, newPassword, _id } = req.body;
       const result = await this._mentorService.passwordChange(
         currentPassword,
@@ -73,12 +87,16 @@ export class mentorController implements ImentorController {
       );
       res.status(result?.status).json(result);
     } catch (error: unknown) {
-      next(error)
+      next(error);
     }
   }
 
   //metnor profile image change
-  async mentorProfileImageChange(req: Request, res: Response,next: NextFunction): Promise<void> {
+  async mentorProfileImageChange(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> {
     try {
       const { _id } = req.body;
 
@@ -96,18 +114,22 @@ export class mentorController implements ImentorController {
 
       res.status(result?.status).json(result);
     } catch (error: unknown) {
-      next(error)
+      next(error);
     }
   }
 
-  async mentorEditProfile(req: Request, res: Response,next: NextFunction): Promise<void> {
+  async mentorEditProfile(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> {
     try {
       const resume =
         req.files &&
         (req.files as { [key: string]: Express.Multer.File[] }).resume
           ? (req.files as { [key: string]: Express.Multer.File[] }).resume[0]
           : null;
-    
+
       const mentorData = {
         ...req.body,
       };
@@ -117,15 +139,19 @@ export class mentorController implements ImentorController {
 
       res.status(status).json({ success, message, result });
     } catch (error: unknown) {
-      next(error)
+      next(error);
     }
   }
   //fetch mentor home data
   // /mentor/home/:filter
-  async questionData(req: Request, res: Response,next: NextFunction): Promise<void> {
+  async questionData(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> {
     try {
       const { filter } = req.params;
-      const { search, page=1, limit ,sortOrder,sortField} = req.query;
+      const { search, page = 1, limit, sortOrder, sortField } = req.query;
 
       const { status, success, message, homeData, totalPage } =
         await this._mentorService.questionData(
@@ -141,16 +167,20 @@ export class mentorController implements ImentorController {
         .status(status)
         .json({ success, message, homeData, userId, totalPage });
     } catch (error: unknown) {
-      next(error)
+      next(error);
     }
   }
   //create time slots in mentor side
   // /mentor/schedule/create-slots
-  // get the scheule time in the req.body 
-  async createTimeSlots(req: Request, res: Response,next: NextFunction): Promise<void> {
+  // get the scheule time in the req.body
+  async createTimeSlots(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> {
     try {
       const { type, schedule } = req.body;
-      
+
       const { success, status, message, timeSlots } =
         await this._mentorService.createTimeSlots(
           type,
@@ -159,15 +189,19 @@ export class mentorController implements ImentorController {
         );
       res.status(status).json({ success, message, status, timeSlots });
     } catch (error: unknown) {
-      next(error)
+      next(error);
     }
   }
 
   //schedule getting data.  /schedule/get-time-slots
-  async getTimeSlots(req: Request, res: Response,next: NextFunction): Promise<void> {
+  async getTimeSlots(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> {
     try {
       const { search, filter, sortField, sortOrder, page, limit } = req.query;
-     
+
       const { success, status, message, timeSlots, totalPage } =
         await this._mentorService.getTimeSlots(
           req.user as ObjectId,
@@ -178,38 +212,46 @@ export class mentorController implements ImentorController {
           String(sortField),
           String(sortOrder)
         );
-      res 
+      res
         .status(status)
         .json({ success, message, status, timeSlots, totalPage });
     } catch (error: unknown) {
-      next(error)
+      next(error);
     }
   }
 
-  async removeTimeSlot(req: Request, res: Response,next: NextFunction): Promise<void> {
+  async removeTimeSlot(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> {
     try {
       const { slotId } = req.body;
-     
+
       const { status, success, message } =
         await this._mentorService.removeTimeSlot(slotId as string);
       res.status(status).json({ message, success });
     } catch (error: unknown) {
-      next(error)
+      next(error);
     }
   }
-  async chartData(req: Request, res: Response,next: NextFunction): Promise<void> {
+  async chartData(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> {
     try {
       const { timeRange } = req.query;
-     
-      const { success, message, status,result } =
+
+      const { success, message, status, result } =
         await this._mentorService.mentorChartData(
           req.user as Express.User as ObjectId,
           String(timeRange)
         );
 
-      res.status(status).json({ message, success ,result});
+      res.status(status).json({ message, success, result });
     } catch (error: unknown) {
-      next(error)
+      next(error);
     }
   }
 }

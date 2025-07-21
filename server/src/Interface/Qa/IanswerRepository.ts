@@ -1,6 +1,6 @@
 import { DeleteResult, ObjectId } from "mongoose";
 import { Ianswer } from "../../Model/answerModel"
-import { IanswerWithQuestion } from "src/Types";
+import { IanswerWithQuestion } from "../../Types";
 
 
 export interface IanswerRepository {

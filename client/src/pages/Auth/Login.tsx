@@ -1,4 +1,4 @@
-import React, { useCallback,  useState } from "react";
+import React, { useCallback, useState } from "react";
 import { EyeClosedIcon, EyeIcon } from "lucide-react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
@@ -6,8 +6,6 @@ import { toast } from "react-toastify";
 import { Link } from "react-router-dom";
 
 import { AppDispatch } from "../../Redux/store";
-import { setAccessToken } from "../../Redux/menteeSlice";
-import { setMentorToken } from "../../Redux/mentorSlice";
 import { fetchMenteeLogin } from "../../service/menteeApi";
 import { fetchMentorLogin } from "../../service/mentorApi";
 import InputField from "../../components/Auth/InputField";
@@ -17,6 +15,8 @@ import bgImg from "../../Asset/background.jpg";
 import { MENTEE_LOGIN_FORMDATA } from "../../Constants/initialStates";
 import { HttpStatusCode } from "axios";
 import { ROUTES } from "../../Constants/message";
+import { setUser } from "../../Redux/userSlice";
+import { setAuth } from "../../Redux/authSlice";
 
 const Login: React.FC = () => {
   const dispatch: AppDispatch = useDispatch();
@@ -92,12 +92,16 @@ const Login: React.FC = () => {
             response?.data?.accessToken
           ) {
             dispatch(
-              setAccessToken({
-                accessToken: response?.data?.accessToken,
+              setAuth({ role: "mentee", token: response?.data?.accessToken })
+            );
+            dispatch(
+              setUser({
+                name: response?.data?.user?.name,
+                email: response?.data?.user?.email,
+                image: response?.data?.user?.profileUrl,
                 role: "mentee",
               })
             );
-
             toast.success(response?.data?.message);
 
             navigate(ROUTES?.MENTEE_HOME);
@@ -106,23 +110,28 @@ const Login: React.FC = () => {
         if (userType == "mentor") {
           setLoading(true);
           const response = await fetchMentorLogin(formData);
-          setLoading((pre)=>!pre);
-          if (response?.status == HttpStatusCode?.Ok && response.data?.success) {
+          setLoading((pre) => !pre);
+          if (
+            response?.status == HttpStatusCode?.Ok &&
+            response.data?.success
+          ) {
             dispatch(
-              setMentorToken({
-                mentorToken: response?.data?.accessToken,
-                mentorRole: "mentor",
-              })
+              setAuth({ token: response?.data?.accessToken, role: "mentor" })
             );
 
+            dispatch(
+              setUser({
+                name: response?.data?.user?.name,
+                email: response?.data?.user?.email,
+                image: response?.data?.user?.profileUrl,
+                role: "mentor",
+              })
+            );
             navigate(ROUTES?.MENTOR_HOME);
           }
           toast.success(response.data.message);
-          
         }
-
       }
-     
     },
     [dispatch, formData, navigate, userType, validateField]
   );
@@ -144,64 +153,36 @@ const Login: React.FC = () => {
       }}
     >
       {loading && <Spinner />}
-      <div className="sm:mx-auto sm:w-full sm:max-w-md">
-        <h2 className="text-center text-4xl font-bold text-black mb-8">
-          Login
-        </h2>
-        <div className="flex justify-center space-x-4 mb-8">
-          <button
-            onClick={() => handleUserTypeChange("mentee")}
-            className={`px-6 py-2 rounded-full font-medium transition-colors ${
-              userType === "mentee"
-                ? "bg-[#ff8800] text-white"
-                : "bg-white text-gray-600 hover:bg-gray-50"
-            }`}
-          >
-            I'm a Mentee
-          </button>
-          <button
-            onClick={() => handleUserTypeChange("mentor")}
-            className={`px-6 py-2 rounded-full font-medium transition-colors ${
-              userType === "mentor"
-                ? "bg-[#ff8800] text-white"
-                : "bg-white text-gray-600 hover:bg-gray-50"
-            }`}
-          >
-            I'm a Mentor
-          </button>
-        </div>
-      </div>
 
       <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
         <div className="bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10">
-          {userType === "mentee" && (
-            <div className="space-y-4 mb-8">
+          <div className="sm:mx-auto sm:w-full sm:max-w-md">
+            <h2 className="text-center text-4xl font-bold text-black mb-8">
+              Login
+            </h2>
+            <div className="flex justify-center space-x-4 mb-8">
               <button
-                onClick={() => handleSocialLogin("google")}
-                className="w-full flex items-center justify-center gap-2 px-4 py-2 border-2 border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
+                onClick={() => handleUserTypeChange("mentee")}
+                className={`px-6 py-2 rounded-full font-medium transition-colors ${
+                  userType === "mentee"
+                    ? "bg-[#ff8800] text-white"
+                    : "bg-gray-50 text-gray-600 hover:bg-gray-50"
+                }`}
               >
-                <img
-                  src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg"
-                  alt="Google"
-                  className="w-5 h-5"
-                />
-                <span className="text-sm font-medium">
-                  Continue with Google
-                </span>
+                I'm a Mentee
               </button>
-
-              <div className="relative my-6">
-                <div className="absolute inset-0 flex items-center">
-                  <div className="w-full border-t border-gray-300" />
-                </div>
-                <div className="relative flex justify-center text-sm">
-                  <span className="px-2 bg-white text-gray-500">
-                    Or continue with
-                  </span>
-                </div>
-              </div>
+              <button
+                onClick={() => handleUserTypeChange("mentor")}
+                className={`px-6 py-2 rounded-full font-medium transition-colors ${
+                  userType === "mentor"
+                    ? "bg-[#ff8800] text-white"
+                    : "bg-gray-50 text-gray-600 hover:bg-gray-50"
+                }`}
+              >
+                I'm a Mentor
+              </button>
             </div>
-          )}
+          </div>
 
           <form onSubmit={handleSubmit} className="space-y-6">
             <InputField
@@ -243,6 +224,35 @@ const Login: React.FC = () => {
               Login
             </button>
           </form>
+
+          {userType === "mentee" && (
+            <div className="space-y-4 mb-8">
+              <div className="relative my-6">
+                <div className="absolute inset-0 flex items-center">
+                  <div className="w-full border-t border-gray-300" />
+                </div>
+                <div className="relative flex justify-center text-sm">
+                  <span className="px-2 bg-white text-gray-500">
+                    Or continue with
+                  </span>
+                </div>
+              </div>
+              <button
+                onClick={() => handleSocialLogin("google")}
+                className="w-full flex items-center justify-center gap-2 px-4 py-2 border-2 border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
+              >
+                <img
+                  loading="lazy"
+                  src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg"
+                  alt="Google"
+                  className="w-5 h-5"
+                />
+                <span className="text-sm font-medium">
+                  Continue with Google
+                </span>
+              </button>
+            </div>
+          )}
 
           <div className="mt-6 flex flex-col  items-center justify-between space-y-4 sm:space-y-0">
             <div className="flex gap-2 text-sm ">

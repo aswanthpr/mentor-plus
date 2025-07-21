@@ -2,7 +2,13 @@ import * as Yup from "yup";
 import moment from "moment";
 import { useCallback, useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { Calendar, Clock10Icon, PlayCircle, Wallet } from "lucide-react";
+import {
+  Calendar,
+  Clock10Icon,
+  IndianRupeeIcon,
+  PlayCircle,
+  Wallet,
+} from "lucide-react";
 import Button from "../Auth/Button";
 import stripeLogo from "../../Asset/stripe-icon.svg";
 import { errorHandler } from "../../Utils/Reusable/Reusable";
@@ -108,24 +114,35 @@ const BookingPage: React.FC = () => {
                   <button
                     key={slot?._id}
                     onClick={() => handleSlotClick(slot)}
-                    className={`flex-shrink-0 p-4 rounded-lg border-2 transition-colors ${
+                    className={`flex-shrink-0 w-48 p-4 rounded-lg border-2 transition-colors text-left space-y-2 ${
                       selectedSlot?._id === slot?._id
                         ? "border-orange-500 bg-orange-50"
                         : "border-gray-200 hover:border-orange-200"
                     }`}
                   >
-                    <p className="text-gray-600 text-sm flex">
-                      <Calendar className="w-3 mr-1" />
+                    {/* Date */}
+                    <div className="flex items-center text-sm text-gray-600">
+                      <Calendar className="w-4 h-4 mr-2 text-gray-400" />
                       {moment(slot?.startDate).format("DD-MM-YYYY")}
-                    </p>
-                    <p className="text-gray-600 font-light text-sm flex">
-                      <PlayCircle className="w-3 mr-1" />{" "}
+                    </div>
+
+                    {/* Start Time */}
+                    <div className="flex items-center text-sm text-gray-600">
+                      <PlayCircle className="w-4 h-4 mr-2 text-gray-400" />
                       {moment(slot?.startTime).format("hh:mm a")}
-                    </p>
-                    <p className="text-gray-600 text-sm flex">
-                      <Clock10Icon className="w-3 mr-1" /> {slot?.duration} min
-                    </p>
-                    <p className="text-gray-600 text-sm">${slot?.price}</p>
+                    </div>
+
+                    {/* Duration */}
+                    <div className="flex items-center text-sm text-gray-600">
+                      <Clock10Icon className="w-4 h-4 mr-2 text-gray-400" />
+                      {slot?.duration} min
+                    </div>
+
+                    {/* Price */}
+                    <div className="flex items-center text-sm text-gray-600">
+                      <IndianRupeeIcon className="w-4 h-4 mr-2 text-gray-400" />
+                      {slot?.price}
+                    </div>
                   </button>
                 ))}
               </div>
@@ -137,6 +154,7 @@ const BookingPage: React.FC = () => {
             )}
           </div>
         </div>
+
         {/* Message */}
         <div className="bg-white rounded-lg shadow-md p-6 mb-8">
           <h2 className="text-xl font-semibold mb-4">
@@ -145,7 +163,7 @@ const BookingPage: React.FC = () => {
           <textarea
             value={message}
             name="message"
-            onChange={(e) => setMessage(e.target.value)}
+            onChange={(e:React.ChangeEvent<HTMLTextAreaElement>) => setMessage(e.target?.value)}
             placeholder="What would you like to discuss in this session? What are your expectations?"
             className="w-full h-32 p-4 border rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-200 resize-none"
           />
@@ -160,7 +178,7 @@ const BookingPage: React.FC = () => {
           <div className="space-y-3">
             <div className="flex justify-between">
               <span className="text-gray-600">Session Price</span>
-              <span>${sessionPrice}</span>
+              <span>₹ {sessionPrice}</span>
             </div>
             <div className="flex justify-between">
               <span className="text-gray-600">session</span>
@@ -168,7 +186,7 @@ const BookingPage: React.FC = () => {
             </div>
             <div className="flex justify-between pt-3 border-t font-semibold">
               <span>Total</span>
-              <span>${sessionPrice}</span>
+              <span>₹{sessionPrice}</span>
             </div>
           </div>
         </div>
@@ -185,7 +203,7 @@ const BookingPage: React.FC = () => {
                 onChange={() => setSelectedPayment("stripe")}
                 className="mr-3"
               />
-              <img src={stripeLogo} alt="" className="w-6" />
+              <img loading="lazy" src={stripeLogo} alt="" className="w-6" />
               <span>Stripe</span>
             </label>
 

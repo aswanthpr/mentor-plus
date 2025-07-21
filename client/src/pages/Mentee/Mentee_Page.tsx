@@ -11,7 +11,6 @@ import {
 } from "lucide-react";
 import Header from "../../components/Common/common4All/Header";
 import SidePanel from "../../components/Common/common4All/SidePanel";
-import { clearAccessToken } from "../../Redux/menteeSlice";
 import { toast } from "react-toastify";
 import { markAsRead, setNotification } from "../../Redux/notificationSlice";
 import { RootState } from "../../Redux/store";
@@ -25,7 +24,8 @@ import {
   ReadNotification,
 } from "../../service/menteeApi";
 import { HttpStatusCode } from "axios";
-
+import { clearUser } from "../../Redux/userSlice";
+import { clearAuth } from "../../Redux/authSlice";
 
 const navItems: INavItem[] = [
   { name: "Home", path: "/mentee/home", icon: Home },
@@ -45,7 +45,6 @@ const Mentee_Page: React.FC = () => {
   const [isSideBarOpen, setIsSideBarOpen] = useState<boolean>(false);
   const [searchValue, setSearchValue] = useState<string>("");
 
-  
   useEffect(() => {
     let flag = true;
 
@@ -76,7 +75,7 @@ const Mentee_Page: React.FC = () => {
     return () => {
       flag = false;
       clearTimeout(timer);
-      disconnectNotificationSocket()
+      disconnectNotificationSocket();
     };
   }, [dispatch]);
 
@@ -94,8 +93,8 @@ const Mentee_Page: React.FC = () => {
   const logoutMentee = useCallback(async () => {
     const response = await fetchLogout();
     if (response.data.success && response.status === HttpStatusCode?.Ok) {
-      dispatch(clearAccessToken());
-      localStorage.removeItem("menteeToken");
+      dispatch(clearAuth());
+      dispatch(clearUser());
       toast.success(response.data.message);
     }
   }, [dispatch]);

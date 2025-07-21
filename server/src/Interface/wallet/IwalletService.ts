@@ -1,6 +1,6 @@
 import { ObjectId } from "mongoose";
-import { Itransaction } from "src/Model/transactionModel";
-import { Iwallet } from "src/Model/walletModel";
+import { Itransaction } from "../../Model/transactionModel";
+import { Iwallet } from "../../Model/walletModel";
 import Stripe from "stripe";
 
 export interface IwalletService {

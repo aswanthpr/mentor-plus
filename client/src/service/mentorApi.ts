@@ -3,9 +3,8 @@
 //MENTOR-ONLY//============================================================
 
 import { AxiosResponse } from "axios";
-import { axiosInstance } from "../Config/mentorAxios";
-import { unProtectedAPI } from "../Config/Axios";
 import { errorHandler } from "../Utils/Reusable/Reusable";
+import { api } from "../Config/axiosInstance";
 
 export const fetchMentorHomeData = async (
   filter: string,
@@ -16,7 +15,7 @@ export const fetchMentorHomeData = async (
   limit: number
 ): Promise<AxiosResponse | any> => {
   try {
-    return await axiosInstance.get(`/mentor/home/${filter}`, {
+    return await api.get(`/mentor/home/${filter}`, {
       params: {
         search,
         sortField,
@@ -34,7 +33,7 @@ export const fetchCanceSessionResponse = async (
   value: string
 ): Promise<AxiosResponse<any> | undefined> => {
   try {
-    return await axiosInstance.patch(
+    return await api.patch(
       `/mentor/sessions/cancel_request/${sessionId}`,
       {
         value,
@@ -50,7 +49,7 @@ export const createSessionCodeApi = async (
   bookingId: string
 ): Promise<AxiosResponse<any> | undefined> => {
   try {
-    return await axiosInstance.patch("/mentor/sessions/create-session-code", {
+    return await api.patch("/mentor/sessions/create-session-code", {
       bookingId,
     });
   } catch (error: unknown) {
@@ -61,7 +60,7 @@ export const createSessionCodeApi = async (
 
 export const markAsSessionCompleted = async (bookingId: string) => {
   try {
-    return await axiosInstance.patch(
+    return await api.patch(
       "/mentor/sessions/mark-as-session-completed",
       { bookingId }
     );
@@ -73,7 +72,7 @@ export const markAsSessionCompleted = async (bookingId: string) => {
 
 export const fetchHandleWithdraw = async (amount: number) => {
   try {
-    return await axiosInstance.put(`/mentor/withdraw-amount`, {
+    return await api.put(`/mentor/withdraw-amount`, {
       amount,
     });
   } catch (error: unknown) {
@@ -86,7 +85,7 @@ export const createNewSlots = async (scheduleData: {
   schedule: TimeSlot[];
 }): Promise<AxiosResponse | any> => {
   try {
-    return await axiosInstance.post(
+    return await api.post(
       `/mentor/schedule/create-slots`,
       scheduleData
     );
@@ -104,7 +103,7 @@ export const fetchTimeSlots = async (
   limit: number
 ): Promise<AxiosResponse | any> => {
   try {
-    return await axiosInstance.get(`/mentor/schedule/get-time-slots`, {
+    return await api.get(`/mentor/schedule/get-time-slots`, {
       params: {
         search,
         filter,
@@ -122,7 +121,7 @@ export const deleteTimeSlots = async (
   slotId: string
 ): Promise<AxiosResponse | any> => {
   try {
-    return await axiosInstance.delete(`/mentor/schedule/remove-time-slot`, {
+    return await api.delete(`/mentor/schedule/remove-time-slot`, {
       data: { slotId },
     });
   } catch (error: unknown) {
@@ -135,7 +134,7 @@ export const fetchMentorStatistics = async (
 ): Promise<AxiosResponse | any> => {
   try {
 
-    return await axiosInstance.get(`/mentor/statistics`, {
+    return await api.get(`/mentor/statistics`, {
       params: { timeRange },
     });
   } catch (error: unknown) {
@@ -152,7 +151,7 @@ export const getMentorSessions = async (
   limit: number
 ): Promise<AxiosResponse | any> => {
   try {
-    return await axiosInstance.get(`/mentor/sessions`, {
+    return await api.get(`/mentor/sessions`, {
       params: {
         activeTab,
         search,
@@ -172,7 +171,7 @@ export const fetchEditProfile = async (
   Data: Partial<IMentor>
 ): Promise<AxiosResponse | any> => {
   try {
-    return await axiosInstance.put(
+    return await api.put(
       `/mentor/profile/edit_profile_details`,
       Data,
       { headers: { "Content-Type": "multipart/form-data" } }
@@ -186,7 +185,7 @@ export const fetchChangePassword = async (
   passFormData: IChangePass
 ): Promise<AxiosResponse | any> => {
   try {
-    return await axiosInstance.patch(
+    return await api.patch(
       "/mentor/profile/change_password",
       passFormData
     );
@@ -200,7 +199,7 @@ export const fetchChangeImage = async (
   _id: string
 ): Promise<AxiosResponse | any> => {
   try {
-    return await axiosInstance.patch(
+    return await api.patch(
       "/mentor/profile/image_change",
       { profileImage, _id },
       {
@@ -216,7 +215,7 @@ export const fetchMentorNotification = async (): Promise<
   AxiosResponse | any
 > => {
   try {
-    return await axiosInstance.get(`/mentor/notification`);
+    return await api.get(`/mentor/notification`);
   } catch (error: unknown) {
     console.log(error instanceof Error ? error.message : String(error));
   }
@@ -225,7 +224,7 @@ export const fetchReadNotification = async (
   id: string
 ): Promise<AxiosResponse | any> => {
   try {
-    return await axiosInstance.patch(`/mentor/notification-read/${id}`);
+    return await api.patch(`/mentor/notification-read/${id}`);
   } catch (error: unknown) {
 
     console.log(error instanceof Error ? error.message : String(error));
@@ -233,7 +232,7 @@ export const fetchReadNotification = async (
 };
 export const fetchMentorLogout = async (): Promise<AxiosResponse | any> => {
   try {
-    return await axiosInstance.post(`/mentor/logout`);
+    return await api.post(`/mentor/logout`);
   } catch (error: unknown) {
     errorHandler(error);
     console.log(error instanceof Error ? error.message : String(error));
@@ -243,7 +242,7 @@ export const fetchMentorApplication = async (): Promise<
   AxiosResponse | any
 > => {
   try {
-    return await unProtectedAPI.get(`/auth/apply_as_mentor`);
+    return await api.get(`/auth/apply_as_mentor`);
   } catch (error: unknown) {
     console.log(error instanceof Error ? error.message : String(error));
   }
@@ -252,7 +251,7 @@ export const fetchMentorLogin = async (
   formData: LoginFormData
 ): Promise<AxiosResponse | any> => {
   try {
-    return await axiosInstance.post("/auth/login/mentor", formData);
+    return await api.post("/auth/login/mentor", formData);
   } catch (error: unknown) {
      errorHandler(error);
      
@@ -266,7 +265,7 @@ export const fetchCreateNewAnsweres = async (
   userType: string
 ): Promise<AxiosResponse | any> => {
   try {
-    return await axiosInstance.post(`/mentor/qa/create-new-answer`, {
+    return await api.post(`/mentor/qa/create-new-answer`, {
       answer,
       questionId,
       userType,
@@ -281,7 +280,7 @@ export const fetchMentorEditAnswer = async (
   answerId: string
 ): Promise<AxiosResponse | any> => {
   try {
-    return await axiosInstance.patch(`/mentor/qa/edit-answer`, {
+    return await api.patch(`/mentor/qa/edit-answer`, {
       content,
       answerId,
     });
@@ -294,7 +293,7 @@ export const newMentorApply = async (
   formData:any
 ): Promise<AxiosResponse | any> => {
   try {
-    return await   unProtectedAPI.post(`/auth/apply_as_mentor`, formData, {
+    return await   api.post(`/auth/apply_as_mentor`, formData, {
       headers: {
         'Content-Type': 'multipart/form-data'
       },
@@ -307,7 +306,7 @@ export const newMentorApply = async (
 export const fetchMentorProfileData = async (
 ): Promise<AxiosResponse | any> => {
   try {
-    return await  axiosInstance.get("/mentor/profile");
+    return await  api.get("/mentor/profile");
   } catch (error: unknown) {
    
     console.log(error instanceof Error ? error.message : String(error));

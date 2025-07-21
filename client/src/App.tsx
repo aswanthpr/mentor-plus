@@ -14,15 +14,14 @@ const App: React.FC = () => {
       <BrowserRouter>
         <ToastContainer
           position="top-center"
-          autoClose={2000}
-          hideProgressBar={false}
+          autoClose={1500}
+          hideProgressBar={true}
           newestOnTop={false}
-          closeOnClick={false}
+          closeOnClick={true}
           rtl={false}
           pauseOnFocusLoss
           draggable
-          pauseOnHover
-          theme="colored"
+          // theme="colored"/
           aria-live="assertive"
         />
         <Routes>

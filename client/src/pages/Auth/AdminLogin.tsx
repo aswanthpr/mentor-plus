@@ -6,13 +6,13 @@ import Button from "../../components/Auth/Button";
 import { validatePassword, validateEmail } from "../../Validation/Validation";
 import Spinner from "../../components/Common/common4All/Spinner";
 import { useDispatch } from "react-redux";
-import { setToken } from "../../Redux/adminSlice";
 import { EyeClosedIcon, EyeIcon } from "lucide-react";
 import { fetchAdminLogin } from "../../service/adminApi";
 import bgImg from "../../Asset/background.jpg";
 import { ADMIN_LOGIN_ERROR } from "../../Constants/initialStates";
 import { ROUTES } from "../../Constants/message";
 import { HttpStatusCode } from "axios";
+import { setAuth } from "../../Redux/authSlice";
 
 const AdminLogin: React.FC = () => {
   const navigate = useNavigate();
@@ -60,19 +60,14 @@ const AdminLogin: React.FC = () => {
         response?.status === HttpStatusCode?.Ok
       ) {
         dispatch(
-          setToken({
-            adminToken: response.data?.accessToken,
-            adminRole: "admin",
-          })
+          setAuth({ token: response.data?.accessToken, role: "admin" })
         );
-       
 
         toast.success(response.data.message);
         navigate(ROUTES?.ADMIN_DASHBOARD);
       }
 
-        setLoading((pre)=>!pre);
-
+      setLoading((pre) => !pre);
     },
     [dispatch, email, navigate, password]
   );

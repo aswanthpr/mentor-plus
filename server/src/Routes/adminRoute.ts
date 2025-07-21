@@ -4,7 +4,6 @@ import categoryRepository from "../Repository/categoryRepository";
 import { adminController } from "../Controller/adminController";
 import menteeRepository from "../Repository/menteeRepository";
 import mentorRepository from "../Repository/mentorRepository";
-import authorization from "../Middleware/adminAuthMiddleware";
 import qaService from "../Service/qaService";
 import qaController from "../Controller/qaController";
 import questionRepository from "../Repository/questionRepository";
@@ -13,7 +12,7 @@ import notificationRepository from "../Repository/notificationRepository";
 import slotScheduleRepository from "../Repository/slotScheduleRepository";
 import { notificationService } from "../Service/notificationService";
 import { notificationController } from "../Controller/notificationController";
-
+import authorizeUser from "../Middleware/authorizeUser"
 const admin_Router: Router = express.Router();
 
 const _adminService = new adminService(
@@ -41,28 +40,28 @@ admin_Router.post(
 );
 admin_Router.get(
   "/category_management",
-  authorization,
+  authorizeUser('admin'),
   _adminController.categoryData.bind(_adminController)
 );
 admin_Router.patch(
   "/edit_category",
-  authorization,
+  authorizeUser('admin'),
   _adminController.editCategory.bind(_adminController)
 );
 admin_Router.post(
   `/create_category`,
-  authorization,
+  authorizeUser('admin'),
   _adminController.createCategory.bind(_adminController)
 );
 admin_Router.put(
   `/change_category_status`,
-  authorization,
+  authorizeUser('admin'),
   _adminController.changeCategoryStatus.bind(_adminController)
 );
 
 admin_Router.get(
   `/mentee_management`,
-  authorization,
+  authorizeUser('admin'),
   _adminController.menteeData.bind(_adminController)
 );
 admin_Router.post(
@@ -75,23 +74,23 @@ admin_Router.put(
 );
 admin_Router.patch(
   `/mentee_management/change_mentee_status`,
-  authorization,
+  authorizeUser('admin'),
   _adminController.changeMenteeStatus.bind(_adminController)
 );
 
 admin_Router.get(
   `/mentor_management`,
-  authorization,
+  authorizeUser('admin'),
   _adminController.mentorData.bind(_adminController)
 );
 admin_Router.patch(
   `/mentor_management/mentor_verify`,
-  authorization,
+  authorizeUser('admin'),
   _adminController.mentorVerify.bind(_adminController)
 );
 admin_Router.patch(
   `/mentor_management/change_mentor_status`,
-  authorization,
+  authorizeUser('admin'),
   _adminController.changeMentorStatus.bind(_adminController)
 );
 admin_Router.post(
@@ -100,30 +99,30 @@ admin_Router.post(
 );
 admin_Router.get(
   `/qa-management`,
-  authorization,
+  authorizeUser('admin'),
   __qaController.allQaData.bind(__qaController)
 );
 admin_Router.patch(
   `/qa_management/change_question_status`,
-  authorization,
+  authorizeUser('admin'),
   __qaController.blockQuestion.bind(__qaController)
 );
 admin_Router.patch(
   `/qa_management/change_answer_status`,
-  authorization,
+  authorizeUser('admin'),
   __qaController.blockAnswer.bind(__qaController)
 );
-admin_Router.get(`/dashboard`,authorization,_adminController.getDashboardData.bind(_adminController));
+admin_Router.get(`/dashboard`,authorizeUser('admin'),_adminController.getDashboardData.bind(_adminController));
 
 admin_Router.get(
   `/notification`,
-  authorization,
+  authorizeUser('admin'),
   __notificationController.getNotification.bind(__notificationController)
 );
 
 admin_Router.patch(
   `/notification-read/:notificationId`,
-  authorization,
+  authorizeUser('admin'),
   __notificationController.markAsReadNotif.bind(__notificationController)
 );
 export default admin_Router;

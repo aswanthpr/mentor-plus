@@ -70,14 +70,14 @@ passport.serializeUser((user: Express.User, done: DoneCallback) => {
   done(null, user);
 });
 
-passport.deserializeUser(async (user: Imentee, done: DoneCallback) => {
+passport.deserializeUser(async (userData: Imentee, done: DoneCallback) => {
   try {
-    if (!user?._id) {
+    if (!userData?._id) {
       throw new Error("User ID is missing during deserialization.");
     }
-    const User = await menteeRepository.findById(user?._id as string);
+    const user = await menteeRepository.findById(String(userData?._id));
 
-    done(null, User);
+    done(null, user);
   } catch (error) {
     done(error, null);
   }

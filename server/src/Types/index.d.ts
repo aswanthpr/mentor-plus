@@ -184,3 +184,10 @@ interface ImailOption {
   expiresAt?: string;
   createdAt?: string;
 };
+
+
+interface IuserDetailsHeader{
+  name:string;
+  email:string;
+  profileUrl:string;
+}

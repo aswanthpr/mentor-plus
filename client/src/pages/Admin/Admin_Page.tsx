@@ -10,7 +10,6 @@ import {
 import SidePanel from "../../components/Common/common4All/SidePanel";
 import { Outlet } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-import { clearToken } from "../../Redux/adminSlice";
 import { toast } from "react-toastify";
 import { markAsRead, setNotification } from "../../Redux/notificationSlice";
 import { RootState } from "../../Redux/store";
@@ -21,6 +20,8 @@ import {
 } from "../../service/adminApi";
 import { HttpStatusCode } from "axios";
 import { connectToNotifications, disconnectNotificationSocket } from "../../Socket/connect";
+import { clearAuth } from "../../Redux/authSlice";
+import { clearUser } from "../../Redux/userSlice";
 
 const navItems: INavItem[] = [
   { name: "Dashboard", path: "/admin/dashboard", icon: LayoutDashboard },
@@ -98,8 +99,8 @@ const Admin_Page: React.FC = () => {
     const response = await fetchAdminLogout();
 
     if (response.data.success && response.status == 200) {
-      dispatch(clearToken());
-
+      dispatch(clearAuth())
+      dispatch(clearUser());
       toast.success(response.data.message);
     }
   }, [dispatch]);
@@ -117,14 +118,19 @@ const Admin_Page: React.FC = () => {
         notifData={notification}
         onRead={handleReadNotification}
       />
-      {isSideBarOpen && <SidePanel SideBarItems={navItems} />}
-      <main
-        className={`pt-1 place-self-auto  ${isSideBarOpen ? "pl-64" : "pl-0"}`}
+     <div
+        className={`fixed left-0 top-0 h-full w-64 bg-white border-r border-gray-200 transform transition-transform duration-200 ease-in-out z-40 ${
+          isSideBarOpen ? "translate-x-0" : "-translate-x-full"
+        } lg:translate-x-0`}
       >
-        <div className="p-0 mx-auto">
-          <Outlet />
-        </div>
-      </main>
+        <SidePanel SideBarItems={navItems} />
+      </div>
+
+       <main className={`pt-2 place-self-auto lg:pl-64 transition-all duration-200`}>
+              <div className="p-0 mx-auto">
+                <Outlet />
+              </div>
+            </main> 
     </div>
   );
 };

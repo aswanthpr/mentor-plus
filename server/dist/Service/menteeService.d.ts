@@ -7,6 +7,7 @@ import { IcategoryRepository } from "../Interface/Category/iCategoryRepository";
 import { ImentorRepository } from "../Interface/Mentor/iMentorRepository";
 import { IquestionRepository } from "../Interface/Qa/IquestionRepository";
 import { ImenteeRepository } from "../Interface/Mentee/iMenteeRepository";
+import { MentorDTO } from "../dto/mentor/mentorDTO";
 export declare class menteeService implements ImenteeService {
     private _menteeRepository;
     private _mentorRepository;
@@ -54,7 +55,7 @@ export declare class menteeService implements ImenteeService {
         success: boolean;
         message: string;
         status: number;
-        mentor?: Imentor[] | null;
+        mentor?: MentorDTO[] | null;
         category?: Icategory[] | null;
         skills: Imentor[] | undefined;
         currentPage?: number;

@@ -1,9 +1,9 @@
-import React, { useCallback, useRef, useState } from "react";
+import React, { memo, useCallback, useRef, useState } from "react";
 import SelectField from "../Common/Schedule/SelectField";
 import { SelectChangeEvent, Tooltip } from "@mui/material";
 import { FITLER_VALUE_INITIAL } from "../../Constants/initialStates";
 
-const Filters: React.FC<FiltersProps> = ({ filters, onFilterChange }) => {
+const Filters: React.FC<FiltersProps> = memo(({ filters, onFilterChange }) => {
   const filterRef = useRef<MentorFilters>(filters);
 
   const [checkedCategories, setCheckedCategories] = useState<string[]>([]);
@@ -53,7 +53,6 @@ const Filters: React.FC<FiltersProps> = ({ filters, onFilterChange }) => {
     },
     [checkedCategories, checkedSkills, filterVal.sort, onFilterChange]
   );
-  
   return (
     <form className="space-y-6 ml-2" onSubmit={handleSubmit}>
       <SelectField
@@ -74,12 +73,12 @@ const Filters: React.FC<FiltersProps> = ({ filters, onFilterChange }) => {
                 type="checkbox"
                 checked={checkedCategories.includes(categ?.category)}
                 onChange={(e) =>
-                  handleCheckboxChange(categ?.category, e.target.checked)
+                  handleCheckboxChange(categ?.category, e.target?.checked)
                 }
                 className="rounded border-gray-300 text-[#ff8800] focus:ring-[#ff8800]"
               />
               <span className="ml-2 text-md text-gray-600 font-semibold">
-                {categ.category}
+                {categ?.category}
               </span>
             </label>
           ))}
@@ -124,11 +123,13 @@ const Filters: React.FC<FiltersProps> = ({ filters, onFilterChange }) => {
           type="submit"
           className="w-full bg-[#ff8800] text-white py-1 rounded-lg hover:bg-[#e67e00]"
         >
-          Apply Filters
-        </button>
+        
+          Apply 
+         </button>
+    
       </div>
     </form>
   );
-};
+});
 
 export default Filters;

@@ -9,7 +9,7 @@ import mentorRepository from '../Repository/mentorRepository';
 import passport from 'passport';
 import menteeRepository from '../Repository/menteeRepository';
 import notificationRepository from '../Repository/notificationRepository';
-import { IauthController } from 'src/Interface/Auth/iAuthController';
+import { IauthController } from '../Interface/Auth/iAuthController';
 
 const __otpService = new otpService(otpRepo,menteeRepository)
 const __authService = new authService(__otpService,categoryRepository,mentorRepository,menteeRepository,notificationRepository)
@@ -26,7 +26,7 @@ auth_Router.post('/login/mentee',__authController.mainLogin.bind(__authControlle
 auth_Router.post('/forgot_password/mentee',__authController.forgotPassword.bind(__authController));
 auth_Router.put('/change_password/mentee',__authController.forgot_PasswordChange.bind(__authController))
 
-// metor
+// mentor
 auth_Router.get(`/apply_as_mentor`,__authController.mentorFields.bind(__authController));
 auth_Router.post(`/apply_as_mentor`,upload.fields(
         [

@@ -150,12 +150,8 @@ class bookingControlelr {
     }
     turnServerConnection(req, res, next) {
         return __awaiter(this, void 0, void 0, function* () {
-            var _a;
             try {
                 const { turnServerConfig, status } = yield this._bookingService.turnServerConnection();
-                console.log(turnServerConfig.iceServers !== undefined
-                    ? (_a = turnServerConfig === null || turnServerConfig === void 0 ? void 0 : turnServerConfig.iceServers[1]) === null || _a === void 0 ? void 0 : _a.urls
-                    : "", turnServerConfig);
                 res.status(status).json({ turnServerConfig });
             }
             catch (error) {

@@ -110,7 +110,7 @@ export class bookingService implements IbookingService {
           line_items: [
             {
               price_data: {
-                currency: "usd",
+                currency: "inr",
                 unit_amount: parseInt(totalAmount) * 100,
                 product_data: {
                   name: `Mentor is ${decodeURIComponent(
@@ -258,7 +258,7 @@ export class bookingService implements IbookingService {
     bodyData: Buffer
   ): Promise<void> {
     try {
-       console.log('this is inside booking webhook',signature,bodyData)
+
       if (!signature || !bodyData) {
         throw new Error("Missing signature or body data in webhook request.");
       }
@@ -738,7 +738,7 @@ export class bookingService implements IbookingService {
         };
 
         await this.__transactionRepository.createTransaction(newTranasaction);
-        title = `cancel amount $${response?.paymentAmount} refunded`;
+        title = `cancel amount ₹ ${response?.paymentAmount} refunded`;
         message = "session cancel approved,amount credited to your wallet";
         url = `${process.env.CLIENT_ORIGIN_URL}/mentee/wallet`;
       } else {

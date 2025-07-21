@@ -21,6 +21,8 @@ const index_1 = require("../index");
 const httpStatusCode_1 = require("../Constants/httpStatusCode");
 const httpResponse_1 = require("../Constants/httpResponse");
 const http_error_handler_util_1 = require("../Utils/http-error-handler.util");
+const userHeaderInfoDTO_1 = require("../dto/common/userHeaderInfoDTO");
+const menteeDTO_1 = require("../dto/mentee/menteeDTO");
 class authService {
     constructor(_OtpService, _categoryRepository, _MentorRepository, _MenteeRepository, _notificationRepository) {
         this._OtpService = _OtpService;
@@ -40,7 +42,8 @@ class authService {
                     };
                 }
                 const existingUser = yield this._MenteeRepository.findByEmail(userData === null || userData === void 0 ? void 0 : userData.email);
-                if (((existingUser === null || existingUser === void 0 ? void 0 : existingUser.email) && (existingUser === null || existingUser === void 0 ? void 0 : existingUser.verified)) || (existingUser === null || existingUser === void 0 ? void 0 : existingUser.provider) === "google") {
+                if (((existingUser === null || existingUser === void 0 ? void 0 : existingUser.email) && (existingUser === null || existingUser === void 0 ? void 0 : existingUser.verified)) ||
+                    (existingUser === null || existingUser === void 0 ? void 0 : existingUser.provider) === "google") {
                     return {
                         success: false,
                         message: httpResponse_1.HttpResponse === null || httpResponse_1.HttpResponse === void 0 ? void 0 : httpResponse_1.HttpResponse.EMAIL_EXIST,
@@ -127,15 +130,18 @@ class authService {
                         status: httpStatusCode_1.Status.BadRequest,
                     };
                 }
-                const userId = result._id;
+                const userId = String(result === null || result === void 0 ? void 0 : result._id);
                 const accessToken = (0, jwt_utils_1.genAccesssToken)(userId, "mentee");
                 const refreshToken = (0, jwt_utils_1.genRefreshToken)(userId, "mentee");
+                //map with dto
+                const userDto = userHeaderInfoDTO_1.UserHeaderDTO.single(result);
                 return {
                     success: true,
                     message: httpResponse_1.HttpResponse === null || httpResponse_1.HttpResponse === void 0 ? void 0 : httpResponse_1.HttpResponse.SUCCESS,
                     refreshToken,
                     accessToken,
                     status: httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.Ok,
+                    user: userDto,
                 };
             }
             catch (error) {
@@ -279,7 +285,7 @@ class authService {
                         accessToken: null,
                     };
                 }
-                const userId = result._id;
+                const userId = String(result === null || result === void 0 ? void 0 : result._id);
                 const accessToken = (0, jwt_utils_1.genAccesssToken)(userId, "admin");
                 const refreshToken = (0, jwt_utils_1.genRefreshToken)(userId, "admin");
                 return {
@@ -400,12 +406,15 @@ class authService {
                 const mentorId = `${result._id}`;
                 const accessToken = (0, jwt_utils_1.genAccesssToken)(mentorId, "mentor");
                 const refreshToken = (0, jwt_utils_1.genRefreshToken)(mentorId, "mentor");
+                // map userdata with Dto
+                const userDto = userHeaderInfoDTO_1.UserHeaderDTO.single(result);
                 return {
                     success: true,
                     message: httpResponse_1.HttpResponse === null || httpResponse_1.HttpResponse === void 0 ? void 0 : httpResponse_1.HttpResponse.SUCCESS,
                     status: httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.Ok,
                     accessToken,
                     refreshToken,
+                    user: userDto,
                 };
             }
             catch (error) {
@@ -479,14 +488,18 @@ class authService {
                 if (!user) {
                     throw new Error("user deailes not found");
                 }
-                const accessToken = (0, jwt_utils_1.genAccesssToken)(user === null || user === void 0 ? void 0 : user._id, "mentee");
-                const refreshToken = (0, jwt_utils_1.genRefreshToken)(user === null || user === void 0 ? void 0 : user._id, "mentee");
+                const accessToken = (0, jwt_utils_1.genAccesssToken)(String(user === null || user === void 0 ? void 0 : user._id), "mentee");
+                const refreshToken = (0, jwt_utils_1.genRefreshToken)(String(user === null || user === void 0 ? void 0 : user._id), "mentee");
+                //map mentee data with dto
+                const menteeDTO = menteeDTO_1.MenteeDTO.single(user);
+                const encodedDTO = Object.assign(Object.assign({}, menteeDTO), { name: encodeURIComponent(menteeDTO.name), email: encodeURIComponent(menteeDTO.email), profileUrl: encodeURIComponent(menteeDTO.profileUrl || "") });
                 return {
                     success: true,
                     message: httpResponse_1.HttpResponse === null || httpResponse_1.HttpResponse === void 0 ? void 0 : httpResponse_1.HttpResponse.SUCCESS,
                     status: httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.Ok,
                     accessToken,
                     refreshToken,
+                    user: encodedDTO,
                 };
             }
             catch (error) {

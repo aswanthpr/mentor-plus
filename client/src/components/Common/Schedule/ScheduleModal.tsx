@@ -337,7 +337,7 @@ export const ScheduleModal = ({
                       onChange={(e) =>
                         handleNormalPriceChange(dateIndex, e.target?.value)
                       }
-                      placeholder="Enter price"
+                      placeholder="Enter price (₹)"
                       className="ml-0 pl-0"
                       min={0}
                     />

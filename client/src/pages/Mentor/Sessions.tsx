@@ -33,8 +33,8 @@ const Sessions: React.FC = () => {
   const [sortField, setSortField] = useState<TSort>("createdAt");
   const [sortOrder, setSortOrder] = useState<TSortOrder>("desc");
   const [statusFilter, setStatusFilter] = useState<TFilter>("all");
-  const role = useSelector((state: RootState) => state.menter.mentorRole);
-const debouncedSearchQuery = useDebounce(searchQuery, 500);
+  const role = useSelector((state: RootState) => state?.auth?.role);
+  const debouncedSearchQuery = useDebounce(searchQuery, 500);
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -57,11 +57,21 @@ const debouncedSearchQuery = useDebounce(searchQuery, 500);
       }
     };
     fetchData();
-  }, [activeTab, currentPage, debouncedSearchQuery, sortField, sortOrder, statusFilter]);
+  }, [
+    activeTab,
+    currentPage,
+    debouncedSearchQuery,
+    sortField,
+    sortOrder,
+    statusFilter,
+  ]);
 
   const handleReclaimRequest = useCallback(
     (sessionId: string, val: string) => {
-      const value = val === "APPROVE" ? SESSION_STATUS?.CANCELLED : SESSION_STATUS?.REJECTED;
+      const value =
+        val === "APPROVE"
+          ? SESSION_STATUS?.CANCELLED
+          : SESSION_STATUS?.REJECTED;
 
       const handleRequest = async (sessionId: string, value: string) => {
         const response = await fetchCanceSessionResponse(sessionId, value);
@@ -76,7 +86,9 @@ const debouncedSearchQuery = useDebounce(searchQuery, 500);
                   : session
               )
               .filter((session) =>
-                value !== SESSION_STATUS?.REJECTED ? true : session?._id !== sessionId
+                value !== SESSION_STATUS?.REJECTED
+                  ? true
+                  : session?._id !== sessionId
               )
           );
         }
@@ -95,8 +107,6 @@ const debouncedSearchQuery = useDebounce(searchQuery, 500);
           autoClose: false,
         }
       );
-
-      
     },
     [sessions]
   );
@@ -141,7 +151,9 @@ const debouncedSearchQuery = useDebounce(searchQuery, 500);
         toast.success(response?.data?.message);
         setSessions((pre) =>
           pre.map((sess) =>
-            sess._id === bookingId ? { ...sess, status:SESSION_STATUS?.COMPLETED } : sess
+            sess._id === bookingId
+              ? { ...sess, status: SESSION_STATUS?.COMPLETED }
+              : sess
           )
         );
       }
@@ -149,15 +161,19 @@ const debouncedSearchQuery = useDebounce(searchQuery, 500);
   }, []);
 
   const handleSessionJoin = useCallback(
-    async (sessionId: string, session_Code: string, role: string,userId:string) => {
-      
+    async (
+      sessionId: string,
+      session_Code: string,
+      role: string,
+      userId: string
+    ) => {
       const response = await joinSessionHandler(sessionId, session_Code, role);
       if (response?.status == HttpStatusCode?.Ok && response?.data?.success) {
-       
         navigate(
           `/${role}/${role == "mentor" ? "session" : "bookings"}/${
             response?.data?.session_Code
-          }`,{state:{userId,sessionId}}
+          }`,
+          { state: { userId, sessionId } }
         );
       }
     },
@@ -211,7 +227,9 @@ const debouncedSearchQuery = useDebounce(searchQuery, 500);
                 <option value="all">All Status</option>
                 {activeTab == "upcoming" ? (
                   <>
-                    <option value={SESSION_STATUS?.CANCEL_REQUESTED}>Cancel Request</option>
+                    <option value={SESSION_STATUS?.CANCEL_REQUESTED}>
+                      Cancel Request
+                    </option>
                   </>
                 ) : (
                   <>
@@ -258,7 +276,7 @@ const debouncedSearchQuery = useDebounce(searchQuery, 500);
         <hr className="h-px  bg-gray-200 border-0 dark:bg-gray-700 mt-2 " />
         <div className="flex justify-center mt-2">
           <Pagination
-            count={typeof totalDocuments==='number'?totalDocuments:1}
+            count={typeof totalDocuments === "number" ? totalDocuments : 1}
             page={currentPage} // Current page
             onChange={handlePageChange} // Page change handler
             color="standard" // Pagination color

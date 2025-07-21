@@ -7,7 +7,7 @@ export const ProfileHeader = ({ mentorData }: ProfileHeaderProps) => {
       <div className="container mx-auto px-4 py-8">
         <div className="flex flex-col md:flex-row items-center md:items-start gap-6 ">
           <div className="relative">
-            <img
+            <img  loading="lazy"
               src={mentorData?.profileUrl??profileImg}
               alt={mentorData?.name}
               className="w-32 h-32 md:w-40 md:h-40 rounded-full border-4 border-white shadow-lg object-cover "

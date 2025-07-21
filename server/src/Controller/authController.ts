@@ -82,20 +82,28 @@ export class authController implements IauthController {
     try {
       const { email, password } = req.body;
 
-      const result = await this._AuthService.mainLogin(email, password);
+      const {
+        message,
+        status,
+        success,
+        accessToken,
+        refreshToken,
+        user,
+      } = await this._AuthService.mainLogin(email, password);
 
       res
-        .status(result?.status)
-        .cookie("refreshToken", `${result?.refreshToken ?? ""}`, {
+        .status(status)
+        .cookie("refreshToken", `${refreshToken ?? ""}`, {
           httpOnly: true,
-          secure: process.env.NODE_ENV === "production", 
-          sameSite:process.env.NODE_ENV === "production"? "none":"lax",
-          maxAge: 14 * 24 * 60 * 60 * 1000,
+          secure: process.env.NODE_ENV === "production",
+          sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
+          maxAge: parseInt(process.env.REFRESH_TOKEN_EXPIRY || "0", 10),
         })
         .json({
-          success: result?.success,
-          message: result?.message,
-          accessToken: result?.accessToken,
+          success,
+          message,
+          accessToken,
+          user,
         });
 
       return;
@@ -147,17 +155,16 @@ export class authController implements IauthController {
 
       const { success, message, status, refreshToken, accessToken } =
         await this._AuthService.adminLogin(email, password);
-        res
+      res
         .status(status)
-        .cookie("adminToken", refreshToken as string, {
+        .cookie("refreshToken", refreshToken as string, {
           httpOnly: true,
           secure: process.env.NODE_ENV === "production",
-          sameSite:process.env.NODE_ENV === "production"? "none":"lax",
-          maxAge: 15 * 24 * 60 * 60 * 1000,
+          sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
+          maxAge: parseInt(process.env.REFRESH_TOKEN_EXPIRY || "0", 10),
           path: "/",
         })
         .json({ message, success, accessToken });
-
 
       return;
     } catch (error: unknown) {
@@ -248,22 +255,23 @@ export class authController implements IauthController {
     try {
       const { email, password } = req.body;
 
-      const { status, success, message, accessToken, refreshToken } =
+      const { status, success, message, accessToken, refreshToken, user } =
         await this._AuthService.mentorLogin(email, password);
 
       res
         .status(status)
-        .cookie("mentorToken", refreshToken, {
+        .cookie("refreshToken", refreshToken, {
           httpOnly: true,
           secure: process.env.NODE_ENV === "production",
-          sameSite:process.env.NODE_ENV === "production"? "none":"lax",
-          maxAge: 15 * 24 * 60 * 60 * 1000,
+          sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
+          maxAge: parseInt(process.env.REFRESH_TOKEN_EXPIRY || "0", 10),
           path: "/",
         })
         .json({
           success,
           message,
           accessToken,
+          user,
         });
     } catch (error: unknown) {
       next(error);
@@ -312,24 +320,22 @@ export class authController implements IauthController {
     next: NextFunction
   ): Promise<void> {
     try {
-  
-      if(!req.user){
-        return
+      if (!req.user) {
+        return;
       }
-      const { accessToken, refreshToken } = await this._AuthService.googleAuth(
-        req.user as Imentee
-      );
+      const { accessToken, refreshToken, user } =
+        await this._AuthService.googleAuth(req.user as Imentee);
 
       res.cookie("refreshToken", refreshToken, {
         httpOnly: true,
         secure: process.env.NODE_ENV === "production",
-        sameSite:process.env.NODE_ENV === "production"? "none":"lax",
-        maxAge: 7 * 24 * 60 * 60 * 1000,
-        path:'/'
+        sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
+        maxAge: parseInt(process.env.REFRESH_TOKEN_EXPIRY || "0", 10),
+        path: "/",
       });
 
       res.redirect(
-        `${process.env.CLIENT_ORIGIN_URL}/mentee/google/success?token=${accessToken}`
+        `${process.env.CLIENT_ORIGIN_URL}/mentee/google/success?token=${accessToken}&name=${user?.name}&email=${user?.email}&image=${user?.profileUrl}`
       );
     } catch (error: unknown) {
       next(error);

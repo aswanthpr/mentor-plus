@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useState } from "react";
-import { DollarSign, Frown } from "lucide-react";
+import { IndianRupeeIcon, Frown } from "lucide-react";
 import WalletCard from "../../components/Common/wallet/WalletCard";
 import WithdrawModal from "../../components/Common/wallet/WithdrawModal";
 import TransactionList from "../../components/Common/wallet/TransactionList";
@@ -86,7 +86,7 @@ const WalletPage: React.FC = () => {
       {loading && <Spinner />}
       <div className="grid grid-cols-1 md:grid-cols-1 gap-6">
         <WalletCard
-          icon={DollarSign}
+          icon={IndianRupeeIcon}
           title="Balance"
           amount={parseInt(String(walletData?.balance))}
           actionButton={{

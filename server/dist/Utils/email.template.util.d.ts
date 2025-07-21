@@ -1,4 +1,4 @@
-import { ImailOption } from "src/Types";
+import { ImailOption } from "../Types";
 export declare function generateOtpEmailTemplate(otp: string, email: string): {
     to: string;
     subject: string;

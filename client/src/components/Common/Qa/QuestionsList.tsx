@@ -115,7 +115,7 @@ const QuestionList: React.FC<QuestionListProps> = ({
 
               <div className="mt-4 flex justify-between items-center">
                 <div className="flex items-center gap-2">
-                  <img
+                  <img  loading="lazy"
                     src={question.user?.profileUrl??profileImg }
                     alt={question.user?.name}
                     className="w-8 h-8 rounded-full"
@@ -223,8 +223,8 @@ const QuestionList: React.FC<QuestionListProps> = ({
 
       {/* Answer Modal */}
       {pickedQuestion && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-lg max-w-2xl w-full max-h-[80vh] flex flex-col">
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50" onClick={() => setPickedQuestion(null)}>
+          <div className="bg-white rounded-lg max-w-2xl w-full max-h-[80vh] flex flex-col" onClick={(e) => e.stopPropagation()}>
             <div className="p-4 border-b border-gray-200 flex flex-col justify-between items-center">
               <div>
                 <div className="flex justify-between">
@@ -271,7 +271,7 @@ const QuestionList: React.FC<QuestionListProps> = ({
                       className="border-b border-gray-100 last:border-0 pb-6 last:pb-0"
                     >
                       <div className="flex items-center gap-4 mb-3">
-                        <img
+                        <img  loading="lazy"
                           src={answer?.author?.profileUrl??profileImg}
                           alt={answer?.author?.name}
                           className="w-10 h-10 rounded-full"

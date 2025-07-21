@@ -8,7 +8,7 @@ export const ReviewSection = ({ mentorData }: {
   const ReviewCard = ({review}:{review:Ireview}) => (
     <div className="border-b pb-6 last:border-b-0">
       <div className="flex items-start gap-4">
-        <img
+        <img  loading="lazy"
           src={review?.mentee?.profileUrl??profileImg}
           alt={review?.mentee?.name}
           className="w-12 h-12 rounded-full object-cover"

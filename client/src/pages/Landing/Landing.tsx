@@ -5,7 +5,7 @@ import { Menu, X, Github, Twitter, Linkedin } from "lucide-react";
 import logo from "../../Asset/mentor+logo.png";
 import heroImg from "../../Asset/illustration-1.svg";
 import { ROUTES } from "../../Constants/message";
-import { features } from "../../Constants/const Values";
+import { features } from "../../Constants/constValues";
 
 const Landing: React.FC = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -78,7 +78,7 @@ const Landing: React.FC = () => {
               </div>
             </div>
             <div>
-              <img
+              <img  loading="lazy"
                 src={heroImg}
                 alt="Tech mentoring"
                 className="w-full lg:w-[120%] h-auto max-w-none"

@@ -52,7 +52,7 @@ MentorListByCategoryProps) => {
             >
               <Link to={`/mentee/explore/${mentor?.name}`} state={mentor}>
                 <div className="relative">
-                  <img
+                  <img  loading="lazy"
                     src={mentor?.profileUrl ?? profileImg}
                     alt={mentor?.name}
                     className="w-full h-48 object-cover rounded-t-lg"

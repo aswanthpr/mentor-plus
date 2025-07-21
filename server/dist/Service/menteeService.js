@@ -20,6 +20,7 @@ const httpStatusCode_1 = require("../Constants/httpStatusCode");
 const cloudinary_util_1 = require("../Config/cloudinary.util");
 const httpResponse_1 = require("../Constants/httpResponse");
 const http_error_handler_util_1 = require("../Utils/http-error-handler.util");
+const mentorDTO_1 = require("../dto/mentor/mentorDTO");
 // const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string)
 class menteeService {
     constructor(_menteeRepository, _mentorRepository, _categoryRepository, _questionRepository) {
@@ -319,11 +320,13 @@ class menteeService {
                 }
                 // finding skills
                 const categoryWithSkill = yield this._mentorRepository.categoryWithSkills();
+                //dto mapping 
+                const mentorDto = mentorDTO_1.MentorDTO.multiple(mentorData === null || mentorData === void 0 ? void 0 : mentorData.mentor);
                 return {
                     success: false,
                     message: httpResponse_1.HttpResponse === null || httpResponse_1.HttpResponse === void 0 ? void 0 : httpResponse_1.HttpResponse.RESOURCE_FOUND,
                     status: httpStatusCode_1.Status.Ok,
-                    mentor: mentorData === null || mentorData === void 0 ? void 0 : mentorData.mentor,
+                    mentor: mentorDto,
                     category: categoryData,
                     skills: categoryWithSkill,
                     totalPage,

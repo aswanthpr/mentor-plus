@@ -2,6 +2,7 @@ import { Iquestion } from "../../Model/questionModal";
 import { Icategory } from "../../Model/categorySchema";
 import { Imentee } from "../../Model/menteeModel";
 import { Imentor } from "../../Model/mentorModel";
+import { MentorDTO } from "../../dto/mentor/mentorDTO";
 
 
 export interface ImenteeService {
@@ -13,7 +14,7 @@ export interface ImenteeService {
     passwordChange(currentPassword: string, newPassword: string, _id: string): Promise<{ success: boolean, message: string, status: number }>;
     refreshToken(refresh: string): Promise<{ success: boolean; message: string; status: number; accessToken?: string; refreshToken?: string; }>
     exploreData(params:{search: string | undefined,
-        categories: string[] | [], skill: string[] | [], page: string, limit: string,sort:string}): Promise<{ success: boolean, message: string, status: number, mentor?: Imentor[] | null, category?: Icategory[] | null; skills: Imentor[] | undefined,
+        categories: string[] | [], skill: string[] | [], page: string, limit: string,sort:string}): Promise<{ success: boolean, message: string, status: number, mentor?: MentorDTO[] | null, category?: Icategory[] | null; skills: Imentor[] | undefined,
             totalPage?:number,
         currentPage?:number,
          }>;

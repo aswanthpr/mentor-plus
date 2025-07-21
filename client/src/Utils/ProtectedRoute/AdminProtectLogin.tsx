@@ -9,17 +9,17 @@ import { ROUTES } from '../../Constants/message';
 const AdminProtectLogin:React.FC = () => {
 
     const navigate = useNavigate();
-    const adminToken = useSelector((state: RootState) => state.admin?.adminToken);
-    const role = useSelector((state: RootState) => state.admin?.adminRole);
+    const auth = useSelector((state: RootState) => state?.auth);
+
     useEffect(() => {
-        if (!adminToken || role !== 'admin') {
+        if (!auth?.token || auth?.role !== 'admin') {
       
           navigate(ROUTES?.ADMIN_LOGIN);
         }
-      }, [adminToken, role, navigate]);
+      }, [auth?.token, auth?.role, navigate]);
     
       // return element;
-      return adminToken && role === 'admin' ? <Outlet /> : null;
+      return auth?.token && auth?.role === 'admin' ? <Outlet /> : null;
 }
 
 export default AdminProtectLogin

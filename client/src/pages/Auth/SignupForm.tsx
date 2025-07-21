@@ -149,43 +149,13 @@ const SignupForm: React.FC = () => {
       }}
     >
       {loading && <Spinner />}
-      <div className="sm:mx-auto sm:w-full sm:max-w-md">
-        <h2 className="text-center text-3xl font-bold tracking-tight text-gray-900">
-          Sign up as mentee
-        </h2>
-      </div>
 
       <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
         <div className="bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10">
-          <div className="space-y-4">
-            <button
-              onClick={() =>
-                (window.location.href = `${
-                  import.meta.env.VITE_SERVER_URL
-                }/auth/google`)
-              }
-              className="w-full flex items-center justify-center gap-2 px-4 py-2 border-2 border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
-            >
-              <img
-                src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg"
-                alt="Google"
-                className="w-5 h-5"
-              />
-              <span className="text-sm font-medium">Continue with Google</span>
-            </button>
-          </div>
-
-          <div className="mt-6">
-            <div className="relative">
-              <div className="absolute inset-0 flex items-center">
-                <div className="w-full border-t border-gray-300" />
-              </div>
-              <div className="relative flex justify-center text-sm">
-                <span className="px-2 bg-white text-gray-500">
-                  Or continue with
-                </span>
-              </div>
-            </div>
+          <div className="sm:mx-auto sm:w-full sm:max-w-md">
+            <h2 className="text-center text-3xl font-bold tracking-tight text-gray-900">
+              Sign up as mentee
+            </h2>
           </div>
 
           <form className="mt-6 space-y-6" onSubmit={handleSubmit}>
@@ -263,6 +233,36 @@ const SignupForm: React.FC = () => {
               </button>
             </div>
           </form>
+          <div className="space-y-4">
+            <div className="mt-6">
+              <div className="relative">
+                <div className="absolute inset-0 flex items-center">
+                  <div className="w-full border-t border-gray-300" />
+                </div>
+                <div className="relative flex justify-center text-sm">
+                  <span className="px-2 bg-white text-gray-500">
+                    Or continue with
+                  </span>
+                </div>
+              </div>
+            </div>
+            <button
+              onClick={() =>
+                (window.location.href = `${
+                  import.meta.env.VITE_SERVER_URL
+                }/auth/google`)
+              }
+              className="w-full flex items-center justify-center gap-2 px-4 py-2 border-2 border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
+            >
+              <img
+                loading="lazy"
+                src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg"
+                alt="Google"
+                className="w-5 h-5"
+              />
+              <span className="text-sm font-medium">Continue with Google</span>
+            </button>
+          </div>
 
           <div className="mt-6 space-y-4">
             <p className="text-sm text-center text-gray-600">

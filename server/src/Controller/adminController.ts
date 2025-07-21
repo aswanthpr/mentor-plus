@@ -12,16 +12,16 @@ export class adminController implements IadminController {
   ): Promise<void> {
     try {
       const result = await this._adminService.adminRefreshToken(
-        req.cookies?.adminToken
+        req.cookies?.refreshToken
       );
 
       res
         .status(result.status)
-        .cookie("adminToken", result?.refreshToken as string, {
+        .cookie("refreshToken", result?.refreshToken as string, {
           httpOnly: true,
-          secure:process.env.NODE_ENV === "production",
-          sameSite:process.env.NODE_ENV === "production"? "none":"lax",
-          maxAge: 14 * 24 * 60 * 60 * 1000,
+          secure: process.env.NODE_ENV === "production",
+          sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
+          maxAge: parseInt(process.env.REFRESH_TOKEN_EXPIRY || "0", 10),
         })
         .json({
           success: result?.success,
@@ -78,7 +78,7 @@ export class adminController implements IadminController {
   ): Promise<void> {
     try {
       const { id, category } = req.body;
-     
+
       const result = await this._adminService.editCategory(id, category);
       if (result.success) {
         res.status(Status?.Ok).json(result);
@@ -151,7 +151,6 @@ export class adminController implements IadminController {
     next: NextFunction
   ): Promise<void> {
     try {
-     
       const { status, success, message } = await this._adminService.editMentee(
         req.body
       );
@@ -208,7 +207,6 @@ export class adminController implements IadminController {
     next: NextFunction
   ): Promise<void> {
     try {
-     
       const result = await this._adminService.mentorVerify(req.body as string);
 
       res.status(result.status).json({
@@ -243,7 +241,8 @@ export class adminController implements IadminController {
     next: NextFunction
   ): Promise<void> {
     try {
-      res.clearCookie("adminToken");
+      res.clearCookie("refreshToken");
+
       res
         .status(Status?.Ok)
         .json({ success: true, message: "Logout successfully" });

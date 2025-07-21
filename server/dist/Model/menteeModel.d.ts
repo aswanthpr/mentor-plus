@@ -1,5 +1,6 @@
-import mongoose, { Document } from "mongoose";
+import mongoose, { Document, Types } from "mongoose";
 export interface Imentee extends Document {
+    _id: Types.ObjectId;
     name: string;
     email: string;
     phone?: string;
@@ -16,7 +17,7 @@ export interface Imentee extends Document {
     provider: string;
 }
 declare const _default: mongoose.Model<Imentee, {}, {}, {}, mongoose.Document<unknown, {}, Imentee> & Imentee & Required<{
-    _id: unknown;
+    _id: Types.ObjectId;
 }> & {
     __v: number;
 }, any>;

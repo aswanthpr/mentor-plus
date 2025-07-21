@@ -36,7 +36,7 @@ const Boooking: React.FC = () => {
   const [sortOrder, setSortOrder] = useState<TSortOrder>("desc");
   const [statusFilter, setStatusFilter] = useState<TFilter>("all");
   const [loading, setLoading] = useState<boolean>(false);
-  const role = useSelector((state: RootState) => state?.mentee.role);
+  const role = useSelector((state: RootState) => state?.auth?.role);
   const debouncedSearchQuery = useDebounce(searchQuery, 500);
 
   useEffect(() => {
@@ -44,7 +44,7 @@ const Boooking: React.FC = () => {
     const fetchData = async () => {
       
       if (!isMounted) return;
-      console.log("Booking useEffect called");
+  
     try {
       setLoading(true);
 

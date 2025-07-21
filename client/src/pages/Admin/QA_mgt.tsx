@@ -351,8 +351,8 @@ const QA_mgt: React.FC = () => {
                         )}
                       </button>
                     </div>
-                    <p className="text-gray-700 whitespace-pre-wrap">
-                      {answer.answer}
+                    <p className="text-gray-700 whitespace-pre-wrap break-all">
+                      {answer?.answer}
                     </p>
                   </div>
                 ))

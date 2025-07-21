@@ -58,13 +58,13 @@ passport_1.default.use(new passport_google_oauth20_1.Strategy({
 passport_1.default.serializeUser((user, done) => {
     done(null, user);
 });
-passport_1.default.deserializeUser((user, done) => __awaiter(void 0, void 0, void 0, function* () {
+passport_1.default.deserializeUser((userData, done) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        if (!(user === null || user === void 0 ? void 0 : user._id)) {
+        if (!(userData === null || userData === void 0 ? void 0 : userData._id)) {
             throw new Error("User ID is missing during deserialization.");
         }
-        const User = yield menteeRepository_1.default.findById(user === null || user === void 0 ? void 0 : user._id);
-        done(null, User);
+        const user = yield menteeRepository_1.default.findById(String(userData === null || userData === void 0 ? void 0 : userData._id));
+        done(null, user);
     }
     catch (error) {
         done(error, null);

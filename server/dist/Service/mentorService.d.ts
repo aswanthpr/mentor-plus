@@ -10,6 +10,7 @@ import { IquestionRepository } from "../Interface/Qa/IquestionRepository";
 import { ObjectId } from "mongoose";
 import { ItimeSlotRepository } from "../Interface/Booking/iTimeSchedule";
 import { IslotScheduleRepository } from "../Interface/Booking/iSlotScheduleRepository";
+import { MentorDTO } from "../dto/mentor/mentorDTO";
 export declare class mentorService implements ImentorService {
     private _mentorRepository;
     private _categoryRepository;
@@ -20,7 +21,7 @@ export declare class mentorService implements ImentorService {
     mentorProfile(token: string): Promise<{
         success: boolean;
         message: string;
-        result: Imentor | null;
+        result: MentorDTO | null;
         status: number;
         categories: Icategory[] | [];
     }>;

@@ -8,6 +8,8 @@ import { ImentorRepository } from "../Interface/Mentor/iMentorRepository";
 import { InotificationRepository } from "../Interface/Notification/InotificationRepository";
 import { IslotScheduleRepository } from "../Interface/Booking/iSlotScheduleRepository";
 import { IcardData } from "../Types";
+import { AdminListedMentorDTO } from "../dto/mentor/adminListedMentorDTO";
+import { AdminListedMenteeDTO } from "../dto/mentee/adminListMenteeDTO";
 export declare class adminService implements IadminService {
     private readonly _categoryRepository;
     private readonly _menteeRepository;
@@ -50,7 +52,7 @@ export declare class adminService implements IadminService {
         success: boolean;
         message: string;
         status: number;
-        Data?: Imentee[] | [];
+        Data?: AdminListedMenteeDTO[] | [];
         totalPage: number;
     }>;
     changeMenteeStatus(id: string): Promise<{
@@ -73,7 +75,7 @@ export declare class adminService implements IadminService {
         success: boolean;
         message: string;
         status: number;
-        mentorData: Imentor[] | [];
+        mentorData: AdminListedMentorDTO[] | [];
         totalPage: number;
     }>;
     mentorVerify(id: string): Promise<{

@@ -64,22 +64,22 @@ class authController {
     }
     mainLogin(req, res, next) {
         return __awaiter(this, void 0, void 0, function* () {
-            var _a;
             try {
                 const { email, password } = req.body;
-                const result = yield this._AuthService.mainLogin(email, password);
+                const { message, status, success, accessToken, refreshToken, user, } = yield this._AuthService.mainLogin(email, password);
                 res
-                    .status(result === null || result === void 0 ? void 0 : result.status)
-                    .cookie("refreshToken", `${(_a = result === null || result === void 0 ? void 0 : result.refreshToken) !== null && _a !== void 0 ? _a : ""}`, {
+                    .status(status)
+                    .cookie("refreshToken", `${refreshToken !== null && refreshToken !== void 0 ? refreshToken : ""}`, {
                     httpOnly: true,
                     secure: process.env.NODE_ENV === "production",
                     sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
-                    maxAge: 14 * 24 * 60 * 60 * 1000,
+                    maxAge: parseInt(process.env.REFRESH_TOKEN_EXPIRY || "0", 10),
                 })
                     .json({
-                    success: result === null || result === void 0 ? void 0 : result.success,
-                    message: result === null || result === void 0 ? void 0 : result.message,
-                    accessToken: result === null || result === void 0 ? void 0 : result.accessToken,
+                    success,
+                    message,
+                    accessToken,
+                    user,
                 });
                 return;
             }
@@ -119,11 +119,11 @@ class authController {
                 const { success, message, status, refreshToken, accessToken } = yield this._AuthService.adminLogin(email, password);
                 res
                     .status(status)
-                    .cookie("adminToken", refreshToken, {
+                    .cookie("refreshToken", refreshToken, {
                     httpOnly: true,
                     secure: process.env.NODE_ENV === "production",
                     sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
-                    maxAge: 15 * 24 * 60 * 60 * 1000,
+                    maxAge: parseInt(process.env.REFRESH_TOKEN_EXPIRY || "0", 10),
                     path: "/",
                 })
                     .json({ message, success, accessToken });
@@ -193,20 +193,21 @@ class authController {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 const { email, password } = req.body;
-                const { status, success, message, accessToken, refreshToken } = yield this._AuthService.mentorLogin(email, password);
+                const { status, success, message, accessToken, refreshToken, user } = yield this._AuthService.mentorLogin(email, password);
                 res
                     .status(status)
-                    .cookie("mentorToken", refreshToken, {
+                    .cookie("refreshToken", refreshToken, {
                     httpOnly: true,
                     secure: process.env.NODE_ENV === "production",
                     sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
-                    maxAge: 15 * 24 * 60 * 60 * 1000,
+                    maxAge: parseInt(process.env.REFRESH_TOKEN_EXPIRY || "0", 10),
                     path: "/",
                 })
                     .json({
                     success,
                     message,
                     accessToken,
+                    user,
                 });
             }
             catch (error) {
@@ -244,15 +245,15 @@ class authController {
                 if (!req.user) {
                     return;
                 }
-                const { accessToken, refreshToken } = yield this._AuthService.googleAuth(req.user);
+                const { accessToken, refreshToken, user } = yield this._AuthService.googleAuth(req.user);
                 res.cookie("refreshToken", refreshToken, {
                     httpOnly: true,
                     secure: process.env.NODE_ENV === "production",
                     sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
-                    maxAge: 7 * 24 * 60 * 60 * 1000,
-                    path: '/'
+                    maxAge: parseInt(process.env.REFRESH_TOKEN_EXPIRY || "0", 10),
+                    path: "/",
                 });
-                res.redirect(`${process.env.CLIENT_ORIGIN_URL}/mentee/google/success?token=${accessToken}`);
+                res.redirect(`${process.env.CLIENT_ORIGIN_URL}/mentee/google/success?token=${accessToken}&name=${user === null || user === void 0 ? void 0 : user.name}&email=${user === null || user === void 0 ? void 0 : user.email}&image=${user === null || user === void 0 ? void 0 : user.profileUrl}`);
             }
             catch (error) {
                 next(error);

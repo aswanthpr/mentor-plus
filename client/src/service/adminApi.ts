@@ -2,16 +2,16 @@
 //ADMIN ============================================================
 
 import axios, { AxiosResponse } from "axios";
-import { API, unAPI } from "../Config/adminAxios";
 import { errorHandler } from "../Utils/Reusable/Reusable";
 import { toast } from "react-toastify";
+import { api } from "../Config/axiosInstance";
 
 export const fetchDashboardData = async (
   signal: AbortSignal,
   timeRange: string
 ): Promise<AxiosResponse | any> => {
   try {
-    return await API.get(`/admin/dashboard`, {
+    return await api.get(`/admin/dashboard`, {
       signal,
       params: {
         timeRange,
@@ -30,7 +30,7 @@ export const fetchAdminLogin = async (
   password: string
 ): Promise<AxiosResponse | any> => {
   try {
-    return await unAPI.post(`/auth/login/admin`, {
+    return await api.post(`/auth/login/admin`, {
       email,
       password,
     });
@@ -43,7 +43,7 @@ export const fetchChangeAnswerStatus = async (
   answerId: string
 ): Promise<AxiosResponse | any> => {
   try {
-    return await API.patch(`/admin/qa_management/change_answer_status`, {
+    return await api.patch(`/admin/qa_management/change_answer_status`, {
       answerId,
     });
   } catch (error: unknown) {
@@ -60,7 +60,7 @@ export const fetchQuestionMangement = async (
   limit: number
 ): Promise<AxiosResponse | any> => {
   try {
-    return await API.get(`/admin/qa-management`, {
+    return await api.get(`/admin/qa-management`, {
       params: {
         search,
         Status,
@@ -78,7 +78,7 @@ export const changeQuestionStatus = async (
   questionId: string
 ): Promise<AxiosResponse | any> => {
   try {
-    return await API.patch(`/admin/qa_management/change_question_status`, {
+    return await api.patch(`/admin/qa_management/change_question_status`, {
       questionId,
     });
   } catch (error: unknown) {
@@ -88,7 +88,7 @@ export const changeQuestionStatus = async (
 };
 export const fetchAdminLogout = async (): Promise<AxiosResponse | any> => {
   try {
-    return await API.post(`/admin/logout`);
+    return await api.post(`/admin/logout`);
   } catch (error: unknown) {
     errorHandler(error);
     console.log(error instanceof Error ? error?.message : String(error));
@@ -98,7 +98,7 @@ export const fetchNotificaitionRead = async (
   id: string
 ): Promise<AxiosResponse | any> => {
   try {
-    return await API.patch(`/admin/notification-read/${id}`);
+    return await api.patch(`/admin/notification-read/${id}`);
   } catch (error: unknown) {
     errorHandler(error);
     console.log(error instanceof Error ? error?.message : String(error));
@@ -106,7 +106,7 @@ export const fetchNotificaitionRead = async (
 };
 export const fetchAllNotification = async (): Promise<AxiosResponse | any> => {
   try {
-    return await API.get(`/admin/notification`);
+    return await api.get(`/admin/notification`);
   } catch (error: unknown) {
     console.log(error instanceof Error ? error?.message : String(error));
     
@@ -116,7 +116,7 @@ export const fetchCategoryChange = async (
   id: string
 ): Promise<AxiosResponse | any> => {
   try {
-    return await API.put(`/admin/change_category_status`, { id });
+    return await api.put(`/admin/change_category_status`, { id });
   } catch (error: unknown) {
     console.log(error instanceof Error ? error?.message : String(error));
     errorHandler(error);
@@ -127,7 +127,7 @@ export const fetchEditCategory = async (
   category: string
 ): Promise<AxiosResponse | any> => {
   try {
-    return await API.patch(`/admin/edit_category`, {
+    return await api.patch(`/admin/edit_category`, {
       id,
       category,
     });
@@ -145,7 +145,7 @@ export const fetchAllcategoryData = async (
   limit: number
 ): Promise<AxiosResponse | any> => {
   try {
-    return await API.get("/admin/category_management", {
+    return await api.get("/admin/category_management", {
       params: {
         searchQuery,
         statusFilter,
@@ -163,7 +163,7 @@ export const fetchCreateCategory = async (
   category: string
 ): Promise<AxiosResponse | any> => {
   try {
-    return await API.post(`/admin/create_category`, {
+    return await api.post(`/admin/create_category`, {
       category,
     });
   } catch (error: unknown) {
@@ -180,7 +180,7 @@ export const fetchAllMentee = async (
   limit: number
 ): Promise<AxiosResponse | any> => {
   try {
-    return await API.get(`/admin/mentee_management`, {
+    return await api.get(`/admin/mentee_management`, {
       params: {
         search,
         sortField,
@@ -198,7 +198,7 @@ export const ToggleMenteeStatus = async (
   id: string
 ): Promise<AxiosResponse | any> => {
   try {
-    return await API.patch(`/admin/mentee_management/change_mentee_status`, {
+    return await api.patch(`/admin/mentee_management/change_mentee_status`, {
       id,
     });
   } catch (error: unknown) {
@@ -215,7 +215,7 @@ export const fetchMentorData = async (
   PAGE_LIMIT: number
 ): Promise<AxiosResponse | any> => {
   try {
-    return await API.get(`/admin/mentor_management`, {
+    return await api.get(`/admin/mentor_management`, {
       params: {
         searchQuery,
         activeTab,
@@ -233,7 +233,7 @@ export const fetchMentorVerify = async (
   id: string
 ): Promise<AxiosResponse | any> => {
   try {
-    return await API.patch(`/admin/mentor_management/mentor_verify`, { id });
+    return await api.patch(`/admin/mentor_management/mentor_verify`, { id });
   } catch (error: unknown) {
     errorHandler(error);
     toast.dismiss();
@@ -244,7 +244,7 @@ export const toggleMentorStatus = async (
   id: string
 ): Promise<AxiosResponse | any> => {
   try {
-    return await API.patch(`/admin/mentor_management/change_mentor_status`, {
+    return await api.patch(`/admin/mentor_management/change_mentor_status`, {
       id,
     });
   } catch (error: unknown) {

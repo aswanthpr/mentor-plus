@@ -1,6 +1,6 @@
 import React from "react";
-import { Star } from "lucide-react";
-import profileImg  from "../../Asset/user.png"
+import { IndianRupee, Star } from "lucide-react";
+import profileImg from "../../Asset/user.png";
 const TopMentors: React.FC<TopMentorsProps> = React.memo(({ mentors }) => {
   return (
     <div className="bg-white p-6 rounded-lg shadow-sm">
@@ -33,7 +33,7 @@ const TopMentors: React.FC<TopMentorsProps> = React.memo(({ mentors }) => {
                   <div className="flex items-center">
                     <img
                       className="h-10 w-10 rounded-full"
-                      src={mentor?.profileUrl??profileImg}
+                      src={mentor?.profileUrl ?? profileImg}
                       alt={mentor?.mentorName}
                     />
                     <div className="ml-4">
@@ -48,9 +48,11 @@ const TopMentors: React.FC<TopMentorsProps> = React.memo(({ mentors }) => {
                     {mentor?.category}
                   </span>
                 </td>
+
                 <td className="px-6 py-4 whitespace-nowrap">
-                  <span className="text-sm text-gray-900">
-                    ${mentor?.totalRevenue.toLocaleString()}
+                  <span className="text-sm text-gray-900 flex items-center">
+                    <IndianRupee className="w-4 h-4" />
+                    {mentor?.totalRevenue?.toLocaleString()}
                   </span>
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap">

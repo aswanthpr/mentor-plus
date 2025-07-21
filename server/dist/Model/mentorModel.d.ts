@@ -1,5 +1,6 @@
-import mongoose, { Document } from "mongoose";
+import mongoose, { Document, Types } from "mongoose";
 export interface Imentor extends Document {
+    _id: Types.ObjectId;
     name: string;
     email: string;
     phone: string;
@@ -16,7 +17,7 @@ export interface Imentor extends Document {
     category: string;
 }
 declare const _default: mongoose.Model<Imentor, {}, {}, {}, mongoose.Document<unknown, {}, Imentor> & Imentor & Required<{
-    _id: unknown;
+    _id: Types.ObjectId;
 }> & {
     __v: number;
 }, any>;

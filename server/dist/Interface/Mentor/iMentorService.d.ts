@@ -4,11 +4,12 @@ import { Imentor } from "../../Model/mentorModel";
 import { Itime } from "../../Model/timeModel";
 import { ObjectId } from "mongoose";
 import { ImentorChartData } from "src/Types";
+import { MentorDTO } from "../../dto/mentor/mentorDTO";
 export interface ImentorService {
     mentorProfile(token: string): Promise<{
         success: boolean;
         message: string;
-        result: Imentor | null;
+        result: MentorDTO | null;
         status: number;
         categories: Icategory[] | [];
     }>;

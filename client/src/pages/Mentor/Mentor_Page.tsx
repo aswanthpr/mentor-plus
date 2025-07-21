@@ -13,7 +13,6 @@ import {
 
 import { RootState } from "../../Redux/store";
 import { markAsRead, setNotification } from "../../Redux/notificationSlice";
-import { clearMentorToken } from "../../Redux/mentorSlice";
 import Header from "../../components/Common/common4All/Header";
 import SidePanel from "../../components/Common/common4All/SidePanel";
 import {
@@ -26,6 +25,8 @@ import {
   fetchReadNotification,
 } from "../../service/mentorApi";
 import { HttpStatusCode } from "axios";
+import { clearUser } from "../../Redux/userSlice";
+import { clearAuth } from "../../Redux/authSlice";
 
 const navItems: INavItem[] = [
   { name: "Home", path: "/mentor/home", icon: Home },
@@ -83,7 +84,7 @@ const Mentor_Page: React.FC = () => {
     }, 3000);
     return () => {
       flag = false;
-      clearTimeout(timer)
+      clearTimeout(timer);
       disconnectNotificationSocket();
     };
   }, [dispatch]);
@@ -117,10 +118,8 @@ const Mentor_Page: React.FC = () => {
   const mentorLogout = useCallback(async () => {
     const response = await fetchMentorLogout();
     if (response.data?.success && response?.status == HttpStatusCode?.Ok) {
-      dispatch(clearMentorToken());
-      localStorage.removeItem("mentorToken");
-      localStorage.removeItem("mentor");
-
+      dispatch(clearUser());
+      dispatch(clearAuth());
       toast.success(response.data.message);
     }
   }, [dispatch]);

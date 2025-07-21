@@ -1,26 +1,21 @@
-import React, { useEffect } from 'react';
-import { useSelector } from 'react-redux';
-import {  Outlet, useNavigate } from 'react-router-dom';
-import { RootState } from '../../Redux/store';
-import { ROUTES } from '../../Constants/message';
+import React, { useEffect } from "react";
+import { useSelector } from "react-redux";
+import { Outlet, useNavigate } from "react-router-dom";
+import { RootState } from "../../Redux/store";
+import { ROUTES } from "../../Constants/message";
 
+const MentorProtectLogin: React.FC = () => {
+  const navigate = useNavigate();
 
-const MentorProtectLogin:React.FC = () => {
-    const navigate = useNavigate();
-    const accessToken = useSelector((state: RootState) => state.menter?.mentorToken);
-    const role = useSelector((state: RootState) =>state.menter?.mentorRole);
-  
-  
-    useEffect(() => {
-      if (!accessToken || role !== 'mentor') {
-  
-        navigate(ROUTES?.MENTOR_LOGIN);
-      }
-    }, [accessToken, role, navigate]);
+  const auth = useSelector((state: RootState) => state?.auth);
 
- 
-  
-    return accessToken && role === 'mentor' ? <Outlet /> : null;;
-}
+  useEffect(() => {
+    if (!auth?.token || auth?.role !== "mentor") {
+      navigate(ROUTES?.MENTOR_LOGIN);
+    }
+  }, [auth?.token, auth?.role, navigate]);
 
-export default MentorProtectLogin
+  return auth?.token && auth?.role === "mentor" ? <Outlet /> : null;
+};
+
+export default MentorProtectLogin;

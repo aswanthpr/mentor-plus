@@ -273,7 +273,7 @@ const MenteeProfile: React.FC = () => {
         <div className="h-56 bg-gradient-to-r from-[#ff8800] to-[#ff8800] rounded-b-lg">
           <div className="ml-5 absolute bottom-0 left-auto transform translate-y-1/2 flex items-end">
             <div className="relative group">
-              <img
+              <img  loading="lazy"
                 src={ mentee?.profileUrl as string ?? profile}
                 alt={mentee?.name}
                 className="w-32 h-32 rounded-full border-4 border-white shadow-lg"

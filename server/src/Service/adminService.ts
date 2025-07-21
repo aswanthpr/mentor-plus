@@ -20,6 +20,8 @@ import { HttpResponse } from "../Constants/httpResponse";
 import { HttpError } from "../Utils/http-error-handler.util";
 import { generateMentorVerifiedEmailTemplate } from "../Utils/email.template.util";
 import { sendMail } from "../Utils/nodeMailer.util";
+import { AdminListedMentorDTO } from "../dto/mentor/adminListedMentorDTO";
+import { AdminListedMenteeDTO } from "../dto/mentee/adminListMenteeDTO";
 
 export class adminService implements IadminService {
   constructor(
@@ -244,7 +246,7 @@ export class adminService implements IadminService {
       success: boolean;
       message: string;
       status: number;
-      Data?: Imentee[] | [];
+      Data?: AdminListedMenteeDTO[] | [];
       totalPage: number
     }> {
     try {
@@ -279,11 +281,13 @@ export class adminService implements IadminService {
         };
       }
       const totalPage = Math.ceil(result?.totalDoc / limitNo)
+
+      const menteeDTO = AdminListedMenteeDTO.multiple(result?.mentees)
       return {
         success: true,
         message: HttpResponse?.DATA_RETRIEVED,
         status: Status?.Ok,
-        Data: result?.mentees,
+        Data: menteeDTO,
         totalPage,
       };
     } catch (error: unknown) {
@@ -381,7 +385,7 @@ export class adminService implements IadminService {
     success: boolean;
     message: string;
     status: number;
-    mentorData: Imentor[] | [];
+    mentorData: AdminListedMentorDTO[] | [];
     totalPage: number;
   }> {
     try {
@@ -419,11 +423,12 @@ export class adminService implements IadminService {
           totalPage: 0
         };
       }
+      const mentorDTO = AdminListedMentorDTO.multiple(result?.mentors)
       return {
         success: true,
         message: HttpResponse?.DATA_RETRIEVED,
         status: Status?.Ok,
-        mentorData: result?.mentors,
+        mentorData: mentorDTO,
         totalPage
       };
     } catch (error: unknown) {

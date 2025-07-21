@@ -6,18 +6,16 @@ import { ROUTES } from "../../Constants/message";
 
 const MentorProtectLogout: React.FC = () => {
   const navigate = useNavigate();
-  const accessToken = useSelector(
-    (state: RootState) => state.menter?.mentorToken
-  );
-  const role = useSelector((state: RootState) => state.menter.mentorRole);
+
+  const auth = useSelector((state: RootState) => state?.auth);
 
   useEffect(() => {
-    if (accessToken && role === "mentor") {
+    if (auth?.token && auth?.role === "mentor") {
       navigate(ROUTES?.MENTOR_HOME);
     }
-  }, [accessToken, role, navigate]);
+  }, [auth?.token, auth?.role, navigate]);
 
-  return !accessToken || role !== "mentor" ? <Outlet /> : null;
+  return !auth?.token || auth?.role !== "mentor" ? <Outlet /> : null;
 };
 
 export default MentorProtectLogout;

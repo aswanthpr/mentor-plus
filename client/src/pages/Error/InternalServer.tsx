@@ -18,7 +18,7 @@ const handleRefresh=()=>{
                 <div className='relative'>
                 
                     <div className='absolute inset-0 flex items-center justify-center'>
-                    <img src={internal_Server} alt="Lost in space "
+                    <img  loading="lazy" src={internal_Server} alt="Lost in space "
                         className=' w-50 h-50  object-cover rounded-sm border-orange-300 ' />
 
                     </div>

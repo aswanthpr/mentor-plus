@@ -24,9 +24,13 @@ import {
 import { ANSWER_EDIT } from "../../Constants/initialStates";
 import { HttpStatusCode } from "axios";
 import useDebounce from "../../Hooks/useDebounce";
+import { useSelector } from "react-redux";
+import { RootState } from "../../Redux/store";
 
 const Home: React.FC = () => {
   const page_limit = 6;
+
+    const user = useSelector((state:RootState)=>state?.user);
   const [filter, setFilter] = useState<TquestionTab>("answered");
   const [selectedQuestion, setSelectedQuestion] = useState<IQuestion | null>(
     null
@@ -45,6 +49,7 @@ const Home: React.FC = () => {
   const [editingAnswerId, setEditingAnswerId] = useState<string | null>(null);
   const [hasMore, setHasMore] = useState<boolean>(true);
   const [sortField, setSortField] = useState<TsortField>("createdAt");
+  
 
   const [sortOrder, setSortOrder] = useState<TSortOrder>("desc");
   const [editData, setEditData] = useState<{
@@ -280,7 +285,7 @@ const Home: React.FC = () => {
         {loading && <Spinner />}
         <div className="flex items-center gap-3 mb-2  justify-center">
           <h1 className="text-3xl font-bold text-gray-900  xs:text-xl sm:ml-0 ">
-            Welcome
+            Welcome {user?.name}
           </h1>
           <HandshakeIcon className="w-6 h-6 text-[#ff8800] mt-1" />
         </div>

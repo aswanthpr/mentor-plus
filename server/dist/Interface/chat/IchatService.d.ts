@@ -1,6 +1,6 @@
 import { ObjectId } from "mongoose";
 import { Ichat } from "../../Model/chatSchema";
-import { Imessage } from "src/Model/messageSchema";
+import { Imessage } from "../../Model/messageSchema";
 export interface IchatService {
     getChats(userId: ObjectId, role: string): Promise<{
         success: boolean;

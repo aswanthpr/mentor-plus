@@ -1,12 +1,11 @@
 import React, { useCallback, useState } from "react";
-import { DollarSign, X } from "lucide-react";
+import { X } from "lucide-react";
 import { validateWalletInput } from "../../../Validation/Validation";
 
 const WithdrawModal: React.FC<WithdrawModalProps> = ({
   isOpen,
   onClose,
   onSubmit,
-
 }) => {
   const [amount, setAmount] = useState("");
   const [error, setError] = useState<string>("");
@@ -32,8 +31,14 @@ const WithdrawModal: React.FC<WithdrawModalProps> = ({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-      <div className="bg-white rounded-lg max-w-md w-full p-6">
+    <div
+      className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50"
+      onClick={onClose}
+    >
+      <div
+        className="bg-white rounded-lg max-w-md w-full p-6"
+        onClick={(e) => e.stopPropagation()}
+      >
         <div className="flex justify-between items-center mb-6">
           <h3 className="text-xl font-bold text-gray-900">Withdraw Money</h3>
           <button
@@ -50,7 +55,7 @@ const WithdrawModal: React.FC<WithdrawModalProps> = ({
               Amount
             </label>
             <div className="">
-              <DollarSign className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
+              {/* <IndianRupee className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" /> */}
               <input
                 type="number"
                 value={amount}
@@ -58,8 +63,8 @@ const WithdrawModal: React.FC<WithdrawModalProps> = ({
                 min="500"
                 max={5000}
                 step="10"
-                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#ff8800] focus:border-transparent"
-                placeholder="0.00"
+                className="w-full pl-5 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#ff8800] focus:border-transparent"
+                placeholder="₹ 0.00"
               />
               {error && <p className="text-red-500 text-sm mt-2">{error}</p>}
             </div>

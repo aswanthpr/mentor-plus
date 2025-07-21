@@ -1,8 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { axiosInstance } from "../Config/mentorAxios";
-import { protectedAPI, unProtectedAPI } from "../Config/Axios";
 import { AxiosResponse } from "axios";
 import { errorHandler } from "../Utils/Reusable/Reusable";
+import { api } from "../Config/axiosInstance";
 
 //COMMON_FETCH====================================================================
 export const joinSessionHandler = async (
@@ -18,8 +17,8 @@ export const joinSessionHandler = async (
   | undefined
 > => {
   try {
-    const apiClient = role === "mentee" ? protectedAPI : axiosInstance;
-    return await apiClient.get(`/${role}/session/validate-session-join`, {
+   
+    return await api.get(`/${role}/session/validate-session-join`, {
       params:{
         sessionId,
         sessionCode,
@@ -38,8 +37,8 @@ export const fetchWalletData = async (
   limit: number
 ) => {
   try {
-    const apiClient = role === "mentee" ? protectedAPI : axiosInstance;
-    return await apiClient.get(`/${role}/wallet`, {
+   
+    return await api.get(`/${role}/wallet`, {
       params: { role, search, filter, page, limit },
     });
   } catch (error: unknown) {
@@ -48,8 +47,7 @@ export const fetchWalletData = async (
 };
 export const fetchChats = async (role: string) => {
   try {
-    const apiClient = role === "mentee" ? protectedAPI : axiosInstance;
-    return await apiClient.get(`/${role}/chats`, { params: { role } });
+    return await api.get(`/${role}/chats`, { params: { role } });
   } catch (error: unknown) {
     console.log(error instanceof Error ? error.message : String(error));
   }
@@ -60,7 +58,7 @@ export const fetchForgotPassword = async (
   password: string
 ) => {
   try {
-    return await unProtectedAPI.put(
+    return await api.put(
       `/auth/change_password/${user == "mentee" ? "mentee" : "mentor"}`,
       { email, password }
     );
@@ -71,7 +69,7 @@ export const fetchForgotPassword = async (
 };
 export const fetchForgotPassOtpVerify = async (email: string, otp: string) => {
   try {
-    return await unProtectedAPI.post(`/auth/verify-otp`, {
+    return await api.post(`/auth/verify-otp`, {
       email,
       otp,
       type: "forgot_Passsword",
@@ -86,7 +84,7 @@ export const forgetPasswordResendOtp = async (
   email: string
 ): Promise<AxiosResponse | any> => {
   try {
-    return await unProtectedAPI.post("/auth/resend-otp", { email });
+    return await api.post("/auth/resend-otp", { email });
   } catch (error: unknown) {
     errorHandler(error);
     console.log(error instanceof Error ? error.message : String(error));
@@ -97,7 +95,7 @@ export const fetchForgotPassSendOtp = async (
   user: string
 ): Promise<AxiosResponse | any> => {
   try {
-    return await unProtectedAPI.post(
+    return await api.post(
       `/auth/forgot_password/${user == "mentee" ? "mentee" : "mentor"}`,
       { email }
     );

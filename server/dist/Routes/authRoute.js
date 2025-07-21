@@ -25,7 +25,7 @@ auth_Router.post('/resend-otp', __authController.resendOtp.bind(__authController
 auth_Router.post('/login/mentee', __authController.mainLogin.bind(__authController));
 auth_Router.post('/forgot_password/mentee', __authController.forgotPassword.bind(__authController));
 auth_Router.put('/change_password/mentee', __authController.forgot_PasswordChange.bind(__authController));
-// metor
+// mentor
 auth_Router.get(`/apply_as_mentor`, __authController.mentorFields.bind(__authController));
 auth_Router.post(`/apply_as_mentor`, multer_util_1.default.fields([
     { name: 'profileImage', maxCount: 1 },

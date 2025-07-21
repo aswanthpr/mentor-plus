@@ -2,6 +2,7 @@ import { Iquestion } from "../../Model/questionModal";
 import { Icategory } from "../../Model/categorySchema";
 import { Imentee } from "../../Model/menteeModel";
 import { Imentor } from "../../Model/mentorModel";
+import { MentorDTO } from "../../dto/mentor/mentorDTO";
 export interface ImenteeService {
     homeData(filter: string, search: string, sortField: string, sortOrder: string, page: number, limit: number): Promise<{
         success: boolean;
@@ -50,7 +51,7 @@ export interface ImenteeService {
         success: boolean;
         message: string;
         status: number;
-        mentor?: Imentor[] | null;
+        mentor?: MentorDTO[] | null;
         category?: Icategory[] | null;
         skills: Imentor[] | undefined;
         totalPage?: number;

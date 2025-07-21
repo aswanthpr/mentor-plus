@@ -7,7 +7,10 @@ function genOtp() {
 }
 const generateSessionCode = () => {
     var _a;
-    const randomString = Math.random().toString(36).substring(2, 11).toUpperCase();
+    const randomString = Math.random()
+        .toString(36)
+        .substring(2, 11)
+        .toUpperCase();
     return ((_a = randomString.match(/.{1,3}/g)) === null || _a === void 0 ? void 0 : _a.join("-")) || "";
 };
 exports.generateSessionCode = generateSessionCode;
@@ -21,7 +24,7 @@ const getTodayEndTime = () => {
 exports.getTodayEndTime = getTodayEndTime;
 const checkForOverlap = (checkedSlots, newSlots) => {
     return newSlots.filter(({ startTime, endTime }) => {
-        //here checking the slot is exist in db slot 
+        //here checking the slot is exist in db slot
         const isOverlapping = checkedSlots.some((dbSlot) => {
             var _a, _b, _c, _d;
             const dbStartTime = (_b = (_a = dbSlot === null || dbSlot === void 0 ? void 0 : dbSlot.slots) === null || _a === void 0 ? void 0 : _a.startTime) === null || _b === void 0 ? void 0 : _b.substring(11, 16);

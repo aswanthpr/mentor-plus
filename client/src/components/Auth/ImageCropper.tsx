@@ -86,7 +86,7 @@ const ImageCropper: React.FC<ImageCroper> = ({
             aspect={1}
             circularCrop
           >
-            <img ref={imageRef} src={imageSrc} alt="Crop me" />
+            <img  loading="lazy" ref={imageRef} src={imageSrc} alt="Crop me" />
           </ReactCrop>
         </div>
         <div className="flex justify-end gap-2">

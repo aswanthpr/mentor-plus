@@ -88,7 +88,7 @@ class menteeRepository extends baseRepo_1.baseRepository {
     editMentee(formData) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                return yield this.find_By_Id_And_Update(menteeModel_1.default, formData === null || formData === void 0 ? void 0 : formData._id, {
+                return yield this.find_By_Id_And_Update(menteeModel_1.default, String(formData === null || formData === void 0 ? void 0 : formData._id), {
                     $set: {
                         name: formData === null || formData === void 0 ? void 0 : formData.name,
                         email: formData === null || formData === void 0 ? void 0 : formData.email,

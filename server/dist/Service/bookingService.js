@@ -89,7 +89,7 @@ class bookingService {
                         line_items: [
                             {
                                 price_data: {
-                                    currency: "usd",
+                                    currency: "inr",
                                     unit_amount: parseInt(totalAmount) * 100,
                                     product_data: {
                                         name: `Mentor is ${decodeURIComponent(mentorName.toLocaleUpperCase())}`,
@@ -193,7 +193,6 @@ class bookingService {
         return __awaiter(this, void 0, void 0, function* () {
             var _a, _b;
             try {
-                console.log('this is inside booking webhook', signature, bodyData);
                 if (!signature || !bodyData) {
                     throw new Error("Missing signature or body data in webhook request.");
                 }
@@ -505,7 +504,7 @@ class bookingService {
                         note: httpResponse_1.NOTIFY === null || httpResponse_1.NOTIFY === void 0 ? void 0 : httpResponse_1.NOTIFY.CANCELLD_AMOUNT_CREDIT,
                     };
                     yield this.__transactionRepository.createTransaction(newTranasaction);
-                    title = `cancel amount $${response === null || response === void 0 ? void 0 : response.paymentAmount} refunded`;
+                    title = `cancel amount ₹ ${response === null || response === void 0 ? void 0 : response.paymentAmount} refunded`;
                     message = "session cancel approved,amount credited to your wallet";
                     url = `${process.env.CLIENT_ORIGIN_URL}/mentee/wallet`;
                 }

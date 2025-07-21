@@ -15,7 +15,7 @@ export const TimeSlotCard = ({
           <p className="text-gray-600">
             {startTime} - {endTime}
           </p>
-          <p className="text-orange-500 font-medium mt-2">${price}</p>
+          <p className="text-orange-500 font-medium mt-2">₹{price}</p>
         </div>
         <button
           onClick={onDelete}

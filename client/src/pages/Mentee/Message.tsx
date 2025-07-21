@@ -36,7 +36,7 @@ const Message: React.FC = () => {
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
 
   dayjs.extend(utc);
-  
+
   const [currentTime, setCurrentTime] = useState(
     dayjs().utc().format("YYYY-MM-DD HH:mm:ss")
   );
@@ -324,7 +324,7 @@ const Message: React.FC = () => {
                          }`}
               >
                 <div className="relative flex-shrink-0">
-                  <img
+                  <img  loading="lazy"
                     src={user?.users?.profileUrl ?? profileImg}
                     alt={user?.users?.name}
                     className="w-12 h-12 rounded-full object-cover ring-2 ring-gray-200"
@@ -365,7 +365,7 @@ const Message: React.FC = () => {
                           space-x-4 sticky top-0 z-10 shadow-sm"
             >
               <div className="relative">
-                <img
+                <img  loading="lazy"
                   src={selectedUserRef.current?.users?.profileUrl ?? profileImg}
                   alt={selectedUserRef.current?.users?.name}
                   className="w-10 h-10 rounded-full object-cover ring-2 ring-gray-200"
@@ -425,7 +425,7 @@ const Message: React.FC = () => {
                     {message.messageType === "image" && message.content && (
                       <div className="relative group">
                         <div className="max-w-[200px] max-h-[200px] overflow-hidden rounded-lg">
-                          <img
+                          <img  loading="lazy"
                             src={message.content}
                             alt="Shared image"
                             className="w-full h-full object-cover cursor-pointer 
@@ -579,7 +579,6 @@ const Message: React.FC = () => {
                            focus:ring-2 focus:ring-orange-500 focus:border-transparent
                            disabled:opacity-60 disabled:cursor-not-allowed"
                 />
-
                 <input
                   ref={fileInputRef}
                   type="file"
@@ -587,7 +586,6 @@ const Message: React.FC = () => {
                   className="hidden"
                   accept="image/*,.pdf,.doc,.docx"
                 />
-
                 <button
                   onClick={() => fileInputRef.current?.click()}
                   className="p-2 hover:bg-gray-100 rounded-full transition-colors"

@@ -3,7 +3,7 @@ import upload from "../Config/multer.util";
 import qaService from "../Service/qaService";
 import qaController from "../Controller/qaController";
 import { menteeService } from "../Service/menteeService";
-import authorize from "../Middleware/menteeAuthMiddleware";
+// import authorize from "../Middleware/menteeAuthMiddleware";
 import { bookingService } from "../Service/bookingService";
 import menteeRepository from "../Repository/menteeRepository";
 import mentorRepository from "../Repository/mentorRepository";
@@ -27,6 +27,7 @@ import walletRepository from "../Repository/walletRepository";
 import { reviewController } from "../Controller/reviewController";
 import reviewRepository from "../Repository/reviewRepository";
 import { reviewService } from "../Service/reviewService";
+import authorizeUser from "../Middleware/authorizeUser";
 
 const __menteeService = new menteeService(
   menteeRepository,
@@ -80,88 +81,88 @@ mentee_Router.post(
 
 mentee_Router.get(
   `/explore`,
-  authorize,
+  authorizeUser('mentee'),
   __menteeController.exploreData.bind(__menteeController)
 );
 
 mentee_Router.get(
   `/profile`,
-  authorize,
+  authorizeUser('mentee'),
   __menteeController.menteeProfile.bind(__menteeController)
 );
 mentee_Router.put(
   `/profile/edit_profile`,
-  authorize,
+  authorizeUser('mentee'),
   __menteeController.menteeProfileEdit.bind(__menteeController)
 );
 mentee_Router.patch(
   `/profile/change_password`,
-  authorize,
+  authorizeUser('mentee'),
   __menteeController.passwordChange.bind(__menteeController)
 );
 mentee_Router.patch(
   `/profile/change_profile`,
-  authorize,
+  authorizeUser('mentee'),
   upload.fields([{ name: "profileImage", maxCount: 1 }]),
   __menteeController.profileChange.bind(__menteeController)
 );
 
 mentee_Router.get(
   `/qa`,
-  authorize,
+  authorizeUser('mentee'),
   __qaController.questionData.bind(__qaController)
 );
 mentee_Router.post(
   `/qa/add-question`,
-  authorize,
+  authorizeUser('mentee'),
   __qaController.addQuestion.bind(__qaController)
 );
 mentee_Router.patch(
   `/qa/edit-question`,
-  authorize,
+  authorizeUser('mentee'),
   __qaController.editQuestion.bind(__qaController)
 );
 
 mentee_Router.get(
   `/home/:filter`,
-  authorize,
+  authorizeUser('mentee'),
   __menteeController.homeData.bind(__menteeController)
 );
 
 mentee_Router.delete(
   `/qa/delete/:questionId`,
-  authorize,
+  authorizeUser('mentee'),
   __qaController.deleteQuestion.bind(__qaController)
 );
 
 mentee_Router.post(
   `/qa/create-answer`,
-  authorize,
+  authorizeUser('mentee'),
   __qaController.createNewAnswer.bind(__qaController)
 );
 
 mentee_Router.patch(
   `/qa/edit-answer`,
-  authorize,
+  authorizeUser('mentee'),
   __qaController.editAnswer.bind(__qaController)
 );
 
 mentee_Router.get(
   `/explore/similar-mentors`,
-  authorize,
+  authorizeUser('mentee'),
   __menteeController.getSimilarMentors.bind(__menteeController)
 );
 
 mentee_Router.get(
   `/slot-booking`,
-  authorize,
+  authorizeUser('mentee'),
   __bookingController.getTimeSlots.bind(__bookingController)
 );
 
 //slot book with rzorpay
 mentee_Router.post(
   `/slot-booking`,
-  authorize,
+  authorizeUser('mentee'),
   __bookingController.slotBooking.bind(__bookingController)
 );
 
@@ -174,54 +175,54 @@ mentee_Router.post(
 
 mentee_Router.get(
   `/sessions`,
-  authorize,
+  authorizeUser('mentee'),
   __bookingController.getBookedSlot.bind(__bookingController)
 );
 mentee_Router.patch(
   `/sessions/cancel_request/:sessionId`,
-  authorize,
+  authorizeUser('mentee'),
   __bookingController.cancelSlot.bind(__bookingController)
 );
 mentee_Router.get(
   `/notification`,
-  authorize,
+  authorizeUser('mentee'),
   __notificationController.getNotification.bind(__notificationController)
 );
 
 mentee_Router.patch(
   `/notification-read/:notificationId`,
-  authorize,
+  authorizeUser('mentee'),
   __notificationController.markAsReadNotif.bind(__notificationController)
 );
 
 mentee_Router.get(
   "/chats",
-  authorize,
+  authorizeUser('mentee'),
   __chatController.getChats.bind(__chatController)
 );
 
 mentee_Router.get(
   "/messages",
-  authorize,
+  authorizeUser('mentee'),
   __chatController.getUserMessage.bind(__chatController)
 );
 
 mentee_Router.get(
   `/session/validate-session-join`,
-  authorize,
+  authorizeUser('mentee'),
   __bookingController.validateSessionJoin.bind(__bookingController)
 );
 
 //wallet'
 mentee_Router.get(
   `/wallet`,
-  authorize,
+  authorizeUser('mentee'),
   __walletController.getWalletData.bind(__walletController)
 );
 
 mentee_Router.post(
   "/wallet/add-money-wallet",
-  authorize,
+  authorizeUser('mentee'),
   __walletController.addMoneyToWallet.bind(__walletController)
 );
 
@@ -233,12 +234,12 @@ mentee_Router.post(
 
 mentee_Router.post(
   "/review-and-rating",
-  authorize,
+  authorizeUser('mentee'),
   __reviewController.reviewNdRateMentor.bind(__reviewController)
 );
 mentee_Router.get(
   "/turn-credentials",
-  authorize,
+  authorizeUser('mentee'),
   __bookingController.turnServerConnection.bind(__bookingController)
 );
 

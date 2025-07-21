@@ -1,6 +1,6 @@
 import  { useEffect, useState } from 'react'
 import StatsCard from '../../components/Charts/StatsCard';
-import { DollarSign, Star, TrendingDown, UserCircle } from 'lucide-react';
+import { IndianRupeeIcon, Star, TrendingDown, UserCircle } from 'lucide-react';
 import GrowthTrend from '../../components/Charts/GrowthTrend';
 import RevenueChart from '../../components/Charts/RevenueChart';
 import { fetchMentorStatistics } from '../../service/mentorApi';
@@ -44,7 +44,7 @@ const MentorHome = () => {
           <StatsCard
             title="current month revenue"
             value={data?.currentMonthRevenue??0}
-            icon={DollarSign}
+            icon={IndianRupeeIcon}
             iconBgColor="bg-blue-100"
             iconColor="text-blue-600"
           />

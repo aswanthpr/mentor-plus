@@ -8,6 +8,7 @@ const MentorCard: React.FC<SessionCardProps> = ({ session, handleCancelSession }
     <div className="flex items-start justify-between">
       <div className="flex items-center gap-4">
         <img
+         loading="lazy"
           src={session?.mentorAvatar??profileImg}
           alt={session?.mentorName}
           className="w-12 h-12 rounded-full"

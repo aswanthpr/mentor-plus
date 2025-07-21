@@ -26,6 +26,7 @@ import { checkForOverlap, createSkip } from "../Utils/reusable.util";
 import { IslotScheduleRepository } from "../Interface/Booking/iSlotScheduleRepository";
 import { HttpResponse } from "../Constants/httpResponse";
 import { HttpError } from "../Utils/http-error-handler.util";
+import { MentorDTO } from "../dto/mentor/mentorDTO";
 
 export class mentorService implements ImentorService {
   constructor(
@@ -34,12 +35,12 @@ export class mentorService implements ImentorService {
     private _questionRepository: IquestionRepository,
     private _timeSlotRepository: ItimeSlotRepository,
     private readonly _slotScheduleRepository: IslotScheduleRepository
-  ) { }
+  ) {}
 
   async mentorProfile(token: string): Promise<{
     success: boolean;
     message: string;
-    result: Imentor | null;
+    result: MentorDTO | null;
     status: number;
     categories: Icategory[] | [];
   }> {
@@ -78,16 +79,19 @@ export class mentorService implements ImentorService {
           categories: [],
         };
       }
-
+      const mentorDTO = MentorDTO.single(result);
       return {
         success: true,
         message: HttpResponse?.SUCCESS,
         status: Status?.Ok,
-        result: result,
+        result: mentorDTO,
         categories: categoryData,
       };
     } catch (error: unknown) {
-      throw new HttpError(error instanceof Error ? error.message : String(error), Status?.InternalServerError);
+      throw new HttpError(
+        error instanceof Error ? error.message : String(error),
+        Status?.InternalServerError
+      );
     }
   }
 
@@ -143,7 +147,10 @@ export class mentorService implements ImentorService {
         status: Status?.Ok,
       };
     } catch (error: unknown) {
-      throw new HttpError(error instanceof Error ? error.message : String(error), Status?.InternalServerError);
+      throw new HttpError(
+        error instanceof Error ? error.message : String(error),
+        Status?.InternalServerError
+      );
     }
   }
   //mentor password change logic
@@ -206,7 +213,10 @@ export class mentorService implements ImentorService {
         status: Status?.Ok,
       };
     } catch (error: unknown) {
-      throw new HttpError(error instanceof Error ? error.message : String(error), Status?.InternalServerError);
+      throw new HttpError(
+        error instanceof Error ? error.message : String(error),
+        Status?.InternalServerError
+      );
     }
   }
 
@@ -222,7 +232,6 @@ export class mentorService implements ImentorService {
     profileUrl?: string;
   }> {
     try {
-
       if (!image || !id) {
         return {
           success: false,
@@ -258,7 +267,10 @@ export class mentorService implements ImentorService {
         profileUrl: result.profileUrl,
       };
     } catch (error: unknown) {
-      throw new HttpError(error instanceof Error ? error.message : String(error), Status?.InternalServerError);
+      throw new HttpError(
+        error instanceof Error ? error.message : String(error),
+        Status?.InternalServerError
+      );
     }
   }
 
@@ -284,7 +296,6 @@ export class mentorService implements ImentorService {
         bio,
         skills,
       } = mentorData;
-     
 
       if (
         !name ||
@@ -357,7 +368,10 @@ export class mentorService implements ImentorService {
         result: result,
       };
     } catch (error: unknown) {
-      throw new HttpError(error instanceof Error ? error.message : String(error), Status?.InternalServerError);
+      throw new HttpError(
+        error instanceof Error ? error.message : String(error),
+        Status?.InternalServerError
+      );
     }
   }
   async questionData(
@@ -375,7 +389,6 @@ export class mentorService implements ImentorService {
     totalPage: number;
   }> {
     try {
-     
       if (!filter || page < 1 || limit < 1 || !sortField || !sortOrder) {
         return {
           success: false,
@@ -407,7 +420,10 @@ export class mentorService implements ImentorService {
         totalPage,
       };
     } catch (error: unknown) {
-      throw new HttpError(error instanceof Error ? error.message : String(error), Status?.InternalServerError);
+      throw new HttpError(
+        error instanceof Error ? error.message : String(error),
+        Status?.InternalServerError
+      );
     }
   }
 
@@ -668,7 +684,10 @@ export class mentorService implements ImentorService {
         timeSlots: result,
       };
     } catch (error: unknown) {
-      throw new HttpError(error instanceof Error ? error.message : String(error), Status?.InternalServerError);
+      throw new HttpError(
+        error instanceof Error ? error.message : String(error),
+        Status?.InternalServerError
+      );
     }
   }
   async getTimeSlots(
@@ -707,7 +726,7 @@ export class mentorService implements ImentorService {
       const skipData = createSkip(page, limit);
       const limitNo = skipData?.limitNo;
       const skip = skipData?.skip;
-    
+
       const response = await this._timeSlotRepository.getTimeSlots(
         mentorId,
         limitNo,
@@ -726,7 +745,10 @@ export class mentorService implements ImentorService {
         totalPage,
       };
     } catch (error: unknown) {
-      throw new HttpError(error instanceof Error ? error.message : String(error), Status?.InternalServerError);
+      throw new HttpError(
+        error instanceof Error ? error.message : String(error),
+        Status?.InternalServerError
+      );
     }
   }
   async removeTimeSlot(
@@ -748,14 +770,17 @@ export class mentorService implements ImentorService {
           status: Status.NotFound,
         };
       }
-     
+
       return {
         success: true,
         message: HttpResponse?.SUCCESS,
         status: Status.Ok,
       };
     } catch (error: unknown) {
-      throw new HttpError(error instanceof Error ? error.message : String(error), Status?.InternalServerError);
+      throw new HttpError(
+        error instanceof Error ? error.message : String(error),
+        Status?.InternalServerError
+      );
     }
   }
   async mentorChartData(
@@ -781,7 +806,7 @@ export class mentorService implements ImentorService {
         mentorId,
         timeRange
       );
-     
+
       return {
         success: true,
         message: HttpResponse?.SUCCESS,
@@ -789,7 +814,10 @@ export class mentorService implements ImentorService {
         result: result?.mentorChart,
       };
     } catch (error: unknown) {
-      throw new HttpError(error instanceof Error ? error.message : String(error), Status?.InternalServerError);
+      throw new HttpError(
+        error instanceof Error ? error.message : String(error),
+        Status?.InternalServerError
+      );
     }
   }
 }

@@ -6,7 +6,7 @@ import { toast } from "react-toastify";
 import SelectField from "../Schedule/SelectField";
 import moment from "moment";
 import Button from "../../Auth/Button";
-import { issues } from "../../../Constants/const Values";
+import { issues } from "../../../Constants/constValues";
 import { SESSION_STATUS } from "../../../Constants/message";
 import profileImg from "../../../Asset/user.png";
 const SessionCard: React.FC<ISessionCardProps> = ({
@@ -75,6 +75,7 @@ const SessionCard: React.FC<ISessionCardProps> = ({
         {/* image */}
         <div className="flex items-center gap-4">
           <img
+            loading="lazy"
             src={session?.user?.profileUrl ?? profileImg}
             alt={session?.user?.name}
             className="w-12 h-12 rounded-full"
@@ -142,24 +143,35 @@ const SessionCard: React.FC<ISessionCardProps> = ({
           </span>
         </div>
       </div>
-
-      <div className="mt-4 grid grid-cols-3 gap-4">
+      <div className="mt-4 grid grid-cols-4 gap-4 items-center">
+        {/* Date */}
         <div className="flex items-center gap-2">
           <Calendar className="w-4 h-4 text-gray-400" />
           <span className="text-sm text-gray-600">{startDate}</span>
         </div>
+
+        {/* Payment */}
+        <div className="flex items-center gap-2">
+          <span className="text-sm text-gray-600">
+            ₹{session?.paymentAmount}
+          </span>
+        </div>
+
+        {/* Time + Duration */}
         <div className="flex items-center gap-2">
           <Clock className="w-4 h-4 text-gray-400" />
           <span className="text-sm text-gray-600">
             {startTime} ({session?.duration} min)
           </span>
         </div>
-        <div className="flex justify-end">
+
+        {/* Actions */}
+        <div className="flex items-center justify-end gap-2">
           {(session?.status === "CONFIRMED" ||
             session?.status === "REJECTED") && (
-            <div className="flex gap-2">
+            <>
               {session?.status === "CONFIRMED" &&
-                role == "mentee" &&
+                role === "mentee" &&
                 !session?.sessionCode && (
                   <Tooltip title="Cancel session">
                     <button
@@ -170,6 +182,7 @@ const SessionCard: React.FC<ISessionCardProps> = ({
                     </button>
                   </Tooltip>
                 )}
+
               {session?.sessionCode && (
                 <Tooltip title="Join session">
                   <button
@@ -178,35 +191,35 @@ const SessionCard: React.FC<ISessionCardProps> = ({
                         session?._id,
                         session?.sessionCode as string,
                         role as string,
-                        session?.user?._id as string,
-                      ) 
+                        session?.user?._id as string
+                      )
                     }
-                    className="text-[#ff8800] hover:text-[#ff9900] text-lg font-medium"
+                    className="text-[#ff8800] hover:text-[#ff9900] text-sm font-medium"
                   >
                     Join
                   </button>
                 </Tooltip>
               )}
-            </div>
+            </>
           )}
-          {role == "mentor" && session?.status === "CANCEL_REQUESTED" && (
-            <div className="flex gap-1  items-end">
-              <SelectField
-                label="Cancel Request"
-                onChange={(e: SelectChangeEvent<string>) => {
-                  setMentorStatusChange(e.target?.value);
-                  if (handleReclaimRequest) {
-                    handleReclaimRequest(session?._id, e.target?.value);
-                  }
-                }}
-                options={["APPROVE", "REJECTED"]}
-                placeholder="choose one"
-                value={mentorStatusChange}
-                classNames="border border-none rounded-md focus:ring-2 focus:ring-orange-200 border-gray-500 focus:outline-none focus:border-gray-400 lg:w-40 xss:w-20 h-12"
-              />
-            </div>
+
+          {role === "mentor" && session?.status === "CANCEL_REQUESTED" && (
+            <SelectField
+              label="Cancel Request"
+              onChange={(e: SelectChangeEvent<string>) => {
+                setMentorStatusChange(e.target?.value);
+                if (handleReclaimRequest) {
+                  handleReclaimRequest(session?._id, e.target?.value);
+                }
+              }}
+              options={["APPROVE", "REJECTED"]}
+              placeholder="Choose one"
+              value={mentorStatusChange}
+              classNames="border border-none rounded-md focus:ring-2 focus:ring-orange-200 focus:outline-none focus:border-gray-400 lg:w-40 xss:w-20 h-10"
+            />
           )}
-          {session.status === "COMPLETED" &&
+
+          {session?.status === "COMPLETED" &&
           !session?.review?.rating &&
           role === "mentee" ? (
             <button
@@ -217,7 +230,7 @@ const SessionCard: React.FC<ISessionCardProps> = ({
             </button>
           ) : (
             session?.review?.rating && (
-              <div className="mt-4 text-sm text-gray-600 border-t pt-4 flex items-center gap-1">
+              <div className="flex items-center gap-1">
                 {Array.from({ length: session?.review?.rating }).map(
                   (_, index) => (
                     <Star key={index} className="fill-amber-400 w-4" />

@@ -21,6 +21,8 @@ const httpResponse_1 = require("../Constants/httpResponse");
 const http_error_handler_util_1 = require("../Utils/http-error-handler.util");
 const email_template_util_1 = require("../Utils/email.template.util");
 const nodeMailer_util_1 = require("../Utils/nodeMailer.util");
+const adminListedMentorDTO_1 = require("../dto/mentor/adminListedMentorDTO");
+const adminListMenteeDTO_1 = require("../dto/mentee/adminListMenteeDTO");
 class adminService {
     constructor(_categoryRepository, _menteeRepository, _mentorRepository, _notificationRepository, _slotScheduleRepository) {
         this._categoryRepository = _categoryRepository;
@@ -211,11 +213,12 @@ class adminService {
                     };
                 }
                 const totalPage = Math.ceil((result === null || result === void 0 ? void 0 : result.totalDoc) / limitNo);
+                const menteeDTO = adminListMenteeDTO_1.AdminListedMenteeDTO.multiple(result === null || result === void 0 ? void 0 : result.mentees);
                 return {
                     success: true,
                     message: httpResponse_1.HttpResponse === null || httpResponse_1.HttpResponse === void 0 ? void 0 : httpResponse_1.HttpResponse.DATA_RETRIEVED,
                     status: httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.Ok,
-                    Data: result === null || result === void 0 ? void 0 : result.mentees,
+                    Data: menteeDTO,
                     totalPage,
                 };
             }
@@ -321,11 +324,12 @@ class adminService {
                         totalPage: 0
                     };
                 }
+                const mentorDTO = adminListedMentorDTO_1.AdminListedMentorDTO.multiple(result === null || result === void 0 ? void 0 : result.mentors);
                 return {
                     success: true,
                     message: httpResponse_1.HttpResponse === null || httpResponse_1.HttpResponse === void 0 ? void 0 : httpResponse_1.HttpResponse.DATA_RETRIEVED,
                     status: httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.Ok,
-                    mentorData: result === null || result === void 0 ? void 0 : result.mentors,
+                    mentorData: mentorDTO,
                     totalPage
                 };
             }

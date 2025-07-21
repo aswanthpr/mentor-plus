@@ -292,7 +292,7 @@ const MentorProfile: React.FC = () => {
         <div className="h-48 bg-gradient-to-r from-[#ff8800] to-[#ff8800] rounded-b-lg">
           <div className="ml-14 absolute bottom-0 left-auto transform translate-y-20 flex items-end">
             <div className="relative group">
-              <img
+              <img  loading="lazy"
                 src={ mentor?.profileUrl ?? profile}
                 alt=""
                 className="w-32 h-32 rounded-full border-4 border-white shadow-lg object-cover"

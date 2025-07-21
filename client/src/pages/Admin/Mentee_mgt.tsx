@@ -172,7 +172,7 @@ export const Mentee_mgt: React.FC = () => {
             {menteeData?.map((mentee) => (
               <tr key={mentee?._id}>
                 <td className="py-4 flex justify-center">
-                  <img
+                  <img  loading="lazy"
                     src={mentee?.profileUrl ?? profile}
                     alt={mentee?.name}
                     className="w-10 h-10 rounded-full"

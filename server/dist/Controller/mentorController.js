@@ -20,7 +20,7 @@ class mentorController {
             try {
                 res
                     .status(httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.Ok)
-                    .clearCookie("mentorToken", { httpOnly: true })
+                    .clearCookie("refreshToken", { httpOnly: true })
                     .json({ success: true, message: "Logged out successfully" });
             }
             catch (error) {
@@ -51,14 +51,14 @@ class mentorController {
         return __awaiter(this, void 0, void 0, function* () {
             var _a;
             try {
-                const result = yield this._mentorService.mentorRefreshToken((_a = req.cookies) === null || _a === void 0 ? void 0 : _a.mentorToken);
+                const result = yield this._mentorService.mentorRefreshToken((_a = req.cookies) === null || _a === void 0 ? void 0 : _a.refreshToken);
                 res
                     .status(result === null || result === void 0 ? void 0 : result.status)
-                    .cookie("mentorToken", result === null || result === void 0 ? void 0 : result.refreshToken, {
+                    .cookie("refreshToken", result === null || result === void 0 ? void 0 : result.refreshToken, {
                     httpOnly: true,
                     secure: process.env.NODE_ENV === "production", //in development fasle
                     sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
-                    maxAge: 14 * 24 * 60 * 60 * 1000,
+                    maxAge: parseInt(process.env.REFRESH_TOKEN_EXPIRY || "0", 10),
                 })
                     .json({
                     success: result === null || result === void 0 ? void 0 : result.success,
@@ -138,7 +138,7 @@ class mentorController {
     }
     //create time slots in mentor side
     // /mentor/schedule/create-slots
-    // get the scheule time in the req.body 
+    // get the scheule time in the req.body
     createTimeSlots(req, res, next) {
         return __awaiter(this, void 0, void 0, function* () {
             try {

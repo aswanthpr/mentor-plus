@@ -8,7 +8,7 @@ const MentorCard: React.FC<{ mentor: IMentor}> = ({ mentor }) => {
   return (
     <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-2 sm:p-6 hover:shadow-md transition-shadow mx-1">
       <div className="flex flex-col sm:flex-row sm:items-start gap-4">
-        <img
+        <img  loading="lazy"
           src={mentor?.profileUrl??profileImg}
           alt={mentor?.name}
           className="w-16 h-16 rounded-full object-cover mx-auto sm:mx-0"
@@ -53,7 +53,7 @@ const MentorCard: React.FC<{ mentor: IMentor}> = ({ mentor }) => {
         </div>
       </div>
       <p className="mt-4 text-sm text-gray-600 line-clamp-2 text-center sm:text-left">
-        {/* {mentor.bio} */}
+        {mentor?.bio}
       </p>
       <div className=" flex space-x-2">
 

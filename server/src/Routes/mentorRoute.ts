@@ -1,6 +1,5 @@
 import express, { Router } from "express";
 import upload from "../Config/multer.util";
-import mentorAuthorize from "../Middleware/mentorAuthMiddleware";
 
 import qaController from "../Controller/qaController";
 import { mentorController } from "../Controller/mentorController";
@@ -26,6 +25,7 @@ import walletRepository from "../Repository/walletRepository";
 import transactionRepository from "../Repository/transactionRepository";
 import { walletController } from "../Controller/walletController";
 import { walletService } from "../Service/walletService";
+import authorizeUser from "../Middleware/authorizeUser";
 const __mentorService = new mentorService(
   mentorRepository,
   categoryRepository,
@@ -73,12 +73,12 @@ mentor_Router.post(
 //profile
 mentor_Router.get(
   `/profile`,
-  mentorAuthorize,
+  authorizeUser('mentor'),
   __mentorController.mentorProfile.bind(__mentorController)
 );
 mentor_Router.patch(
   `/profile/change_password`,
-  mentorAuthorize,
+  authorizeUser('mentor'),
   __mentorController.profilePasswordChange.bind(__mentorController)
 );
 mentor_Router.post(
@@ -87,7 +87,7 @@ mentor_Router.post(
 );
 mentor_Router.patch(
   `/profile/image_change`,
-  mentorAuthorize,
+  authorizeUser('mentor'),
   upload.fields([{ name: "profileImage", maxCount: 1 }]),
   __mentorController.mentorProfileImageChange.bind(__mentorController)
 );
@@ -98,110 +98,110 @@ mentor_Router.put(
 );
 mentor_Router.get(
   `/home/:filter`,
-  mentorAuthorize,
+  authorizeUser('mentor'),
   __mentorController.questionData.bind(__mentorController)
 );
 mentor_Router.post(
   `/qa/create-new-answer`,
-  mentorAuthorize,
+  authorizeUser('mentor'),
   __qaController.createNewAnswer.bind(__qaController)
 );
 mentor_Router.patch(
   `/qa/edit-answer`,
-  mentorAuthorize,
+  authorizeUser('mentor'),
   __qaController.editAnswer.bind(__qaController)
 );
 
 //schedule
 mentor_Router.post(
   `/schedule/create-slots`,
-  mentorAuthorize,
+  authorizeUser('mentor'),
   __mentorController.createTimeSlots.bind(__mentorController)
 );
 mentor_Router.get(
   `/schedule/get-time-slots`,
-  mentorAuthorize,
+  authorizeUser('mentor'),
   __mentorController.getTimeSlots.bind(__mentorController)
 );
 mentor_Router.delete(
   `/schedule/remove-time-slot`,
-  mentorAuthorize,
+  authorizeUser('mentor'),
   __mentorController.removeTimeSlot.bind(__mentorController)
 );
 
 mentor_Router.get(
   `/sessions`,
-  mentorAuthorize,
+  authorizeUser('mentor'),
   __bookingController.getBookedSession.bind(__bookingController)
 );
 
 mentor_Router.patch(
   `/sessions/cancel_request/:sessionId`,
-  mentorAuthorize,
+  authorizeUser('mentor'),
   __bookingController.mentorSlotCancel.bind(__bookingController)
 );
 mentor_Router.patch(
   `/sessions/create-session-code`,
-  mentorAuthorize,
+  authorizeUser('mentor'),
   __bookingController?.createSessionCode.bind(__bookingController)
 );
 mentor_Router.patch(
   `/sessions/mark-as-session-completed`,
-  mentorAuthorize,
+  authorizeUser('mentor'),
   __bookingController.sessionCompleted.bind(__bookingController)
 );
 //notification
 mentor_Router.get(
   `/notification`,
-  mentorAuthorize,
+  authorizeUser('mentor'),
   __notificationController?.getNotification.bind(__notificationController)
 );
 
 mentor_Router.patch(
   `/notification-read/:notificationId`,
-  mentorAuthorize,
+  authorizeUser('mentor'),
   __notificationController.markAsReadNotif.bind(__notificationController)
 );
 
 //chat
 mentor_Router.get(
   `/chats`,
-  mentorAuthorize,
+  authorizeUser('mentor'),
   __chatController.getChats.bind(__chatController)
 );
 
 mentor_Router.get(
   "/messages",
-  mentorAuthorize,
+  authorizeUser('mentor'),
   __chatController.getUserMessage.bind(__chatController)
 );
 
 mentor_Router.get(
   "/session/validate-session-join",
-  mentorAuthorize,
+  authorizeUser('mentor'),
   __bookingController.validateSessionJoin.bind(__bookingController)
 );
 
 //wallet'
 mentor_Router.get(
   `/wallet`,
-  mentorAuthorize,
+  authorizeUser('mentor'),
   __walletController.getWalletData.bind(__walletController)
 );
 mentor_Router.put(
   `/withdraw-amount`,
-  mentorAuthorize,
+  authorizeUser('mentor'),
   __walletController.withdrawMentorEarnings.bind(__walletController)
 );
 
 mentor_Router.get(
   `/statistics`,
-  mentorAuthorize,
+  authorizeUser('mentor'),
   __mentorController.chartData.bind(__mentorController)
 );
 mentor_Router.get(
   "/turn-credentials",
-  mentorAuthorize,
+  authorizeUser('mentor'),
   __bookingController.turnServerConnection.bind(__bookingController)
 );
 

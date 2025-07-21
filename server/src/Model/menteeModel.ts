@@ -1,6 +1,7 @@
-import mongoose, { Schema, Document } from "mongoose";
+import mongoose, { Schema, Document, Types } from "mongoose";
 
 export interface Imentee extends Document {
+  _id:Types.ObjectId;
   name: string;
   email: string;
   phone?: string;

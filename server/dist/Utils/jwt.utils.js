@@ -39,7 +39,7 @@ const genAccesssToken = (userId, role) => {
     var _a;
     try {
         return jsonwebtoken_1.default.sign({ userId, role }, (_a = process === null || process === void 0 ? void 0 : process.env) === null || _a === void 0 ? void 0 : _a.JWT_ACCESS_SECRET, {
-            expiresIn: '1m',
+            expiresIn: "1h",
         });
     }
     catch (error) {

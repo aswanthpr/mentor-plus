@@ -35,6 +35,7 @@ export const ProfileImageUpload: React.FC<IProfileImageUpload> = ({
           >
             {previewUrl ? (
               <img
+              loading="lazy"
                 src={previewUrl}
                 alt="profile"
                 className="w-full h-full object-cover"

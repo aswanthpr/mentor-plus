@@ -19,14 +19,14 @@ class adminController {
         return __awaiter(this, void 0, void 0, function* () {
             var _a;
             try {
-                const result = yield this._adminService.adminRefreshToken((_a = req.cookies) === null || _a === void 0 ? void 0 : _a.adminToken);
+                const result = yield this._adminService.adminRefreshToken((_a = req.cookies) === null || _a === void 0 ? void 0 : _a.refreshToken);
                 res
                     .status(result.status)
-                    .cookie("adminToken", result === null || result === void 0 ? void 0 : result.refreshToken, {
+                    .cookie("refreshToken", result === null || result === void 0 ? void 0 : result.refreshToken, {
                     httpOnly: true,
                     secure: process.env.NODE_ENV === "production",
                     sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
-                    maxAge: 14 * 24 * 60 * 60 * 1000,
+                    maxAge: parseInt(process.env.REFRESH_TOKEN_EXPIRY || "0", 10),
                 })
                     .json({
                     success: result === null || result === void 0 ? void 0 : result.success,
@@ -191,7 +191,7 @@ class adminController {
     adminLogout(req, res, next) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                res.clearCookie("adminToken");
+                res.clearCookie("refreshToken");
                 res
                     .status(httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.Ok)
                     .json({ success: true, message: "Logout successfully" });

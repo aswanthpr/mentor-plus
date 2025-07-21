@@ -46,7 +46,7 @@ const Category_mgt: React.FC = () => {
   //fetch category data
   useEffect(() => {
     const fetchCategories = async () => {
-      setLoading((pre)=>!pre)
+      setLoading((pre) => !pre);
       const response = await fetchAllcategoryData(
         searchQuery,
         statusFilter,
@@ -56,7 +56,7 @@ const Category_mgt: React.FC = () => {
         PAGE_LIMIT
       );
 
-      setLoading((pre)=>!pre)
+      // setLoading((pre) => !pre);
       if (response.data.success) {
         setCategories(response.data.categories);
         setTotalDocuments(response?.data?.totalPage);
@@ -220,20 +220,18 @@ const Category_mgt: React.FC = () => {
   return (
     <div className={`p-6 mt-10 `}>
       {/* Category Management Section */}
-      <div className="mb-3">
-        {loading && <Spinner />}
+      {loading && <Spinner />}
 
-        <div className="flex items-center justify-end mb-1">
+      <div className="bg-white rounded-lg shadow-md p-6 h-[83vh]">
+        <div className="flex justify-end mb-4">
           <button
             onClick={handleAddCategoryClick}
-            className="mt-4 mr-8 bg-[#ff8800] text-white hover:bg-[#e67a00] px-4 py-2 rounded-md font-bold transition-colors"
+            className="bg-[#ff8800] text-white hover:bg-[#e67a00] px-4 py-2 rounded-md font-bold transition-colors"
           >
             Add Category
           </button>
         </div>
-      </div>
 
-      <div className="bg-white rounded-lg shadow-md p-6 h-[83vh]">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
           {/* Search */}
           <div className="relative">
@@ -245,7 +243,9 @@ const Category_mgt: React.FC = () => {
               type={"search"}
               placeholder="Search questions or authors..."
               value={searchQuery}
-              onChange={(e:React.ChangeEvent<HTMLInputElement>) => setSearchQuery(e.target.value)}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                setSearchQuery(e.target.value)
+              }
               className="pl-10"
             />
           </div>
@@ -326,7 +326,7 @@ const Category_mgt: React.FC = () => {
         {/* Pagination component */}
         <div className="flex justify-center items-center mt-3 ">
           <Pagination
-            count={typeof totalDocuments==='number'?totalDocuments:1}
+            count={typeof totalDocuments === "number" ? totalDocuments : 1}
             page={currentPage}
             onChange={handlePageChange}
             color="standard"

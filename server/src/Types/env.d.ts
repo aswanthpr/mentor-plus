@@ -33,4 +33,7 @@ declare namespace NodeJS {
 
     TURNIX_API_KEY:string
   }
+   interface Request {
+    user?:mongoose.Types.ObjectId
+  }
 }

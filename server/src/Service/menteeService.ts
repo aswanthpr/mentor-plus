@@ -22,6 +22,7 @@ import { ImenteeRepository } from "../Interface/Mentee/iMenteeRepository";
 import { PipelineStage } from "mongoose";
 import { HttpResponse } from "../Constants/httpResponse";
 import { HttpError } from "../Utils/http-error-handler.util";
+import { MentorDTO } from "../dto/mentor/mentorDTO";
 
 // const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string)
 
@@ -254,7 +255,7 @@ export class menteeService implements ImenteeService {
     success: boolean;
     message: string;
     status: number;
-    mentor?: Imentor[] | null;
+    mentor?: MentorDTO[]| null;
     category?: Icategory[] | null;
     skills: Imentor[] | undefined;
     currentPage?: number;
@@ -397,12 +398,14 @@ export class menteeService implements ImenteeService {
       // finding skills
       const categoryWithSkill =
         await this._mentorRepository.categoryWithSkills();
+//dto mapping 
+      const mentorDto = MentorDTO.multiple(mentorData?.mentor as Imentor[])
 
       return {
         success: false,
         message: HttpResponse?.RESOURCE_FOUND,
         status: Status.Ok,
-        mentor: mentorData?.mentor,
+        mentor: mentorDto,
         category: categoryData,
         skills: categoryWithSkill,
         totalPage,

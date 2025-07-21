@@ -57,8 +57,8 @@ const AddQuestion: React.FC<IAddQuestionModalProps> = ({
     handleClose()
   };
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-      <div className="bg-white rounded-lg max-w-2xl w-full">
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50"  onClick={handleClose}>
+      <div className="bg-white rounded-lg max-w-2xl w-full" onClick={(e) => e.stopPropagation()}>
         <div className="p-4 border-b border-gray-200 flex justify-between items-center">
           <h2 className="text-xl font-bold text-gray-900">
             {isEditing ? 'Edit Question' : 'Add Question'}

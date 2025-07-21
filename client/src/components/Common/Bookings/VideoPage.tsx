@@ -3,9 +3,8 @@ import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { Mic, MicOff, Video, VideoOff, PhoneOff } from "lucide-react";
 import { io, Socket } from "socket.io-client";
 import { toast } from "react-toastify";
-import { constraints } from "../../../Constants/const Values";
+import { constraints } from "../../../Constants/constValues";
 import useTurn from "../../../Hooks/useturn";
-
 
 const SIGNALING_SERVER_URL = `${import.meta.env?.VITE_SERVER_URL}/webrtc`;
 
@@ -25,10 +24,6 @@ const VideoPage: React.FC = () => {
   const [isAudioOn, setIsAudioOn] = useState(true);
   const [remoteStreamStarted, setRemoteStreamStarted] = useState(false);
 
-
-  // ICE_SERVERS= {
-  //   iceServers: [{ urls: "stun:stun.l.google.com:19302" },],
-  // };
   const { iceServers, turnErr, loading } = useTurn();
 
   const ICE_SERVERS: TurnCredentials | null = iceServers || null;
@@ -56,13 +51,10 @@ const VideoPage: React.FC = () => {
         const stream = await navigator.mediaDevices.getUserMedia(constraints);
         setLocalStream(stream); // Update state but DO NOT add localStream to dependencies
 
-        
         if (localVideoRef.current) localVideoRef.current.srcObject = stream;
 
         // Set up peer connection
-        peerConnection.current = new RTCPeerConnection(
-          mergedIceServers
-        );
+        peerConnection.current = new RTCPeerConnection(mergedIceServers);
         stream
           .getTracks()
           .forEach((track) => peerConnection.current?.addTrack(track, stream));
@@ -206,81 +198,23 @@ const VideoPage: React.FC = () => {
     navigate(`/${role}/${role == "mentor" ? "session" : "bookings"}`);
   };
   return (
-    // <div className="fixed  lg:ml-64  mt-32   mb-2  inset-0 flex items-center justify-center">
-    //   {loading && <Spinner />}
-    //   {remoteVideoRef?
-    //   (<video
-    //     ref={remoteVideoRef}
-    //     style={{ transform: "scaleX(-1)" }}
-    //     autoPlay
-    //     className=" w-[calc(100vw-0px)] h-[calc(100vh-1px)] object-cover bg-[#000000] p-3 border-black rounded-3xl rounded-b-sm"
-    //   />):(
-    //      <div className="text-white text-xl">Waiting for other participant...</div>
-    //   )
-    //   }
-    //   <video
-    //     style={{ transform: "scaleX(-1)" }}
-    //     ref={localVideoRef}
-    //     autoPlay
-    //     muted
-    //     className="absolute bottom-5 right-5 w-96 h-64 object-cover bg-gray-900 rounded-lg"
-    //   />
-    //   <div className="absolute bottom-5 flex space-x-4 bg-gray-900 p-3 rounded-full">
-    //     <button onClick={toggleAudio}>
-    //       {isAudioOn ? (
-    //         <Mic className="text-green-200" />
-    //       ) : (
-    //         <MicOff className="text-red-200" />
-    //       )}
-    //     </button>
-    //     <button onClick={toggleVideo}>
-    //       {isVideoOn ? (
-    //         <Video className="text-green-200" />
-    //       ) : (
-    //         <VideoOff className="text-red-200" />
-    //       )}
-    //     </button>
-    //     <button onClick={endCall}>
-    //       <PhoneOff className="text-red-500" />
-    //     </button>
-    //   </div>
-    // </div>
-
     <div className="fixed inset-0 z-50 bg-black text-white flex items-center justify-center">
-      {/* {loading ? (
-        <Spinner />
-      ) : !remoteStreamStarted ? ( */}
-        {/* <div className="text-xl font-semibold animate-pulse">
-          Waiting for other participant to join...
-        </div> */}
-      {/* ) : ( */}
-        {/* <video
-          ref={remoteVideoRef}
-          autoPlay
-          // playsInline
-          style={{ transform: "scaleX(-1)" }}
-          className="absolute inset-0 w-full h-full object-cover"
-        /> */}
-      {/* )} */}
-      {/* Always render remote video */}
-<video
-  ref={remoteVideoRef}
-  autoPlay
-  style={{
-    transform: "scaleX(-1)",
-    // display: remoteStreamStarted ? "block" : "none",
-  }}
-  className="absolute inset-0 w-full h-full object-cover"
-/>
+      <video
+        ref={remoteVideoRef}
+        autoPlay
+        style={{
+          transform: "scaleX(-1)",
+          // display: remoteStreamStarted ? "block" : "none",
+        }}
+        className="absolute inset-0 w-full h-full object-cover"
+      />
 
-{/* Show message when remote stream not started */}
-{!remoteStreamStarted && (
-  <div className="text-xl font-semibold animate-pulse absolute z-50">
-    Waiting for other participant to join... {remoteStreamStarted}
-  </div>
-
-)}
-
+      {/* Show message when remote stream not started */}
+      {!remoteStreamStarted && (
+        <div className="text-xl font-semibold animate-pulse absolute z-50">
+          Waiting for other participant to join... {remoteStreamStarted}
+        </div>
+      )}
 
       {/* Local video */}
       <video

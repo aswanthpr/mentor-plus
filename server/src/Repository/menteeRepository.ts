@@ -80,8 +80,7 @@ async menteeData(skip: number, limit: number, search: string, sortOrder: string,
   async editMentee(formData: Partial<Imentee>): Promise<Imentee | null> {
     try {
       return await this.find_By_Id_And_Update(
-        menteeModel,
-        formData?._id as string,
+        menteeModel,String(formData?._id),
         {
           $set: {
             name: formData?.name,

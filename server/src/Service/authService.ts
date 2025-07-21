@@ -1,4 +1,5 @@
 import bcrypt from "bcrypt";
+import { ObjectId } from "mongoose";
 import hash_pass from "../Utils/hashPass.util";
 import { Imentee } from "../Model/menteeModel";
 import { Icategory } from "../Model/categorySchema";
@@ -9,13 +10,14 @@ import { ImentorRepository } from "../Interface/Mentor/iMentorRepository";
 import { uploadFile, uploadImage } from "../Config/cloudinary.util";
 import { IcategoryRepository } from "../Interface/Category/iCategoryRepository";
 import { ImenteeRepository } from "../Interface/Mentee/iMenteeRepository";
-import { ImentorApplyData } from "../Types";
+import { ImentorApplyData, IuserDetailsHeader } from "../Types";
 import { InotificationRepository } from "../Interface/Notification/InotificationRepository";
-import { ObjectId } from "mongoose";
 import { socketManager } from "../index";
 import { Status } from "../Constants/httpStatusCode";
 import { HttpResponse, NOTIFY } from "../Constants/httpResponse";
 import { HttpError } from "../Utils/http-error-handler.util";
+import { UserHeaderDTO } from "../dto/common/userHeaderInfoDTO";
+import { MenteeDTO } from "../dto/mentee/menteeDTO";
 
 export class authService implements IauthService {
   constructor(
@@ -33,24 +35,27 @@ export class authService implements IauthService {
       if (!userData.email || !userData.password) {
         return {
           success: false,
-          message:  HttpResponse?.INVALID_CREDENTIALS,
+          message: HttpResponse?.INVALID_CREDENTIALS,
           status: Status?.BadRequest,
         };
       }
-      
+
       const existingUser: Imentee | null =
         await this._MenteeRepository.findByEmail(userData?.email);
-    
-      if ((existingUser?.email  && existingUser?.verified) || existingUser?.provider==="google") {
+
+      if (
+        (existingUser?.email && existingUser?.verified) ||
+        existingUser?.provider === "google"
+      ) {
         return {
           success: false,
-          message:  HttpResponse?.EMAIL_EXIST,
+          message: HttpResponse?.EMAIL_EXIST,
           status: Status?.BadRequest,
         };
-      }else if(existingUser?.email&&!existingUser?.verified){
+      } else if (existingUser?.email && !existingUser?.verified) {
         return {
           success: true,
-          message:  HttpResponse?.SUCCESS,
+          message: HttpResponse?.SUCCESS,
           status: Status?.Ok,
         };
       }
@@ -69,22 +74,28 @@ export class authService implements IauthService {
       }
 
       const notfi = await this._notificationRepository.createNotification(
-        response?._id as ObjectId,
+        response?._id as unknown as ObjectId,
         `Welcome ${response?.name}`,
         NOTIFY?.MENTEE_WELCOME,
         `mentee`,
         `${process.env.CLIENT_ORIGIN_URL}/mentee/explore`
       );
       if (response?.id && notfi) {
-        socketManager.sendNotification(response?._id as string, notfi);
+        socketManager.sendNotification(
+          response?._id as unknown as string,
+          notfi
+        );
       }
       return {
         success: true,
-        message:  HttpResponse?.SUCCESS,
+        message: HttpResponse?.SUCCESS,
         status: Status?.Ok,
       };
     } catch (error: unknown) {
-           throw new HttpError(error instanceof Error ? error.message : String(error), Status?.InternalServerError);
+      throw new HttpError(
+        error instanceof Error ? error.message : String(error),
+        Status?.InternalServerError
+      );
     }
   }
   async mainLogin(
@@ -96,6 +107,7 @@ export class authService implements IauthService {
     status: number;
     refreshToken?: string;
     accessToken?: string;
+    user?: IuserDetailsHeader;
   }> {
     try {
       if (!email || !password) {
@@ -118,14 +130,14 @@ export class authService implements IauthService {
       if (!result || result?.email != email) {
         return {
           success: false,
-          message:  HttpResponse?.USER_NOT_FOUND,
+          message: HttpResponse?.USER_NOT_FOUND,
           status: Status?.BadRequest,
         };
       }
       if (result?.isAdmin) {
         return {
           success: false,
-          message:  HttpResponse?.ADMIN_NOT_ALLOWEDED,
+          message: HttpResponse?.ADMIN_NOT_ALLOWEDED,
           status: Status?.Unauthorized,
         };
       }
@@ -151,20 +163,27 @@ export class authService implements IauthService {
         };
       }
 
-      const userId: string = result._id as string;
+      const userId = String(result?._id);
 
       const accessToken = genAccesssToken(userId as string, "mentee");
       const refreshToken = genRefreshToken(userId as string, "mentee");
 
+      //map with dto
+      const userDto = UserHeaderDTO.single(result);
+
       return {
         success: true,
-        message:  HttpResponse?.SUCCESS,
+        message: HttpResponse?.SUCCESS,
         refreshToken,
         accessToken,
         status: Status?.Ok,
+        user: userDto as IuserDetailsHeader,
       };
     } catch (error: unknown) {
-      throw new HttpError(error instanceof Error ? error.message : String(error), Status?.InternalServerError);
+      throw new HttpError(
+        error instanceof Error ? error.message : String(error),
+        Status?.InternalServerError
+      );
     }
   }
 
@@ -191,14 +210,17 @@ export class authService implements IauthService {
         };
       }
       await this._OtpService.sentOtptoMail(email);
-    
+
       return {
         success: true,
-        message:  HttpResponse?.OTP_SEND_TO_MAIL,
+        message: HttpResponse?.OTP_SEND_TO_MAIL,
         status: Status?.Ok,
       };
     } catch (error: unknown) {
-      throw new HttpError(error instanceof Error ? error.message : String(error), Status?.InternalServerError);
+      throw new HttpError(
+        error instanceof Error ? error.message : String(error),
+        Status?.InternalServerError
+      );
     }
   }
   async forgot_PasswordChange(
@@ -234,7 +256,10 @@ export class authService implements IauthService {
         status: Status?.Ok,
       };
     } catch (error: unknown) {
-      throw new HttpError(error instanceof Error ? error.message : String(error), Status?.InternalServerError);
+      throw new HttpError(
+        error instanceof Error ? error.message : String(error),
+        Status?.InternalServerError
+      );
     }
   }
 
@@ -257,12 +282,15 @@ export class authService implements IauthService {
       }
       return {
         success: true,
-        message:  HttpResponse?.RESOURCE_FOUND,
+        message: HttpResponse?.RESOURCE_FOUND,
         status: Status?.Ok,
         categories: result,
       };
     } catch (error: unknown) {
-      throw new HttpError(error instanceof Error ? error.message : String(error), Status?.InternalServerError);
+      throw new HttpError(
+        error instanceof Error ? error.message : String(error),
+        Status?.InternalServerError
+      );
     }
   }
   async adminLogin(
@@ -279,7 +307,7 @@ export class authService implements IauthService {
       if (!email || !password) {
         return {
           success: false,
-          message:  HttpResponse?.INVALID_CREDENTIALS,
+          message: HttpResponse?.INVALID_CREDENTIALS,
           status: Status?.BadRequest,
           refreshToken: null,
           accessToken: null,
@@ -301,7 +329,7 @@ export class authService implements IauthService {
       if (!result?.isAdmin) {
         return {
           success: false,
-          message:  HttpResponse?.UNAUTHORIZED,
+          message: HttpResponse?.UNAUTHORIZED,
           status: Status?.BadRequest,
           refreshToken: null,
           accessToken: null,
@@ -311,7 +339,7 @@ export class authService implements IauthService {
       if (result?.isBlocked) {
         return {
           success: false,
-          message:  HttpResponse?.UNAUTHORIZED,
+          message: HttpResponse?.UNAUTHORIZED,
           status: Status?.BadRequest,
           refreshToken: null,
           accessToken: null,
@@ -325,27 +353,29 @@ export class authService implements IauthService {
       if (!checkUser) {
         return {
           success: false,
-          message:  HttpResponse?.PASSWORD_INCORRECT,
+          message: HttpResponse?.PASSWORD_INCORRECT,
           status: Status?.BadRequest,
           refreshToken: null,
           accessToken: null,
         };
       }
-      const userId: string = result._id as string;
+      const userId = String(result?._id);
 
       const accessToken = genAccesssToken(userId as string, "admin") as string;
       const refreshToken = genRefreshToken(userId as string, "admin") as string;
-     
 
       return {
         success: true,
-        message:  HttpResponse?.SUCCESS,
+        message: HttpResponse?.SUCCESS,
         status: Status?.Ok,
         accessToken,
         refreshToken,
       };
     } catch (error: unknown) {
-      throw new HttpError(error instanceof Error ? error.message : String(error), Status?.InternalServerError);
+      throw new HttpError(
+        error instanceof Error ? error.message : String(error),
+        Status?.InternalServerError
+      );
     }
   }
 
@@ -356,10 +386,10 @@ export class authService implements IauthService {
       const { email, phone } = mentorData.body;
       const { profileImage, resume } = mentorData.files;
 
-      if (!email||!phone||!profileImage||!resume || !mentorData?.files) {
+      if (!email || !phone || !profileImage || !resume || !mentorData?.files) {
         return {
           success: false,
-          message:  HttpResponse?.INVALID_CREDENTIALS,
+          message: HttpResponse?.INVALID_CREDENTIALS,
           status: Status?.BadRequest,
         };
       }
@@ -368,7 +398,7 @@ export class authService implements IauthService {
       if (response?.email) {
         return {
           success: false,
-          message:  HttpResponse?.EMAIL_EXIST,
+          message: HttpResponse?.EMAIL_EXIST,
           status: Status?.Conflict,
         };
       }
@@ -390,7 +420,6 @@ export class authService implements IauthService {
 
       const imageUrl = await uploadImage(profileImage?.buffer);
       const fileUrl = await uploadFile(resume?.buffer, resume?.originalname);
-      
 
       if (!imageUrl || !fileUrl) {
         throw new Error("error while image url generating");
@@ -403,13 +432,13 @@ export class authService implements IauthService {
       if (!result) {
         return {
           success: false,
-          message:  HttpResponse?.USER_CREATION_FAILED,
+          message: HttpResponse?.USER_CREATION_FAILED,
           status: Status?.Conflict,
         };
       }
       const admin = await this._MenteeRepository._find();
       const notifi = await this._notificationRepository.createNotification(
-        admin?._id as ObjectId,
+        admin?._id as unknown as ObjectId,
         `New Mentor Has Joined!`,
         `${result?.name} ${NOTIFY?.ADMIN_NEW_MENTOR_NOTIFY}`,
         "admin",
@@ -420,11 +449,14 @@ export class authService implements IauthService {
       }
       return {
         success: true,
-        message:  HttpResponse?.APPLICATION_SUBMITTED,
+        message: HttpResponse?.APPLICATION_SUBMITTED,
         status: Status?.Ok,
       };
     } catch (error: unknown) {
-      throw new HttpError(error instanceof Error ? error.message : String(error), Status?.InternalServerError);
+      throw new HttpError(
+        error instanceof Error ? error.message : String(error),
+        Status?.InternalServerError
+      );
     }
   }
   //mentor login
@@ -437,12 +469,13 @@ export class authService implements IauthService {
     status: number;
     refreshToken?: string;
     accessToken?: string;
+    user?: IuserDetailsHeader;
   }> {
     try {
       if (!email || !password) {
         return {
           success: false,
-          message:  HttpResponse?.INVALID_CREDENTIALS,
+          message: HttpResponse?.INVALID_CREDENTIALS,
           status: Status?.BadRequest,
         };
       }
@@ -451,27 +484,27 @@ export class authService implements IauthService {
       if (!result) {
         return {
           success: false,
-          message:  HttpResponse?.INVALID_EMAIL,
+          message: HttpResponse?.INVALID_EMAIL,
           status: Status?.NotFound,
         };
       }
       if (!result?.verified) {
         return {
           success: false,
-          message: HttpResponse?.MENTEE_NOTIFICATION ,
+          message: HttpResponse?.MENTEE_NOTIFICATION,
           status: Status?.Unauthorized,
         };
       }
       if (result?.isBlocked) {
         return {
           success: false,
-          message:  HttpResponse?.UNAUTHORIZED,
+          message: HttpResponse?.UNAUTHORIZED,
           status: Status?.Unauthorized,
         };
       }
 
       const checkPass = await bcrypt.compare(password, result?.password);
-    
+
       if (!checkPass) {
         return {
           success: false,
@@ -480,20 +513,26 @@ export class authService implements IauthService {
         };
       }
       const mentorId = `${result._id}`;
-     
+
       const accessToken = genAccesssToken(mentorId as string, "mentor");
       const refreshToken = genRefreshToken(mentorId as string, "mentor");
 
-     
+      // map userdata with Dto
+      const userDto = UserHeaderDTO.single(result);
+
       return {
         success: true,
-        message:  HttpResponse?.SUCCESS,
+        message: HttpResponse?.SUCCESS,
         status: Status?.Ok,
         accessToken,
         refreshToken,
+        user: userDto as IuserDetailsHeader,
       };
     } catch (error: unknown) {
-      throw new HttpError(error instanceof Error ? error.message : String(error), Status?.InternalServerError);
+      throw new HttpError(
+        error instanceof Error ? error.message : String(error),
+        Status?.InternalServerError
+      );
     }
   }
   async mentorForgotPassword(
@@ -518,11 +557,14 @@ export class authService implements IauthService {
       await this._OtpService.sentOtptoMail(email);
       return {
         success: true,
-        message:  HttpResponse?.OTP_SEND_TO_MAIL,
+        message: HttpResponse?.OTP_SEND_TO_MAIL,
         status: Status?.Ok,
       };
     } catch (error: unknown) {
-      throw new HttpError(error instanceof Error ? error.message : String(error), Status?.InternalServerError);
+      throw new HttpError(
+        error instanceof Error ? error.message : String(error),
+        Status?.InternalServerError
+      );
     }
   }
   async mentorForgot_PasswordChange(
@@ -533,7 +575,7 @@ export class authService implements IauthService {
       if (!email || !password) {
         return {
           success: false,
-          message:  HttpResponse?.INVALID_CREDENTIALS,
+          message: HttpResponse?.INVALID_CREDENTIALS,
           status: Status?.BadRequest,
         };
       }
@@ -547,7 +589,7 @@ export class authService implements IauthService {
       if (!result) {
         return {
           success: false,
-          message:  HttpResponse?.USER_NOT_FOUND,
+          message: HttpResponse?.USER_NOT_FOUND,
           status: Status?.NotFound,
         };
       }
@@ -557,7 +599,10 @@ export class authService implements IauthService {
         status: Status?.Ok,
       };
     } catch (error: unknown) {
-      throw new HttpError(error instanceof Error ? error.message : String(error), Status?.InternalServerError);
+      throw new HttpError(
+        error instanceof Error ? error.message : String(error),
+        Status?.InternalServerError
+      );
     }
   }
   async googleAuth(user: Imentee): Promise<{
@@ -566,24 +611,36 @@ export class authService implements IauthService {
     status: number;
     accessToken?: string;
     refreshToken?: string;
+    user?: MenteeDTO;
   }> {
     try {
       if (!user) {
         throw new Error("user deailes not found");
       }
-
-      const accessToken = genAccesssToken(user?._id as string, "mentee");
-      const refreshToken = genRefreshToken(user?._id as string, "mentee");
-     
+      const accessToken = genAccesssToken(String(user?._id), "mentee");
+      const refreshToken = genRefreshToken(String(user?._id), "mentee");
+      
+      //map mentee data with dto
+      const menteeDTO = MenteeDTO.single(user);
+      const encodedDTO = {
+        ...menteeDTO,
+        name: encodeURIComponent(menteeDTO.name),
+        email: encodeURIComponent(menteeDTO.email),
+        profileUrl: encodeURIComponent(menteeDTO.profileUrl || ""),
+      };
       return {
         success: true,
-        message:  HttpResponse?.SUCCESS,
+        message: HttpResponse?.SUCCESS,
         status: Status?.Ok,
         accessToken,
         refreshToken,
+        user: encodedDTO,
       };
     } catch (error: unknown) {
-      throw new HttpError(error instanceof Error ? error.message : String(error), Status?.InternalServerError);
+      throw new HttpError(
+        error instanceof Error ? error.message : String(error),
+        Status?.InternalServerError
+      );
     }
   }
 }

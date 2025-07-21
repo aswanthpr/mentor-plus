@@ -1,7 +1,9 @@
-import { IcardData } from "src/Types";
+import { IcardData } from "../../Types";
 import { Icategory } from "../../Model/categorySchema";
 import { Imentee } from "../../Model/menteeModel";
 import { Imentor } from "../../Model/mentorModel";
+import { AdminListedMentorDTO } from "../../dto/mentor/adminListedMentorDTO";
+import { AdminListedMenteeDTO } from "../../dto/mentee/adminListMenteeDTO";
 export interface IadminService {
     adminRefreshToken(refresh: string): Promise<{
         success: boolean;
@@ -38,7 +40,7 @@ export interface IadminService {
         success: boolean;
         message: string;
         status: number;
-        Data?: Imentee[] | [];
+        Data?: AdminListedMenteeDTO[] | [];
         totalPage: number;
     }>;
     changeMenteeStatus(id: string): Promise<{
@@ -61,7 +63,7 @@ export interface IadminService {
         success: boolean;
         message: string;
         status: number;
-        mentorData: Imentor[] | [];
+        mentorData: AdminListedMentorDTO[] | [];
         totalPage: number;
     }>;
     mentorVerify(id: string): Promise<{

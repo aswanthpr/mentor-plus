@@ -1,6 +1,7 @@
-import { ImentorApplyData } from "../../Types";
+import { ImentorApplyData, IuserDetailsHeader } from "../../Types";
 import { Icategory } from "../../Model/categorySchema";
 import { Imentee } from "../../Model/menteeModel";
+import { MenteeDTO } from "../../dto/mentee/menteeDTO";
 export default interface IauthService {
     mentee_Signup(userData: Imentee): Promise<{
         success: boolean;
@@ -14,6 +15,7 @@ export default interface IauthService {
         refreshToken?: string;
         accessToken?: string;
         role?: string;
+        user?: IuserDetailsHeader;
     }>;
     forgotPassword(email: string): Promise<{
         success: boolean;
@@ -49,6 +51,7 @@ export default interface IauthService {
         status: number;
         refreshToken?: string;
         accessToken?: string;
+        user?: IuserDetailsHeader;
     }>;
     mentorForgot_PasswordChange(email: string, password: string): Promise<{
         success: boolean;
@@ -66,6 +69,7 @@ export default interface IauthService {
         status: number;
         accessToken?: string;
         refreshToken?: string;
+        user?: MenteeDTO;
     }>;
 }
 //# sourceMappingURL=iAuthService.d.ts.map

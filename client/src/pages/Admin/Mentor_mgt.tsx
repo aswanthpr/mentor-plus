@@ -253,7 +253,7 @@ export const Mentor_mgt: React.FC = () => {
             {mentors.map((mentor) => (
               <tr key={mentor?._id}>
                 <td className=" py-4 flex justify-center">
-                  <img
+                  <img  loading="lazy"
                     src={ mentor?.profileUrl ?? profile}
                     alt={mentor?.name}
                     className="w-10 h-10 rounded-full  "

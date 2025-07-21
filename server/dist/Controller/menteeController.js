@@ -21,12 +21,13 @@ class menteeController {
             var _a;
             try {
                 const result = yield this._menteeService.refreshToken((_a = req.cookies) === null || _a === void 0 ? void 0 : _a.refreshToken);
+                console.log(process.env.REFRESH_TOKEN_EXPIRY, 'dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd');
                 if (result === null || result === void 0 ? void 0 : result.success) {
                     res.cookie("refreshToken", result === null || result === void 0 ? void 0 : result.refreshToken, {
                         httpOnly: true,
                         secure: process.env.NODE_ENV === "production",
                         sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
-                        maxAge: 14 * 24 * 60 * 60 * 1000,
+                        maxAge: parseInt(process.env.REFRESH_TOKEN_EXPIRY || "0", 10),
                     });
                 }
                 res.status(result.status).json({

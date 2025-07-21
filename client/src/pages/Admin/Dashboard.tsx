@@ -5,7 +5,7 @@ import RevenueChart from "../../components/Charts/RevenueChart";
 import CategoryDistribution from "../../components/Charts/CategoryDistribution";
 import TopMentors from "../../components/Charts/TopMentors";
 import { fetchDashboardData } from "../../service/adminApi";
-import { COLORS, monthNames } from "../../Constants/const Values";
+import { COLORS, monthNames } from "../../Constants/constValues";
 import { ADMIN_DASH_INITIAL_VALUE } from "../../Constants/initialStates";
 
 const Dashboard: React.FC = () => {
