@@ -11,7 +11,7 @@ import {
   MessageCircleQuestion,
 } from "lucide-react";
 
-import { persistor, RootState } from "../../Redux/store";
+import { RootState } from "../../Redux/store";
 import { markAsRead, setNotification } from "../../Redux/notificationSlice";
 import Header from "../../components/Common/common4All/Header";
 import SidePanel from "../../components/Common/common4All/SidePanel";
@@ -120,7 +120,7 @@ const Mentor_Page: React.FC = () => {
     if (response.data?.success && response?.status == HttpStatusCode?.Ok) {
       dispatch(clearUser());
       dispatch(clearAuth());
-       persistor.purge()
+       localStorage.clear();
       toast.success(response.data.message);
     }
   }, [dispatch]);

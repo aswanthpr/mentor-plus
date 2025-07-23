@@ -23,7 +23,7 @@ const NotFound:React.FC = () => {
 <div className='flex  flex-col sm:flex-row gap-4 justify-center'>
 <button
 onClick={()=>navigate(-1)}
- className='inline-flex items-center justify-center px-6 py-3 border border-gray-200 rounded-lg text-base font-bold text-[#000000]bg-[#ffffff] hover:bg-[#ff8800] hover:text-white  transition-colors duration-200  hover:border-transparent border-dashed'
+ className='inline-flex items-center justify-center px-6 py-3 border border-gray-200 rounded-lg text-base font-bold text-[#000000] bg-[#ffffff] hover:bg-[#ff8800] hover:text-white  transition-colors duration-200  hover:border-transparent border-dashed'
 >
   <ArrowLeft className='w-5 h-5 mr-2  '/>
     Go Back

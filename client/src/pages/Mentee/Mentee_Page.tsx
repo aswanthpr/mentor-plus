@@ -13,7 +13,7 @@ import Header from "../../components/Common/common4All/Header";
 import SidePanel from "../../components/Common/common4All/SidePanel";
 import { toast } from "react-toastify";
 import { markAsRead, setNotification } from "../../Redux/notificationSlice";
-import { persistor, RootState } from "../../Redux/store";
+import { RootState } from "../../Redux/store";
 import {
   connectToNotifications,
   disconnectNotificationSocket,
@@ -26,6 +26,7 @@ import {
 import { HttpStatusCode } from "axios";
 import { clearUser } from "../../Redux/userSlice";
 import { clearAuth } from "../../Redux/authSlice";
+
 
 const navItems: INavItem[] = [
   { name: "Home", path: "/mentee/home", icon: Home },
@@ -95,7 +96,7 @@ const Mentee_Page: React.FC = () => {
     if (response.data.success && response.status === HttpStatusCode?.Ok) {
       dispatch(clearAuth());
       dispatch(clearUser());
-       persistor.purge()
+      localStorage.clear()
       toast.success(response.data.message);
     }
   }, [dispatch]);
