@@ -96,9 +96,9 @@ const Login: React.FC = () => {
             );
             dispatch(
               setUser({
-                name: response?.data?.user?.name,
-                email: response?.data?.user?.email,
-                image: response?.data?.user?.profileUrl,
+                name: response?.data?.user?.name as string,
+                email: response?.data?.user?.email as string,
+                image: response?.data?.user?.profileUrl as string,
                 role: "mentee",
               })
             );
@@ -121,9 +121,9 @@ const Login: React.FC = () => {
 
             dispatch(
               setUser({
-                name: response?.data?.user?.name,
-                email: response?.data?.user?.email,
-                image: response?.data?.user?.profileUrl,
+                name: response?.data?.user?.name as string,
+                email: response?.data?.user?.email as string,
+                image: response?.data?.user?.profileUrl as string,
                 role: "mentor",
               })
             );
