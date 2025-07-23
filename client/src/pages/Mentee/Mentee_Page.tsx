@@ -13,7 +13,7 @@ import Header from "../../components/Common/common4All/Header";
 import SidePanel from "../../components/Common/common4All/SidePanel";
 import { toast } from "react-toastify";
 import { markAsRead, setNotification } from "../../Redux/notificationSlice";
-import { RootState } from "../../Redux/store";
+import { persistor, RootState } from "../../Redux/store";
 import {
   connectToNotifications,
   disconnectNotificationSocket,
@@ -39,7 +39,7 @@ const navItems: INavItem[] = [
 const Mentee_Page: React.FC = () => {
   const dispatch = useDispatch();
   const notification = useSelector(
-    (state: RootState) => state?.notificationSlice.mentee
+    (state: RootState) => state?.notification?.mentee
   );
 
   const [isSideBarOpen, setIsSideBarOpen] = useState<boolean>(false);
@@ -95,6 +95,7 @@ const Mentee_Page: React.FC = () => {
     if (response.data.success && response.status === HttpStatusCode?.Ok) {
       dispatch(clearAuth());
       dispatch(clearUser());
+       persistor.purge()
       toast.success(response.data.message);
     }
   }, [dispatch]);

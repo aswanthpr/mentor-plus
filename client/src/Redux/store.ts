@@ -7,15 +7,15 @@ import notificationSlice from "./notificationSlice";
 import userSlice from "./userSlice";
 
 const persistConfig = {
-  key: "user", //key of the persist state
+  key: "root", //key of the persist state
   storage,
   whitelist: ["user"],
-  blacklist: [ "auth","notificationSlice"],
+  blacklist: [ "auth","notification"],
 };
 const rootReducer = combineReducers({
-  notificationSlice,
   user: userSlice,
-  auth:authReducer
+  auth:authReducer,
+  notification:notificationSlice,
 });
 const persistedReducer = persistReducer(persistConfig, rootReducer);
 

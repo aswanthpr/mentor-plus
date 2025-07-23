@@ -37,6 +37,7 @@ const userSlice = createSlice({
       state.role = null;
       state.name = null;
       state.image = null;
+     
     },
   },
 });

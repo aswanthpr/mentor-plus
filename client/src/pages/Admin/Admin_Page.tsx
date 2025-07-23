@@ -12,7 +12,7 @@ import { Outlet } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { toast } from "react-toastify";
 import { markAsRead, setNotification } from "../../Redux/notificationSlice";
-import { RootState } from "../../Redux/store";
+import { persistor, RootState } from "../../Redux/store";
 import {
   fetchAdminLogout,
   fetchAllNotification,
@@ -36,7 +36,7 @@ const Admin_Page: React.FC = () => {
   const [isSideBarOpen, setIsSideBarOpen] = useState<boolean>(true);
   const [searchValue, setSearchValue] = useState<string>("");
   const notification = useSelector(
-    (state: RootState) => state?.notificationSlice.admin
+    (state: RootState) => state?.notification?.admin
   );
 
   useEffect(() => {
@@ -101,6 +101,7 @@ const Admin_Page: React.FC = () => {
     if (response.data.success && response.status == 200) {
       dispatch(clearAuth())
       dispatch(clearUser());
+       persistor.purge()
       toast.success(response.data.message);
     }
   }, [dispatch]);

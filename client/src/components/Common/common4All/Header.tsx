@@ -9,6 +9,7 @@ import { useSelector } from "react-redux";
 import { RootState } from "../../../Redux/store";
 
 const Header: React.FC<IHeader> = React.memo((props) => {
+   const users = useSelector((state: RootState) => state.user);
   const { userType, ToggleSideBar, profileLink, logout, onRead, notifData } =
     props;
 
@@ -45,7 +46,7 @@ const Header: React.FC<IHeader> = React.memo((props) => {
   const handleProfileClick = () => {
     setShowProfileMenu(false); // Close menu on profile click
   };
-  const user = useSelector((state: RootState) => state.user);
+ 
   return (
     <header className="bg-white border-b border-gray-200 top-0 left-0 right-0 z-50 fixed ">
       <div className="h-16 px-4 flex items-center justify-between ">
@@ -91,7 +92,7 @@ const Header: React.FC<IHeader> = React.memo((props) => {
             >
               <img
                 loading="lazy"
-                src={user?.image ?? profile}
+                src={users?.image ?? profile}
                 alt="Profile"
                 className="h-full w-full object-cover"
               />
@@ -109,16 +110,16 @@ const Header: React.FC<IHeader> = React.memo((props) => {
                   >
                     <User className="h-5 w-5 mr-2 mt-0 mb-5" />
                     {
-                      (user?.name&&user?.email)?(
+                      (users?.name&&users?.email)?(
                     <div className="flex flex-col">
-                      <span>{user?.name}</span>
-                      <p className="text-xs text-neutral-600">{user?.email}</p>
+                      <span>{users?.name}</span>
+                      <p className="text-xs text-neutral-600">{users?.email}</p>
                     </div>
 
                       ):(
                          <div className="flex flex-col">
                       
-                      <p className="text-md text-neutral-600">Profile</p>
+                      <p className="text-md text-neutral-600 pb-4">Profile</p>
                     </div>
                       )
                     }

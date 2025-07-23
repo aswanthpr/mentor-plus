@@ -185,7 +185,7 @@ class walletService {
                 }
                 if (typeof amount !== 'number' && amount < 500) {
                     return {
-                        message: "Withdrawals below $500 are not allowed. Please enter a higher amount",
+                        message: "Withdrawals below ₹500 are not allowed. Please enter a higher amount",
                         status: httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.BadRequest,
                         success: false,
                         result: null,

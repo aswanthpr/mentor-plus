@@ -246,7 +246,7 @@ export class walletService implements IwalletService {
       if (typeof amount !== 'number' && amount < 500) {
 
         return {
-          message: "Withdrawals below $500 are not allowed. Please enter a higher amount",
+          message: "Withdrawals below ₹500 are not allowed. Please enter a higher amount",
           status: Status?.BadRequest,
           success: false,
           result: null,

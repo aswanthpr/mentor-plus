@@ -11,7 +11,7 @@ import {
   MessageCircleQuestion,
 } from "lucide-react";
 
-import { RootState } from "../../Redux/store";
+import { persistor, RootState } from "../../Redux/store";
 import { markAsRead, setNotification } from "../../Redux/notificationSlice";
 import Header from "../../components/Common/common4All/Header";
 import SidePanel from "../../components/Common/common4All/SidePanel";
@@ -44,7 +44,7 @@ const navItems: INavItem[] = [
 const Mentor_Page: React.FC = () => {
   const dispatch = useDispatch();
   const notification = useSelector(
-    (state: RootState) => state?.notificationSlice.mentor
+    (state: RootState) => state?.notification?.mentor
   );
   const [isSideBarOpen, setIsSideBarOpen] = useState<boolean>(false);
   const [searchValue, setSearchValue] = useState<string>("");
@@ -120,6 +120,7 @@ const Mentor_Page: React.FC = () => {
     if (response.data?.success && response?.status == HttpStatusCode?.Ok) {
       dispatch(clearUser());
       dispatch(clearAuth());
+       persistor.purge()
       toast.success(response.data.message);
     }
   }, [dispatch]);
