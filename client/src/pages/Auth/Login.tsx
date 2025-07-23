@@ -5,7 +5,7 @@ import { useDispatch } from "react-redux";
 import { toast } from "react-toastify";
 import { Link } from "react-router-dom";
 
-import { AppDispatch, store } from "../../Redux/store";
+import { AppDispatch} from "../../Redux/store";
 import { fetchMenteeLogin } from "../../service/menteeApi";
 import { fetchMentorLogin } from "../../service/mentorApi";
 import InputField from "../../components/Auth/InputField";
