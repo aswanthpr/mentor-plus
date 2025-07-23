@@ -108,10 +108,20 @@ const Header: React.FC<IHeader> = React.memo((props) => {
                     className="flex items-center px-4 py-2 text-gray-700 hover:bg-gray-100"
                   >
                     <User className="h-5 w-5 mr-2 mt-0 mb-5" />
+                    {
+                      (user?.name&&user?.email)?(
                     <div className="flex flex-col">
                       <span>{user?.name}</span>
                       <p className="text-xs text-neutral-600">{user?.email}</p>
                     </div>
+
+                      ):(
+                         <div className="flex flex-col">
+                      
+                      <p className="text-xs text-neutral-600">Profile</p>
+                    </div>
+                      )
+                    }
                   </Link>
                 )}
                 <button
