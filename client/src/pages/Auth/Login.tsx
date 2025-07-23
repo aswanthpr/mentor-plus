@@ -91,18 +91,19 @@ const Login: React.FC = () => {
             response?.status == HttpStatusCode?.Ok &&
             response?.data?.accessToken
           ) {
+            const resp =response?.data
             dispatch(
-              setAuth({ role: "mentee", token: response?.data?.accessToken })
+              setAuth({ role: "mentee", token: resp.accessToken })
             );
             dispatch(
               setUser({
-                name: response?.data?.user?.name as string,
-                email: response?.data?.user?.email as string,
-                image: response?.data?.user?.profileUrl as string,
+                name: resp?.user?.name as string,
+                email: resp?.user?.email as string,
+                image: resp?.user?.profileUrl as string,
                 role: "mentee",
               })
             );
-            toast.success(response?.data?.message);
+            toast.success(resp?.message);
 
             navigate(ROUTES?.MENTEE_HOME);
           }
@@ -111,24 +112,25 @@ const Login: React.FC = () => {
           setLoading(true);
           const response = await fetchMentorLogin(formData);
           setLoading((pre) => !pre);
+          const resp = response?.data
           if (
             response?.status == HttpStatusCode?.Ok &&
             response.data?.success
           ) {
             dispatch(
-              setAuth({ token: response?.data?.accessToken, role: "mentor" })
+              setAuth({ token: resp?.accessToken, role: "mentor" })
             );
             dispatch(
               setUser({
-                name: response?.data?.user?.name as string,
-                email: response?.data?.user?.email as string,
-                image: response?.data?.user?.profileUrl as string,
+                name: resp?.user?.name as string,
+                email: resp?.user?.email as string,
+                image: resp?.user?.profileUrl as string,
                 role: "mentor",
               })
             );
             navigate(ROUTES?.MENTOR_HOME);
           }
-          toast.success(response.data.message);
+          toast.success(resp.message);
         }
       }
     },

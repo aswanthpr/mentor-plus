@@ -9,6 +9,7 @@ import userSlice from "./userSlice";
 const persistConfig = {
   key: "root", //key of the persist state
   storage,
+  version: 1,
   whitelist: ["user"],
   blacklist: [ "auth","notification"],
 };
