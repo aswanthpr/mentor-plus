@@ -84,6 +84,7 @@ const AdminLogin: React.FC = () => {
     >
       {loading && <Spinner />}
       <div className="bg-white p-8 rounded-lg shadow-lg w-full max-w-sm">
+
         <h2 className="text-center text-3xl font-bold text-grey-900 mb-6">
           Admin Login
         </h2>

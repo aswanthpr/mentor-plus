@@ -150,7 +150,8 @@ const SignupForm: React.FC = () => {
     >
       {loading && <Spinner />}
 
-      <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
+      <div className="mt-8 mx-auto w-full max-w-[90%] sm:max-w-md rounded-2xl">
+
         <div className="bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10">
           <div className="sm:mx-auto sm:w-full sm:max-w-md">
             <h2 className="text-center text-3xl font-bold tracking-tight text-gray-900">

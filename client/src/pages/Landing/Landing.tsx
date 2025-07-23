@@ -50,6 +50,31 @@ const Landing: React.FC = () => {
                 <Menu className="h-6 w-6" />
               )}
             </button>
+            {isMenuOpen && (
+              <div className="md:hidden absolute top-16 left-0 right-0 bg-white shadow-lg z-40 px-4 py-4 flex flex-col gap-4">
+                <Link
+                  to={ROUTES?.MENTOR_APPLY}
+                  className="px-4 py-2 bg-white text-[#ff9900] rounded-lg hover:bg-[#ff8800] hover:text-white transition-colors font-normal border text-center"
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  Become a Tech Mentor
+                </Link>
+                <Link
+                  to={ROUTES?.MENTEE_SINGUP}
+                  className="px-4 py-2 border border-gray-200 text-black hover:bg-gray-800 hover:text-white rounded-lg transition-colors font-normal text-center"
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  Sign Up
+                </Link>
+                <Link
+                  to={ROUTES?.MENTEE_LOGIN}
+                  className="px-4 py-2 bg-black text-white rounded-lg hover:bg-gray-50 hover:text-gray-950 border transition-colors font-normal text-center"
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  Login
+                </Link>
+              </div>
+            )}
           </div>
         </div>
       </header>
@@ -78,7 +103,8 @@ const Landing: React.FC = () => {
               </div>
             </div>
             <div>
-              <img  loading="lazy"
+              <img
+                loading="lazy"
                 src={heroImg}
                 alt="Tech mentoring"
                 className="w-full lg:w-[120%] h-auto max-w-none"
