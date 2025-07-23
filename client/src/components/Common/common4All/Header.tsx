@@ -118,7 +118,7 @@ const Header: React.FC<IHeader> = React.memo((props) => {
                       ):(
                          <div className="flex flex-col">
                       
-                      <p className="text-xs text-neutral-600">Profile</p>
+                      <p className="text-md text-neutral-600">Profile</p>
                     </div>
                       )
                     }
