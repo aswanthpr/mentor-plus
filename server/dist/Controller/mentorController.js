@@ -11,6 +11,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.mentorController = void 0;
 const httpStatusCode_1 = require("../Constants/httpStatusCode");
+const setCookies_util_1 = require("../Utils/setCookies.util");
 class mentorController {
     constructor(_mentorService) {
         this._mentorService = _mentorService;
@@ -52,14 +53,8 @@ class mentorController {
             var _a;
             try {
                 const result = yield this._mentorService.mentorRefreshToken((_a = req.cookies) === null || _a === void 0 ? void 0 : _a.refreshToken);
-                res
+                (0, setCookies_util_1.setCookie)(res, result === null || result === void 0 ? void 0 : result.refreshToken)
                     .status(result === null || result === void 0 ? void 0 : result.status)
-                    .cookie("refreshToken", result === null || result === void 0 ? void 0 : result.refreshToken, {
-                    httpOnly: true,
-                    secure: process.env.NODE_ENV === "production", //in development fasle
-                    sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
-                    maxAge: parseInt(process.env.REFRESH_TOKEN_EXPIRY || "0", 10),
-                })
                     .json({
                     success: result === null || result === void 0 ? void 0 : result.success,
                     message: result === null || result === void 0 ? void 0 : result.message,

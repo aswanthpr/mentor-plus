@@ -2,6 +2,7 @@ import { NextFunction, Request, Response } from "express";
 import { ImenteeService } from "../Interface/Mentee/iMenteeService";
 import { ImenteeController } from "../Interface/Mentee/iMenteeController";
 import { Status } from "../Constants/httpStatusCode";
+import { setCookie } from "../Utils/setCookies.util";
 
 export class menteeController implements ImenteeController {
   constructor(private _menteeService: ImenteeService) {}
@@ -16,17 +17,9 @@ export class menteeController implements ImenteeController {
       const result = await this._menteeService.refreshToken(
         req.cookies?.refreshToken
       );
-console.log(process.env.REFRESH_TOKEN_EXPIRY ,'dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd')
-      if (result?.success) {
-        res.cookie("refreshToken", result?.refreshToken as string, {
-          httpOnly: true,
-          secure:process.env.NODE_ENV === "production",
-          sameSite:process.env.NODE_ENV === "production"? "none":"lax",
-          maxAge: parseInt(process.env.REFRESH_TOKEN_EXPIRY || "0", 10),
-        });
-      }
 
-      res.status(result.status).json({
+      setCookie(res, result?.refreshToken as string)
+      .status(result.status).json({
         success: result?.success,
         message: result?.message,
         accessToken: result?.accessToken,

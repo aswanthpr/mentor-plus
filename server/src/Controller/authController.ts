@@ -4,6 +4,7 @@ import IauthService from "../Interface/Auth/iAuthService";
 import IotpService from "../Interface/Otp/iOtpService";
 import { ImentorApplyData } from "../Types";
 import { Imentee } from "../Model/menteeModel";
+import { setCookie } from "../Utils/setCookies.util";
 
 export class authController implements IauthController {
   constructor(
@@ -91,14 +92,8 @@ export class authController implements IauthController {
         user,
       } = await this._AuthService.mainLogin(email, password);
 
-      res
+      setCookie(res, refreshToken as string)
         .status(status)
-        .cookie("refreshToken", `${refreshToken ?? ""}`, {
-          httpOnly: true,
-          secure: process.env.NODE_ENV === "production",
-          sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
-          maxAge: parseInt(process.env.REFRESH_TOKEN_EXPIRY || "0", 10),
-        })
         .json({
           success,
           message,
@@ -155,15 +150,8 @@ export class authController implements IauthController {
 
       const { success, message, status, refreshToken, accessToken } =
         await this._AuthService.adminLogin(email, password);
-      res
+      setCookie(res, refreshToken as string)
         .status(status)
-        .cookie("refreshToken", refreshToken as string, {
-          httpOnly: true,
-          secure: process.env.NODE_ENV === "production",
-          sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
-          maxAge: parseInt(process.env.REFRESH_TOKEN_EXPIRY || "0", 10),
-          path: "/",
-        })
         .json({ message, success, accessToken });
 
       return;
@@ -258,15 +246,8 @@ export class authController implements IauthController {
       const { status, success, message, accessToken, refreshToken, user } =
         await this._AuthService.mentorLogin(email, password);
 
-      res
+      setCookie(res, refreshToken as string )
         .status(status)
-        .cookie("refreshToken", refreshToken, {
-          httpOnly: true,
-          secure: process.env.NODE_ENV === "production",
-          sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
-          maxAge: parseInt(process.env.REFRESH_TOKEN_EXPIRY || "0", 10),
-          path: "/",
-        })
         .json({
           success,
           message,
@@ -325,16 +306,8 @@ export class authController implements IauthController {
       }
       const { accessToken, refreshToken, user } =
         await this._AuthService.googleAuth(req.user as Imentee);
-
-      res.cookie("refreshToken", refreshToken, {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === "production",
-        sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
-        maxAge: parseInt(process.env.REFRESH_TOKEN_EXPIRY || "0", 10),
-        path: "/",
-      });
-
-      res.redirect(
+        setCookie(res, refreshToken as string)
+        .redirect(
         `${process.env.CLIENT_ORIGIN_URL}/mentee/google/success?token=${accessToken}&name=${user?.name}&email=${user?.email}&image=${user?.profileUrl}`
       );
     } catch (error: unknown) {

@@ -10,6 +10,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.authController = void 0;
+const setCookies_util_1 = require("../Utils/setCookies.util");
 class authController {
     constructor(_AuthService, _OtpService) {
         this._AuthService = _AuthService;
@@ -67,14 +68,8 @@ class authController {
             try {
                 const { email, password } = req.body;
                 const { message, status, success, accessToken, refreshToken, user, } = yield this._AuthService.mainLogin(email, password);
-                res
+                (0, setCookies_util_1.setCookie)(res, refreshToken)
                     .status(status)
-                    .cookie("refreshToken", `${refreshToken !== null && refreshToken !== void 0 ? refreshToken : ""}`, {
-                    httpOnly: true,
-                    secure: process.env.NODE_ENV === "production",
-                    sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
-                    maxAge: parseInt(process.env.REFRESH_TOKEN_EXPIRY || "0", 10),
-                })
                     .json({
                     success,
                     message,
@@ -117,15 +112,8 @@ class authController {
             try {
                 const { email, password } = req.body;
                 const { success, message, status, refreshToken, accessToken } = yield this._AuthService.adminLogin(email, password);
-                res
+                (0, setCookies_util_1.setCookie)(res, refreshToken)
                     .status(status)
-                    .cookie("refreshToken", refreshToken, {
-                    httpOnly: true,
-                    secure: process.env.NODE_ENV === "production",
-                    sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
-                    maxAge: parseInt(process.env.REFRESH_TOKEN_EXPIRY || "0", 10),
-                    path: "/",
-                })
                     .json({ message, success, accessToken });
                 return;
             }
@@ -194,15 +182,8 @@ class authController {
             try {
                 const { email, password } = req.body;
                 const { status, success, message, accessToken, refreshToken, user } = yield this._AuthService.mentorLogin(email, password);
-                res
+                (0, setCookies_util_1.setCookie)(res, refreshToken)
                     .status(status)
-                    .cookie("refreshToken", refreshToken, {
-                    httpOnly: true,
-                    secure: process.env.NODE_ENV === "production",
-                    sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
-                    maxAge: parseInt(process.env.REFRESH_TOKEN_EXPIRY || "0", 10),
-                    path: "/",
-                })
                     .json({
                     success,
                     message,
@@ -246,14 +227,8 @@ class authController {
                     return;
                 }
                 const { accessToken, refreshToken, user } = yield this._AuthService.googleAuth(req.user);
-                res.cookie("refreshToken", refreshToken, {
-                    httpOnly: true,
-                    secure: process.env.NODE_ENV === "production",
-                    sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
-                    maxAge: parseInt(process.env.REFRESH_TOKEN_EXPIRY || "0", 10),
-                    path: "/",
-                });
-                res.redirect(`${process.env.CLIENT_ORIGIN_URL}/mentee/google/success?token=${accessToken}&name=${user === null || user === void 0 ? void 0 : user.name}&email=${user === null || user === void 0 ? void 0 : user.email}&image=${user === null || user === void 0 ? void 0 : user.profileUrl}`);
+                (0, setCookies_util_1.setCookie)(res, refreshToken)
+                    .redirect(`${process.env.CLIENT_ORIGIN_URL}/mentee/google/success?token=${accessToken}&name=${user === null || user === void 0 ? void 0 : user.name}&email=${user === null || user === void 0 ? void 0 : user.email}&image=${user === null || user === void 0 ? void 0 : user.profileUrl}`);
             }
             catch (error) {
                 next(error);

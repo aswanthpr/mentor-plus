@@ -11,6 +11,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.menteeController = void 0;
 const httpStatusCode_1 = require("../Constants/httpStatusCode");
+const setCookies_util_1 = require("../Utils/setCookies.util");
 class menteeController {
     constructor(_menteeService) {
         this._menteeService = _menteeService;
@@ -21,16 +22,8 @@ class menteeController {
             var _a;
             try {
                 const result = yield this._menteeService.refreshToken((_a = req.cookies) === null || _a === void 0 ? void 0 : _a.refreshToken);
-                console.log(process.env.REFRESH_TOKEN_EXPIRY, 'dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd');
-                if (result === null || result === void 0 ? void 0 : result.success) {
-                    res.cookie("refreshToken", result === null || result === void 0 ? void 0 : result.refreshToken, {
-                        httpOnly: true,
-                        secure: process.env.NODE_ENV === "production",
-                        sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
-                        maxAge: parseInt(process.env.REFRESH_TOKEN_EXPIRY || "0", 10),
-                    });
-                }
-                res.status(result.status).json({
+                (0, setCookies_util_1.setCookie)(res, result === null || result === void 0 ? void 0 : result.refreshToken)
+                    .status(result.status).json({
                     success: result === null || result === void 0 ? void 0 : result.success,
                     message: result === null || result === void 0 ? void 0 : result.message,
                     accessToken: result === null || result === void 0 ? void 0 : result.accessToken,

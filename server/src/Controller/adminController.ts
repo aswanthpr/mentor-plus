@@ -2,6 +2,7 @@ import { NextFunction, Request, Response } from "express";
 import { IadminController } from "../Interface/Admin/iAdminController";
 import { IadminService } from "../Interface/Admin/iAdminService";
 import { Status } from "../Constants/httpStatusCode";
+import { setCookie } from "../Utils/setCookies.util";
 
 export class adminController implements IadminController {
   constructor(private _adminService: IadminService) {}
@@ -15,14 +16,9 @@ export class adminController implements IadminController {
         req.cookies?.refreshToken
       );
 
+      setCookie(res, result?.refreshToken as string)
       res
         .status(result.status)
-        .cookie("refreshToken", result?.refreshToken as string, {
-          httpOnly: true,
-          secure: process.env.NODE_ENV === "production",
-          sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
-          maxAge: parseInt(process.env.REFRESH_TOKEN_EXPIRY || "0", 10),
-        })
         .json({
           success: result?.success,
           message: result?.message,

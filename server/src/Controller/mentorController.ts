@@ -3,6 +3,7 @@ import { ImentorController } from "../Interface/Mentor/iMentorController";
 import { ImentorService } from "../Interface/Mentor/iMentorService";
 import { ObjectId } from "mongoose";
 import { Status } from "../Constants/httpStatusCode";
+import { setCookie } from "../Utils/setCookies.util";
 
 export class mentorController implements ImentorController {
   constructor(private _mentorService: ImentorService) {}
@@ -55,14 +56,8 @@ export class mentorController implements ImentorController {
         req.cookies?.refreshToken
       );
 
-      res
+      setCookie(res, result?.refreshToken as string)
         .status(result?.status)
-        .cookie("refreshToken", result?.refreshToken as string, {
-          httpOnly: true,
-          secure: process.env.NODE_ENV === "production", //in development fasle
-          sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
-          maxAge: parseInt(process.env.REFRESH_TOKEN_EXPIRY || "0", 10),
-        })
         .json({
           success: result?.success,
           message: result?.message,

@@ -11,7 +11,7 @@ const persistConfig = {
   storage,
   version: 1,
   whitelist: ["user"],
-  blacklist: [ "auth","notification"],
+  blacklist: ["auth","notification"],
 };
 const rootReducer = combineReducers({
   user: userSlice,
