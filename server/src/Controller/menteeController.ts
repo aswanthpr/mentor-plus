@@ -2,7 +2,7 @@ import { NextFunction, Request, Response } from "express";
 import { ImenteeService } from "../Interface/Mentee/iMenteeService";
 import { ImenteeController } from "../Interface/Mentee/iMenteeController";
 import { Status } from "../Constants/httpStatusCode";
-import { setCookie } from "../Utils/setCookies.util";
+import { setCookie } from "../Utils/index";
 
 export class menteeController implements ImenteeController {
   constructor(private _menteeService: ImenteeService) {}

@@ -11,7 +11,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 const httpStatusCode_1 = require("../Constants/httpStatusCode");
 const httpResponse_1 = require("../Constants/httpResponse");
-const http_error_handler_util_1 = require("../Utils/http-error-handler.util");
+const index_1 = require("../Utils/index");
 class chatService {
     constructor(_chatRespository) {
         this._chatRespository = _chatRespository;
@@ -42,7 +42,7 @@ class chatService {
                 };
             }
             catch (error) {
-                throw new http_error_handler_util_1.HttpError(error instanceof Error ? error.message : String(error), httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.InternalServerError);
+                throw new index_1.HttpError(error instanceof Error ? error.message : String(error), httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.InternalServerError);
             }
         });
     }
@@ -75,7 +75,7 @@ class chatService {
                 };
             }
             catch (error) {
-                throw new http_error_handler_util_1.HttpError(error instanceof Error ? error.message : String(error), httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.InternalServerError);
+                throw new index_1.HttpError(error instanceof Error ? error.message : String(error), httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.InternalServerError);
             }
         });
     }

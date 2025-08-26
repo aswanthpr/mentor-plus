@@ -14,12 +14,10 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.menteeService = void 0;
 const bcrypt_1 = __importDefault(require("bcrypt"));
-const jwt_utils_1 = require("../Utils/jwt.utils");
-const hashPass_util_1 = __importDefault(require("../Utils/hashPass.util"));
+const index_1 = require("../Utils/index");
 const httpStatusCode_1 = require("../Constants/httpStatusCode");
 const cloudinary_util_1 = require("../Config/cloudinary.util");
 const httpResponse_1 = require("../Constants/httpResponse");
-const http_error_handler_util_1 = require("../Utils/http-error-handler.util");
 const mentorDTO_1 = require("../dto/mentor/mentorDTO");
 // const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string)
 class menteeService {
@@ -33,7 +31,7 @@ class menteeService {
         return __awaiter(this, void 0, void 0, function* () {
             var _a, _b;
             try {
-                const decode = (0, jwt_utils_1.verifyAccessToken)(refreshToken, 'mentee');
+                const decode = (0, index_1.verifyAccessToken)(refreshToken, 'mentee');
                 if (!((_a = decode === null || decode === void 0 ? void 0 : decode.result) === null || _a === void 0 ? void 0 : _a.userId)) {
                     return {
                         success: false,
@@ -54,7 +52,7 @@ class menteeService {
                 return { success: true, message: "success", result: result, status: httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.Ok };
             }
             catch (error) {
-                throw new http_error_handler_util_1.HttpError(error instanceof Error ? error.message : String(error), httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.InternalServerError);
+                throw new index_1.HttpError(error instanceof Error ? error.message : String(error), httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.InternalServerError);
             }
         });
     }
@@ -86,7 +84,7 @@ class menteeService {
                 };
             }
             catch (error) {
-                throw new http_error_handler_util_1.HttpError(error instanceof Error ? error.message : String(error), httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.InternalServerError);
+                throw new index_1.HttpError(error instanceof Error ? error.message : String(error), httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.InternalServerError);
             }
         });
     }
@@ -120,7 +118,7 @@ class menteeService {
                         status: httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.BadRequest,
                     };
                 }
-                const hashPass = yield (0, hashPass_util_1.default)(newPassword);
+                const hashPass = yield (0, index_1.hash_pass)(newPassword);
                 const response = yield this._menteeRepository.changePassword(_id, hashPass);
                 if (!response) {
                     return { success: false, message: httpResponse_1.HttpResponse === null || httpResponse_1.HttpResponse === void 0 ? void 0 : httpResponse_1.HttpResponse.RESOURCE_UPDATE_FAILED, status: httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.BadRequest };
@@ -128,7 +126,7 @@ class menteeService {
                 return { success: true, message: httpResponse_1.HttpResponse === null || httpResponse_1.HttpResponse === void 0 ? void 0 : httpResponse_1.HttpResponse.SUCCESS, status: httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.Ok };
             }
             catch (error) {
-                throw new http_error_handler_util_1.HttpError(error instanceof Error ? error.message : String(error), httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.InternalServerError);
+                throw new index_1.HttpError(error instanceof Error ? error.message : String(error), httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.InternalServerError);
             }
         });
     }
@@ -151,7 +149,7 @@ class menteeService {
                 };
             }
             catch (error) {
-                throw new http_error_handler_util_1.HttpError(error instanceof Error ? error.message : String(error), httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.InternalServerError);
+                throw new index_1.HttpError(error instanceof Error ? error.message : String(error), httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.InternalServerError);
             }
         });
     }
@@ -166,7 +164,7 @@ class menteeService {
                         status: httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.Unauthorized,
                     };
                 }
-                const decode = (0, jwt_utils_1.verifyRefreshToken)(refresh, "mentee");
+                const decode = (0, index_1.verifyRefreshToken)(refresh, "mentee");
                 if (!(decode === null || decode === void 0 ? void 0 : decode.isValid) ||
                     !((_a = decode === null || decode === void 0 ? void 0 : decode.result) === null || _a === void 0 ? void 0 : _a.userId) ||
                     (decode === null || decode === void 0 ? void 0 : decode.error) == "TamperedToken" ||
@@ -178,8 +176,8 @@ class menteeService {
                     };
                 }
                 const userId = (_b = decode === null || decode === void 0 ? void 0 : decode.result) === null || _b === void 0 ? void 0 : _b.userId;
-                const accessToken = (0, jwt_utils_1.genAccesssToken)(userId, "mentee");
-                const refreshToken = (0, jwt_utils_1.genRefreshToken)(userId, "mentee");
+                const accessToken = (0, index_1.genAccesssToken)(userId, "mentee");
+                const refreshToken = (0, index_1.genRefreshToken)(userId, "mentee");
                 return {
                     success: true,
                     message: httpResponse_1.HttpResponse === null || httpResponse_1.HttpResponse === void 0 ? void 0 : httpResponse_1.HttpResponse.TOKEN_GENERATED,
@@ -189,7 +187,7 @@ class menteeService {
                 };
             }
             catch (error) {
-                throw new http_error_handler_util_1.HttpError(error instanceof Error ? error.message : String(error), httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.InternalServerError);
+                throw new index_1.HttpError(error instanceof Error ? error.message : String(error), httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.InternalServerError);
             }
         });
     }
@@ -334,7 +332,7 @@ class menteeService {
                 };
             }
             catch (error) {
-                throw new http_error_handler_util_1.HttpError(error instanceof Error ? error.message : String(error), httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.InternalServerError);
+                throw new index_1.HttpError(error instanceof Error ? error.message : String(error), httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.InternalServerError);
             }
         });
     }
@@ -374,7 +372,7 @@ class menteeService {
                 };
             }
             catch (error) {
-                throw new http_error_handler_util_1.HttpError(error instanceof Error ? error.message : String(error), httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.InternalServerError);
+                throw new index_1.HttpError(error instanceof Error ? error.message : String(error), httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.InternalServerError);
             }
         });
     }
@@ -407,7 +405,7 @@ class menteeService {
                 };
             }
             catch (error) {
-                throw new http_error_handler_util_1.HttpError(error instanceof Error ? error.message : String(error), httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.InternalServerError);
+                throw new index_1.HttpError(error instanceof Error ? error.message : String(error), httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.InternalServerError);
             }
         });
     }

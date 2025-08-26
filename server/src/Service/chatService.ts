@@ -5,7 +5,7 @@ import { Ichat } from "../Model/chatSchema";
 import { Status } from "../Constants/httpStatusCode";
 import { Imessage } from "../Model/messageSchema";
 import { HttpResponse } from "../Constants/httpResponse";
-import { HttpError } from "../Utils/http-error-handler.util";
+import { HttpError } from "../Utils/index";
 
 class chatService implements IchatService {
   constructor(private _chatRespository: IchatRepository) {}

@@ -1,13 +1,9 @@
 import { IotpRepository } from "../Interface/Otp/iOtpRepository";
 import IotpService from "../Interface/Otp/iOtpService";
-import {sendMail } from "../Utils/nodeMailer.util";
-import { genOtp } from "../Utils/reusable.util";
 import { ImenteeRepository } from "../Interface/Mentee/iMenteeRepository";
-
 import { HttpResponse } from "../Constants/httpResponse";
 import { Status } from "../Constants/httpStatusCode";
-import { HttpError } from "../Utils/http-error-handler.util";
-import { generateOtpEmailTemplate } from "../Utils/email.template.util";
+import { generateOtpEmailTemplate, HttpError,genOtp,sendMail } from "../Utils/index";
 
 class otpService implements IotpService {
   constructor(

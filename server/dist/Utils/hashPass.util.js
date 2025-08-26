@@ -12,6 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.hash_pass = void 0;
 const bcrypt_1 = __importDefault(require("bcrypt"));
 const hash_pass = (password) => __awaiter(void 0, void 0, void 0, function* () {
     try {
@@ -23,4 +24,4 @@ const hash_pass = (password) => __awaiter(void 0, void 0, void 0, function* () {
         throw new Error(`error while password hash ${error instanceof Error ? error.message : String(error)}`);
     }
 });
-exports.default = hash_pass;
+exports.hash_pass = hash_pass;

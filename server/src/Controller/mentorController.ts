@@ -3,7 +3,7 @@ import { ImentorController } from "../Interface/Mentor/iMentorController";
 import { ImentorService } from "../Interface/Mentor/iMentorService";
 import { ObjectId } from "mongoose";
 import { Status } from "../Constants/httpStatusCode";
-import { setCookie } from "../Utils/setCookies.util";
+import { setCookie } from "../Utils/index";
 
 export class mentorController implements ImentorController {
   constructor(private _mentorService: ImentorService) {}

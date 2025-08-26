@@ -5,11 +5,15 @@ import {
   genRefreshToken,
   verifyAccessToken,
   verifyRefreshToken,
-} from "../Utils/jwt.utils";
+  hash_pass,
+  checkForOverlap,
+  createSkip,
+  HttpError
+} from "../Utils/index";
 import { IcheckedSlot, ImentorChartData, ISchedule, ISlots } from "../Types";
 import { Itime, slot } from "../Model/timeModel";
 import { Imentor } from "../Model/mentorModel";
-import hash_pass from "../Utils/hashPass.util";
+
 import { Iquestion } from "../Model/questionModal";
 import { Icategory } from "../Model/categorySchema";
 import { uploadFile, uploadImage } from "../Config/cloudinary.util";
@@ -22,10 +26,8 @@ import { ObjectId } from "mongoose";
 import { ItimeSlotRepository } from "../Interface/Booking/iTimeSchedule";
 import { Status } from "../Constants/httpStatusCode";
 import moment from "moment";
-import { checkForOverlap, createSkip } from "../Utils/reusable.util";
 import { IslotScheduleRepository } from "../Interface/Booking/iSlotScheduleRepository";
 import { HttpResponse } from "../Constants/httpResponse";
-import { HttpError } from "../Utils/http-error-handler.util";
 import { MentorDTO } from "../dto/mentor/mentorDTO";
 
 export class mentorService implements ImentorService {

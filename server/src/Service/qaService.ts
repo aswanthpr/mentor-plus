@@ -8,9 +8,8 @@ import { Status } from "../Constants/httpStatusCode";
 import { InotificationRepository } from "../Interface/Notification/InotificationRepository";
 import { socketManager } from "../index";
 import { Inotification } from "../Model/notificationModel";
-import { createSkip } from "../Utils/reusable.util";
 import { HttpResponse } from "../Constants/httpResponse";
-import { HttpError } from "../Utils/http-error-handler.util";
+import { HttpError ,createSkip} from "../Utils/index";
 
 class qaService implements IqaService {
   constructor(

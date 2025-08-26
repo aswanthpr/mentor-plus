@@ -15,14 +15,11 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.mentorService = void 0;
 const bcrypt_1 = __importDefault(require("bcrypt"));
 const rrule_1 = require("rrule");
-const jwt_utils_1 = require("../Utils/jwt.utils");
-const hashPass_util_1 = __importDefault(require("../Utils/hashPass.util"));
+const index_1 = require("../Utils/index");
 const cloudinary_util_1 = require("../Config/cloudinary.util");
 const httpStatusCode_1 = require("../Constants/httpStatusCode");
 const moment_1 = __importDefault(require("moment"));
-const reusable_util_1 = require("../Utils/reusable.util");
 const httpResponse_1 = require("../Constants/httpResponse");
-const http_error_handler_util_1 = require("../Utils/http-error-handler.util");
 const mentorDTO_1 = require("../dto/mentor/mentorDTO");
 class mentorService {
     constructor(_mentorRepository, _categoryRepository, _questionRepository, _timeSlotRepository, _slotScheduleRepository) {
@@ -36,7 +33,7 @@ class mentorService {
         return __awaiter(this, void 0, void 0, function* () {
             var _a, _b;
             try {
-                const decode = (0, jwt_utils_1.verifyAccessToken)(token, "mentor");
+                const decode = (0, index_1.verifyAccessToken)(token, "mentor");
                 if (!((_a = decode === null || decode === void 0 ? void 0 : decode.result) === null || _a === void 0 ? void 0 : _a.userId)) {
                     return {
                         success: false,
@@ -76,7 +73,7 @@ class mentorService {
                 };
             }
             catch (error) {
-                throw new http_error_handler_util_1.HttpError(error instanceof Error ? error.message : String(error), httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.InternalServerError);
+                throw new index_1.HttpError(error instanceof Error ? error.message : String(error), httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.InternalServerError);
             }
         });
     }
@@ -92,7 +89,7 @@ class mentorService {
                         status: httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.Unauthorized,
                     };
                 }
-                const decode = (0, jwt_utils_1.verifyRefreshToken)(refresh, "mentor");
+                const decode = (0, index_1.verifyRefreshToken)(refresh, "mentor");
                 if (!(decode === null || decode === void 0 ? void 0 : decode.isValid) ||
                     !((_a = decode === null || decode === void 0 ? void 0 : decode.result) === null || _a === void 0 ? void 0 : _a.userId) ||
                     (decode === null || decode === void 0 ? void 0 : decode.error) == "TamperedToken" ||
@@ -104,8 +101,8 @@ class mentorService {
                     };
                 }
                 const userId = (_b = decode === null || decode === void 0 ? void 0 : decode.result) === null || _b === void 0 ? void 0 : _b.userId;
-                const accessToken = (0, jwt_utils_1.genAccesssToken)(userId, "mentor");
-                const refreshToken = (0, jwt_utils_1.genRefreshToken)(userId, "mentor");
+                const accessToken = (0, index_1.genAccesssToken)(userId, "mentor");
+                const refreshToken = (0, index_1.genRefreshToken)(userId, "mentor");
                 return {
                     success: true,
                     message: httpResponse_1.HttpResponse === null || httpResponse_1.HttpResponse === void 0 ? void 0 : httpResponse_1.HttpResponse.TOKEN_GENERATED,
@@ -115,7 +112,7 @@ class mentorService {
                 };
             }
             catch (error) {
-                throw new http_error_handler_util_1.HttpError(error instanceof Error ? error.message : String(error), httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.InternalServerError);
+                throw new index_1.HttpError(error instanceof Error ? error.message : String(error), httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.InternalServerError);
             }
         });
     }
@@ -153,7 +150,7 @@ class mentorService {
                         status: httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.BadRequest,
                     };
                 }
-                const hashedPassword = yield (0, hashPass_util_1.default)(newPassword);
+                const hashedPassword = yield (0, index_1.hash_pass)(newPassword);
                 const response = yield this._mentorRepository.changeMentorPassword(id, hashedPassword);
                 if (!response) {
                     return {
@@ -169,7 +166,7 @@ class mentorService {
                 };
             }
             catch (error) {
-                throw new http_error_handler_util_1.HttpError(error instanceof Error ? error.message : String(error), httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.InternalServerError);
+                throw new index_1.HttpError(error instanceof Error ? error.message : String(error), httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.InternalServerError);
             }
         });
     }
@@ -208,7 +205,7 @@ class mentorService {
                 };
             }
             catch (error) {
-                throw new http_error_handler_util_1.HttpError(error instanceof Error ? error.message : String(error), httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.InternalServerError);
+                throw new index_1.HttpError(error instanceof Error ? error.message : String(error), httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.InternalServerError);
             }
         });
     }
@@ -288,7 +285,7 @@ class mentorService {
                 };
             }
             catch (error) {
-                throw new http_error_handler_util_1.HttpError(error instanceof Error ? error.message : String(error), httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.InternalServerError);
+                throw new index_1.HttpError(error instanceof Error ? error.message : String(error), httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.InternalServerError);
             }
         });
     }
@@ -318,7 +315,7 @@ class mentorService {
                 };
             }
             catch (error) {
-                throw new http_error_handler_util_1.HttpError(error instanceof Error ? error.message : String(error), httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.InternalServerError);
+                throw new index_1.HttpError(error instanceof Error ? error.message : String(error), httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.InternalServerError);
             }
         });
     }
@@ -343,7 +340,7 @@ class mentorService {
                         };
                     }
                     const checkedSlots = yield this._timeSlotRepository.checkTimeSlots(mentorId, new Date(startDate), new Date(endDate));
-                    const res = (0, reusable_util_1.checkForOverlap)(checkedSlots, slots);
+                    const res = (0, index_1.checkForOverlap)(checkedSlots, slots);
                     const today = new Date();
                     const startDateStr = new Date(startDate);
                     const endDateStr = new Date(endDate);
@@ -435,7 +432,7 @@ class mentorService {
                             };
                         }
                         const checkedSlots = yield this._timeSlotRepository.checkTimeSlots(mentorId, new Date(`${startDate}T00:00:00.000Z`), new Date(`${startDate}T23:59:59.999Z`));
-                        const res = (0, reusable_util_1.checkForOverlap)(checkedSlots, slots);
+                        const res = (0, index_1.checkForOverlap)(checkedSlots, slots);
                         const givenDate = (0, moment_1.default)(startDate, "YYYY-MM-DD");
                         const currentDate = (0, moment_1.default)().startOf("day");
                         if (givenDate.isBefore(currentDate)) {
@@ -520,7 +517,7 @@ class mentorService {
                 };
             }
             catch (error) {
-                throw new http_error_handler_util_1.HttpError(error instanceof Error ? error.message : String(error), httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.InternalServerError);
+                throw new index_1.HttpError(error instanceof Error ? error.message : String(error), httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.InternalServerError);
             }
         });
     }
@@ -541,7 +538,7 @@ class mentorService {
                         totalPage: 0,
                     };
                 }
-                const skipData = (0, reusable_util_1.createSkip)(page, limit);
+                const skipData = (0, index_1.createSkip)(page, limit);
                 const limitNo = skipData === null || skipData === void 0 ? void 0 : skipData.limitNo;
                 const skip = skipData === null || skipData === void 0 ? void 0 : skipData.skip;
                 const response = yield this._timeSlotRepository.getTimeSlots(mentorId, limitNo, skip, search, filter, sortField, sortOrder);
@@ -555,7 +552,7 @@ class mentorService {
                 };
             }
             catch (error) {
-                throw new http_error_handler_util_1.HttpError(error instanceof Error ? error.message : String(error), httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.InternalServerError);
+                throw new index_1.HttpError(error instanceof Error ? error.message : String(error), httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.InternalServerError);
             }
         });
     }
@@ -584,7 +581,7 @@ class mentorService {
                 };
             }
             catch (error) {
-                throw new http_error_handler_util_1.HttpError(error instanceof Error ? error.message : String(error), httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.InternalServerError);
+                throw new index_1.HttpError(error instanceof Error ? error.message : String(error), httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.InternalServerError);
             }
         });
     }
@@ -608,7 +605,7 @@ class mentorService {
                 };
             }
             catch (error) {
-                throw new http_error_handler_util_1.HttpError(error instanceof Error ? error.message : String(error), httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.InternalServerError);
+                throw new index_1.HttpError(error instanceof Error ? error.message : String(error), httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.InternalServerError);
             }
         });
     }

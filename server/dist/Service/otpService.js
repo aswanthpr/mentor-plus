@@ -9,12 +9,9 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const nodeMailer_util_1 = require("../Utils/nodeMailer.util");
-const reusable_util_1 = require("../Utils/reusable.util");
 const httpResponse_1 = require("../Constants/httpResponse");
 const httpStatusCode_1 = require("../Constants/httpStatusCode");
-const http_error_handler_util_1 = require("../Utils/http-error-handler.util");
-const email_template_util_1 = require("../Utils/email.template.util");
+const index_1 = require("../Utils/index");
 class otpService {
     constructor(_otpRespository, _menteeRepository) {
         this._otpRespository = _otpRespository;
@@ -30,7 +27,7 @@ class otpService {
                         status: httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.BadRequest,
                     };
                 }
-                const otp = (0, reusable_util_1.genOtp)();
+                const otp = (0, index_1.genOtp)();
                 const result = yield this._otpRespository.createOtp(email, otp);
                 if (!(result === null || result === void 0 ? void 0 : result.otp)) {
                     return {
@@ -39,8 +36,8 @@ class otpService {
                         status: httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.Ok,
                     };
                 }
-                const mailOptions = (0, email_template_util_1.generateOtpEmailTemplate)(otp, email);
-                yield (0, nodeMailer_util_1.sendMail)(Object.assign({}, mailOptions));
+                const mailOptions = (0, index_1.generateOtpEmailTemplate)(otp, email);
+                yield (0, index_1.sendMail)(Object.assign({}, mailOptions));
                 return {
                     message: httpResponse_1.HttpResponse === null || httpResponse_1.HttpResponse === void 0 ? void 0 : httpResponse_1.HttpResponse.OTP_SEND_TO_MAIL,
                     success: true,
@@ -48,7 +45,7 @@ class otpService {
                 };
             }
             catch (error) {
-                throw new http_error_handler_util_1.HttpError(error instanceof Error ? error.message : String(error), httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.InternalServerError);
+                throw new index_1.HttpError(error instanceof Error ? error.message : String(error), httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.InternalServerError);
             }
         });
     }
@@ -87,7 +84,7 @@ class otpService {
                 };
             }
             catch (error) {
-                throw new http_error_handler_util_1.HttpError(error instanceof Error ? error.message : String(error), httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.InternalServerError);
+                throw new index_1.HttpError(error instanceof Error ? error.message : String(error), httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.InternalServerError);
             }
         });
     }

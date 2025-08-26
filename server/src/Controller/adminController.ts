@@ -2,7 +2,7 @@ import { NextFunction, Request, Response } from "express";
 import { IadminController } from "../Interface/Admin/iAdminController";
 import { IadminService } from "../Interface/Admin/iAdminService";
 import { Status } from "../Constants/httpStatusCode";
-import { setCookie } from "../Utils/setCookies.util";
+import { setCookie } from '../Utils/index'
 
 export class adminController implements IadminController {
   constructor(private _adminService: IadminService) {}

@@ -12,7 +12,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.notificationService = void 0;
 const httpStatusCode_1 = require("../Constants/httpStatusCode");
 const httpResponse_1 = require("../Constants/httpResponse");
-const http_error_handler_util_1 = require("../Utils/http-error-handler.util");
+const index_1 = require("../Utils/index");
 class notificationService {
     constructor(_notificationRepository) {
         this._notificationRepository = _notificationRepository;
@@ -45,7 +45,7 @@ class notificationService {
                 };
             }
             catch (error) {
-                throw new http_error_handler_util_1.HttpError(error instanceof Error ? error.message : String(error), httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.InternalServerError);
+                throw new index_1.HttpError(error instanceof Error ? error.message : String(error), httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.InternalServerError);
             }
         });
     }
@@ -74,7 +74,7 @@ class notificationService {
                 };
             }
             catch (error) {
-                throw new http_error_handler_util_1.HttpError(error instanceof Error ? error.message : String(error), httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.InternalServerError);
+                throw new index_1.HttpError(error instanceof Error ? error.message : String(error), httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.InternalServerError);
             }
         });
     }

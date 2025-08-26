@@ -13,10 +13,9 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const mongoose_1 = __importDefault(require("mongoose"));
-const jwt_utils_1 = require("../Utils/jwt.utils");
+const index_1 = require("../Utils/index");
 const httpStatusCode_1 = require("../Constants/httpStatusCode");
 const httpResponse_1 = require("../Constants/httpResponse");
-const http_error_handler_util_1 = require("../Utils/http-error-handler.util");
 const menteeModel_1 = __importDefault(require("../Model/menteeModel"));
 const mentorModel_1 = __importDefault(require("../Model/mentorModel"));
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -53,7 +52,7 @@ const authorizeUser = (role) => {
                 });
                 return;
             }
-            const decode = (0, jwt_utils_1.verifyAccessToken)(token, role);
+            const decode = (0, index_1.verifyAccessToken)(token, role);
             if ((decode === null || decode === void 0 ? void 0 : decode.error) === "TokenExpired") {
                 res.status(httpStatusCode_1.Status.Forbidden).json({
                     success: false,
@@ -82,7 +81,7 @@ const authorizeUser = (role) => {
             next();
         }
         catch (error) {
-            throw new http_error_handler_util_1.HttpError(error instanceof Error ? error.message : String(error), httpStatusCode_1.Status.InternalServerError);
+            throw new index_1.HttpError(error instanceof Error ? error.message : String(error), httpStatusCode_1.Status.InternalServerError);
         }
     });
 };

@@ -4,7 +4,7 @@ import IauthService from "../Interface/Auth/iAuthService";
 import IotpService from "../Interface/Otp/iOtpService";
 import { ImentorApplyData } from "../Types";
 import { Imentee } from "../Model/menteeModel";
-import { setCookie } from "../Utils/setCookies.util";
+import { setCookie } from "../Utils/index";
 
 export class authController implements IauthController {
   constructor(

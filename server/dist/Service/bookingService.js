@@ -18,10 +18,8 @@ const mongoose_1 = __importDefault(require("mongoose"));
 const httpStatusCode_1 = require("../Constants/httpStatusCode");
 const moment_1 = __importDefault(require("moment"));
 const index_1 = require("../index");
-const reusable_util_1 = require("../Utils/reusable.util");
 const httpResponse_1 = require("../Constants/httpResponse");
-const http_error_handler_util_1 = require("../Utils/http-error-handler.util");
-const turnServer_1 = require("../Utils/turnServer");
+const index_2 = require("../Utils/index");
 class bookingService {
     constructor(_timeSlotRepository, _slotScheduleRepository, _notificationRepository, _chatRepository, __walletRepository, __transactionRepository, stripe = new stripe_1.Stripe(process.env.STRIPE_SECRET_KEY, {
         // apiVersion: "2025-02-24.acacia",
@@ -63,7 +61,7 @@ class bookingService {
                 };
             }
             catch (error) {
-                throw new http_error_handler_util_1.HttpError(error instanceof Error ? error.message : String(error), httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.InternalServerError);
+                throw new index_2.HttpError(error instanceof Error ? error.message : String(error), httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.InternalServerError);
             }
         });
     }
@@ -179,7 +177,7 @@ class bookingService {
                 };
             }
             catch (error) {
-                throw new http_error_handler_util_1.HttpError(error instanceof Error ? error.message : String(error), httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.InternalServerError);
+                throw new index_2.HttpError(error instanceof Error ? error.message : String(error), httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.InternalServerError);
             }
         });
     }
@@ -202,7 +200,7 @@ class bookingService {
                     event = this.stripe.webhooks.constructEvent(bodyData, signature, process.env.STRIPE_WEBHOOK_BOOKING_SECRET);
                 }
                 catch (error) {
-                    throw new http_error_handler_util_1.HttpError(error instanceof Error ? error.message : String(error), httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.InternalServerError);
+                    throw new index_2.HttpError(error instanceof Error ? error.message : String(error), httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.InternalServerError);
                 }
                 // console.log("🔔 Received webhook event:", event.type);
                 switch (event.type) {
@@ -322,7 +320,7 @@ class bookingService {
                 }
             }
             catch (error) {
-                throw new http_error_handler_util_1.HttpError(error instanceof Error ? error.message : String(error), httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.InternalServerError);
+                throw new index_2.HttpError(error instanceof Error ? error.message : String(error), httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.InternalServerError);
             }
         });
     }
@@ -346,7 +344,7 @@ class bookingService {
                         totalPage: 0,
                     };
                 }
-                const skipData = (0, reusable_util_1.createSkip)(page, limit);
+                const skipData = (0, index_2.createSkip)(page, limit);
                 const limitNo = skipData === null || skipData === void 0 ? void 0 : skipData.limitNo;
                 const skip = skipData === null || skipData === void 0 ? void 0 : skipData.skip;
                 const tabCond = currentTab == "upcoming" ? false : true;
@@ -370,7 +368,7 @@ class bookingService {
                 };
             }
             catch (error) {
-                throw new http_error_handler_util_1.HttpError(error instanceof Error ? error.message : String(error), httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.InternalServerError);
+                throw new index_2.HttpError(error instanceof Error ? error.message : String(error), httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.InternalServerError);
             }
         });
     }
@@ -394,7 +392,7 @@ class bookingService {
                     };
                 }
                 const tabCond = currentTab == "upcoming" ? false : true;
-                const skipData = (0, reusable_util_1.createSkip)(page, limit);
+                const skipData = (0, index_2.createSkip)(page, limit);
                 const limitNo = skipData === null || skipData === void 0 ? void 0 : skipData.limitNo;
                 const skip = skipData === null || skipData === void 0 ? void 0 : skipData.skip;
                 const response = yield this._slotScheduleRepository.getBookedSession(skip, limitNo, search, filter, sortOrder, sortField, tabCond, mentorId);
@@ -417,7 +415,7 @@ class bookingService {
                 };
             }
             catch (error) {
-                throw new http_error_handler_util_1.HttpError(error instanceof Error ? error.message : String(error), httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.InternalServerError);
+                throw new index_2.HttpError(error instanceof Error ? error.message : String(error), httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.InternalServerError);
             }
         });
     }
@@ -456,7 +454,7 @@ class bookingService {
                 };
             }
             catch (error) {
-                throw new http_error_handler_util_1.HttpError(error instanceof Error ? error.message : String(error), httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.InternalServerError);
+                throw new index_2.HttpError(error instanceof Error ? error.message : String(error), httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.InternalServerError);
             }
         });
     }
@@ -525,7 +523,7 @@ class bookingService {
                 };
             }
             catch (error) {
-                throw new http_error_handler_util_1.HttpError(error instanceof Error ? error.message : String(error), httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.InternalServerError);
+                throw new index_2.HttpError(error instanceof Error ? error.message : String(error), httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.InternalServerError);
             }
         });
     }
@@ -542,7 +540,7 @@ class bookingService {
                     };
                 }
                 //generate sessionCode
-                const session_Code = (0, reusable_util_1.generateSessionCode)();
+                const session_Code = (0, index_2.generateSessionCode)();
                 const response = yield this._slotScheduleRepository.createSessionCode(bookingId, session_Code);
                 if (!response) {
                     return {
@@ -560,7 +558,7 @@ class bookingService {
                 };
             }
             catch (error) {
-                throw new http_error_handler_util_1.HttpError(error instanceof Error ? error.message : String(error), httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.InternalServerError);
+                throw new index_2.HttpError(error instanceof Error ? error.message : String(error), httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.InternalServerError);
             }
         });
     }
@@ -620,7 +618,7 @@ class bookingService {
                 };
             }
             catch (error) {
-                throw new http_error_handler_util_1.HttpError(error instanceof Error ? error.message : String(error), httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.InternalServerError);
+                throw new index_2.HttpError(error instanceof Error ? error.message : String(error), httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.InternalServerError);
             }
         });
     }
@@ -653,14 +651,14 @@ class bookingService {
                 };
             }
             catch (error) {
-                throw new http_error_handler_util_1.HttpError(error instanceof Error ? error.message : String(error), httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.InternalServerError);
+                throw new index_2.HttpError(error instanceof Error ? error.message : String(error), httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.InternalServerError);
             }
         });
     }
     turnServerConnection() {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const response = yield (0, turnServer_1.fetchTurnServer)();
+                const response = yield (0, index_2.fetchTurnServer)();
                 if (!response) {
                     return {
                         status: httpStatusCode_1.Status.NotFound,
@@ -673,7 +671,7 @@ class bookingService {
                 };
             }
             catch (error) {
-                throw new http_error_handler_util_1.HttpError(error instanceof Error ? error.message : String(error), httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.InternalServerError);
+                throw new index_2.HttpError(error instanceof Error ? error.message : String(error), httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.InternalServerError);
             }
         });
     }

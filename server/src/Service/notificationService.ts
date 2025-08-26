@@ -4,7 +4,7 @@ import { Inotification } from "../Model/notificationModel";
 import { InotificationService } from "../Interface/Notification/InotificationService";
 import { InotificationRepository } from "../Interface/Notification/InotificationRepository";
 import { HttpResponse } from "../Constants/httpResponse";
-import { HttpError } from "../Utils/http-error-handler.util";
+import { HttpError } from "../Utils/index";
 
 export class notificationService implements InotificationService {
     constructor(

@@ -1,7 +1,7 @@
 import bcrypt from 'bcrypt';
 
 
-const hash_pass= async(password:string):Promise<string> =>{
+export const hash_pass= async(password:string):Promise<string> =>{
 try {
     const salt:string = await bcrypt.genSalt(10);
     const hashPassword:string = await bcrypt.hash(password,salt)
@@ -11,4 +11,3 @@ try {
     throw new Error(`error while password hash ${error instanceof Error ?error.message:String(error)}`)
 }
 }
-export default hash_pass

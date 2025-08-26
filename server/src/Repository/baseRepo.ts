@@ -8,7 +8,7 @@ import mongoose, {
   // InsertManyOptions,
 } from "mongoose";
 import { IbaseRepository } from "../Interface/Base/iBaseRepository";
-import { HttpError } from "../Utils/http-error-handler.util";
+import { HttpError } from "../Utils/index";
 import { Status } from "../Constants/httpStatusCode";
 
 export class baseRepository<T extends Document> implements IbaseRepository<T> {

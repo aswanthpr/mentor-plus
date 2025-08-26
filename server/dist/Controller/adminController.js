@@ -11,7 +11,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.adminController = void 0;
 const httpStatusCode_1 = require("../Constants/httpStatusCode");
-const setCookies_util_1 = require("../Utils/setCookies.util");
+const index_1 = require("../Utils/index");
 class adminController {
     constructor(_adminService) {
         this._adminService = _adminService;
@@ -21,7 +21,7 @@ class adminController {
             var _a;
             try {
                 const result = yield this._adminService.adminRefreshToken((_a = req.cookies) === null || _a === void 0 ? void 0 : _a.refreshToken);
-                (0, setCookies_util_1.setCookie)(res, result === null || result === void 0 ? void 0 : result.refreshToken);
+                (0, index_1.setCookie)(res, result === null || result === void 0 ? void 0 : result.refreshToken);
                 res
                     .status(result.status)
                     .json({

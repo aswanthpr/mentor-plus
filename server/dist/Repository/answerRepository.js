@@ -14,7 +14,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const answerModel_1 = __importDefault(require("../Model/answerModel"));
 const baseRepo_1 = require("./baseRepo");
-const http_error_handler_util_1 = require("../Utils/http-error-handler.util");
+const index_1 = require("../Utils/index");
 const httpStatusCode_1 = require("../Constants/httpStatusCode");
 class answerRespository extends baseRepo_1.baseRepository {
     constructor() {
@@ -67,7 +67,7 @@ class answerRespository extends baseRepo_1.baseRepository {
                 return { result: data[0], menteeId: (_b = (_a = data[0]) === null || _a === void 0 ? void 0 : _a.question) === null || _b === void 0 ? void 0 : _b.menteeId };
             }
             catch (error) {
-                throw new http_error_handler_util_1.HttpError(error instanceof Error ? error.message : String(error), httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.InternalServerError);
+                throw new index_1.HttpError(error instanceof Error ? error.message : String(error), httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.InternalServerError);
             }
         });
     }
@@ -79,7 +79,7 @@ class answerRespository extends baseRepo_1.baseRepository {
                 });
             }
             catch (error) {
-                throw new http_error_handler_util_1.HttpError(error instanceof Error ? error.message : String(error), httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.InternalServerError);
+                throw new index_1.HttpError(error instanceof Error ? error.message : String(error), httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.InternalServerError);
             }
         });
     }
@@ -89,7 +89,7 @@ class answerRespository extends baseRepo_1.baseRepository {
                 return yield this.deleteMany({ questionId });
             }
             catch (error) {
-                throw new http_error_handler_util_1.HttpError(error instanceof Error ? error.message : String(error), httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.InternalServerError);
+                throw new index_1.HttpError(error instanceof Error ? error.message : String(error), httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.InternalServerError);
             }
         });
     }
@@ -101,7 +101,7 @@ class answerRespository extends baseRepo_1.baseRepository {
                 ]);
             }
             catch (error) {
-                throw new http_error_handler_util_1.HttpError(error instanceof Error ? error.message : String(error), httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.InternalServerError);
+                throw new index_1.HttpError(error instanceof Error ? error.message : String(error), httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.InternalServerError);
             }
         });
     }

@@ -1,9 +1,8 @@
 import { Request, Response, NextFunction } from "express";
 import mongoose, { Model } from "mongoose";
-import { verifyAccessToken } from "../Utils/jwt.utils";
+import { verifyAccessToken,HttpError } from "../Utils/index";
 import { Status } from "../Constants/httpStatusCode";
 import { HttpResponse } from "../Constants/httpResponse";
-import { HttpError } from "../Utils/http-error-handler.util";
 import menteeModel from "../Model/menteeModel";
 import mentorModel from "../Model/mentorModel";
 

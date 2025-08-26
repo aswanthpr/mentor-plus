@@ -16,7 +16,7 @@ exports.reviewService = void 0;
 const httpStatusCode_1 = require("../Constants/httpStatusCode");
 const mongoose_1 = __importDefault(require("mongoose"));
 const httpResponse_1 = require("../Constants/httpResponse");
-const http_error_handler_util_1 = require("../Utils/http-error-handler.util");
+const index_1 = require("../Utils/index");
 class reviewService {
     constructor(__reviewRepository) {
         this.__reviewRepository = __reviewRepository;
@@ -69,7 +69,7 @@ class reviewService {
                 };
             }
             catch (error) {
-                throw new http_error_handler_util_1.HttpError(error instanceof Error ? error.message : String(error), httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.InternalServerError);
+                throw new index_1.HttpError(error instanceof Error ? error.message : String(error), httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.InternalServerError);
             }
         });
     }

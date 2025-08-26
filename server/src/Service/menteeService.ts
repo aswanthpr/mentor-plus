@@ -6,10 +6,11 @@ import {
   genRefreshToken,
   verifyAccessToken,
   verifyRefreshToken,
-} from "../Utils/jwt.utils";
+  hash_pass,
+  HttpError
+} from "../Utils/index";
 
 import { Imentor } from "../Model/mentorModel";
-import hash_pass from "../Utils/hashPass.util";
 import { Status } from "../Constants/httpStatusCode";
 import { Iquestion } from "../Model/questionModal";
 import { Icategory } from "../Model/categorySchema";
@@ -21,7 +22,6 @@ import { IquestionRepository } from "../Interface/Qa/IquestionRepository";
 import { ImenteeRepository } from "../Interface/Mentee/iMenteeRepository";
 import { PipelineStage } from "mongoose";
 import { HttpResponse } from "../Constants/httpResponse";
-import { HttpError } from "../Utils/http-error-handler.util";
 import { MentorDTO } from "../dto/mentor/mentorDTO";
 
 // const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string)

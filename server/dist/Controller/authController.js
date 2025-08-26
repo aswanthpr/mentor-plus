@@ -10,7 +10,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.authController = void 0;
-const setCookies_util_1 = require("../Utils/setCookies.util");
+const index_1 = require("../Utils/index");
 class authController {
     constructor(_AuthService, _OtpService) {
         this._AuthService = _AuthService;
@@ -68,7 +68,7 @@ class authController {
             try {
                 const { email, password } = req.body;
                 const { message, status, success, accessToken, refreshToken, user, } = yield this._AuthService.mainLogin(email, password);
-                (0, setCookies_util_1.setCookie)(res, refreshToken)
+                (0, index_1.setCookie)(res, refreshToken)
                     .status(status)
                     .json({
                     success,
@@ -112,7 +112,7 @@ class authController {
             try {
                 const { email, password } = req.body;
                 const { success, message, status, refreshToken, accessToken } = yield this._AuthService.adminLogin(email, password);
-                (0, setCookies_util_1.setCookie)(res, refreshToken)
+                (0, index_1.setCookie)(res, refreshToken)
                     .status(status)
                     .json({ message, success, accessToken });
                 return;
@@ -182,7 +182,7 @@ class authController {
             try {
                 const { email, password } = req.body;
                 const { status, success, message, accessToken, refreshToken, user } = yield this._AuthService.mentorLogin(email, password);
-                (0, setCookies_util_1.setCookie)(res, refreshToken)
+                (0, index_1.setCookie)(res, refreshToken)
                     .status(status)
                     .json({
                     success,
@@ -227,7 +227,7 @@ class authController {
                     return;
                 }
                 const { accessToken, refreshToken, user } = yield this._AuthService.googleAuth(req.user);
-                (0, setCookies_util_1.setCookie)(res, refreshToken)
+                (0, index_1.setCookie)(res, refreshToken)
                     .redirect(`${process.env.CLIENT_ORIGIN_URL}/mentee/google/success?token=${accessToken}&name=${user === null || user === void 0 ? void 0 : user.name}&email=${user === null || user === void 0 ? void 0 : user.email}&image=${user === null || user === void 0 ? void 0 : user.profileUrl}`);
             }
             catch (error) {

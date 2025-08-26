@@ -8,9 +8,8 @@ import { Iwallet } from "../Model/walletModel";
 import { InotificationRepository } from "../Interface/Notification/InotificationRepository";
 import { socketManager } from "../index";
 import { Itransaction } from "../Model/transactionModel";
-import { createSkip } from "../Utils/reusable.util";
 import { HttpResponse } from "../Constants/httpResponse";
-import { HttpError } from "../Utils/http-error-handler.util";
+import { HttpError,createSkip } from "../Utils/index";
 
 export class walletService implements IwalletService {
   constructor(

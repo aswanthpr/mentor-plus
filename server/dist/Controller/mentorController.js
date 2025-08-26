@@ -11,7 +11,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.mentorController = void 0;
 const httpStatusCode_1 = require("../Constants/httpStatusCode");
-const setCookies_util_1 = require("../Utils/setCookies.util");
+const index_1 = require("../Utils/index");
 class mentorController {
     constructor(_mentorService) {
         this._mentorService = _mentorService;
@@ -53,7 +53,7 @@ class mentorController {
             var _a;
             try {
                 const result = yield this._mentorService.mentorRefreshToken((_a = req.cookies) === null || _a === void 0 ? void 0 : _a.refreshToken);
-                (0, setCookies_util_1.setCookie)(res, result === null || result === void 0 ? void 0 : result.refreshToken)
+                (0, index_1.setCookie)(res, result === null || result === void 0 ? void 0 : result.refreshToken)
                     .status(result === null || result === void 0 ? void 0 : result.status)
                     .json({
                     success: result === null || result === void 0 ? void 0 : result.success,

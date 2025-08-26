@@ -1,11 +1,15 @@
 import bcrypt from "bcrypt";
 import { ObjectId } from "mongoose";
-import hash_pass from "../Utils/hashPass.util";
+import { 
+  genAccesssToken, 
+  genRefreshToken, 
+  hash_pass, 
+  HttpError
+ } from "../Utils/index";
 import { Imentee } from "../Model/menteeModel";
 import { Icategory } from "../Model/categorySchema";
 import IotpService from "../Interface/Otp/iOtpService";
 import IauthService from "../Interface/Auth/iAuthService";
-import { genAccesssToken, genRefreshToken } from "../Utils/jwt.utils";
 import { ImentorRepository } from "../Interface/Mentor/iMentorRepository";
 import { uploadFile, uploadImage } from "../Config/cloudinary.util";
 import { IcategoryRepository } from "../Interface/Category/iCategoryRepository";
@@ -15,9 +19,9 @@ import { InotificationRepository } from "../Interface/Notification/Inotification
 import { socketManager } from "../index";
 import { Status } from "../Constants/httpStatusCode";
 import { HttpResponse, NOTIFY } from "../Constants/httpResponse";
-import { HttpError } from "../Utils/http-error-handler.util";
 import { UserHeaderDTO } from "../dto/common/userHeaderInfoDTO";
 import { MenteeDTO } from "../dto/mentee/menteeDTO";
+
 
 export class authService implements IauthService {
   constructor(

@@ -17,9 +17,8 @@ const mongoose_1 = __importDefault(require("mongoose"));
 const httpStatusCode_1 = require("../Constants/httpStatusCode");
 const stripe_1 = __importDefault(require("stripe"));
 const index_1 = require("../index");
-const reusable_util_1 = require("../Utils/reusable.util");
 const httpResponse_1 = require("../Constants/httpResponse");
-const http_error_handler_util_1 = require("../Utils/http-error-handler.util");
+const index_2 = require("../Utils/index");
 class walletService {
     constructor(__walletRepository, __transactionRepository, __notificationRepository, stripe = new stripe_1.default(process.env.STRIPE_SECRET_KEY, { maxNetworkRetries: 5 })) {
         this.__walletRepository = __walletRepository;
@@ -73,7 +72,7 @@ class walletService {
                 };
             }
             catch (error) {
-                throw new http_error_handler_util_1.HttpError(error instanceof Error ? error.message : String(error), httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.InternalServerError);
+                throw new index_2.HttpError(error instanceof Error ? error.message : String(error), httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.InternalServerError);
             }
         });
     }
@@ -89,7 +88,7 @@ class walletService {
                     event = this.stripe.webhooks.constructEvent(bodyData, signature, process.env.STRIPE_WEBHOOK_WALLET_SECRET);
                 }
                 catch (error) {
-                    throw new http_error_handler_util_1.HttpError(error instanceof Error ? error.message : String(error), httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.InternalServerError);
+                    throw new index_2.HttpError(error instanceof Error ? error.message : String(error), httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.InternalServerError);
                 }
                 console.log("🔔 Received webhook event:");
                 switch (event === null || event === void 0 ? void 0 : event.type) {
@@ -137,7 +136,7 @@ class walletService {
                 return;
             }
             catch (error) {
-                throw new http_error_handler_util_1.HttpError(error instanceof Error ? error.message : String(error), httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.InternalServerError);
+                throw new index_2.HttpError(error instanceof Error ? error.message : String(error), httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.InternalServerError);
             }
         });
     }
@@ -154,7 +153,7 @@ class walletService {
                         totalPage: 0
                     };
                 }
-                const skipData = (0, reusable_util_1.createSkip)(page, limit);
+                const skipData = (0, index_2.createSkip)(page, limit);
                 const limitNo = skipData === null || skipData === void 0 ? void 0 : skipData.limitNo;
                 const skip = skipData === null || skipData === void 0 ? void 0 : skipData.skip;
                 const result = yield this.__walletRepository.findWalletWithTransaction(userId, skip, limit, search, filter);
@@ -168,7 +167,7 @@ class walletService {
                 };
             }
             catch (error) {
-                throw new http_error_handler_util_1.HttpError(error instanceof Error ? error.message : String(error), httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.InternalServerError);
+                throw new index_2.HttpError(error instanceof Error ? error.message : String(error), httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.InternalServerError);
             }
         });
     }
@@ -221,7 +220,7 @@ class walletService {
                 };
             }
             catch (error) {
-                throw new http_error_handler_util_1.HttpError(error instanceof Error ? error.message : String(error), httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.InternalServerError);
+                throw new index_2.HttpError(error instanceof Error ? error.message : String(error), httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.InternalServerError);
             }
         });
     }

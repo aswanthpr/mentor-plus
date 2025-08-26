@@ -4,7 +4,7 @@ import { IreviewService } from "../Interface/Review/IreviewService";
 import { Status } from "../Constants/httpStatusCode";
 import mongoose from "mongoose";
 import { HttpResponse } from "../Constants/httpResponse";
-import { HttpError } from "../Utils/http-error-handler.util";
+import { HttpError } from "../Utils/index";
 export class reviewService implements IreviewService {
   constructor(
     private readonly __reviewRepository: IreviewRepository,

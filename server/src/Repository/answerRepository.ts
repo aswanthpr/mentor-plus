@@ -4,7 +4,7 @@ import { IanswerRepository } from "../Interface/Qa/IanswerRepository";
 import answerModel, { Ianswer } from "../Model/answerModel";
 import { baseRepository } from "./baseRepo";
 import { DeleteResult, ObjectId } from "mongoose";
-import { HttpError } from "../Utils/http-error-handler.util";
+import { HttpError } from "../Utils/index";
 import { Status } from "../Constants/httpStatusCode";
 
 class answerRespository

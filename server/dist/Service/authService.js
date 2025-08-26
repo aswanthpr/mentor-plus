@@ -14,13 +14,11 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.authService = void 0;
 const bcrypt_1 = __importDefault(require("bcrypt"));
-const hashPass_util_1 = __importDefault(require("../Utils/hashPass.util"));
-const jwt_utils_1 = require("../Utils/jwt.utils");
+const index_1 = require("../Utils/index");
 const cloudinary_util_1 = require("../Config/cloudinary.util");
-const index_1 = require("../index");
+const index_2 = require("../index");
 const httpStatusCode_1 = require("../Constants/httpStatusCode");
 const httpResponse_1 = require("../Constants/httpResponse");
-const http_error_handler_util_1 = require("../Utils/http-error-handler.util");
 const userHeaderInfoDTO_1 = require("../dto/common/userHeaderInfoDTO");
 const menteeDTO_1 = require("../dto/mentee/menteeDTO");
 class authService {
@@ -58,7 +56,7 @@ class authService {
                     };
                 }
                 // pass hasing
-                const hashPassword = yield (0, hashPass_util_1.default)(userData.password);
+                const hashPassword = yield (0, index_1.hash_pass)(userData.password);
                 userData.password = hashPassword;
                 const response = yield this._MenteeRepository.create_Mentee(userData);
                 if (!response) {
@@ -70,7 +68,7 @@ class authService {
                 }
                 const notfi = yield this._notificationRepository.createNotification(response === null || response === void 0 ? void 0 : response._id, `Welcome ${response === null || response === void 0 ? void 0 : response.name}`, httpResponse_1.NOTIFY === null || httpResponse_1.NOTIFY === void 0 ? void 0 : httpResponse_1.NOTIFY.MENTEE_WELCOME, `mentee`, `${process.env.CLIENT_ORIGIN_URL}/mentee/explore`);
                 if ((response === null || response === void 0 ? void 0 : response.id) && notfi) {
-                    index_1.socketManager.sendNotification(response === null || response === void 0 ? void 0 : response._id, notfi);
+                    index_2.socketManager.sendNotification(response === null || response === void 0 ? void 0 : response._id, notfi);
                 }
                 return {
                     success: true,
@@ -79,7 +77,7 @@ class authService {
                 };
             }
             catch (error) {
-                throw new http_error_handler_util_1.HttpError(error instanceof Error ? error.message : String(error), httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.InternalServerError);
+                throw new index_1.HttpError(error instanceof Error ? error.message : String(error), httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.InternalServerError);
             }
         });
     }
@@ -131,8 +129,8 @@ class authService {
                     };
                 }
                 const userId = String(result === null || result === void 0 ? void 0 : result._id);
-                const accessToken = (0, jwt_utils_1.genAccesssToken)(userId, "mentee");
-                const refreshToken = (0, jwt_utils_1.genRefreshToken)(userId, "mentee");
+                const accessToken = (0, index_1.genAccesssToken)(userId, "mentee");
+                const refreshToken = (0, index_1.genRefreshToken)(userId, "mentee");
                 //map with dto
                 const userDto = userHeaderInfoDTO_1.UserHeaderDTO.single(result);
                 return {
@@ -145,7 +143,7 @@ class authService {
                 };
             }
             catch (error) {
-                throw new http_error_handler_util_1.HttpError(error instanceof Error ? error.message : String(error), httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.InternalServerError);
+                throw new index_1.HttpError(error instanceof Error ? error.message : String(error), httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.InternalServerError);
             }
         });
     }
@@ -176,7 +174,7 @@ class authService {
                 };
             }
             catch (error) {
-                throw new http_error_handler_util_1.HttpError(error instanceof Error ? error.message : String(error), httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.InternalServerError);
+                throw new index_1.HttpError(error instanceof Error ? error.message : String(error), httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.InternalServerError);
             }
         });
     }
@@ -190,7 +188,7 @@ class authService {
                         status: httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.BadRequest,
                     };
                 }
-                const hashedPassword = yield (0, hashPass_util_1.default)(password);
+                const hashedPassword = yield (0, index_1.hash_pass)(password);
                 const result = yield this._MenteeRepository.forgot_PasswordChange(email, hashedPassword);
                 if (!result) {
                     return {
@@ -206,7 +204,7 @@ class authService {
                 };
             }
             catch (error) {
-                throw new http_error_handler_util_1.HttpError(error instanceof Error ? error.message : String(error), httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.InternalServerError);
+                throw new index_1.HttpError(error instanceof Error ? error.message : String(error), httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.InternalServerError);
             }
         });
     }
@@ -230,7 +228,7 @@ class authService {
                 };
             }
             catch (error) {
-                throw new http_error_handler_util_1.HttpError(error instanceof Error ? error.message : String(error), httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.InternalServerError);
+                throw new index_1.HttpError(error instanceof Error ? error.message : String(error), httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.InternalServerError);
             }
         });
     }
@@ -286,8 +284,8 @@ class authService {
                     };
                 }
                 const userId = String(result === null || result === void 0 ? void 0 : result._id);
-                const accessToken = (0, jwt_utils_1.genAccesssToken)(userId, "admin");
-                const refreshToken = (0, jwt_utils_1.genRefreshToken)(userId, "admin");
+                const accessToken = (0, index_1.genAccesssToken)(userId, "admin");
+                const refreshToken = (0, index_1.genRefreshToken)(userId, "admin");
                 return {
                     success: true,
                     message: httpResponse_1.HttpResponse === null || httpResponse_1.HttpResponse === void 0 ? void 0 : httpResponse_1.HttpResponse.SUCCESS,
@@ -297,7 +295,7 @@ class authService {
                 };
             }
             catch (error) {
-                throw new http_error_handler_util_1.HttpError(error instanceof Error ? error.message : String(error), httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.InternalServerError);
+                throw new index_1.HttpError(error instanceof Error ? error.message : String(error), httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.InternalServerError);
             }
         });
     }
@@ -328,7 +326,7 @@ class authService {
                         status: httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.Conflict,
                     };
                 }
-                const hashPass = yield (0, hashPass_util_1.default)(mentorData.body.password);
+                const hashPass = yield (0, index_1.hash_pass)(mentorData.body.password);
                 if (!hashPass) {
                     throw new Error("error while hashing password in mentor apply");
                 }
@@ -349,7 +347,7 @@ class authService {
                 const admin = yield this._MenteeRepository._find();
                 const notifi = yield this._notificationRepository.createNotification(admin === null || admin === void 0 ? void 0 : admin._id, `New Mentor Has Joined!`, `${result === null || result === void 0 ? void 0 : result.name} ${httpResponse_1.NOTIFY === null || httpResponse_1.NOTIFY === void 0 ? void 0 : httpResponse_1.NOTIFY.ADMIN_NEW_MENTOR_NOTIFY}`, "admin", `${process.env.CLIENT_ORIGIN_URL}/admin/mentor_management/not_verified`);
                 if ((admin === null || admin === void 0 ? void 0 : admin._id) && notifi) {
-                    index_1.socketManager.sendNotification(String(admin === null || admin === void 0 ? void 0 : admin._id), notifi);
+                    index_2.socketManager.sendNotification(String(admin === null || admin === void 0 ? void 0 : admin._id), notifi);
                 }
                 return {
                     success: true,
@@ -358,7 +356,7 @@ class authService {
                 };
             }
             catch (error) {
-                throw new http_error_handler_util_1.HttpError(error instanceof Error ? error.message : String(error), httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.InternalServerError);
+                throw new index_1.HttpError(error instanceof Error ? error.message : String(error), httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.InternalServerError);
             }
         });
     }
@@ -404,8 +402,8 @@ class authService {
                     };
                 }
                 const mentorId = `${result._id}`;
-                const accessToken = (0, jwt_utils_1.genAccesssToken)(mentorId, "mentor");
-                const refreshToken = (0, jwt_utils_1.genRefreshToken)(mentorId, "mentor");
+                const accessToken = (0, index_1.genAccesssToken)(mentorId, "mentor");
+                const refreshToken = (0, index_1.genRefreshToken)(mentorId, "mentor");
                 // map userdata with Dto
                 const userDto = userHeaderInfoDTO_1.UserHeaderDTO.single(result);
                 return {
@@ -418,7 +416,7 @@ class authService {
                 };
             }
             catch (error) {
-                throw new http_error_handler_util_1.HttpError(error instanceof Error ? error.message : String(error), httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.InternalServerError);
+                throw new index_1.HttpError(error instanceof Error ? error.message : String(error), httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.InternalServerError);
             }
         });
     }
@@ -448,7 +446,7 @@ class authService {
                 };
             }
             catch (error) {
-                throw new http_error_handler_util_1.HttpError(error instanceof Error ? error.message : String(error), httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.InternalServerError);
+                throw new index_1.HttpError(error instanceof Error ? error.message : String(error), httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.InternalServerError);
             }
         });
     }
@@ -462,7 +460,7 @@ class authService {
                         status: httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.BadRequest,
                     };
                 }
-                const hashedPassword = yield (0, hashPass_util_1.default)(password);
+                const hashedPassword = yield (0, index_1.hash_pass)(password);
                 const result = yield this._MentorRepository.findMentorAndUpdate(email, hashedPassword);
                 if (!result) {
                     return {
@@ -478,7 +476,7 @@ class authService {
                 };
             }
             catch (error) {
-                throw new http_error_handler_util_1.HttpError(error instanceof Error ? error.message : String(error), httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.InternalServerError);
+                throw new index_1.HttpError(error instanceof Error ? error.message : String(error), httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.InternalServerError);
             }
         });
     }
@@ -488,8 +486,8 @@ class authService {
                 if (!user) {
                     throw new Error("user deailes not found");
                 }
-                const accessToken = (0, jwt_utils_1.genAccesssToken)(String(user === null || user === void 0 ? void 0 : user._id), "mentee");
-                const refreshToken = (0, jwt_utils_1.genRefreshToken)(String(user === null || user === void 0 ? void 0 : user._id), "mentee");
+                const accessToken = (0, index_1.genAccesssToken)(String(user === null || user === void 0 ? void 0 : user._id), "mentee");
+                const refreshToken = (0, index_1.genRefreshToken)(String(user === null || user === void 0 ? void 0 : user._id), "mentee");
                 //map mentee data with dto
                 const menteeDTO = menteeDTO_1.MenteeDTO.single(user);
                 const encodedDTO = Object.assign(Object.assign({}, menteeDTO), { name: encodeURIComponent(menteeDTO.name), email: encodeURIComponent(menteeDTO.email), profileUrl: encodeURIComponent(menteeDTO.profileUrl || "") });
@@ -503,7 +501,7 @@ class authService {
                 };
             }
             catch (error) {
-                throw new http_error_handler_util_1.HttpError(error instanceof Error ? error.message : String(error), httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.InternalServerError);
+                throw new index_1.HttpError(error instanceof Error ? error.message : String(error), httpStatusCode_1.Status === null || httpStatusCode_1.Status === void 0 ? void 0 : httpStatusCode_1.Status.InternalServerError);
             }
         });
     }
