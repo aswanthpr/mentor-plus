@@ -10,8 +10,8 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.baseRepository = void 0;
-const index_1 = require("../Utils/index");
-const httpStatusCode_1 = require("../Constants/httpStatusCode");
+const index_1 = require("./../Utils/index");
+const httpStatusCode_1 = require("./../Constants/httpStatusCode");
 class baseRepository {
     constructor(model) {
         this.model = model;

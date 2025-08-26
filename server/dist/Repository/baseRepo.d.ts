@@ -1,5 +1,5 @@
 import mongoose, { Model, Document, FilterQuery, UpdateQuery, PipelineStage, DeleteResult } from "mongoose";
-import { IbaseRepository } from "../Interface/Base/iBaseRepository";
+import { IbaseRepository } from "./interface/iBaseRepository";
 export declare class baseRepository<T extends Document> implements IbaseRepository<T> {
     private readonly model;
     constructor(model: Model<T>);

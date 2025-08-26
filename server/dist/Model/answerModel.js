@@ -33,8 +33,9 @@ var __importStar = (this && this.__importStar) || (function () {
     };
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.answerSchema = void 0;
 const mongoose_1 = __importStar(require("mongoose"));
-const answerSchema = new mongoose_1.Schema({
+exports.answerSchema = new mongoose_1.Schema({
     answer: {
         type: String,
         required: true,
@@ -59,4 +60,4 @@ const answerSchema = new mongoose_1.Schema({
         default: false
     }
 }, { timestamps: true });
-exports.default = mongoose_1.default.model('Answer', answerSchema);
+exports.default = mongoose_1.default.model('Answer', exports.answerSchema);

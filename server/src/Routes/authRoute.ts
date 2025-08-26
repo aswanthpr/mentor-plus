@@ -1,15 +1,15 @@
 import express,{Router} from 'express';
-import { authController } from '../Controller/authController';
-import { authService } from '../Service/authService';
-import otpService from '../Service/otpService';
-import otpRepo from '../Repository/otpRepo';
-import categoryRepository from '../Repository/categoryRepository';
-import upload from '../Config/multer.util';
-import mentorRepository from '../Repository/mentorRepository';
+import { authController } from '../Controller/implementation/authController';
+import { authService } from '../Service/implementation/authService';
+import otpService from '../Service/implementation/otpService';
+import otpRepo from '../Repository/implementation/otpRepo';
+import categoryRepository from '../Repository/implementation/categoryRepository';
+import upload from '../Middleware/multer.';
+import mentorRepository from '../Repository/implementation/mentorRepository';
 import passport from 'passport';
-import menteeRepository from '../Repository/menteeRepository';
-import notificationRepository from '../Repository/notificationRepository';
-import { IauthController } from '../Interface/Auth/iAuthController';
+import menteeRepository from '../Repository/implementation/menteeRepository';
+import notificationRepository from '../Repository/implementation/notificationRepository';
+import { IauthController } from '../Controller/interface/iAuthController';
 
 const __otpService = new otpService(otpRepo,menteeRepository)
 const __authService = new authService(__otpService,categoryRepository,mentorRepository,menteeRepository,notificationRepository)

@@ -7,9 +7,9 @@ import mongoose, {
   DeleteResult,
   // InsertManyOptions,
 } from "mongoose";
-import { IbaseRepository } from "../Interface/Base/iBaseRepository";
-import { HttpError } from "../Utils/index";
-import { Status } from "../Constants/httpStatusCode";
+import { IbaseRepository } from "./interface/iBaseRepository";
+import { HttpError } from "./../Utils/index";
+import { Status } from "./../Constants/httpStatusCode";
 
 export class baseRepository<T extends Document> implements IbaseRepository<T> {
   constructor(private readonly model: Model<T>) {}

@@ -10,7 +10,7 @@ export  interface Ianswer extends Document {
     isBlocked:boolean;
 }
 
-const answerSchema: Schema<Ianswer> = new Schema( 
+export const answerSchema: Schema<Ianswer> = new Schema( 
     {
         answer: {
             type: String,

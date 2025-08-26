@@ -13,10 +13,10 @@ const socket_io_1 = require("socket.io");
 const dotenv_1 = __importDefault(require("dotenv"));
 dotenv_1.default.config();
 //custorm imports
-const logger_1 = require("./Config/logger");
-const dataBase_1 = require("./Config/dataBase");
+const logger_util_1 = require("./Utils/logger.util");
+const dataBase_config_1 = require("./Config/dataBase.config");
 const index_middleware_1 = require("./Middleware/index_middleware");
-const googleAuth_1 = __importDefault(require("./Config/googleAuth"));
+const googleAuth_config_1 = __importDefault(require("./Config/googleAuth.config"));
 const socket_1 = require("./Socket/socket");
 //routes import
 const authRoute_1 = __importDefault(require("./Routes/authRoute"));
@@ -30,7 +30,7 @@ exports.io = new socket_io_1.Server(server, {
     cors: index_middleware_1.corsConfig,
 });
 // connecting with database
-(0, dataBase_1.connectDb)();
+(0, dataBase_config_1.connectDb)();
 //initialize the socket
 exports.socketManager = new socket_1.SocketManager(exports.io);
 exports.socketManager.initialize();
@@ -48,10 +48,10 @@ app.use((0, cookie_parser_1.default)()); // to parse cookie data
 app.use(index_middleware_1.jsonParseOrRaw); //conditionally parse body data to json or  remain raw
 app.use(index_middleware_1.urlEncoding); //encode response data
 app.use(index_middleware_1.sessionConfig); // sesion configuration
-app.use(googleAuth_1.default.initialize());
-app.use(googleAuth_1.default.session());
+app.use(googleAuth_config_1.default.initialize());
+app.use(googleAuth_config_1.default.session());
 app.use((0, morgan_1.default)("dev"));
-app.use(logger_1.fileLogger);
+app.use(logger_util_1.fileLogger);
 // Routes
 app.use("/auth", authRoute_1.default);
 app.use("/admin", adminRoute_1.default);

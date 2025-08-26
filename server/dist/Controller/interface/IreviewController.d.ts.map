@@ -1,0 +1,1 @@
+{"version":3,"file":"IreviewController.d.ts","sourceRoot":"","sources":["../../../src/Controller/interface/IreviewController.ts"],"names":[],"mappings":"AAAA,OAAO,EAAC,YAAY,EAAE,OAAO,EAAE,QAAQ,EAAC,MAAM,SAAS,CAAA;AACvD,MAAM,WAAW,iBAAiB;IAC9B,kBAAkB,CAAC,GAAG,EAAC,OAAO,EAAC,GAAG,EAAC,QAAQ,EAAC,IAAI,EAAE,YAAY,GAAE,OAAO,CAAC,IAAI,CAAC,CAAC;CACjF"}

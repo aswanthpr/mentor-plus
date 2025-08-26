@@ -6,10 +6,10 @@ import cookieParser from "cookie-parser";
 import { Server } from "socket.io";
 import dotenv from "dotenv";
 dotenv.config();
-
+ 
 //custorm imports
-import { fileLogger } from "./Config/logger";
-import { connectDb } from "./Config/dataBase";
+import { fileLogger } from "./Utils/logger.util";
+import { connectDb } from "./Config/dataBase.config";
 import {
   // limiter,
   compress,
@@ -21,7 +21,7 @@ import {
   jsonParseOrRaw,
   cacheControl,
 } from "./Middleware/index_middleware";
-import passport from "./Config/googleAuth";
+import passport from "./Config/googleAuth.config";
 import { SocketManager } from "./Socket/socket";
 
 //routes import

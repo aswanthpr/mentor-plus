@@ -1,17 +1,17 @@
 import express, { Router } from "express";
-import { adminService } from "../Service/adminService";
-import categoryRepository from "../Repository/categoryRepository";
-import { adminController } from "../Controller/adminController";
-import menteeRepository from "../Repository/menteeRepository";
-import mentorRepository from "../Repository/mentorRepository";
-import qaService from "../Service/qaService";
-import qaController from "../Controller/qaController";
-import questionRepository from "../Repository/questionRepository";
-import answerRepository from "../Repository/answerRepository";
-import notificationRepository from "../Repository/notificationRepository";
-import slotScheduleRepository from "../Repository/slotScheduleRepository";
-import { notificationService } from "../Service/notificationService";
-import { notificationController } from "../Controller/notificationController";
+import { adminService } from "../Service/implementation/adminService";
+import categoryRepository from "../Repository/implementation/categoryRepository";
+import { adminController } from "../Controller/implementation/adminController";
+import menteeRepository from "../Repository/implementation/menteeRepository";
+import mentorRepository from "../Repository/implementation/mentorRepository";
+import qaService from "../Service/implementation/qaService";
+import qaController from "../Controller/implementation/qaController";
+import questionRepository from "../Repository/implementation/questionRepository";
+import answerRepository from "../Repository/implementation/answerRepository";
+import notificationRepository from "../Repository/implementation/notificationRepository";
+import slotScheduleRepository from "../Repository/implementation/slotScheduleRepository";
+import { notificationService } from "../Service/implementation/notificationService";
+import { notificationController } from "../Controller/implementation/notificationController";
 import authorizeUser from "../Middleware/authorizeUser"
 const admin_Router: Router = express.Router();
 

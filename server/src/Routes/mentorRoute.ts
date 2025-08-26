@@ -1,30 +1,30 @@
 import express, { Router } from "express";
-import upload from "../Config/multer.util";
+import upload from "../Middleware/multer.";
 
-import qaController from "../Controller/qaController";
-import { mentorController } from "../Controller/mentorController";
-import { bookingControlelr } from "../Controller/bookingController";
-import { chatController } from "../Controller/chatController";
-import { notificationController } from "../Controller/notificationController";
+import qaController from "../Controller/implementation/qaController";
+import { mentorController } from "../Controller/implementation/mentorController";
+import { bookingControlelr } from "../Controller/implementation/bookingController";
+import { chatController } from "../Controller/implementation/chatController";
+import { notificationController } from "../Controller/implementation/notificationController";
 
-import qaService from "../Service/qaService";
-import chatService from "../Service/chatService";
-import { mentorService } from "../Service/mentorService";
-import { bookingService } from "../Service/bookingService";
-import { notificationService } from "../Service/notificationService";
+import qaService from "../Service/implementation/qaService";
+import chatService from "../Service/implementation/chatService";
+import { mentorService } from "../Service/implementation/mentorService";
+import { bookingService } from "../Service/implementation/bookingService";
+import { notificationService } from "../Service/implementation/notificationService";
 
-import chatRepository from "../Repository/chatRepository";
-import mentorRepository from "../Repository/mentorRepository";
-import answerRepository from "../Repository/answerRepository";
-import questionRepository from "../Repository/questionRepository";
-import categoryRepository from "../Repository/categoryRepository";
-import timeSlotRepository from "../Repository/timeSlotRepository";
-import slotScheduleRepository from "../Repository/slotScheduleRepository";
-import notificationRepository from "../Repository/notificationRepository";
-import walletRepository from "../Repository/walletRepository";
-import transactionRepository from "../Repository/transactionRepository";
-import { walletController } from "../Controller/walletController";
-import { walletService } from "../Service/walletService";
+import chatRepository from "../Repository/implementation/chatRepository";
+import mentorRepository from "../Repository/implementation/mentorRepository";
+import answerRepository from "../Repository/implementation/answerRepository";
+import questionRepository from "../Repository/implementation/questionRepository";
+import categoryRepository from "../Repository/implementation/categoryRepository";
+import timeSlotRepository from "../Repository/implementation/timeSlotRepository";
+import slotScheduleRepository from "../Repository/implementation/slotScheduleRepository";
+import notificationRepository from "../Repository/implementation/notificationRepository";
+import walletRepository from "../Repository/implementation/walletRepository";
+import transactionRepository from "../Repository/implementation/transactionRepository";
+import { walletController } from "../Controller/implementation/walletController";
+import { walletService } from "../Service/implementation/walletService";
 import authorizeUser from "../Middleware/authorizeUser";
 const __mentorService = new mentorService(
   mentorRepository,

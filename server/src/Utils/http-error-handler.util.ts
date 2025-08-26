@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from "express";
-import { logErrorToFile } from "../Config/logger";
+import { logErrorToFile } from "./logger.util";
 export class HttpError extends Error {
     statusCode : number;
 

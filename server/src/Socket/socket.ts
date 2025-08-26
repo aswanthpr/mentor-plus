@@ -2,13 +2,13 @@
 
 import { Server, Socket } from "socket.io";
 import { Inotification } from "../Model/notificationModel";
-import messageRepository from "../Repository/messageRepository";
+import messageRepository from "../Repository/implementation/messageRepository";
 import mongoose from "mongoose";
-import chatRepository from "../Repository/chatRepository";
+import chatRepository from "../Repository/implementation/chatRepository";
 import chatSchema from "../Model/chatSchema";
 
-import slotScheduleRepository from "../Repository/slotScheduleRepository";
-import { IslotScheduleRepository } from "../Interface/Booking/iSlotScheduleRepository";
+import slotScheduleRepository from "../Repository/implementation/slotScheduleRepository";
+import { IslotScheduleRepository } from "../Repository/interface/iSlotScheduleRepository";
 const _slotScheduleRepo: IslotScheduleRepository = slotScheduleRepository;
 
 const chatMap = new Map();

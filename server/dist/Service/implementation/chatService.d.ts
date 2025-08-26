@@ -1,0 +1,23 @@
+import { ObjectId } from "mongoose";
+import { IchatRepository } from "../../Repository/interface/IchatRepository";
+import { IchatService } from "../interface/IchatService";
+import { Ichat } from "../../Model/chatSchema";
+import { Imessage } from "../../Model/messageSchema";
+declare class chatService implements IchatService {
+    private _chatRespository;
+    constructor(_chatRespository: IchatRepository);
+    getChats(userId: ObjectId, role: string): Promise<{
+        success: boolean;
+        message: string;
+        status: number;
+        result: Ichat[] | [];
+    }>;
+    getUserMessage(chatId: string): Promise<{
+        success: boolean;
+        status: number;
+        message: string;
+        result: Imessage[] | [];
+    }>;
+}
+export default chatService;
+//# sourceMappingURL=chatService.d.ts.map

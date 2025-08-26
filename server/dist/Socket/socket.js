@@ -14,11 +14,11 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.SocketManager = void 0;
-const messageRepository_1 = __importDefault(require("../Repository/messageRepository"));
+const messageRepository_1 = __importDefault(require("../Repository/implementation/messageRepository"));
 const mongoose_1 = __importDefault(require("mongoose"));
-const chatRepository_1 = __importDefault(require("../Repository/chatRepository"));
+const chatRepository_1 = __importDefault(require("../Repository/implementation/chatRepository"));
 const chatSchema_1 = __importDefault(require("../Model/chatSchema"));
-const slotScheduleRepository_1 = __importDefault(require("../Repository/slotScheduleRepository"));
+const slotScheduleRepository_1 = __importDefault(require("../Repository/implementation/slotScheduleRepository"));
 const _slotScheduleRepo = slotScheduleRepository_1.default;
 const chatMap = new Map();
 const rooms = new Map(); //webrtc
