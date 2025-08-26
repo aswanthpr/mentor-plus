@@ -20,7 +20,7 @@ import {
   sessionConfig,
   jsonParseOrRaw,
   cacheControl,
-} from "./Middleware/index_middleware";
+} from "./Middleware/thirdPartyMiddleware";
 import passport from "./Config/googleAuth.config";
 import { SocketManager } from "./Socket/socket";
 
