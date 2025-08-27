@@ -1,4 +1,4 @@
-import { Ireview } from "../../Model/reviewModel";
+import { Ireview } from "../../Model/index";
 import { IreviewRepository } from "../../Repository/interface/IreviewRepository";
 import { IreviewService } from "../interface/IreviewService";
 import { Status } from "../../Constants/httpStatusCode";

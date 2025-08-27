@@ -1,10 +1,10 @@
 import { baseRepository } from "../baseRepo";
 import { ImentorRepository } from "../interface/iMentorRepository";
-import mentorModel, { Imentor } from "../../Model/mentorModel";
+import { Imentor, mentorSchema} from "../../Model/index";
 
 import mongoose, { PipelineStage } from "mongoose";
 import { ImentorApplication } from "../../Types";
-import { HttpError } from "../../Utils/http-error-handler.util";
+import { HttpError } from "../../Utils/index";
 import { Status } from "../../Constants/httpStatusCode";
 
 class mentorRepository
@@ -12,7 +12,7 @@ class mentorRepository
   implements ImentorRepository
 {
   constructor() {
-    super(mentorModel);
+    super(mentorSchema);
   }
   async findMentor(email?: string, phone?: string): Promise<Imentor | null> {
     try {
@@ -113,8 +113,8 @@ class mentorRepository
         },
       ];
       const [mentors, totalDocuments] = await Promise.all([
-        this.aggregateData(mentorModel, pipeline),
-        mentorModel.aggregate(countPipeline),
+        this.aggregateData(mentorSchema, pipeline),
+        mentorSchema.aggregate(countPipeline),
       ]);
 
       return { mentors, totalDoc: totalDocuments[0]?.totalDocuments };
@@ -134,7 +134,7 @@ class mentorRepository
         aggregateData?.find((stage) => "$match" in stage)?.["$match"] || {};
 
       const [mentor, count] = await Promise.all([
-        this.aggregateData(mentorModel, aggregateData),
+        this.aggregateData(mentorSchema, aggregateData),
         this.countDocument(matchStage),
       ]);
       return { mentor, count };
@@ -148,7 +148,7 @@ class mentorRepository
   //changing mentor status
   async verifyMentor(id: mongoose.Types.ObjectId): Promise<Imentor | null> {
     try {
-      return await this.find_By_Id_And_Update(mentorModel, id, [
+      return await this.find_By_Id_And_Update(mentorSchema, id, [
         { $set: { verified: { $not: "$verified" } } },
       ]);
     } catch (error: unknown) {
@@ -163,7 +163,7 @@ class mentorRepository
     id: mongoose.Types.ObjectId
   ): Promise<Imentor | null> {
     try {
-      return await this.find_By_Id_And_Update(mentorModel, id, [
+      return await this.find_By_Id_And_Update(mentorSchema, id, [
         { $set: { isBlocked: { $not: "$isBlocked" } } },
       ]);
     } catch (error: unknown) {
@@ -179,7 +179,7 @@ class mentorRepository
   ): Promise<Imentor | null> {
     try {
       return await this.find_One_And_Update(
-        mentorModel,
+        mentorSchema,
         { email },
         { $set: { password: password } }
       );
@@ -209,7 +209,7 @@ class mentorRepository
     password: string
   ): Promise<Imentor | null> {
     try {
-      return await this.find_By_Id_And_Update(mentorModel, mentorId, {
+      return await this.find_By_Id_And_Update(mentorSchema, mentorId, {
         $set: { password: password },
       });
     } catch (error: unknown) {
@@ -226,7 +226,7 @@ class mentorRepository
     try {
       return (
         (await this.find_By_Id_And_Update(
-          mentorModel,
+          mentorSchema,
           id,
           { $set: { profileUrl: profileUrl } },
           { new: true, fields: { profileUrl: 1 } }
@@ -257,7 +257,7 @@ class mentorRepository
       };
 
       return await this.find_By_Id_And_Update(
-        mentorModel,
+        mentorSchema,
         `${mentorData?._id}`,
         {
           $set: updateFields,
@@ -291,7 +291,7 @@ class mentorRepository
           },
         },
       ];
-      return await this.aggregateData(mentorModel, aggregationPipeline);
+      return await this.aggregateData(mentorSchema, aggregationPipeline);
     } catch (error: unknown) {
       throw new HttpError(
         error instanceof Error ? error.message : String(error),
@@ -305,7 +305,7 @@ class mentorRepository
     mentorId: string
   ): Promise<Imentor[] | []> {
     try {
-      return this.aggregateData(mentorModel, [
+      return this.aggregateData(mentorSchema, [
         {
           $match: {
             category: category,

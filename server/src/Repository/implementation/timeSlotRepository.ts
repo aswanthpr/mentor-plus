@@ -1,11 +1,10 @@
-import timeSchema, { Itime } from "../../Model/timeModel";
+import  {timeSchema, Itime } from "../../Model/index";
 import { ItimeSlotRepository } from "../interface/iTimeSlotRepository";
 
 import { baseRepository } from "../baseRepo";
 import mongoose, { DeleteResult, ObjectId, PipelineStage } from "mongoose";
-import { getTodayEndTime, getTodayStartTime } from "../../Utils/reusable.util";
 import { Status } from "../../Constants/httpStatusCode";
-import { HttpError } from "../../Utils/http-error-handler.util";
+import { HttpError, getTodayEndTime, getTodayStartTime } from "../../Utils/index";
 
 class timeSlotRepository
   extends baseRepository<Itime>

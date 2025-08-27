@@ -1,25 +1,23 @@
 import mongoose, { ObjectId } from "mongoose";
-import { Imentor } from "../../Model/mentorModel";
-import { Imentee } from "../../Model/menteeModel";
-import { Icategory } from "../../Model/categorySchema";
 import { IadminService } from "../interface/iAdminService";
 import { IcategoryRepository } from "../../Repository/interface/iCategoryRepository";
 import { ImenteeRepository } from "../../Repository/interface/iMenteeRepository";
 import { ImentorRepository } from "../../Repository/interface/iMentorRepository";
-import {
-  genAccesssToken,
-  genRefreshToken,
-  verifyRefreshToken,
-} from "../../Utils/jwt.utils";
 import { InotificationRepository } from "../../Repository/interface/InotificationRepository";
 import { Status } from "../../Constants/httpStatusCode";
 import { IslotScheduleRepository } from "../../Repository/interface/iSlotScheduleRepository";
 import { IcardData } from "../../Types";
-import { createSkip } from "../../Utils/reusable.util";
 import { HttpResponse } from "../../Constants/httpResponse";
-import { HttpError } from "../../Utils/http-error-handler.util";
-import { generateMentorVerifiedEmailTemplate } from "../../Utils/email.template.util";
-import { sendMail } from "../../Utils/nodeMailer.util";
+import { Imentor,Imentee,Icategory } from "../../Model/index";
+import { 
+  sendMail,
+  HttpError,
+  createSkip ,
+  generateMentorVerifiedEmailTemplate,
+  genAccesssToken,
+  genRefreshToken,
+  verifyRefreshToken,
+ } from "../../Utils/index";
 import { AdminListedMentorDTO } from "../../dto/mentor/adminListedMentorDTO";
 import { AdminListedMenteeDTO } from "../../dto/mentee/adminListMenteeDTO";
 

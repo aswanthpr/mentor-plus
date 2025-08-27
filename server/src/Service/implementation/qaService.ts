@@ -2,12 +2,11 @@ import { ObjectId } from "mongoose";
 import { IanswerRepository } from "../../Repository/interface/IanswerRepository";
 import { IqaService } from "../interface/IqaService";
 import { IquestionRepository } from "../../Repository/interface/IquestionRepository";
-import { Iquestion } from "../../Model/questionModal";
+import { Iquestion, Inotification} from "../../Model/index";
 import { IanswerWithQuestion, IcreateQuestion } from "../../Types";
 import { Status } from "../../Constants/httpStatusCode";
 import { InotificationRepository } from "../../Repository/interface/InotificationRepository";
 import { socketManager } from "../../index";
-import { Inotification } from "../../Model/notificationModel";
 import { HttpResponse } from "../../Constants/httpResponse";
 import { HttpError ,createSkip} from "../../Utils/index";
 

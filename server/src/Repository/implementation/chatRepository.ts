@@ -1,9 +1,8 @@
 import { baseRepository } from "../baseRepo";
-import chatSchema, { Ichat } from "../../Model/chatSchema";
+import { Ichat, Imessage,chatSchema,messageSchema} from "../../Model/index";
 import { IchatRepository } from "../interface/IchatRepository";
 import { ObjectId } from "mongoose";
-import messageSchema, { Imessage } from "../../Model/messageSchema";
-import { HttpError } from "../../Utils/http-error-handler.util";
+import { HttpError } from "../../Utils/index";
 import { Status } from "../../Constants/httpStatusCode";
 class chatRepository extends baseRepository<Ichat> implements IchatRepository {
   constructor() {

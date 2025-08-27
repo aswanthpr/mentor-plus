@@ -1,12 +1,12 @@
-import { HttpError } from "../../Utils/http-error-handler.util";
+import { HttpError } from "../../Utils/index";
 import { IotpRepository } from "../interface/iOtpRepository";
-import otpModel, { Iotp } from "../../Model/otpModel";
+import {otpSchema, Iotp } from "../../Model/index";
 import { Status } from "../../Constants/httpStatusCode";
 
 class otpRepository implements IotpRepository {
   async createOtp(email: string, otp: string): Promise<Iotp | undefined> {
     try {
-      const saveOtp = new otpModel({ email, otp });
+      const saveOtp = new otpSchema({ email, otp });
       const data = await saveOtp.save();
   
       return data;
@@ -20,7 +20,7 @@ class otpRepository implements IotpRepository {
 
   async verifyOtp(email: string, otp: string): Promise<Iotp | null> {
     try {
-      const data = await otpModel.findOne({ email, otp }).exec();
+      const data = await otpSchema.findOne({ email, otp }).exec();
     
       return data;
     } catch (error: unknown) {

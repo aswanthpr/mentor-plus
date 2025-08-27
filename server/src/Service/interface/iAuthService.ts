@@ -1,5 +1,5 @@
 import { ImentorApplyData, IuserDetailsHeader } from "../../Types";
-import { Icategory } from "../../Model/categorySchema";
+import { Icategory } from "../../Model/categoryModel";
 import { Imentee } from "../../Model/menteeModel";
 import { MenteeDTO } from "../../dto/mentee/menteeDTO";
 

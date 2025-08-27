@@ -1,9 +1,8 @@
-import questionSchema, { Iquestion } from "../../Model/questionModal";
+import {questionSchema,  Iquestion} from "../../Model/index";
 import { IquestionRepository } from "../interface/IquestionRepository";
 import { baseRepository } from "../baseRepo";
 import mongoose, { DeleteResult, ObjectId, PipelineStage } from "mongoose";
-import questionModal from "../../Model/questionModal";
-import { HttpError } from "../../Utils/http-error-handler.util";
+import { HttpError } from "../../Utils/index";
 import { Status } from "../../Constants/httpStatusCode";
 
 class questionRepository
@@ -43,7 +42,7 @@ class questionRepository
     field2: string
   ): Promise<Iquestion[] | null> {
     try {
-      return await this.find(questionModal, { title: field1, content: field2 });
+      return await this.find(questionSchema, { title: field1, content: field2 });
     } catch (error: unknown) {
       throw new HttpError(
         error instanceof Error ? error.message : String(error),
@@ -225,8 +224,8 @@ class questionRepository
         { $count: "totalDocuments" },
       ];
       const [questions, totalDocument] = await Promise.all([
-        this.aggregateData(questionModal, pipeLine),
-        questionModal.aggregate(countPipeline),
+        this.aggregateData(questionSchema, pipeLine),
+        questionSchema.aggregate(countPipeline),
       ]);
       const totalDocs = totalDocument?.[0]?.totalDocuments || 0;
       
@@ -258,12 +257,12 @@ class questionRepository
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const [updatedData, aggregateData] = await Promise.all([
         await this.find_By_Id_And_Update(
-          questionModal,
+          questionSchema,
           questionId,
           { $set: { ...updatedQuestion } },
           { new: true }
         ),
-        await this.aggregateData(questionModal, [
+        await this.aggregateData(questionSchema, [
           {
             $match: {
               _id: new mongoose.Types.ObjectId(questionId),
@@ -414,7 +413,7 @@ class questionRepository
 
 
       const [question, count] = await Promise.all([
-        this.aggregateData(questionModal, [
+        this.aggregateData(questionSchema, [
           {
             $match: { isBlocked: false },
           },
@@ -556,7 +555,7 @@ class questionRepository
             },
           },
         ]),
-        this.aggregateData(questionModal, [
+        this.aggregateData(questionSchema, [
           {
             $match:
               filter === "answered"
@@ -591,7 +590,7 @@ class questionRepository
     try {
       const questId = questionId as unknown as string;
     
-      return await this.find_By_Id_And_Update(questionModal, questId, {
+      return await this.find_By_Id_And_Update(questionSchema, questId, {
         $inc: { answers: 1 },
       });
     } catch (error: unknown) {
@@ -603,7 +602,7 @@ class questionRepository
   }
   async reduceAnswerCount(questionId: string): Promise<Iquestion | null> {
     try {
-      return await this.find_By_Id_And_Update(questionModal, questionId, {
+      return await this.find_By_Id_And_Update(questionSchema, questionId, {
         $inc: { answers: -1 },
       });
     } catch (error: unknown) {
@@ -799,8 +798,8 @@ class questionRepository
         },
       ];
       const [questions, totalCount] = await Promise.all([
-        questionModal.aggregate(pipeline),
-        questionModal.aggregate(countPipeline),
+        questionSchema.aggregate(pipeline),
+        questionSchema.aggregate(countPipeline),
       ]);
 
       return { questions, docCount: totalCount[0]?.totalDocuments };
@@ -813,7 +812,7 @@ class questionRepository
   }
   async changeQuestionStatus(questionId: string): Promise<Iquestion | null> {
     try {
-      return await this.find_By_Id_And_Update(questionModal, questionId, [
+      return await this.find_By_Id_And_Update(questionSchema, questionId, [
         { $set: { isBlocked: { $not: "$isBlocked" } } },
       ]);
     } catch (error: unknown) {

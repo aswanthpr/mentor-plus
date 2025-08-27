@@ -1,9 +1,8 @@
 import { ObjectId } from "mongoose";
 import { IchatRepository } from "../../Repository/interface/IchatRepository";
 import { IchatService } from "../interface/IchatService";
-import { Ichat } from "../../Model/chatSchema";
 import { Status } from "../../Constants/httpStatusCode";
-import { Imessage } from "../../Model/messageSchema";
+import { Imessage, Ichat} from "../../Model/index";
 import { HttpResponse } from "../../Constants/httpResponse";
 import { HttpError } from "../../Utils/index";
 

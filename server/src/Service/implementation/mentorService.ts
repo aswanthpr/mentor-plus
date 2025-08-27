@@ -10,12 +10,8 @@ import {
   createSkip,
   HttpError
 } from "../../Utils/index";
-import { IcheckedSlot, ImentorChartData, ISchedule, ISlots } from "../../Types";
-import { Itime, slot } from "../../Model/timeModel";
-import { Imentor } from "../../Model/mentorModel";
-
-import { Iquestion } from "../../Model/questionModal";
-import { Icategory } from "../../Model/categorySchema";
+import { IcheckedSlot, ImentorChartData, ISchedule, ISlots } from "../../Types"
+import { Iquestion, Icategory, Imentor, Itime, slot} from "../../Model/index";
 import { uploadFile, uploadImage } from "../../Config/cloudinary.config";
 import { ImentorService } from "../interface/iMentorService";
 import { ImentorRepository } from "../../Repository/interface/iMentorRepository";

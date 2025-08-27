@@ -1,6 +1,6 @@
 
 import { ObjectId } from "mongoose";
-import { Imessage } from "../../Model/messageSchema";
+import { Imessage } from "../../Model/messageModel";
 
 export interface ImessageRepository{
     getMessage(chatId:ObjectId):Promise<Imessage[]|[]>;

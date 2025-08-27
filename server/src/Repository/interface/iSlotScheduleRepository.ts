@@ -1,5 +1,5 @@
 import { ObjectId } from "mongoose";
-import { IslotSchedule } from "../../Model/slotSchedule";
+import { IslotSchedule } from "../../Model/slotScheduleModel";
 import { IcardData,ImentorChartData,InewSlotSchedule } from "../../Types";
 
 export interface IslotScheduleRepository {

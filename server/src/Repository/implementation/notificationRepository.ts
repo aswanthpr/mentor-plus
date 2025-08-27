@@ -1,9 +1,9 @@
 import { Ttype } from "../../Types/types";
 import { InotificationRepository } from "../interface/InotificationRepository";
-import notificationModel, { Inotification } from "../../Model/notificationModel";
+import  {notificationSchema, Inotification } from "../../Model/index";
 import { baseRepository } from "../baseRepo";
 import { ObjectId } from "mongoose";
-import { HttpError } from "../../Utils/http-error-handler.util";
+import { HttpError } from "../../Utils/index";
 import { Status } from "../../Constants/httpStatusCode";
 
 class notificationRepository
@@ -11,7 +11,7 @@ class notificationRepository
   implements InotificationRepository
 {
   constructor() {
-    super(notificationModel);
+    super(notificationSchema);
   }
 
   async createNotification(
@@ -41,7 +41,7 @@ class notificationRepository
 
   async getNotification(menteeId: ObjectId): Promise<Inotification[] | null> {
     try {
-      return await this.aggregateData(notificationModel, [
+      return await this.aggregateData(notificationSchema, [
         {
           $match: {
             userId: menteeId,
@@ -67,7 +67,7 @@ class notificationRepository
   ): Promise<Inotification | null> {
     try {
       return this.find_One_And_Update(
-        notificationModel,
+        notificationSchema,
         { userId, _id: notificationId },
         { $set: { isRead: true } }
       );

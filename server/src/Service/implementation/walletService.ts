@@ -4,10 +4,9 @@ import { IwalletService } from "../interface/IwalletService";
 import { Status } from "../../Constants/httpStatusCode";
 import Stripe from "stripe";
 import { IwalletRepository } from "../../Repository/interface/IwalletRepository";
-import { Iwallet } from "../../Model/walletModel";
 import { InotificationRepository } from "../../Repository/interface/InotificationRepository";
 import { socketManager } from "../../index";
-import { Itransaction } from "../../Model/transactionModel";
+import { Itransaction, Iwallet} from "../../Model/index";
 import { HttpResponse } from "../../Constants/httpResponse";
 import { HttpError,createSkip } from "../../Utils/index";
 

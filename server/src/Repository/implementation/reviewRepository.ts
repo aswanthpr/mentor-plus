@@ -1,16 +1,16 @@
-import reviewModel, { Ireview } from "../../Model/reviewModel";
+import  {reviewSchema, Ireview } from "../../Model/index";
 import { baseRepository } from "../baseRepo";
 import { IreviewRepository } from "../interface/IreviewRepository";
 import { ObjectId } from "mongoose";
 import { Status } from "../../Constants/httpStatusCode";
-import { HttpError } from "../../Utils/http-error-handler.util";
+import { HttpError } from "../../Utils/index";
 
 class reviewRepository
   extends baseRepository<Ireview>
   implements IreviewRepository
 {
   constructor() {
-    super(reviewModel);
+    super(reviewSchema);
   }
 
   async reviewNdRateMentor(
@@ -35,7 +35,7 @@ class reviewRepository
   ): Promise<Ireview | null> {
     try {
       return this.find_One_And_Update(
-        reviewModel,
+        reviewSchema,
         { menteeId, mentorId },
         { $set: { feedback, rating, sessionId } }
       );

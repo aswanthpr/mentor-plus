@@ -1,6 +1,6 @@
 import { PipelineStage } from "mongoose";
 import { IcategoryRepository } from "../interface/iCategoryRepository";
-import categorySchema, { Icategory } from "../../Model/categorySchema";
+import {categorySchema, Icategory } from "../../Model/index";
 import { baseRepository } from "../baseRepo";
 import { HttpError } from "../../Utils/http-error-handler.util";
 import { Status } from "../../Constants/httpStatusCode";

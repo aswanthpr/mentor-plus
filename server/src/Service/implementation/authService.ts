@@ -6,8 +6,8 @@ import {
   hash_pass, 
   HttpError
  } from "../../Utils/index";
-import { Imentee } from "../../Model/menteeModel";
-import { Icategory } from "../../Model/categorySchema";
+import { Imentee, Icategory } from "../../Model/index";
+
 import IotpService from "../interface/iOtpService";
 import IauthService from "../interface/iAuthService";
 import { ImentorRepository } from "../../Repository/interface/iMentorRepository";

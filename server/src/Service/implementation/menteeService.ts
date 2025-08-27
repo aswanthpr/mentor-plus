@@ -1,6 +1,5 @@
 import bcrypt from "bcrypt";
-
-import { Imentee } from "../../Model/menteeModel";
+import { Imentee, Imentor, Iquestion, Icategory } from "../../Model/index";
 import {
   genAccesssToken,
   genRefreshToken,
@@ -9,11 +8,7 @@ import {
   hash_pass,
   HttpError
 } from "../../Utils/index";
-
-import { Imentor } from "../../Model/mentorModel";
 import { Status } from "../../Constants/httpStatusCode";
-import { Iquestion } from "../../Model/questionModal";
-import { Icategory } from "../../Model/categorySchema";
 import { uploadImage } from "../../Config/cloudinary.config";
 import { ImenteeService } from "../interface/iMenteeService";
 import { IcategoryRepository } from "../../Repository/interface/iCategoryRepository";

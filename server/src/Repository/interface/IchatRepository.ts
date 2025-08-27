@@ -1,6 +1,6 @@
 import { ObjectId } from "mongoose";
-import { Ichat } from "../../Model/chatSchema";
-import { Imessage } from "../../Model/messageSchema";
+import { Ichat } from "../../Model/chatModel";
+import { Imessage } from "../../Model/messageModel";
 
 
 export interface IchatRepository {

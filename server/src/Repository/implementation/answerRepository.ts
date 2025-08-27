@@ -1,7 +1,7 @@
 
 import { IanswerWithQuestion } from "../../Types";
 import { IanswerRepository } from "../interface/IanswerRepository";
-import answerModel, { Ianswer } from "../../Model/answerModel";
+import { Ianswer ,answerSchema} from "../../Model/index";
 import { baseRepository } from "../baseRepo";
 import { DeleteResult, ObjectId } from "mongoose";
 import { HttpError } from "../../Utils/index";
@@ -12,7 +12,7 @@ class answerRespository
   implements IanswerRepository
 {
   constructor() {
-    super(answerModel);
+    super(answerSchema);
   }
   async createNewAnswer(
     answer: string,
@@ -30,7 +30,7 @@ class answerRespository
         })
       );
 
-     const data =  await this.aggregateData(answerModel, [
+     const data =  await this.aggregateData(answerSchema, [
        {
          $match: { questionId, _id: result?._id }
        },
@@ -73,7 +73,7 @@ class answerRespository
   }
   async editAnswer(content: string, answerId: string): Promise<Ianswer | null> {
     try {
-      return await this.find_By_Id_And_Update(answerModel, answerId, {
+      return await this.find_By_Id_And_Update(answerSchema, answerId, {
         $set: { answer: content },
       });
     } catch (error: unknown) {
@@ -89,7 +89,7 @@ class answerRespository
   }
   async changeAnswerStatus(answerId: string): Promise<Ianswer | null> {
     try {
-      return await this.find_By_Id_And_Update(answerModel, answerId, [
+      return await this.find_By_Id_And_Update(answerSchema, answerId, [
         { $set: { isBlocked: { $not: "$isBlocked" } } },
       ]);
     } catch (error: unknown) {

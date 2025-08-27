@@ -2,7 +2,7 @@ import { ObjectId } from "mongoose";
 import { Itimes, TurnCredentialsResponse } from "../../Types";
 import Stripe from "stripe";
 import { Itime } from "../../Model/timeModel";
-import { IslotSchedule } from "../../Model/slotSchedule";
+import { IslotSchedule } from "../../Model/slotScheduleModel";
 
 export interface IbookingService {
   getTimeSlots(

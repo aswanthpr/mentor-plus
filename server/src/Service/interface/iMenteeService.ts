@@ -1,5 +1,5 @@
 import { Iquestion } from "../../Model/questionModal";
-import { Icategory } from "../../Model/categorySchema";
+import { Icategory } from "../../Model/categoryModel";
 import { Imentee } from "../../Model/menteeModel";
 import { Imentor } from "../../Model/mentorModel";
 import { MentorDTO } from "../../dto/mentor/mentorDTO";

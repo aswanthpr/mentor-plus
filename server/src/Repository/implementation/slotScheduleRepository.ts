@@ -1,8 +1,7 @@
-import slotScheduleSchema, { IslotSchedule } from "../../Model/slotSchedule";
 import { baseRepository } from "../baseRepo";
 import { IslotScheduleRepository } from "../interface/iSlotScheduleRepository";
 import mongoose, { ObjectId, PipelineStage } from "mongoose";
-import slotSchedule from "../../Model/slotSchedule";
+import  {slotScheduleSchema, IslotSchedule }from "../../Model/index";
 import {
   IcardData,
   IcardResult,
@@ -11,9 +10,8 @@ import {
   ItopMentors,
   TimeData,
 } from "../../Types";
-import { getTodayStartTime } from "../../Utils/reusable.util";
 import { Status } from "../../Constants/httpStatusCode";
-import { HttpError } from "../../Utils/http-error-handler.util";
+import { HttpError, getTodayStartTime } from "../../Utils/index";
 
 class slotScheduleRepository
   extends baseRepository<IslotSchedule>
@@ -28,7 +26,7 @@ class slotScheduleRepository
   ): Promise<InewSlotSchedule | null> {
     try {
       const res = await this.createDocument(newSlotSchedule);
-      const result = await this.aggregateData(slotSchedule, [
+      const result = await this.aggregateData(slotScheduleSchema, [
         {
           $match: {
             slotId: res?.slotId,
@@ -202,8 +200,8 @@ class slotScheduleRepository
 
       // Execute Aggregations
       const [slots, totalCount] = await Promise.all([
-        this.aggregateData(slotSchedule, pipeLine),
-        slotSchedule.aggregate(countPipeline),
+        this.aggregateData(slotScheduleSchema, pipeLine),
+        slotScheduleSchema.aggregate(countPipeline),
       ]);
 
     
@@ -322,8 +320,8 @@ class slotScheduleRepository
 
       // Execute Aggregations
       const [slots, totalCount] = await Promise.all([
-        this.aggregateData(slotSchedule, pipeLine),
-        slotSchedule.aggregate(countPipeline),
+        this.aggregateData(slotScheduleSchema, pipeLine),
+        slotScheduleSchema.aggregate(countPipeline),
       ]);
 
      
@@ -340,7 +338,7 @@ class slotScheduleRepository
     try {
       
       return await this.find_By_Id_And_Update(
-        slotSchedule,
+        slotScheduleSchema,
         new mongoose.Types.ObjectId(sessionId),
         { $set: { status: "CANCEL_REQUESTED", cancelReason: issue } }
       );
@@ -355,7 +353,7 @@ class slotScheduleRepository
   ): Promise<IslotSchedule | null> {
     try {
       return await this.find_By_Id_And_Update(
-        slotSchedule,
+        slotScheduleSchema,
         new mongoose.Types.ObjectId(sessionId),
         { $set: { status: slotValule } }
       );
@@ -397,7 +395,7 @@ class slotScheduleRepository
     userId: ObjectId
   ): Promise<IslotSchedule | null> {
     try {
-      const result = await this.aggregateData(slotSchedule, [
+      const result = await this.aggregateData(slotScheduleSchema, [
         {
           $lookup: {
             from: "times",
@@ -450,7 +448,7 @@ class slotScheduleRepository
         1
       );
 
-      const res = (await this.aggregateData(slotSchedule, [
+      const res = (await this.aggregateData(slotScheduleSchema, [
         {
           $facet: {
             totalRevenue: [
@@ -649,7 +647,7 @@ class slotScheduleRepository
         ];
       }
 
-      const timeData = await this.aggregateData(slotSchedule, [
+      const timeData = await this.aggregateData(slotScheduleSchema, [
         {
           $match: {
             status: { $in: ["CONFIRMED", "REJECTED", "COMPLETED"] },
@@ -671,7 +669,7 @@ class slotScheduleRepository
         { $facet: timeFacets },
       ]);
 
-      const categoryDistribution = (await this.aggregateData(slotSchedule, [
+      const categoryDistribution = (await this.aggregateData(slotScheduleSchema, [
         { $match: { status: { $in: ["CONFIRMED", "COMPLETED", "REJECTED"] } } },
 
         {
@@ -712,7 +710,7 @@ class slotScheduleRepository
         },
       ])) as unknown as IcardData["categoryDistribution"];
 
-      const topMentors = (await this.aggregateData(slotSchedule, [
+      const topMentors = (await this.aggregateData(slotScheduleSchema, [
         {
           $match: {
             status: { $in: ["CONFIRMED", "COMPLETED", "REJECTED"] },
@@ -818,7 +816,7 @@ class slotScheduleRepository
       startOfWeek.setDate(today.getDate() - today.getDay()); // Start of the current week
       const startOfNextWeek = new Date(startOfWeek.getDate());
       startOfNextWeek.setDate(startOfWeek.getDate() + 7);
-      const cardResult = (await this.aggregateData(slotSchedule, [
+      const cardResult = (await this.aggregateData(slotScheduleSchema, [
         {
           $lookup: {
             from: "times",
@@ -1082,7 +1080,7 @@ class slotScheduleRepository
           },
         },
       ];
-      const timeData = (await this.aggregateData(slotSchedule, [
+      const timeData = (await this.aggregateData(slotScheduleSchema, [
         {
           $lookup: {
             from: "times",
@@ -1108,7 +1106,7 @@ class slotScheduleRepository
         },
         { $facet: timeFacets },
       ])) as unknown as TimeData[];
-      const topMentors = (await this.aggregateData(slotSchedule, [
+      const topMentors = (await this.aggregateData(slotScheduleSchema, [
         {
           $match: {
             status: { $in: ["CONFIRMED", "COMPLETED", "REJECTED"] },

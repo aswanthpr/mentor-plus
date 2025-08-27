@@ -1,8 +1,8 @@
 import { PipelineStage, UpdateWriteOpResult } from "mongoose";
-import menteeModel, { Imentee } from "../../Model/menteeModel";
+import { Imentee, menteeSchema} from "../../Model/index";
 import { baseRepository } from "../baseRepo";
 import { ImenteeRepository } from "../interface/iMenteeRepository";
-import { HttpError } from "../../Utils/http-error-handler.util";
+import { HttpError } from "../../Utils/index";
 import { Status } from "../../Constants/httpStatusCode";
 
 
@@ -10,7 +10,7 @@ export class menteeRepository
   extends baseRepository<Imentee>
   implements ImenteeRepository {
   constructor() {
-    super(menteeModel);
+    super(menteeSchema);
   }
 async menteeData(skip: number, limit: number, search: string, sortOrder: string, sortField: string,statusFilter:string): Promise<{ mentees: Imentee[] | []; totalDoc: number; }> {
   try {
@@ -55,8 +55,8 @@ async menteeData(skip: number, limit: number, search: string, sortOrder: string,
 
     // Execute Aggregations
     const [mentees, totalCount] = await Promise.all([
-      this.aggregateData(menteeModel, pipeline),
-      menteeModel.aggregate(countPipeline),
+      this.aggregateData(menteeSchema, pipeline),
+      menteeSchema.aggregate(countPipeline),
     ]);
 
     return {
@@ -70,7 +70,7 @@ async menteeData(skip: number, limit: number, search: string, sortOrder: string,
 }
   async changeMenteeStatus(id: string): Promise<Imentee | null> {
     try {
-      return await this.find_By_Id_And_Update(menteeModel, id, [
+      return await this.find_By_Id_And_Update(menteeSchema, id, [
         { $set: { isBlocked: { $not: "$isBlocked" } } },
       ]);
     } catch (error: unknown) {
@@ -80,7 +80,7 @@ async menteeData(skip: number, limit: number, search: string, sortOrder: string,
   async editMentee(formData: Partial<Imentee>): Promise<Imentee | null> {
     try {
       return await this.find_By_Id_And_Update(
-        menteeModel,String(formData?._id),
+        menteeSchema,String(formData?._id),
         {
           $set: {
             name: formData?.name,
@@ -144,7 +144,7 @@ async menteeData(skip: number, limit: number, search: string, sortOrder: string,
     password: string
   ): Promise<Imentee | null> {
     try {
-      return await this.find_By_Id_And_Update(menteeModel, id, {
+      return await this.find_By_Id_And_Update(menteeSchema, id, {
         $set: { password: password },
       });
     } catch (error: unknown) {
@@ -153,7 +153,7 @@ async menteeData(skip: number, limit: number, search: string, sortOrder: string,
   }
   async profileChange(image: string, id: string): Promise<Imentee | null> {
     try {
-      return await this.find_By_Id_And_Update(menteeModel, id, {
+      return await this.find_By_Id_And_Update(menteeSchema, id, {
         $set: { profileUrl: image },
       });
     } catch (error: unknown) {
@@ -163,7 +163,7 @@ async menteeData(skip: number, limit: number, search: string, sortOrder: string,
 
   async updateMentee(email: string): Promise<UpdateWriteOpResult|null> {
     try {
-      const data = await menteeModel.updateOne({ email }, { $set: { verified: true } });
+      const data = await menteeSchema.updateOne({ email }, { $set: { verified: true } });
     
       return data
     } catch (error: unknown) {
@@ -195,7 +195,7 @@ async menteeData(skip: number, limit: number, search: string, sortOrder: string,
   }
   async forgot_PasswordChange(email: string, password: string): Promise<Imentee | null | undefined> {
     try {
-      return await this.find_One_And_Update(menteeModel, { email: email }, { $set: { password: password } });
+      return await this.find_One_And_Update(menteeSchema, { email: email }, { $set: { password: password } });
     } catch (error: unknown) {
       throw new HttpError(error instanceof Error ? error.message : String(error), Status?.InternalServerError);
     }

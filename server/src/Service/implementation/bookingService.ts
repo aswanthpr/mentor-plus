@@ -4,15 +4,11 @@ import { IslotScheduleRepository } from "../../Repository/interface/iSlotSchedul
 import { ItimeSlotRepository } from "../../Repository/interface/iTimeSlotRepository";
 import mongoose, { ObjectId } from "mongoose";
 import { InewSlotSchedule, Itimes, TurnCredentialsResponse } from "../../Types";
-import { IslotSchedule } from "../../Model/slotSchedule";
 import { Status } from "../../Constants/httpStatusCode";
-import { Itime } from "../../Model/timeModel";
 import { InotificationRepository } from "../../Repository/interface/InotificationRepository";
 import moment from "moment";
 import { socketManager } from "../../index";
-import { Inotification } from "../../Model/notificationModel";
 import { IchatRepository } from "../../Repository/interface/IchatRepository";
-import { Iwallet } from "../../Model/walletModel";
 import { IwalletRepository } from "../../Repository/interface/IwalletRepository";
 import { ItransactionRepository } from "../../Repository/interface/ItransactionRepository";
 import { HttpResponse, NOTIFY } from "../../Constants/httpResponse";
@@ -20,8 +16,14 @@ import {
   createSkip,
   generateSessionCode,
   HttpError
- } from "../../Utils/index";
+} from "../../Utils/index";
 import { fetchTurnServer } from "../../integration/turnServer";
+import { 
+  Iwallet, 
+  IslotSchedule,
+  Itime,
+  Inotification
+ } from "../../Model/index";
 
 
 export class bookingService implements IbookingService {

@@ -1,6 +1,6 @@
 import { ObjectId } from "mongoose";
 import { Status } from "../../Constants/httpStatusCode";
-import { Inotification } from "../../Model/notificationModel";
+import { Inotification } from "../../Model/index";
 import { InotificationService } from "../interface/InotificationService";
 import { InotificationRepository } from "../../Repository/interface/InotificationRepository";
 import { HttpResponse } from "../../Constants/httpResponse";

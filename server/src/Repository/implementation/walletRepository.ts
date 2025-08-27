@@ -1,8 +1,8 @@
-import walletSchema, { Iwallet } from "../../Model/walletModel";
+import  {walletSchema, Iwallet } from "../../Model/index";
 import { IwalletRepository } from "../interface/IwalletRepository";
 import { baseRepository } from "../baseRepo";
 import { ObjectId, PipelineStage } from "mongoose";
-import { HttpError } from "../../Utils/http-error-handler.util";
+import { HttpError } from "../../Utils/index";
 import { Status } from "../../Constants/httpStatusCode";
 
 class walletRepository

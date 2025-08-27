@@ -1,5 +1,5 @@
 import { IcardData } from "../../Types";
-import { Icategory } from "../../Model/categorySchema";
+import { Icategory } from "../../Model/categoryModel";
 import { Imentee } from "../../Model/menteeModel";
 import { Imentor } from "../../Model/mentorModel";
 import { AdminListedMentorDTO } from "../../dto/mentor/adminListedMentorDTO";

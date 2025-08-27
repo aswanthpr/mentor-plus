@@ -5,7 +5,7 @@ import { Inotification } from "../Model/notificationModel";
 import messageRepository from "../Repository/implementation/messageRepository";
 import mongoose from "mongoose";
 import chatRepository from "../Repository/implementation/chatRepository";
-import chatSchema from "../Model/chatSchema";
+import chatSchema from "../Model/chatModel";
 
 import slotScheduleRepository from "../Repository/implementation/slotScheduleRepository";
 import { IslotScheduleRepository } from "../Repository/interface/iSlotScheduleRepository";

@@ -1,8 +1,8 @@
 import { baseRepository } from "../baseRepo";
 import { ImessageRepository } from "../interface/ImessageRepository";
-import messageSchema, { Imessage } from "../../Model/messageSchema";
+import  {messageSchema, Imessage } from "../../Model/index";
 import { ObjectId } from "mongoose";
-import { HttpError } from "../../Utils/http-error-handler.util";
+import { HttpError } from "../../Utils/index";
 import { Status } from "../../Constants/httpStatusCode";
 
 class messageRepository

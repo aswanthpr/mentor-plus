@@ -25,10 +25,8 @@ import passport from "./Config/googleAuth.config";
 import { SocketManager } from "./Socket/socket";
 
 //routes import
-import auth_Router from "./Routes/authRoute";
-import admin_Router from "./Routes/adminRoute";
-import mentee_Router from "./Routes/menteeRoute";
-import mentor_Router from "./Routes/mentorRoute";
+import {authRouter,adminRouter, menteeRouter, mentorRouter} from "./Routes/index";
+
  
 // Initializing the application and server
 const app: Application = express();
@@ -65,10 +63,10 @@ app.use(morgan("dev"));
 app.use(fileLogger);
 
 // Routes
-app.use("/auth", auth_Router);
-app.use("/admin", admin_Router);
-app.use("/mentee", mentee_Router);
-app.use("/mentor", mentor_Router);
+app.use("/auth", authRouter);
+app.use("/admin", adminRouter);
+app.use("/mentee", menteeRouter);
+app.use("/mentor", mentorRouter);
 // app.use(errorLogger)
 
 //server listening

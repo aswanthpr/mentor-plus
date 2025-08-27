@@ -1,4 +1,4 @@
-import { Icategory } from "../../Model/categorySchema"
+import { Icategory } from "../../Model/categoryModel"
 
 export interface IcategoryRepository {
     findCategory(category: string): Promise<Icategory | null>;

@@ -1,5 +1,5 @@
 import { Iquestion } from "../../Model/questionModal";
-import { Icategory } from "../../Model/categorySchema";
+import { Icategory } from "../../Model/categoryModel";
 import { Imentor } from "../../Model/mentorModel"
 import { Itime } from "../../Model/timeModel";
 import { ObjectId } from "mongoose";
