@@ -1,7 +1,14 @@
-# Mentoring Platform
+# Mentoring Platform  
 
-This is a complete platform that connects mentees and mentors. It includes a **Backend API** built using Node.js, Express, TypeScript, and MongoDB, and a **Frontend** built using React, TypeScript, and TailwindCSS.
+🔗 **Live Demo**: [MentorPlus](https://mentorplus.vercel.app/)  
 
+A complete **mentorship platform** that connects mentees and mentors with seamless features such as real-time chat, video calls, scheduling, and payments.  
+
+This project includes:  
+- **Backend API** built with **Node.js, Express, TypeScript, and MongoDB**, enhanced with **WebSocket** and **WebRTC**.  
+- **Frontend Application** built with **React, Redux Toolkit, TypeScript, and TailwindCSS** for a modern and responsive UI.  
+
+---
 ## Features
 
 ### Backend - Mentoring Platform
