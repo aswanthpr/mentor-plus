@@ -5,12 +5,13 @@ import session from "express-session";
 import express, { Response, Request } from "express";
 import { NextFunction } from "connect";
 import helmet from "helmet";
-
+import { HttpResponse } from "../Constants/httpResponse";
+import { Status } from "../Constants/httpStatusCode";
 
 //default cors config
 export const corsOptions: CorsOptions = {
   origin: process.env.CLIENT_ORIGIN_URL,
-  methods:["GET", "HEAD", "OPTIONS", "PUT", "PATCH", "POST", "DELETE"],
+  methods: ["GET", "HEAD", "OPTIONS", "PUT", "PATCH", "POST", "DELETE"],
   allowedHeaders: [
     "Origin",
     "X-Requested-With",
@@ -21,7 +22,7 @@ export const corsOptions: CorsOptions = {
     "Set-Cookie",
   ],
   preflightContinue: false,
-  optionsSuccessStatus: 204,
+  optionsSuccessStatus:  Status?.NoContent,
   credentials: true,
 };
 
@@ -32,15 +33,18 @@ export const corsConfig: CorsOptions = {
   allowedHeaders: ["Content-Type", "Authorization"],
   credentials: true,
   preflightContinue: false,
-  optionsSuccessStatus: 204,
+  optionsSuccessStatus: Status?.NoContent,
 };
 
 export const limiter = rateLimit({
-  windowMs: 10 * 60 * 1000, // 5 minutes
-  limit: 50, // each IP can make up to 10 requests per `windowsMs` (5 minutes)
+  windowMs: 15 * 60 * 1000, // 5 minutes
+  limit: 100, // each IP can make up to 10 requests per `windowsMs` (5 minutes)
   standardHeaders: true, // add the `RateLimit-*` headers to the response
   legacyHeaders: false, // remove the `X-RateLimit-*` headers from the response
-  message: "Too many requests from this IP, please try again later.",
+  message:{
+  status:Status?.TooManyRequests,
+  error: HttpResponse?.TOO_MANY_REQ,
+  },
   headers: true, // Show rate limit info in headers
 });
 
@@ -58,16 +62,16 @@ export const compress = compression({
 });
 //session
 
-
 // Create and configure the Redis store
 export const sessionConfig = session({
   secret: process.env?.SESSION_SECRET as string,
   resave: false,
   saveUninitialized: false,
-cookie: {
+  proxy: true,
+  unset: "destroy",
+  cookie: {
     secure: false, // true if using https
     httpOnly: true,
-    maxAge: 24 * 60 * 60 * 1000, // 1 day
   },
 });
 // determine request body parse to json or raw state
@@ -80,8 +84,8 @@ export const jsonParseOrRaw = (
     req.originalUrl === "/mentee/booking/webhook" ||
     req.originalUrl === "/mentee/wallet/webhook"
   ) {
- // Do nothing with the body because  need it in a raw state.
-next()
+    // Do nothing with the body because  need it in a raw state.
+    next();
   } else {
     express.json()(req, res, next);
   }
@@ -97,8 +101,15 @@ export const helmetConfig = helmet({
       connectSrc: ["'self'", process.env.CLIENT_ORIGIN_URL as string, "wss:"], //Allow WebSockets
     },
   },
-}); 
-export const  cacheControl = (req:Request, res:Response, next:NextFunction) => {
-  res.set('Cache-Control', 'no-cache, private, no-store, must-revalidate, max-stale=0, post-check=0, pre-check=0');
+});
+export const cacheControl = (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  res.set(
+    "Cache-Control",
+    "no-cache, private, no-store, must-revalidate, max-stale=0, post-check=0, pre-check=0"
+  );
   next();
 };

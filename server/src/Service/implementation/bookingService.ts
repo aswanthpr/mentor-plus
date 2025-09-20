@@ -12,19 +12,14 @@ import { IchatRepository } from "../../Repository/interface/IchatRepository";
 import { IwalletRepository } from "../../Repository/interface/IwalletRepository";
 import { ItransactionRepository } from "../../Repository/interface/ItransactionRepository";
 import { HttpResponse, NOTIFY } from "../../Constants/httpResponse";
-import { 
-  createSkip,
-  generateSessionCode,
-  HttpError
-} from "../../Utils/index";
+import { createSkip, generateSessionCode, HttpError } from "../../Utils/index";
 import { fetchTurnServer } from "../../integration/turnServer";
-import { 
-  Iwallet, 
+import {
+  Iwallet,
   IslotSchedule,
   Itime,
-  Inotification
- } from "../../Model/index";
-
+  Inotification,
+} from "../../Model/index";
 
 export class bookingService implements IbookingService {
   constructor(
@@ -41,7 +36,7 @@ export class bookingService implements IbookingService {
         maxNetworkRetries: 4,
       }
     )
-  ) { }
+  ) {}
 
   async getTimeSlots(mentorId: string): Promise<{
     success: boolean;
@@ -67,7 +62,7 @@ export class bookingService implements IbookingService {
           timeSlots: [],
         };
       }
-   
+
       return {
         status: Status.Ok,
         message: HttpResponse?.DATA_RETRIEVED,
@@ -75,7 +70,10 @@ export class bookingService implements IbookingService {
         timeSlots: response,
       };
     } catch (error: unknown) {
-      throw new HttpError(error instanceof Error ? error.message : String(error), Status?.InternalServerError);
+      throw new HttpError(
+        error instanceof Error ? error.message : String(error),
+        Status?.InternalServerError
+      );
     }
   }
 
@@ -96,8 +94,6 @@ export class bookingService implements IbookingService {
     session?: Stripe.Response<Stripe.Checkout.Session>;
   }> {
     try {
-    
-
       if (!timeSlot || !messages || !paymentMethod || !totalAmount) {
         return {
           status: Status.BadRequest,
@@ -105,6 +101,7 @@ export class bookingService implements IbookingService {
           success: false,
         };
       }
+
       if (paymentMethod == "stripe") {
         const startStr = moment(timeSlot["startTime"]).format(`hh:mm A`);
         const endStr = moment(timeSlot["endTime"]).format(`hh:mm A`);
@@ -112,7 +109,7 @@ export class bookingService implements IbookingService {
         const session = await this.stripe.checkout.sessions.create({
           payment_method_types: ["card"],
           mode: "payment",
-          client_reference_id: String(menteeId),
+          client_reference_id: `${menteeId}`,
           line_items: [
             {
               price_data: {
@@ -122,8 +119,9 @@ export class bookingService implements IbookingService {
                   name: `Mentor is ${decodeURIComponent(
                     mentorName.toLocaleUpperCase()
                   )}`,
-                  description: `Slot date is: ${String(timeSlot?.startDate).split("T")[0]
-                    }
+                  description: `Slot date is: ${
+                    String(timeSlot?.startDate).split("T")[0]
+                  }
                 time is ${startStr}-${endStr}`,
                 },
               },
@@ -136,8 +134,7 @@ export class bookingService implements IbookingService {
             timeSlot: JSON.stringify(timeSlot),
             messages,
             paymentMethod,
-            menteeId: String(menteeId),
-
+            menteeId: `${menteeId}`,
           },
         });
 
@@ -163,7 +160,6 @@ export class bookingService implements IbookingService {
         }
 
         const time = new Date().toLocaleString();
-      
 
         //create  new transaction
         const newTranasaction = {
@@ -248,7 +244,10 @@ export class bookingService implements IbookingService {
         status: Status.BadRequest,
       };
     } catch (error: unknown) {
-      throw new HttpError(error instanceof Error ? error.message : String(error), Status?.InternalServerError);
+      throw new HttpError(
+        error instanceof Error ? error.message : String(error),
+        Status?.InternalServerError
+      );
     }
   }
 
@@ -264,7 +263,6 @@ export class bookingService implements IbookingService {
     bodyData: Buffer
   ): Promise<void> {
     try {
-
       if (!signature || !bodyData) {
         throw new Error("Missing signature or body data in webhook request.");
       }
@@ -278,8 +276,10 @@ export class bookingService implements IbookingService {
           process.env.STRIPE_WEBHOOK_BOOKING_SECRET as string
         );
       } catch (error: unknown) {
-        throw new HttpError(error instanceof Error ? error.message : String(error), Status?.InternalServerError);
-
+        throw new HttpError(
+          error instanceof Error ? error.message : String(error),
+          Status?.InternalServerError
+        );
       }
 
       // console.log("🔔 Received webhook event:", event.type);
@@ -288,7 +288,6 @@ export class bookingService implements IbookingService {
         case "checkout.session.completed": {
           const session = event.data.object as Stripe.Checkout.Session;
           const metadata = session.metadata || {};
-
 
           //if the data not exist send notification to mentee
           if (
@@ -319,12 +318,8 @@ export class bookingService implements IbookingService {
 
           const { timeSlot, messages, menteeId } = metadata;
 
-          if (!mongoose.Types.ObjectId.isValid(menteeId)) {
-            // console.error("Invalid menteeId format:", menteeId);
-            return;
-          }
           const menteeObjectId = new mongoose.Types.ObjectId(
-            menteeId
+            menteeId as string
           ) as unknown as mongoose.Schema.Types.ObjectId;
           const slotId = new mongoose.Types.ObjectId(
             JSON.parse(timeSlot)._id as string
@@ -395,7 +390,9 @@ export class bookingService implements IbookingService {
           if (!response) {
             return;
           }
-          const mentorId = response.times?.mentorId as ObjectId;
+          const mentorId = new mongoose.Schema.Types.ObjectId(
+            String(response?.times?.["mentorId"])
+          );
           const mentorID = String(mentorId);
 
           await this._timeSlotRepository.makeTimeSlotBooked(String(slotId));
@@ -414,7 +411,7 @@ export class bookingService implements IbookingService {
           if (mentorId) {
             //notification for mentor
             const notif = await this._notificationRepository.createNotification(
-              mentorId as mongoose.Schema.Types.ObjectId,
+              mentorId,
               NOTIFY?.SLOT_SCHEDULE_TITLE,
               NOTIFY?.SLOT_SCHEDULED,
               `mentor`,
@@ -475,10 +472,13 @@ export class bookingService implements IbookingService {
           return;
         }
         default:
-          // console.log(`Unhandled event type ${event.type}`);
+        // console.log(`Unhandled event type ${event.type}`);
       }
     } catch (error: unknown) {
-      throw new HttpError(error instanceof Error ? error.message : String(error), Status?.InternalServerError);
+      throw new HttpError(
+        error instanceof Error ? error.message : String(error),
+        Status?.InternalServerError
+      );
     }
   }
 
@@ -524,7 +524,6 @@ export class bookingService implements IbookingService {
       const skip = skipData?.skip;
 
       const tabCond = currentTab == "upcoming" ? false : true;
-     
 
       const response = await this._slotScheduleRepository.getBookedSlot(
         menteeId,
@@ -556,7 +555,10 @@ export class bookingService implements IbookingService {
         totalPage,
       };
     } catch (error: unknown) {
-      throw new HttpError(error instanceof Error ? error.message : String(error), Status?.InternalServerError);
+      throw new HttpError(
+        error instanceof Error ? error.message : String(error),
+        Status?.InternalServerError
+      );
     }
   }
 
@@ -577,7 +579,6 @@ export class bookingService implements IbookingService {
     totalPage: number;
   }> {
     try {
-   
       if (
         !mentorId ||
         !currentTab ||
@@ -608,7 +609,7 @@ export class bookingService implements IbookingService {
         sortOrder,
         sortField,
         tabCond,
-        mentorId,
+        mentorId
       );
       if (response?.slots.length < 0 || response?.totalDoc < 0) {
         return {
@@ -629,7 +630,10 @@ export class bookingService implements IbookingService {
         totalPage,
       };
     } catch (error: unknown) {
-      throw new HttpError(error instanceof Error ? error.message : String(error), Status?.InternalServerError);
+      throw new HttpError(
+        error instanceof Error ? error.message : String(error),
+        Status?.InternalServerError
+      );
     }
   }
   async cancelSlot(
@@ -663,7 +667,6 @@ export class bookingService implements IbookingService {
         issue
       );
 
-
       if (!response) {
         return {
           success: false,
@@ -679,7 +682,10 @@ export class bookingService implements IbookingService {
         result: response,
       };
     } catch (error: unknown) {
-      throw new HttpError(error instanceof Error ? error.message : String(error), Status?.InternalServerError);
+      throw new HttpError(
+        error instanceof Error ? error.message : String(error),
+        Status?.InternalServerError
+      );
     }
   }
   //mentor handle cancel slot req
@@ -693,7 +699,6 @@ export class bookingService implements IbookingService {
     result: IslotSchedule | null;
   }> {
     try {
-    
       if (!sessionId || !statusValue) {
         return {
           success: false,
@@ -708,7 +713,7 @@ export class bookingService implements IbookingService {
         statusValue
       );
       await this._timeSlotRepository.releaseTimeSlot(String(response?.slotId));
-    
+
       if (!response) {
         return {
           success: false,
@@ -766,13 +771,17 @@ export class bookingService implements IbookingService {
       }
       return {
         success: true,
-        message: `${statusValue == "CANCELLED" ? "cancel approved" : "cancel rejected"
-          } successfully`,
+        message: `${
+          statusValue == "CANCELLED" ? "cancel approved" : "cancel rejected"
+        } successfully`,
         status: Status.Ok,
         result: response,
       };
     } catch (error: unknown) {
-      throw new HttpError(error instanceof Error ? error.message : String(error), Status?.InternalServerError);
+      throw new HttpError(
+        error instanceof Error ? error.message : String(error),
+        Status?.InternalServerError
+      );
     }
   }
   //create session code
@@ -794,7 +803,6 @@ export class bookingService implements IbookingService {
       //generate sessionCode
       const session_Code = generateSessionCode();
 
-    
       const response = await this._slotScheduleRepository.createSessionCode(
         bookingId,
         session_Code
@@ -808,7 +816,7 @@ export class bookingService implements IbookingService {
           sessionCode: null,
         };
       }
-     
+
       return {
         success: true,
         message: HttpResponse?.SESSION_CODE_CREATED,
@@ -816,7 +824,10 @@ export class bookingService implements IbookingService {
         sessionCode: response,
       };
     } catch (error: unknown) {
-      throw new HttpError(error instanceof Error ? error.message : String(error), Status?.InternalServerError);
+      throw new HttpError(
+        error instanceof Error ? error.message : String(error),
+        Status?.InternalServerError
+      );
     }
   }
   //session completed marking
@@ -854,8 +865,7 @@ export class bookingService implements IbookingService {
       //calculate mentor cash;
       const paymentAmount = Number(response?.paymentAmount || 0);
       const mentorCommissionRate = Number(process.env.MENTOR_COMMISION || 0);
-      const mentorCommission = (paymentAmount * mentorCommissionRate);
-
+      const mentorCommission = paymentAmount * mentorCommissionRate;
 
       const result = await this.__walletRepository.findWallet(mentorId);
       let newWallet: Iwallet | null = null;
@@ -864,7 +874,6 @@ export class bookingService implements IbookingService {
           userId: mentorId as ObjectId,
           balance: mentorCommission,
         });
-        
       } else {
         await this.__walletRepository.updateWalletAmount(
           mentorId,
@@ -896,7 +905,7 @@ export class bookingService implements IbookingService {
           notification as Inotification
         );
       }
-   
+
       return {
         success: true,
         message: HttpResponse?.SESSION_COMPLETED,
@@ -904,14 +913,17 @@ export class bookingService implements IbookingService {
         sessionStatus: response?.status,
       };
     } catch (error: unknown) {
-      throw new HttpError(error instanceof Error ? error.message : String(error), Status?.InternalServerError);
+      throw new HttpError(
+        error instanceof Error ? error.message : String(error),
+        Status?.InternalServerError
+      );
     }
   }
   //validating user alloweded to join to the session
   async validateSessionJoin(
     sessionId: string,
     sessionCode: string,
-    userId: ObjectId,
+    userId: ObjectId
   ): Promise<{
     message: string;
     status: number;
@@ -919,7 +931,6 @@ export class bookingService implements IbookingService {
     session_Code: string;
   }> {
     try {
-  
       if (!sessionId || !sessionCode || !userId) {
         return {
           success: false,
@@ -930,9 +941,11 @@ export class bookingService implements IbookingService {
       }
 
       const response = await this._slotScheduleRepository.validateSessionJoin(
-        new mongoose.Types.ObjectId(sessionId) as unknown as mongoose.Schema.Types.ObjectId,
+        new mongoose.Types.ObjectId(
+          sessionId
+        ) as unknown as mongoose.Schema.Types.ObjectId,
         sessionCode,
-        userId,
+        userId
       );
       if (!response) {
         return {
@@ -949,18 +962,19 @@ export class bookingService implements IbookingService {
         session_Code: response?.sessionCode as string,
       };
     } catch (error: unknown) {
-      throw new HttpError(error instanceof Error ? error.message : String(error), Status?.InternalServerError);
+      throw new HttpError(
+        error instanceof Error ? error.message : String(error),
+        Status?.InternalServerError
+      );
     }
   }
-   async turnServerConnection(
-  ): Promise<{
+  async turnServerConnection(): Promise<{
     status: number;
     turnServerConfig: TurnCredentialsResponse;
   }> {
     try {
-      
-      const response = await fetchTurnServer()
-     
+      const response = await fetchTurnServer();
+
       if (!response) {
         return {
           status: Status.NotFound,
@@ -972,7 +986,10 @@ export class bookingService implements IbookingService {
         turnServerConfig: response,
       };
     } catch (error: unknown) {
-      throw new HttpError(error instanceof Error ? error.message : String(error), Status?.InternalServerError);
+      throw new HttpError(
+        error instanceof Error ? error.message : String(error),
+        Status?.InternalServerError
+      );
     }
   }
 }

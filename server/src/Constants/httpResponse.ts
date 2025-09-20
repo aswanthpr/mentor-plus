@@ -56,6 +56,8 @@ export const HttpResponse = {
     
     FAILED:"Failed!",
     SUCCESS:"Success",
+
+    TOO_MANY_REQ:"Too many requests, please try again later.",
     
     APPLICATION_SUBMITTED:"Application submitted!",
     MENTEE_NOTIFICATION:`You're on our waitlist!
